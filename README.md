@@ -1,8 +1,10 @@
 # Cage 15 Puzzle
 
 "15 Puzzle" made using Vue 3 (Typescript + Pinia)\
-\
 _featuring Nic Cage_
+
+Try it here:\
+https://cage15.onrender.com/
 
 ## Project Setup
 
