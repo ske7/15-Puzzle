@@ -1,7 +1,11 @@
 {
   "name": "cage15",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": "18.x",
+    "npm": "9.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check build-only",
