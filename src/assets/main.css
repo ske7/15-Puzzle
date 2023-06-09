@@ -1,19 +1,62 @@
-@import './base.css';
-
+:root {
+  --vt-c-white: #ffffff;
+  --vt-c-black: #181818;
+  --color-background: var(--vt-c-white);
+  --color-text: var(--vt-c-black);
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
 #app {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   font-weight: normal;
 }
-
 body {
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
+  transition: color 0.5s, background-color 0.5s;
+  line-height: 1.6;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans',
+    'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 16px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   display: flex;
   justify-content: center;
 }
-
-@media (min-width: 800px) {
-  body {
-    place-items: center;
-  }
+header {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  margin-bottom: 0px;
+  font-size: 44px;
+  align-items: center;
+}
+header img {
+  width: 50px;
+  height: 50px;
+  margin-left: 5px;
+}
+.board-container {
+  display: flex;
+}
+.finish-message {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding-top: 5px;
+}
+.finish-message p {
+  font-size: xx-large;
+  text-align: center;
+  color: goldenrod;
+  font-weight: 600;
 }

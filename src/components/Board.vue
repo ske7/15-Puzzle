@@ -1,30 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
 import { useElementBounding } from '@vueuse/core';
-import Square from './Square.vue';
 import { useBaseStore } from '../stores/base';
-
-function shuffle(array: number[]) {
-  const length = array == null ? 0 : array.length;
-  if (!length) {
-    return [];
-  }
-  let index = -1;
-  const lastIndex = length - 1;
-  const result = [...array];
-  while (++index < length) {
-    const rand = index + Math.floor(Math.random() * (lastIndex - index + 1));
-    const value = result[rand];
-    result[rand] = result[index];
-    result[index] = value;
-  }
-  return result;
-}
-
-function* sequenceGenerator(minVal: number, maxVal: number) {
-  let currVal = minVal;
-  while (currVal < maxVal) yield currVal++;
-}
+import Square from './Square.vue';
+import { generateAndShuffle } from '../utils';
 
 type PossibleLinesCount = 3 | 4 | 5;
 
@@ -51,9 +30,7 @@ const boardSize = computed(() => {
 const container = ref();
 const { left, right, top, bottom } = useElementBounding(container);
 
-const list = shuffle([
-  ...sequenceGenerator(1, props.numLines * props.numLines)
-]);
+const list = generateAndShuffle(props.numLines ** 2);
 
 const isMounted = ref(false);
 onMounted(() => {
@@ -68,7 +45,7 @@ onMounted(() => {
         v-for="n in numLines * numLines - 1"
         :key="n"
         :order="n - 1"
-        :r-order="list[n - 1]"
+        :mixed-order="list[n - 1]"
         :square-size="squareSize"
         :container-right="right"
         :container-bottom="bottom"
@@ -86,7 +63,9 @@ onMounted(() => {
   display: flex;
   width: v-bind(boardSize);
   height: v-bind(boardSize);
-  border: 1px solid blue;
+  border: 1px solid grey;
+  border-radius: 10px;
+  padding: 5px;
   align-content: center;
   position: relative;
 }
