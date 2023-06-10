@@ -27,58 +27,24 @@ const containerRightInitial = ref(props.containerRight);
 const containerTopInitial = ref(props.containerTop);
 const containerBottomInitial = ref(props.containerBottom);
 
-const actualOrder = ref(props.order + 1);
-const prevOrder = ref(props.order + 1);
 const currentX = ref(props.left);
 const currentY = ref(props.top);
-
-const canMoveUp = computed(() => {
-  if (actualOrder.value - baseStore.numLines === baseStore.freeElement) {
-    return true;
-  }
-  return false;
-});
-
-const canMoveDown = computed(() => {
-  if (actualOrder.value + baseStore.numLines === baseStore.freeElement) {
-    return true;
-  }
-  return false;
-});
-
-const canMoveRight = computed(() => {
-  if (actualOrder.value + 1 === baseStore.freeElement) {
-    return true;
-  }
-  return false;
-});
-
-const canMoveLeft = computed(() => {
-  if (actualOrder.value - 1 === baseStore.freeElement) {
-    return true;
-  }
-  return false;
-});
-
-const { isDragging } = useDraggable(square);
 
 const containerXDelta = computed(() => {
   return containerLeftInitial.value - props.containerLeft;
 });
-
 const containerYDelta = computed(() => {
   return containerTopInitial.value - props.containerTop;
 });
-
 const restrictedX = computed(() => {
   return currentX.value - containerXDelta.value;
 });
-
 const restrictedY = computed(() => {
   return currentY.value - containerYDelta.value;
 });
 
 const isCaptured = ref(false);
+const { isDragging } = useDraggable(square);
 const capture = () => {
   if (isDoneAll.value) {
     return;
@@ -91,6 +57,9 @@ const release = () => {
 watch(isDragging, (value) => {
   value ? capture() : release();
 });
+
+const actualOrder = ref(props.order + 1);
+const prevOrder = ref(props.order + 1);
 const isSquareInPlace = computed(() => {
   return actualOrder.value === props.mixedOrder;
 });
@@ -135,6 +104,30 @@ const saveActualOrder = (moveDirection: Direction) => {
   baseStore.$patch({ freeElement: prevOrder.value });
 };
 
+const canMoveUp = computed(() => {
+  if (actualOrder.value - baseStore.numLines === baseStore.freeElement) {
+    return true;
+  }
+  return false;
+});
+const canMoveDown = computed(() => {
+  if (actualOrder.value + baseStore.numLines === baseStore.freeElement) {
+    return true;
+  }
+  return false;
+});
+const canMoveRight = computed(() => {
+  if (actualOrder.value + 1 === baseStore.freeElement) {
+    return true;
+  }
+  return false;
+});
+const canMoveLeft = computed(() => {
+  if (actualOrder.value - 1 === baseStore.freeElement) {
+    return true;
+  }
+  return false;
+});
 const move = () => {
   if (isDoneAll.value) {
     return;
@@ -166,7 +159,7 @@ const move = () => {
   <div
     ref="square"
     class="square"
-    :class="{ 'in-place': actualOrder === props.mixedOrder, captured: isCaptured, 'done-all': isDoneAll }"
+    :class="{ 'in-place': isSquareInPlace, captured: isCaptured, 'done-all': isDoneAll }"
     :style="{ top: `${restrictedY}px`, left: `${restrictedX}px` }"
     @click="move"
   >
@@ -187,11 +180,9 @@ const move = () => {
   justify-content: center;
   background-color: beige;
   user-select: none;
-  z-index: 0;
   transition: all 0.3s ease 0s;
   border-radius: 5px;
-  box-shadow: 0px 0px 0px 0px;
-  box-sizing: content-box;
+  box-sizing: border-box;
 }
 .captured {
   background-color: gold !important;
@@ -209,6 +200,6 @@ const move = () => {
   align-items: center;
 }
 .item span {
-  font-size: large;
+  font-size: 21px;
 }
 </style>

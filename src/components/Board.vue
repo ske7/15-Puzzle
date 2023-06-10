@@ -42,7 +42,7 @@ onMounted(() => {
   <div ref="container" class="board">
     <div v-if="isMounted">
       <Square
-        v-for="n in numLines * numLines - 1"
+        v-for="n in numLines ** 2 - 1"
         :key="n"
         :order="n - 1"
         :mixed-order="list[n - 1]"
@@ -63,9 +63,8 @@ onMounted(() => {
   display: flex;
   width: v-bind(boardSize);
   height: v-bind(boardSize);
-  border: 1px solid grey;
+  border: 1px solid blue;
   border-radius: 10px;
-  padding: 5px;
   align-content: center;
   position: relative;
 }
