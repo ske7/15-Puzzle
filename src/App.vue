@@ -6,7 +6,7 @@ const baseStore = useBaseStore();
 </script>
 
 <template>
-  <header>15 Puzzle <img src="/favicon.ico" /></header>
+  <header>15 Puzzle <img src="./assets/cage.png" alt="Nic Cage" /></header>
   <div class="board-container">
     <Board :square-size="70" :num-lines="4" />
   </div>

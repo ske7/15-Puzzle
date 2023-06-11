@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { useDraggable } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 
 const props = defineProps<{
@@ -44,7 +43,6 @@ const restrictedY = computed(() => {
 });
 
 const isCaptured = ref(false);
-const { isDragging } = useDraggable(square);
 const capture = () => {
   if (isDoneAll.value) {
     return;
@@ -54,9 +52,6 @@ const capture = () => {
 const release = () => {
   isCaptured.value = false;
 };
-watch(isDragging, (value) => {
-  value ? capture() : release();
-});
 
 const actualOrder = ref(props.order + 1);
 const prevOrder = ref(props.order + 1);
@@ -129,6 +124,7 @@ const canMoveLeft = computed(() => {
   return false;
 });
 const move = () => {
+  release();
   if (isDoneAll.value) {
     return;
   }
@@ -161,6 +157,9 @@ const move = () => {
     class="square"
     :class="{ 'in-place': isSquareInPlace, captured: isCaptured, 'done-all': isDoneAll }"
     :style="{ top: `${restrictedY}px`, left: `${restrictedX}px` }"
+    @mousedown="capture"
+    @touchstart="capture"
+    @touchend="release"
     @click="move"
   >
     <div class="item">
