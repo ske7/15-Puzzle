@@ -35,11 +35,19 @@ const containerXDelta = computed(() => {
 const containerYDelta = computed(() => {
   return containerTopInitial.value - props.containerTop;
 });
-const restrictedX = computed(() => {
-  return currentX.value - containerXDelta.value;
+const calculatedLeft = computed(() => {
+  return (
+    containerLeftInitial.value +
+    props.squareSize * ((actualOrder.value - 1) % baseStore.numLines) -
+    containerXDelta.value
+  );
 });
-const restrictedY = computed(() => {
-  return currentY.value - containerYDelta.value;
+const calculatedTop = computed(() => {
+  return (
+    containerTopInitial.value +
+    props.squareSize * (Math.ceil(actualOrder.value / baseStore.numLines) - 1) -
+    containerYDelta.value
+  );
 });
 
 const isCaptured = ref(false);
@@ -156,9 +164,9 @@ const move = () => {
     ref="square"
     class="square"
     :class="{ 'in-place': isSquareInPlace, captured: isCaptured, 'done-all': isDoneAll }"
-    :style="{ top: `${restrictedY}px`, left: `${restrictedX}px` }"
-    @mousedown="capture"
-    @touchstart="capture"
+    :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px` }"
+    @mousedown.left="capture"
+    @touchstart.passive="capture"
     @touchend="release"
     @click="move"
   >
@@ -178,6 +186,8 @@ const move = () => {
   display: flex;
   justify-content: center;
   background-color: beige;
+  -webkit-user-select: none;
+  -moz-user-select: none;
   user-select: none;
   transition: all 0.3s ease 0s;
   border-radius: 5px;

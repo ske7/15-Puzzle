@@ -9,12 +9,11 @@ type PossibleLinesCount = 3 | 4 | 5;
 
 interface Props {
   numLines?: PossibleLinesCount;
-  squareSize?: number;
+  squareSize: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  numLines: 4,
-  squareSize: 60
+  numLines: 4
 });
 
 const baseStore = useBaseStore();

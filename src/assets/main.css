@@ -37,6 +37,8 @@ header img {
   width: 50px;
   height: 50px;
   margin-left: 5px;
+  display: flex;
+  align-items: center;
 }
 .board-container {
   display: flex;
@@ -52,4 +54,7 @@ header img {
   text-align: center;
   color: goldenrod;
   font-weight: 600;
+}
+img[alt] {
+  font-size: 12px;
 }
