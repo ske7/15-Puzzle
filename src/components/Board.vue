@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import Square from './Square.vue';
-import { generateAndShuffle } from '../utils';
+import { generateAndShuffle, generate } from '../utils';
 
 type PossibleLinesCount = 3 | 4 | 5;
 
@@ -16,25 +17,38 @@ const props = withDefaults(defineProps<Props>(), {
   numLines: 4
 });
 
-const baseStore = useBaseStore();
-baseStore.$patch({
-  numLines: props.numLines,
-  freeElement: props.numLines ** 2
-});
-
 const boardSize = computed(() => {
   return props.numLines * props.squareSize + 'px';
 });
-
 const container = ref();
 const { left, right, top, bottom } = useElementBounding(container);
-
-const list = generateAndShuffle(props.numLines ** 2);
 
 const isMounted = ref(false);
 onMounted(() => {
   isMounted.value = true;
 });
+
+const list = ref<number[]>([]);
+const baseStore = useBaseStore();
+const { doResetList } = storeToRefs(baseStore);
+doResetList.value = true;
+watch(
+  doResetList,
+  (value, oldValue) => {
+    if (value && !oldValue) {
+      list.value = generateAndShuffle(props.numLines ** 2);
+      baseStore.$patch({
+        numLines: props.numLines,
+        freeElement: props.numLines ** 2,
+        movesCount: 0,
+        time: 0,
+        actualOrders: generate(props.numLines ** 2)
+      });
+      baseStore.doResetList = false;
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <template>

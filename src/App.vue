@@ -1,14 +1,54 @@
 <script setup lang="ts">
+import { watch } from 'vue';
 import Board from './components/Board.vue';
 import { useBaseStore } from './stores/base';
 import { useWindowSize } from '@vueuse/core';
+import { storeToRefs } from 'pinia';
 
 const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
+const reset = () => {
+  baseStore.reset();
+  restartInterval();
+};
+const restartInterval = () => {
+  if (baseStore.interval) {
+    baseStore.stopInterval();
+  }
+  baseStore.interval = setInterval(() => {
+    baseStore.time++;
+  }, 1000);
+};
+restartInterval();
+
+const { isDone } = storeToRefs(baseStore);
+watch(
+  isDone,
+  (value, oldValue) => {
+    if (value && !oldValue) {
+      baseStore.stopInterval();
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
   <header>15 Puzzle <img src="./assets/cage.png" alt="Nic Cage" /></header>
+  <div class="tools-panel">
+    <div class="tool-item">
+      <span>Time:&nbsp;</span>
+      <span class="time">{{ baseStore.minutes || '0' }}m&nbsp;</span>
+      <span class="time">{{ baseStore.seconds || '00' }}s</span>
+    </div>
+    <div class="tool-item center">
+      <button @click="reset">Restart</button>
+    </div>
+    <div class="tool-item end">
+      <span>Moves:&nbsp;</span>
+      <span class="moves-count">{{ baseStore.movesCount }}</span>
+    </div>
+  </div>
   <div class="board-container">
     <Board :square-size="windowWidth > 600 ? 90 : 70" />
   </div>

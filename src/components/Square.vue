@@ -19,12 +19,9 @@ const sizeVar = computed(() => {
   return props.squareSize + 'px';
 });
 
-const containerLeftInitial = ref(props.containerLeft);
-const containerRightInitial = ref(props.containerRight);
-const containerTopInitial = ref(props.containerTop);
-const containerBottomInitial = ref(props.containerBottom);
-
-const actualOrder = ref(props.order + 1);
+const actualOrder = computed(() => {
+  return baseStore.actualOrders[props.order];
+});
 
 const calculatedLeft = computed(() => {
   return props.containerLeft + props.squareSize * ((actualOrder.value - 1) % baseStore.numLines);
@@ -44,17 +41,17 @@ const release = () => {
   isCaptured.value = false;
 };
 
-const prevOrder = ref();
 const isSquareInPlace = computed(() => {
   return actualOrder.value === props.mixedOrder;
 });
 const isDoneAll = computed(() => {
   return baseStore.isDone;
 });
+
 watch(
   isSquareInPlace,
   (value, oldValue) => {
-    if (value && !oldValue) {
+    if (value && !oldValue && !baseStore.doResetList) {
       baseStore.$patch({ orderedCount: baseStore.orderedCount + 1 });
     }
     if (!value && oldValue) {
@@ -71,22 +68,23 @@ enum Direction {
   Left = 4
 }
 const saveActualOrder = (moveDirection: Direction) => {
-  prevOrder.value = actualOrder.value;
+  const prevOrder = actualOrder.value;
   switch (moveDirection) {
     case Direction.Right:
-      actualOrder.value = prevOrder.value + 1;
+      baseStore.actualOrders[props.order] = prevOrder + 1;
       break;
     case Direction.Left:
-      actualOrder.value = prevOrder.value - 1;
+      baseStore.actualOrders[props.order] = prevOrder - 1;
       break;
     case Direction.Down:
-      actualOrder.value = prevOrder.value + baseStore.numLines;
+      baseStore.actualOrders[props.order] = prevOrder + baseStore.numLines;
       break;
     case Direction.Up:
-      actualOrder.value = prevOrder.value - baseStore.numLines;
+      baseStore.actualOrders[props.order] = prevOrder - baseStore.numLines;
       break;
   }
-  baseStore.$patch({ freeElement: prevOrder.value });
+  baseStore.incMoves();
+  baseStore.$patch({ freeElement: prevOrder });
 };
 
 const canMoveUp = computed(() => {
@@ -113,24 +111,25 @@ const canMoveLeft = computed(() => {
   }
   return false;
 });
+
 const move = () => {
   release();
   if (isDoneAll.value) {
     return;
   }
-  if (canMoveRight.value && calculatedLeft.value + props.squareSize < containerRightInitial.value) {
+  if (canMoveRight.value && calculatedLeft.value + props.squareSize < props.containerRight) {
     saveActualOrder(Direction.Right);
     return;
   }
-  if (canMoveLeft.value && calculatedLeft.value > containerLeftInitial.value) {
+  if (canMoveLeft.value && calculatedLeft.value > props.containerLeft) {
     saveActualOrder(Direction.Left);
     return;
   }
-  if (canMoveDown.value && calculatedTop.value + props.squareSize < containerBottomInitial.value) {
+  if (canMoveDown.value && calculatedTop.value + props.squareSize < props.containerBottom) {
     saveActualOrder(Direction.Down);
     return;
   }
-  if (canMoveUp.value && calculatedTop.value > containerTopInitial.value) {
+  if (canMoveUp.value && calculatedTop.value > props.containerTop) {
     saveActualOrder(Direction.Up);
     return;
   }
@@ -144,6 +143,7 @@ const move = () => {
     :class="{ 'in-place': isSquareInPlace, captured: isCaptured, 'done-all': isDoneAll }"
     :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px` }"
     @mousedown.left="capture"
+    @mouseout.left="release"
     @touchstart.passive="capture"
     @touchend="release"
     @click="move"

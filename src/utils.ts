@@ -23,3 +23,7 @@ export function* sequenceGenerator(minVal: number, maxVal: number) {
 export function generateAndShuffle(length: number): number[] {
   return shuffle([...sequenceGenerator(1, length)]);
 }
+
+export function generate(length: number): number[] {
+  return [...sequenceGenerator(1, length)];
+}

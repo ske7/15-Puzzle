@@ -28,7 +28,7 @@ body {
 header {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 10px;
   margin-bottom: 20px;
   font-size: 44px;
   align-items: center;
@@ -57,4 +57,50 @@ header img {
 }
 img[alt] {
   font-size: 12px;
+}
+.tools-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 0px;
+  position: relative;
+}
+.tool-item {
+  display: flex;
+  min-width: 90px;
+}
+.tool-item.center {
+  justify-content: center;
+  margin-bottom: 3px;
+}
+.tool-item.end {
+  justify-content: flex-end;
+}
+.tool-item > .time {
+  display: flex;
+  justify-content: flex-end;
+  font-family: 'consolas';
+}
+.tool-item button {
+  display: flex;
+  width: 70px;
+  height: 24px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background: none;
+  text-decoration: none;
+  border: 1px solid navy;
+  color: navy;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+.tool-item button:hover {
+  color: #5a86d5;
+}
+.moves-count {
+  min-width: 10px;
+  display: flex;
+  justify-content: flex-end;
+  font-family: 'consolas';
 }
