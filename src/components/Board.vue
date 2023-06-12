@@ -43,15 +43,13 @@ onMounted(() => {
       <Square
         v-for="n in numLines ** 2 - 1"
         :key="n"
-        :order="n - 1"
-        :mixed-order="list[n - 1]"
         :square-size="squareSize"
         :container-right="right"
         :container-bottom="bottom"
         :container-top="top"
         :container-left="left"
-        :top="top + squareSize * (Math.ceil(n / numLines) - 1)"
-        :left="left + squareSize * ((n - 1) % numLines)"
+        :order="n - 1"
+        :mixed-order="list[n - 1]"
       />
     </div>
   </div>

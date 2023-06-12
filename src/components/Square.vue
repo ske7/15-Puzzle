@@ -4,8 +4,6 @@ import { useBaseStore } from '../stores/base';
 
 const props = defineProps<{
   squareSize: number;
-  top: number;
-  left: number;
   containerTop: number;
   containerLeft: number;
   containerBottom: number;
@@ -26,28 +24,13 @@ const containerRightInitial = ref(props.containerRight);
 const containerTopInitial = ref(props.containerTop);
 const containerBottomInitial = ref(props.containerBottom);
 
-const currentX = ref(props.left);
-const currentY = ref(props.top);
+const actualOrder = ref(props.order + 1);
 
-const containerXDelta = computed(() => {
-  return containerLeftInitial.value - props.containerLeft;
-});
-const containerYDelta = computed(() => {
-  return containerTopInitial.value - props.containerTop;
-});
 const calculatedLeft = computed(() => {
-  return (
-    containerLeftInitial.value +
-    props.squareSize * ((actualOrder.value - 1) % baseStore.numLines) -
-    containerXDelta.value
-  );
+  return props.containerLeft + props.squareSize * ((actualOrder.value - 1) % baseStore.numLines);
 });
 const calculatedTop = computed(() => {
-  return (
-    containerTopInitial.value +
-    props.squareSize * (Math.ceil(actualOrder.value / baseStore.numLines) - 1) -
-    containerYDelta.value
-  );
+  return props.containerTop + props.squareSize * (Math.ceil(actualOrder.value / baseStore.numLines) - 1);
 });
 
 const isCaptured = ref(false);
@@ -61,8 +44,7 @@ const release = () => {
   isCaptured.value = false;
 };
 
-const actualOrder = ref(props.order + 1);
-const prevOrder = ref(props.order + 1);
+const prevOrder = ref();
 const isSquareInPlace = computed(() => {
   return actualOrder.value === props.mixedOrder;
 });
@@ -136,23 +118,19 @@ const move = () => {
   if (isDoneAll.value) {
     return;
   }
-  if (canMoveRight.value && currentX.value + props.squareSize < containerRightInitial.value) {
-    currentX.value = currentX.value + props.squareSize;
+  if (canMoveRight.value && calculatedLeft.value + props.squareSize < containerRightInitial.value) {
     saveActualOrder(Direction.Right);
     return;
   }
-  if (canMoveLeft.value && currentX.value > containerLeftInitial.value) {
-    currentX.value = currentX.value - props.squareSize;
+  if (canMoveLeft.value && calculatedLeft.value > containerLeftInitial.value) {
     saveActualOrder(Direction.Left);
     return;
   }
-  if (canMoveDown.value && currentY.value + props.squareSize < containerBottomInitial.value) {
-    currentY.value = currentY.value + props.squareSize;
+  if (canMoveDown.value && calculatedTop.value + props.squareSize < containerBottomInitial.value) {
     saveActualOrder(Direction.Down);
     return;
   }
-  if (canMoveUp.value && currentY.value > containerTopInitial.value) {
-    currentY.value = currentY.value - props.squareSize;
+  if (canMoveUp.value && calculatedTop.value > containerTopInitial.value) {
     saveActualOrder(Direction.Up);
     return;
   }
