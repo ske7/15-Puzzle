@@ -16,7 +16,7 @@ const baseStore = useBaseStore();
 const square = ref();
 
 const sizeVar = computed(() => {
-  return props.squareSize + 'px';
+  return `${props.squareSize}px`;
 });
 
 const actualOrder = computed(() => {
@@ -30,6 +30,13 @@ const calculatedTop = computed(() => {
   return props.containerTop + props.squareSize * (Math.ceil(actualOrder.value / baseStore.numLines) - 1);
 });
 
+const isSquareInPlace = computed(() => {
+  return actualOrder.value === props.mixedOrder;
+});
+const isDoneAll = computed(() => {
+  return baseStore.isDone;
+});
+
 const isCaptured = ref(false);
 const capture = () => {
   if (isDoneAll.value) {
@@ -40,13 +47,6 @@ const capture = () => {
 const release = () => {
   isCaptured.value = false;
 };
-
-const isSquareInPlace = computed(() => {
-  return actualOrder.value === props.mixedOrder;
-});
-const isDoneAll = computed(() => {
-  return baseStore.isDone;
-});
 
 watch(
   isSquareInPlace,
@@ -82,6 +82,7 @@ const saveActualOrder = (moveDirection: Direction) => {
     case Direction.Up:
       baseStore.actualOrders[props.order] = prevOrder - baseStore.numLines;
       break;
+    default:
   }
   baseStore.incMoves();
   baseStore.$patch({ freeElement: prevOrder });
@@ -131,7 +132,6 @@ const move = () => {
   }
   if (canMoveUp.value && calculatedTop.value > props.containerTop) {
     saveActualOrder(Direction.Up);
-    return;
   }
 };
 </script>

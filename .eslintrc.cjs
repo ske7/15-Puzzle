@@ -12,7 +12,8 @@ module.exports = {
   },
   plugins: ['@typescript-eslint', 'prettier'],
   extends: [
-    'eslint:recommended',
+    'standard',
+    'eslint:all',
     'plugin:@typescript-eslint/recommended',
     'plugin:vue/vue3-essential',
     'plugin:vue/vue3-strongly-recommended',
@@ -29,6 +30,16 @@ module.exports = {
     'prettier/prettier': 'error',
     'vue/multi-word-component-names': 'off',
     'vue/script-setup-uses-vars': 'error',
-    'vue/max-attributes-per-line': 'off'
+    'vue/max-attributes-per-line': 'off',
+    'prefer-template': 'warn',
+    'no-plusplus': 'off',
+    'sort-imports': 'off',
+    'no-magic-numbers': 'off',
+    'sort-keys': 'off',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': 'error',
+    'max-statements': ['error', { max: 20 }],
+    'func-style': 'off',
+    'no-ternary': 'off'
   }
 };

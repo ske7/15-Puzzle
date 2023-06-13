@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const boardSize = computed(() => {
-  return props.numLines * props.squareSize + 'px';
+  return `${props.numLines * props.squareSize}px`;
 });
 const container = ref();
 const { left, right, top, bottom } = useElementBounding(container);

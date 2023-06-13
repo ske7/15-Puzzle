@@ -1,16 +1,12 @@
 <script setup lang="ts">
 import { watch } from 'vue';
-import Board from './components/Board.vue';
-import { useBaseStore } from './stores/base';
 import { useWindowSize } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
+import { useBaseStore } from './stores/base';
+import Board from './components/Board.vue';
 
 const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
-const reset = () => {
-  baseStore.reset();
-  restartInterval();
-};
 const restartInterval = () => {
   if (baseStore.interval) {
     baseStore.stopInterval();
@@ -18,6 +14,10 @@ const restartInterval = () => {
   baseStore.interval = setInterval(() => {
     baseStore.time++;
   }, 1000);
+};
+const reset = () => {
+  baseStore.reset();
+  restartInterval();
 };
 restartInterval();
 

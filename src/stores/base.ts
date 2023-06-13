@@ -6,7 +6,6 @@ export const useBaseStore = defineStore('base', {
     freeElement: 0,
     orderedCount: 0,
     movesCount: 0,
-    doResetOrder: false,
     doResetList: false,
     actualOrders: [] as number[],
     time: 0,

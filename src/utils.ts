@@ -1,5 +1,5 @@
 export function shuffle(array: number[]): number[] {
-  const length = array == null ? 0 : array.length;
+  const length = array === null ? 0 : array.length;
   if (!length) {
     return [];
   }
