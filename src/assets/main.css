@@ -110,13 +110,6 @@ img[alt] {
   color: green;
   background-color: white;
 }
-.tool-item button:hover {
-  background-color: #2db3d525;
-}
-.tool-item .green-button:hover {
-  color: green;
-  background-color: white;
-}
 .moves-count {
   min-width: 10px;
   display: flex;
@@ -153,5 +146,14 @@ img[alt] {
     font-size: 13px;
     font-style: italic;
     color: navy;
+  }
+}
+@media screen and (min-width: 600px) {
+  .tool-item button:hover {
+    background-color: #2db3d525;
+  }
+  .tool-item .green-button:hover {
+    color: green;
+    background-color: white;
   }
 }
