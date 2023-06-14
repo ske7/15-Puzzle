@@ -57,7 +57,7 @@ watch(
 
 <template>
   <div ref="container" class="board">
-    <div v-if="paused" class="paused-veil"></div>
+    <div v-if="paused" class="paused-veil"><span>Pause</span></div>
     <div v-if="isMounted">
       <Square
         v-for="n in numLines ** 2 - 1"
@@ -90,10 +90,16 @@ watch(
   height: v-bind(boardSize);
   border: 1px solid #ccc;
   border-radius: 10px;
-  align-content: center;
+  justify-content: center;
+  align-items: center;
   position: relative;
   background-color: #ccc;
   opacity: 0.5;
   z-index: 1000;
+}
+.paused-veil span {
+  color: black;
+  font-size: 52px;
+  padding-bottom: 10px;
 }
 </style>
