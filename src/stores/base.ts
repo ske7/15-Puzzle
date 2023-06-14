@@ -9,7 +9,8 @@ export const useBaseStore = defineStore('base', {
     doResetList: false,
     actualOrders: [] as number[],
     time: 0,
-    interval: 0
+    interval: 0,
+    paused: false
   }),
   actions: {
     incMoves() {
@@ -20,6 +21,9 @@ export const useBaseStore = defineStore('base', {
     },
     stopInterval() {
       clearInterval(this.interval);
+    },
+    invertPaused() {
+      this.paused = !this.paused;
     }
   },
   getters: {

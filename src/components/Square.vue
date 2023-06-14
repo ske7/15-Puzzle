@@ -36,10 +36,13 @@ const isSquareInPlace = computed(() => {
 const isDoneAll = computed(() => {
   return baseStore.isDone;
 });
+const paused = computed(() => {
+  return baseStore.paused;
+});
 
 const isCaptured = ref(false);
 const capture = () => {
-  if (isDoneAll.value) {
+  if (isDoneAll.value || paused.value) {
     return;
   }
   isCaptured.value = true;
@@ -115,7 +118,7 @@ const canMoveLeft = computed(() => {
 
 const move = () => {
   release();
-  if (isDoneAll.value) {
+  if (isDoneAll.value || paused.value) {
     return;
   }
   if (canMoveRight.value && calculatedLeft.value + props.squareSize < props.containerRight) {
@@ -140,7 +143,7 @@ const move = () => {
   <div
     ref="square"
     class="square"
-    :class="{ 'in-place': isSquareInPlace, captured: isCaptured, 'done-all': isDoneAll }"
+    :class="{ 'in-place': isSquareInPlace, captured: isCaptured, 'done-all': isDoneAll || paused }"
     :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px` }"
     @mousedown.left="capture"
     @mouseout.left="release"

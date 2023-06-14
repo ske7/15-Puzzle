@@ -28,6 +28,10 @@ onMounted(() => {
   isMounted.value = true;
 });
 
+const paused = computed(() => {
+  return baseStore.paused;
+});
+
 const list = ref<number[]>([]);
 const baseStore = useBaseStore();
 const { doResetList } = storeToRefs(baseStore);
@@ -53,6 +57,7 @@ watch(
 
 <template>
   <div ref="container" class="board">
+    <div v-if="paused" class="paused-veil"></div>
     <div v-if="isMounted">
       <Square
         v-for="n in numLines ** 2 - 1"
@@ -78,5 +83,17 @@ watch(
   border-radius: 10px;
   align-content: center;
   position: relative;
+}
+.paused-veil {
+  display: flex;
+  width: v-bind(boardSize);
+  height: v-bind(boardSize);
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  align-content: center;
+  position: relative;
+  background-color: #ccc;
+  opacity: 0.5;
+  z-index: 1000;
 }
 </style>
