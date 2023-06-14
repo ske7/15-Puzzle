@@ -64,6 +64,16 @@ watch(
   { immediate: true }
 );
 
+const renderFlag = ref(false);
+watch([calculatedLeft, calculatedTop], () => {
+  setTimeout(() => {
+    renderFlag.value = true;
+    setTimeout(() => {
+      renderFlag.value = false;
+    }, 15);
+  }, 290);
+});
+
 enum Direction {
   Up = 1,
   Right = 2,
@@ -143,7 +153,12 @@ const move = () => {
   <div
     ref="square"
     class="square"
-    :class="{ 'in-place': isSquareInPlace, captured: isCaptured, 'done-all': isDoneAll || paused }"
+    :class="{
+      'in-place': isSquareInPlace,
+      captured: isCaptured,
+      'done-all': isDoneAll || paused,
+      renderBg: renderFlag
+    }"
     :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px` }"
     @mousedown.left="capture"
     @mouseout.left="release"
@@ -176,6 +191,9 @@ const move = () => {
 }
 .captured {
   background-color: gold !important;
+}
+.renderBg {
+  background-color: rgb(245, 245, 221) !important;
 }
 .in-place {
   background-color: rgb(224, 245, 250);
