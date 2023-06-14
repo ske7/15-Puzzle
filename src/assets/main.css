@@ -10,6 +10,7 @@
   margin: 0 auto;
   padding: 0;
   font-weight: normal;
+  padding-bottom: 5px;
 }
 body {
   min-height: 100vh;
@@ -50,7 +51,8 @@ header img {
   padding-top: 5px;
 }
 .finish-message p {
-  font-size: xx-large;
+  font-size: 24px;
+  line-height: 36px;
   text-align: center;
   color: goldenrod;
   font-weight: 600;
@@ -67,8 +69,8 @@ img[alt] {
 }
 .bottom-tools-panel {
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: space-between;
+  align-items: center;
   position: relative;
   margin-top: 5px;
 }
@@ -101,6 +103,9 @@ img[alt] {
   font-weight: 600;
   transition: all 0.3s ease;
 }
+.tool-item .pause-button {
+  margin-left: 20px;
+}
 .tool-item .green-button {
   color: green;
   background-color: white;
@@ -124,10 +129,29 @@ img[alt] {
   font-size: 14px;
   margin-top: 10px;
 }
+.records {
+  align-items: flex-end;
+}
+.records span {
+  font-size: 14px;
+  font-style: italic;
+  color: navy;
+}
+.red {
+  color: red !important;
+}
 @media screen and (max-width: 601px) {
   .instruction {
     text-align: left;
     max-width: 270px;
     font-size: 12px;
+  }
+  .tool-item .pause-button {
+    margin-left: 3px;
+  }
+  .records span {
+    font-size: 13px;
+    font-style: italic;
+    color: navy;
   }
 }

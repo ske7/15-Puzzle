@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch } from 'vue';
+import { watch, ref } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from './stores/base';
@@ -19,17 +19,34 @@ const restartInterval = () => {
   }, 1000);
 };
 const reset = () => {
+  newMovesRecord.value = false;
+  newTimeRecord.value = false;
   baseStore.reset();
   restartInterval();
 };
+
+baseStore.timeRecord = Number(localStorage.getItem('timeRecord'));
+baseStore.movesRecord = Number(localStorage.getItem('movesRecord'));
 restartInterval();
 
+const newMovesRecord = ref(false);
+const newTimeRecord = ref(false);
 const { isDone } = storeToRefs(baseStore);
 watch(
   isDone,
   (value, oldValue) => {
     if (value && !oldValue) {
       baseStore.stopInterval();
+      if (baseStore.movesCount > 0 && (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord)) {
+        baseStore.movesRecord = baseStore.movesCount;
+        localStorage.setItem('movesRecord', baseStore.movesCount.toString());
+        newMovesRecord.value = true;
+      }
+      if (baseStore.time > 0 && (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord)) {
+        baseStore.timeRecord = baseStore.time;
+        localStorage.setItem('timeRecord', baseStore.time.toString());
+        newTimeRecord.value = true;
+      }
     }
   },
   { immediate: true }
@@ -55,11 +72,19 @@ watch(
   <div class="bottom-tools-panel">
     <div class="tool-item">
       <button @click="reset">Restart</button>
-    </div>
-    <div class="tool-item">
-      <button :class="{ 'green-button': baseStore.paused }" @click="baseStore.invertPaused">
+      <button class="pause-button" :class="{ 'green-button': baseStore.paused }" @click="baseStore.invertPaused">
         {{ baseStore.paused ? 'Resume' : 'Pause' }}
       </button>
+    </div>
+    <div class="tool-item end records">
+      <span style="margin-right: 3px">{{ windowWidth > 600 ? 'Record:' : 'Rec.:' }}</span>
+      <span class="moves-count" :class="{ red: newMovesRecord }">{{ baseStore.movesRecord || '?' }} </span>&nbsp;/&nbsp;
+      <span class="time" :class="{ red: newTimeRecord }">
+        {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecordMinutes || '0' }}m&nbsp;
+      </span>
+      <span class="time" :class="{ red: newTimeRecord }">
+        {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecordSeconds || '00' }}s
+      </span>
     </div>
   </div>
   <p v-if="!baseStore.isDone" class="instruction">Game rule: move blocks until they are in regular order</p>

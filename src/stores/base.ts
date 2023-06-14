@@ -10,7 +10,9 @@ export const useBaseStore = defineStore('base', {
     actualOrders: [] as number[],
     time: 0,
     interval: 0,
-    paused: false
+    paused: false,
+    movesRecord: 0,
+    timeRecord: 0
   }),
   actions: {
     incMoves() {
@@ -35,6 +37,12 @@ export const useBaseStore = defineStore('base', {
     },
     seconds(): string {
       return (this.time % 60).toString().padStart(2, '0');
+    },
+    timeRecordMinutes(): number {
+      return Math.floor(this.timeRecord / 60);
+    },
+    timeRecordSeconds(): string {
+      return (this.timeRecord % 60).toString().padStart(2, '0');
     }
   }
 });
