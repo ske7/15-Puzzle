@@ -4,9 +4,11 @@ import { useWindowSize } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from './stores/base';
 import Board from './components/Board.vue';
+import ConfirmDialog from './components/ConfirmDialog.vue';
 
 const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
+const showConfirm = ref(false);
 const restartInterval = () => {
   if (baseStore.interval) {
     baseStore.stopInterval();
@@ -23,6 +25,32 @@ const reset = () => {
   newTimeRecord.value = false;
   baseStore.reset();
   restartInterval();
+};
+
+const wasPausedBeforeConfirm = ref(false);
+const doShowConfirm = () => {
+  if (baseStore.time < 10 && baseStore.movesCount < 10) {
+    reset();
+    return;
+  }
+  wasPausedBeforeConfirm.value = baseStore.paused;
+  if (!wasPausedBeforeConfirm.value) {
+    baseStore.invertPaused();
+  }
+  showConfirm.value = true;
+};
+const doConfirmRestart = () => {
+  showConfirm.value = false;
+  reset();
+  if (!wasPausedBeforeConfirm.value) {
+    baseStore.invertPaused();
+  }
+};
+const declineConfirm = () => {
+  showConfirm.value = false;
+  if (!wasPausedBeforeConfirm.value) {
+    baseStore.invertPaused();
+  }
 };
 
 baseStore.timeRecord = Number(localStorage.getItem('timeRecord'));
@@ -71,8 +99,13 @@ watch(
   </div>
   <div class="bottom-tools-panel">
     <div class="tool-item">
-      <button @click="reset">Restart</button>
-      <button class="pause-button" :class="{ 'green-button': baseStore.paused }" @click="baseStore.invertPaused">
+      <button class="tool-button" :disabled="showConfirm" @click="doShowConfirm">Restart</button>
+      <button
+        class="tool-button pause-button"
+        :class="{ 'green-button': baseStore.paused }"
+        :disabled="showConfirm"
+        @click="baseStore.invertPaused"
+      >
         {{ baseStore.paused ? 'Resume' : 'Pause' }}
       </button>
     </div>
@@ -92,4 +125,5 @@ watch(
     <p>Congratulations!</p>
     <p>You've done it.</p>
   </div>
+  <ConfirmDialog v-if="showConfirm" @confirm="doConfirmRestart" @decline="declineConfirm" />
 </template>

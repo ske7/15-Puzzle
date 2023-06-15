@@ -86,7 +86,7 @@ img[alt] {
   justify-content: flex-end;
   font-family: 'consolas';
 }
-.tool-item button {
+.tool-button {
   display: flex;
   width: 70px;
   height: 24px;
@@ -148,11 +148,15 @@ img[alt] {
     color: navy;
   }
 }
+.tool-button:disabled {
+  cursor: auto;
+  opacity: 0.5;
+}
 @media screen and (min-width: 600px) {
-  .tool-item button:hover {
+  .tool-button:hover:not([disabled]) {
     background-color: #2db3d525;
   }
-  .tool-item .green-button:hover {
+  .tool-item .green-button:hover:not([disabled]) {
     color: green;
     background-color: white;
   }
