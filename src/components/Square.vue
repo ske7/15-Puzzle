@@ -55,10 +55,10 @@ watch(
   isSquareInPlace,
   (value, oldValue) => {
     if (value && !oldValue && !baseStore.doResetList) {
-      baseStore.$patch({ orderedCount: baseStore.orderedCount + 1 });
+      baseStore.orderedCount = baseStore.orderedCount + 1;
     }
     if (!value && oldValue) {
-      baseStore.$patch({ orderedCount: baseStore.orderedCount - 1 });
+      baseStore.orderedCount = baseStore.orderedCount - 1;
     }
   },
   { immediate: true }
@@ -98,7 +98,7 @@ const saveActualOrder = (moveDirection: Direction) => {
     default:
   }
   baseStore.incMoves();
-  baseStore.$patch({ freeElement: prevOrder });
+  baseStore.freeElement = prevOrder;
 };
 
 const canMoveUp = computed(() => {
