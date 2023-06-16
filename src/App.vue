@@ -29,7 +29,10 @@ const reset = () => {
 
 const wasPausedBeforeConfirm = ref(false);
 const doShowConfirm = () => {
-  if (baseStore.time < 10 && baseStore.movesCount < 10) {
+  if (!baseStore.afterDoneAnimationEnd) {
+    return;
+  }
+  if (isDone.value || (baseStore.time < 10 && baseStore.movesCount < 10)) {
     reset();
     return;
   }
@@ -99,11 +102,17 @@ watch(
   </div>
   <div class="bottom-tools-panel">
     <div class="tool-item">
-      <button class="tool-button" :disabled="showConfirm" @click="doShowConfirm">Restart</button>
+      <button
+        class="tool-button"
+        :disabled="showConfirm || !baseStore.afterDoneAnimationEnd || baseStore.paused"
+        @click="doShowConfirm"
+      >
+        Restart
+      </button>
       <button
         class="tool-button pause-button"
         :class="{ 'green-button': baseStore.paused }"
-        :disabled="showConfirm"
+        :disabled="showConfirm || !baseStore.afterDoneAnimationEnd || isDone"
         @click="baseStore.invertPaused"
       >
         {{ baseStore.paused ? 'Resume' : 'Pause' }}

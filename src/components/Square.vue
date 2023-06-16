@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useBaseStore } from '../stores/base';
+import { storeToRefs } from 'pinia';
 
 const props = defineProps<{
   squareSize: number;
@@ -48,25 +49,18 @@ const capture = () => {
   isCaptured.value = true;
 };
 const release = () => {
+  if (isDoneAll.value) {
+    return;
+  }
   isCaptured.value = false;
 };
-
-watch(
-  isSquareInPlace,
-  (value, oldValue) => {
-    if (value && !oldValue && !baseStore.doResetList) {
-      baseStore.orderedCount = baseStore.orderedCount + 1;
-    }
-    if (!value && oldValue) {
-      baseStore.orderedCount = baseStore.orderedCount - 1;
-    }
-  },
-  { immediate: true }
-);
 
 const renderFlag = ref(false);
 watch([calculatedLeft, calculatedTop], () => {
   setTimeout(() => {
+    if (isDoneAll.value) {
+      return;
+    }
     renderFlag.value = true;
     setTimeout(() => {
       renderFlag.value = false;
@@ -147,6 +141,30 @@ const move = () => {
     saveActualOrder(Direction.Up);
   }
 };
+
+watch(
+  isDoneAll,
+  (newValue) => {
+    if (newValue) {
+      setTimeout(() => {
+        isCaptured.value = true;
+        baseStore.afterDoneCount += 1;
+      }, actualOrder.value * 70);
+    }
+  },
+  { immediate: true }
+);
+
+const { doResetList } = storeToRefs(baseStore);
+watch(
+  doResetList,
+  (value, oldValue) => {
+    if (value && !oldValue) {
+      isCaptured.value = false;
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <template>

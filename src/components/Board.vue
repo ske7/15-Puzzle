@@ -4,21 +4,14 @@ import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import Square from './Square.vue';
-import { generateAndShuffle, generate } from '../utils';
 
-type PossibleLinesCount = 3 | 4 | 5;
+const props = defineProps<{ squareSize: number }>();
 
-interface Props {
-  numLines?: PossibleLinesCount;
-  squareSize: number;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  numLines: 4
-});
+const baseStore = useBaseStore();
+baseStore.initStore();
 
 const boardSize = computed(() => {
-  return `${props.numLines * props.squareSize}px`;
+  return `${baseStore.numLines * props.squareSize}px`;
 });
 const container = ref();
 const { left, right, top, bottom } = useElementBounding(container);
@@ -28,39 +21,24 @@ onMounted(() => {
   isMounted.value = true;
 });
 
-const paused = computed(() => {
-  return baseStore.paused;
-});
-
-const list = ref<number[]>([]);
-const baseStore = useBaseStore();
 const { doResetList } = storeToRefs(baseStore);
-doResetList.value = true;
 watch(
   doResetList,
   (value, oldValue) => {
     if (value && !oldValue) {
-      list.value = generateAndShuffle(props.numLines ** 2);
-      baseStore.$patch({
-        numLines: props.numLines,
-        freeElement: props.numLines ** 2,
-        movesCount: 0,
-        time: 0,
-        actualOrders: generate(props.numLines ** 2)
-      });
-      baseStore.doResetList = false;
+      baseStore.initStore();
     }
   },
-  { immediate: true }
+  { immediate: true, flush: 'post' }
 );
 </script>
 
 <template>
   <div ref="container" class="board">
-    <div v-if="paused" class="paused-veil"><span>Pause</span></div>
+    <div v-if="baseStore.paused" class="paused-veil"><span>Pause</span></div>
     <div v-if="isMounted">
       <Square
-        v-for="n in numLines ** 2 - 1"
+        v-for="n in baseStore.numLines ** 2 - 1"
         :key="n"
         :square-size="squareSize"
         :container-right="right"
@@ -68,7 +46,7 @@ watch(
         :container-top="top"
         :container-left="left"
         :order="n - 1"
-        :mixed-order="list[n - 1]"
+        :mixed-order="baseStore.mixedOrders[n - 1]"
       />
     </div>
   </div>
