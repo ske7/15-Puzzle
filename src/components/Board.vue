@@ -23,6 +23,9 @@ onMounted(() => {
 
   window.addEventListener('keydown', (event) => {
     event.preventDefault();
+    if (baseStore.isDone || baseStore.paused) {
+      return;
+    }
     let newFreeElement: number | null = null;
     if (event.code === 'ArrowRight') {
       newFreeElement = baseStore.freeElement - 1;
