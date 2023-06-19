@@ -1,6 +1,14 @@
 import { defineStore } from 'pinia';
 import { generateAndShuffle, generate } from '../utils';
 
+export const enum Direction {
+  None,
+  Up = 1,
+  Right = 2,
+  Down = 3,
+  Left = 4
+}
+
 export const useBaseStore = defineStore('base', {
   state: () => ({
     numLines: 4,
@@ -23,8 +31,8 @@ export const useBaseStore = defineStore('base', {
       this.time = 0;
       this.movesCount = 0;
       this.afterDoneCount = 0;
-      this.actualOrders = generate(this.numLines ** 2);
-      this.mixedOrders = generateAndShuffle(this.numLines ** 2);
+      this.actualOrders = generate(this.arrayLength);
+      this.mixedOrders = generateAndShuffle(this.arrayLength);
       this.doResetList = false;
     },
     incMoves() {
@@ -38,9 +46,32 @@ export const useBaseStore = defineStore('base', {
     },
     invertPaused() {
       this.paused = !this.paused;
+    },
+    saveActualOrder(order: number, moveDirection: Direction) {
+      const prevOrder = this.actualOrders[order];
+      switch (moveDirection) {
+        case Direction.Right:
+          this.actualOrders[order] = prevOrder + 1;
+          break;
+        case Direction.Left:
+          this.actualOrders[order] = prevOrder - 1;
+          break;
+        case Direction.Down:
+          this.actualOrders[order] = prevOrder + this.numLines;
+          break;
+        case Direction.Up:
+          this.actualOrders[order] = prevOrder - this.numLines;
+          break;
+        default:
+      }
+      this.incMoves();
+      this.freeElement = prevOrder;
     }
   },
   getters: {
+    arrayLength(): number {
+      return this.numLines ** 2;
+    },
     orderedCount(): number {
       let count = 0;
       for (const i in this.actualOrders) {
@@ -51,13 +82,13 @@ export const useBaseStore = defineStore('base', {
       return count;
     },
     isDone(): boolean {
-      return this.orderedCount === this.numLines ** 2 - 1;
+      return this.orderedCount === this.arrayLength - 1;
     },
     afterDoneAnimationEnd(): boolean {
       if (!this.isDone) {
         return true;
       }
-      return this.afterDoneCount === this.numLines ** 2 - 1;
+      return this.afterDoneCount === this.arrayLength - 1;
     },
     minutes(): number {
       return Math.floor(this.time / 60);

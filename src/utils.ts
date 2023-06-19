@@ -27,3 +27,7 @@ export function generateAndShuffle(length: number): number[] {
 export function generate(length: number): number[] {
   return [...sequenceGenerator(1, length)];
 }
+
+export function getArrayKeyByValue(array: number[], value: number): number {
+  return Number(Object.keys(array).find((key) => array[Number(key)] === value));
+}

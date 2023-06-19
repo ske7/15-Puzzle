@@ -2,8 +2,9 @@
 import { computed, ref, onMounted, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
-import { useBaseStore } from '../stores/base';
+import { useBaseStore, Direction } from '../stores/base';
 import Square from './Square.vue';
+import { getArrayKeyByValue } from '../utils';
 
 const props = defineProps<{ squareSize: number }>();
 
@@ -19,6 +20,32 @@ const { left, right, top, bottom } = useElementBounding(container);
 const isMounted = ref(false);
 onMounted(() => {
   isMounted.value = true;
+
+  window.addEventListener('keydown', (event) => {
+    event.preventDefault();
+    let newFreeElement: number | null = null;
+    if (event.code === 'ArrowRight') {
+      newFreeElement = baseStore.freeElement - 1;
+      if (newFreeElement > 0 && newFreeElement % baseStore.numLines !== 0) {
+        baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement), Direction.Right);
+      }
+    } else if (event.code === 'ArrowLeft') {
+      newFreeElement = baseStore.freeElement + 1;
+      if (newFreeElement <= baseStore.arrayLength && baseStore.freeElement % baseStore.numLines !== 0) {
+        baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement), Direction.Left);
+      }
+    } else if (event.code === 'ArrowUp') {
+      newFreeElement = baseStore.freeElement + baseStore.numLines;
+      if (newFreeElement <= baseStore.arrayLength) {
+        baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement), Direction.Up);
+      }
+    } else if (event.code === 'ArrowDown') {
+      newFreeElement = baseStore.freeElement - baseStore.numLines;
+      if (newFreeElement > 0) {
+        baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement), Direction.Down);
+      }
+    }
+  });
 });
 
 const { doResetList } = storeToRefs(baseStore);
