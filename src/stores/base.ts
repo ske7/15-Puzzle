@@ -1,8 +1,10 @@
-import { defineStore } from 'pinia';
+import { defineStore, acceptHMRUpdate } from 'pinia';
 import { generateAndShuffle, generate } from '../utils';
 
+const CORE_NUM = 4;
+
 export const enum Direction {
-  None,
+  None = 0,
   Up = 1,
   Right = 2,
   Down = 3,
@@ -11,8 +13,8 @@ export const enum Direction {
 
 export const useBaseStore = defineStore('base', {
   state: () => ({
-    numLines: 4,
-    freeElement: 16,
+    numLines: CORE_NUM,
+    freeElement: CORE_NUM ** 2,
     time: 0,
     movesCount: 0,
     afterDoneCount: 0,
@@ -26,8 +28,8 @@ export const useBaseStore = defineStore('base', {
   }),
   actions: {
     initStore() {
-      this.numLines = 4;
-      this.freeElement = 16;
+      this.numLines = CORE_NUM;
+      this.freeElement = CORE_NUM ** 2;
       this.time = 0;
       this.movesCount = 0;
       this.afterDoneCount = 0;
@@ -104,3 +106,7 @@ export const useBaseStore = defineStore('base', {
     }
   }
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useBaseStore, import.meta.hot));
+}

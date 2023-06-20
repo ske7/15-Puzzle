@@ -8,5 +8,6 @@
     "paths": {
       "@/*": ["./src/*"]
     }
-  }
+  },
+  "files": ["src/App.vue"]
 }
