@@ -46,6 +46,17 @@ export const useBaseStore = defineStore('base', {
     stopInterval() {
       clearInterval(this.interval);
     },
+    restartInterval() {
+      if (this.interval) {
+        this.stopInterval();
+      }
+      this.interval = setInterval(() => {
+        if (this.paused) {
+          return;
+        }
+        this.time++;
+      }, 1000);
+    },
     invertPaused() {
       this.paused = !this.paused;
     },

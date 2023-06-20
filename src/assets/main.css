@@ -60,7 +60,7 @@ header img {
 img[alt] {
   font-size: 12px;
 }
-.top-tools-panel {
+.top-info-panel {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;

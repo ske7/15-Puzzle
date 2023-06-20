@@ -5,10 +5,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   confirmQuestion: 'Do you really want to restart the game?'
 });
-const emit = defineEmits<{
-  (event: 'confirm'): void;
-  (event: 'decline'): void;
-}>();
+const emit = defineEmits<{ confirm: []; decline: [] }>();
 </script>
 
 <template>
