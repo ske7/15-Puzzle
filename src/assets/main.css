@@ -136,6 +136,9 @@ img[alt] {
   font-style: italic;
   color: navy;
 }
+.records .caption {
+  margin-right: 3px;
+}
 .red {
   color: red !important;
 }

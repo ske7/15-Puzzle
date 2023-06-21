@@ -94,7 +94,7 @@ watch(
       </button>
     </div>
     <div class="tool-item end records">
-      <span style="margin-right: 3px">{{ windowWidth > 600 ? 'Record:' : 'Rec.:' }}</span>
+      <span class="caption">{{ windowWidth > 600 ? 'Record:' : 'Rec.:' }}</span>
       <span class="moves-count" :class="{ red: newMovesRecord }">{{ baseStore.movesRecord || '?' }} </span>&nbsp;/&nbsp;
       <span class="time" :class="{ red: newTimeRecord }">
         {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecordMinutes || '0' }}m&nbsp;
