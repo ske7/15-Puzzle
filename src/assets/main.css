@@ -26,20 +26,22 @@ body {
   display: flex;
   justify-content: center;
 }
-header {
+h1.header {
   display: flex;
   justify-content: center;
   margin-top: 30px;
-  margin-bottom: 10px;
-  font-size: 44px;
+  margin-bottom: 20px;
+  font-size: 40px;
   align-items: center;
+  line-height: 48px;
 }
-header img {
-  width: 50px;
-  height: 50px;
-  margin-left: 5px;
+.header > img {
+  width: 48px;
+  height: 48px;
+  margin-left: 15px;
   display: flex;
   align-items: center;
+  border-radius: 8px;
 }
 .board-container {
   display: flex;
@@ -58,7 +60,7 @@ header img {
   font-weight: 600;
 }
 img[alt] {
-  font-size: 12px;
+  font-size: 15px;
 }
 .top-info-panel {
   display: flex;
@@ -81,6 +83,9 @@ img[alt] {
 .tool-item.end {
   justify-content: flex-end;
 }
+.tool-item span {
+  font-size: 15px;
+}
 .tool-item > .time {
   display: flex;
   justify-content: flex-end;
@@ -97,10 +102,10 @@ img[alt] {
   text-decoration: none;
   border: 1px solid grey;
   color: navy;
-  border-radius: 3px;
+  border-radius: 8px;
   font-style: italic;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 500;
   transition: all 0.3s ease;
 }
 .tool-item .pause-button {
@@ -118,15 +123,16 @@ img[alt] {
 }
 .instruction {
   text-align: center;
-  max-width: 360px;
-  font-size: 14px;
+  max-width: 380px;
+  font-size: 15px;
+  margin: 0 auto;
   margin-top: 10px;
 }
 .records {
   align-items: flex-end;
 }
 .records span {
-  font-size: 14px;
+  font-size: 15px;
   font-style: italic;
   color: navy;
 }
@@ -135,15 +141,19 @@ img[alt] {
 }
 @media screen and (max-width: 601px) {
   .instruction {
+    max-width: 300px;
+  }
+}
+@media screen and (max-width: 401px) {
+  .instruction {
     text-align: left;
     max-width: 270px;
-    font-size: 12px;
   }
   .tool-item .pause-button {
     margin-left: 3px;
   }
   .records span {
-    font-size: 13px;
+    font-size: 14px;
     font-style: italic;
     color: navy;
   }

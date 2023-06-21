@@ -4,16 +4,27 @@ import { useBaseStore } from './stores/base';
 import Board from './components/Board.vue';
 import TopInfoPanel from './components/TopInfoPanel.vue';
 import BottomToolsPanel from './components/BottomToolsPanel.vue';
+import { computed } from 'vue';
 
 const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
+
+const squareSize = computed(() => {
+  if (windowWidth.value <= 400) {
+    return 60;
+  } else if (windowWidth.value <= 600) {
+    return 70;
+  } else {
+    return 90;
+  }
+});
 </script>
 
 <template>
-  <header>15 Puzzle <img src="./assets/cage.png" alt="Nic Cage" /></header>
+  <h1 class="header">15 Puzzle <img src="./assets/cage.png" alt="Nic.Cage" width="48" height="48" /></h1>
   <TopInfoPanel />
   <div class="board-container">
-    <Board :square-size="windowWidth > 600 ? 90 : 60" />
+    <Board :square-size="squareSize" />
   </div>
   <BottomToolsPanel />
   <p v-if="!baseStore.isDone" class="instruction">Game rule: move blocks until they are in regular order</p>
