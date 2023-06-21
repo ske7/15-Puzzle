@@ -26,7 +26,6 @@ const emit = defineEmits<{ confirm: []; decline: [] }>();
   justify-content: center;
   flex-direction: column;
   background-color: white;
-  border: 1px solid navy;
   border-radius: 10px;
   height: 150px;
   width: 250px;

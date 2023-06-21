@@ -13,7 +13,7 @@ const { width: windowWidth } = useWindowSize();
   <header>15 Puzzle <img src="./assets/cage.png" alt="Nic Cage" /></header>
   <TopInfoPanel />
   <div class="board-container">
-    <Board :square-size="windowWidth > 600 ? 90 : 70" />
+    <Board :square-size="windowWidth > 600 ? 90 : 60" />
   </div>
   <BottomToolsPanel />
   <p v-if="!baseStore.isDone" class="instruction">Game rule: move blocks until they are in regular order</p>

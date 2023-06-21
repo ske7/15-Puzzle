@@ -11,6 +11,7 @@ const props = defineProps<{
   containerRight: number;
   order: number;
   mixedOrder: number;
+  spaceBetween: number;
 }>();
 
 const baseStore = useBaseStore();
@@ -24,10 +25,20 @@ const actualOrder = computed(() => {
 });
 
 const calculatedLeft = computed(() => {
-  return props.containerLeft + props.squareSize * ((actualOrder.value - 1) % baseStore.numLines);
+  return (
+    props.containerLeft +
+    ((actualOrder.value - 1) % baseStore.numLines) * props.spaceBetween +
+    props.spaceBetween +
+    props.squareSize * ((actualOrder.value - 1) % baseStore.numLines)
+  );
 });
 const calculatedTop = computed(() => {
-  return props.containerTop + props.squareSize * (Math.ceil(actualOrder.value / baseStore.numLines) - 1);
+  return (
+    props.containerTop +
+    Math.floor((actualOrder.value - 1) / baseStore.numLines) * props.spaceBetween +
+    props.spaceBetween +
+    props.squareSize * (Math.ceil(actualOrder.value / baseStore.numLines) - 1)
+  );
 });
 
 const isSquareInPlace = computed(() => {
@@ -152,7 +163,7 @@ watch(
   position: fixed;
   width: v-bind(sizeVar);
   height: v-bind(sizeVar);
-  border: 1px solid blue;
+  border: 1px solid rgba(136, 165, 191, 0.3);
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -161,8 +172,9 @@ watch(
   -moz-user-select: none;
   user-select: none;
   transition: all 0.3s ease 0s;
-  border-radius: 5px;
+  border-radius: 8px;
   box-sizing: border-box;
+  box-shadow: rgba(0, 0, 0, 0.2) 1px 1px 2px;
 }
 .captured {
   background-color: gold !important;
@@ -184,5 +196,7 @@ watch(
 }
 .item span {
   font-size: 21px;
+  font-weight: 500;
+  color: rgb(46, 37, 98);
 }
 </style>

@@ -11,8 +11,9 @@ const props = defineProps<{ squareSize: number }>();
 const baseStore = useBaseStore();
 baseStore.initStore();
 
+const spaceBetween = ref(8);
 const boardSize = computed(() => {
-  return `${baseStore.numLines * props.squareSize}px`;
+  return `${baseStore.numLines * props.squareSize + spaceBetween.value * (baseStore.numLines + 1)}px`;
 });
 const container = ref();
 const { left, right, top, bottom } = useElementBounding(container);
@@ -77,6 +78,7 @@ watch(
         :container-left="left"
         :order="n - 1"
         :mixed-order="baseStore.mixedOrders[n - 1]"
+        :space-between="spaceBetween"
       />
     </div>
   </div>
@@ -87,8 +89,9 @@ watch(
   display: flex;
   width: v-bind(boardSize);
   height: v-bind(boardSize);
-  border: 1px solid blue;
-  border-radius: 10px;
+  border: 0px;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 5px 15px;
+  border-radius: 8px;
   align-content: center;
   position: relative;
 }
