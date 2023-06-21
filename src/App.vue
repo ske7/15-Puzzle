@@ -21,7 +21,10 @@ const squareSize = computed(() => {
 </script>
 
 <template>
-  <h1 class="header">15 Puzzle <img src="./assets/cage.webp" alt="Nic.Cage" width="48" height="48" /></h1>
+  <div class="header">
+    <h1>15 Puzzle</h1>
+    <img src="./assets/cage.webp" alt="Nic.Cage" width="48" height="48" />
+  </div>
   <TopInfoPanel />
   <div class="board-container">
     <Board :square-size="squareSize" />

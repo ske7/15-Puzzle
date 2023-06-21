@@ -26,16 +26,21 @@ body {
   display: flex;
   justify-content: center;
 }
-h1.header {
+.header {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-top: 30px;
   margin-bottom: 20px;
+}
+.header h1 {
+  display: flex;
+  justify-content: center;
   font-size: 40px;
   align-items: center;
   line-height: 48px;
 }
-.header > img {
+.header img {
   width: 48px;
   height: 48px;
   margin-left: 15px;

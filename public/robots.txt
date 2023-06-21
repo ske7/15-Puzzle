@@ -1,2 +1,4 @@
 User-agent: *
 Disallow:
+
+Sitemap: https://cage15.onrender.com/sitemap.xml
