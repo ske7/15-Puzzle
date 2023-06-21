@@ -89,7 +89,6 @@ watch(
   display: flex;
   width: v-bind(boardSize);
   height: v-bind(boardSize);
-  border: 0px;
   box-shadow: rgba(0, 0, 0, 0.3) 0px 5px 15px;
   border-radius: 8px;
   align-content: center;
@@ -99,8 +98,7 @@ watch(
   display: flex;
   width: v-bind(boardSize);
   height: v-bind(boardSize);
-  border: 1px solid #ccc;
-  border-radius: 10px;
+  border-radius: 8px;
   justify-content: center;
   align-items: center;
   position: relative;
