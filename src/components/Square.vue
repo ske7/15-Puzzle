@@ -174,7 +174,7 @@ watch(
   transition: all 0.3s ease 0s;
   border-radius: 8px;
   box-sizing: border-box;
-  box-shadow: rgba(0, 0, 0, 0.2) 1px 1px 2px;
+  box-shadow: 0 0 4px inset rgba(0, 0, 0, 0.2);
 }
 .captured {
   background-color: gold !important;
@@ -197,6 +197,6 @@ watch(
 .item span {
   font-size: 21px;
   font-weight: 500;
-  color: rgb(46, 37, 98);
+  color: #0a0a23;
 }
 </style>

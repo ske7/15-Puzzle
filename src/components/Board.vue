@@ -9,7 +9,7 @@ import { getArrayKeyByValue } from '../utils';
 const props = defineProps<{ squareSize: number }>();
 
 const baseStore = useBaseStore();
-baseStore.initStore();
+baseStore.initStore(true);
 
 const spaceBetween = ref(8);
 const boardSize = computed(() => {
@@ -66,7 +66,10 @@ watch(
 
 <template>
   <div ref="container" class="board">
-    <div v-if="baseStore.paused" class="paused-veil"><span>Pause</span></div>
+    <div v-if="baseStore.paused" class="paused-veil" @click="baseStore.invertPaused">
+      <p><span class="bigger">Paused</span></p>
+      <p><span class="smaller">Click to resume</span></p>
+    </div>
     <div v-if="isMounted">
       <Square
         v-for="n in baseStore.numLines ** 2 - 1"
@@ -79,6 +82,7 @@ watch(
         :order="n - 1"
         :mixed-order="baseStore.mixedOrders[n - 1]"
         :space-between="spaceBetween"
+        :class="{ 'board-veil': baseStore.paused }"
       />
     </div>
   </div>
@@ -94,21 +98,30 @@ watch(
   align-content: center;
   position: relative;
 }
+.board-veil {
+  opacity: 0.3;
+  background-color: #ccc;
+}
 .paused-veil {
   display: flex;
+  flex-direction: column;
   width: v-bind(boardSize);
   height: v-bind(boardSize);
   border-radius: 8px;
   justify-content: center;
   align-items: center;
   position: relative;
-  background-color: #ccc;
-  opacity: 0.5;
+  background-color: transparent;
   z-index: 1000;
 }
-.paused-veil span {
-  color: black;
-  font-size: 52px;
-  padding-bottom: 10px;
+.paused-veil .bigger {
+  color: navy;
+  font-size: 56px;
+  line-height: 56px;
+  padding-bottom: 5px;
+}
+.paused-veil .smaller {
+  color: navy;
+  font-size: 27px;
 }
 </style>

@@ -1,5 +1,5 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { generateAndShuffle, generate } from '../utils';
+import { generateAndShuffle } from '../utils';
 
 const CORE_NUM = 4;
 
@@ -27,14 +27,19 @@ export const useBaseStore = defineStore('base', {
     timeRecord: 0
   }),
   actions: {
-    initStore() {
+    initStore(firstTime = false) {
       this.numLines = CORE_NUM;
       this.freeElement = CORE_NUM ** 2;
       this.time = 0;
       this.movesCount = 0;
       this.afterDoneCount = 0;
-      this.actualOrders = generate(this.arrayLength);
+      this.actualOrders = generateAndShuffle(this.arrayLength);
       this.mixedOrders = generateAndShuffle(this.arrayLength);
+      if (firstTime) {
+        setTimeout(() => {
+          this.actualOrders = generateAndShuffle(this.arrayLength);
+        }, 200);
+      }
       this.doResetList = false;
     },
     incMoves() {
