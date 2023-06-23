@@ -66,9 +66,14 @@ watch(
 
 <template>
   <div ref="container" class="board">
-    <div v-if="baseStore.paused" class="paused-veil" @click="baseStore.invertPaused">
-      <p><span class="bigger">Paused</span></p>
-      <p><span class="smaller">Click to resume</span></p>
+    <div
+      v-if="baseStore.paused"
+      class="paused-veil"
+      :class="{ 'cur-auto': baseStore.showConfirm }"
+      @click="baseStore.invertPaused"
+    >
+      <p v-if="!baseStore.showConfirm"><span class="bigger">Paused</span></p>
+      <p v-if="!baseStore.showConfirm"><span class="smaller">Click to resume</span></p>
     </div>
     <div v-if="isMounted">
       <Square

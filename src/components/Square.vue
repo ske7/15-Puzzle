@@ -185,9 +185,6 @@ watch(
 .in-place {
   background-color: rgb(224, 245, 250);
 }
-.cur-auto {
-  cursor: auto;
-}
 .item {
   display: flex;
   justify-content: space-evenly;

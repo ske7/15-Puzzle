@@ -8,7 +8,6 @@ import ConfirmDialog from '../components/ConfirmDialog.vue';
 const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
 
-const showConfirm = ref(false);
 const newMovesRecord = ref(false);
 const newTimeRecord = ref(false);
 const wasPausedBeforeConfirm = ref(false);
@@ -32,17 +31,17 @@ const doShowConfirm = () => {
   if (!wasPausedBeforeConfirm.value) {
     baseStore.invertPaused();
   }
-  showConfirm.value = true;
+  baseStore.showConfirm = true;
 };
 const doConfirmRestart = () => {
-  showConfirm.value = false;
+  baseStore.showConfirm = false;
   reset();
   if (!wasPausedBeforeConfirm.value) {
     baseStore.invertPaused();
   }
 };
 const declineConfirm = () => {
-  showConfirm.value = false;
+  baseStore.showConfirm = false;
   if (!wasPausedBeforeConfirm.value) {
     baseStore.invertPaused();
   }
@@ -79,14 +78,14 @@ watch(
     <div class="tool-item">
       <button
         class="tool-button"
-        :disabled="showConfirm || !baseStore.afterDoneAnimationEnd || baseStore.paused"
+        :disabled="baseStore.showConfirm || !baseStore.afterDoneAnimationEnd || baseStore.paused"
         @click="doShowConfirm"
       >
         Restart
       </button>
       <button
         class="tool-button pause-button"
-        :disabled="showConfirm || !baseStore.afterDoneAnimationEnd || isDone"
+        :disabled="baseStore.showConfirm || !baseStore.afterDoneAnimationEnd || isDone"
         @click="baseStore.invertPaused"
       >
         {{ baseStore.paused ? 'Resume' : 'Pause' }}
@@ -103,5 +102,5 @@ watch(
       </span>
     </div>
   </div>
-  <ConfirmDialog v-if="showConfirm" @confirm="doConfirmRestart" @decline="declineConfirm" />
+  <ConfirmDialog v-if="baseStore.showConfirm" @confirm="doConfirmRestart" @decline="declineConfirm" />
 </template>

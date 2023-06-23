@@ -143,6 +143,9 @@ img[alt] {
 .red {
   color: red !important;
 }
+.cur-auto {
+  cursor: auto !important;
+}
 @media screen and (max-width: 601px) {
   .instruction {
     max-width: 300px;

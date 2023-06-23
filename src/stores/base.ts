@@ -25,7 +25,8 @@ export const useBaseStore = defineStore('base', {
     paused: false,
     movesRecord: 0,
     timeRecord: 0,
-    doneFirstMove: false
+    doneFirstMove: false,
+    showConfirm: false
   }),
   actions: {
     initStore() {
@@ -60,6 +61,9 @@ export const useBaseStore = defineStore('base', {
       }, 1000);
     },
     invertPaused() {
+      if (this.showConfirm) {
+        return;
+      }
       this.paused = !this.paused;
     },
     saveActualOrder(order: number, moveDirection: Direction) {
