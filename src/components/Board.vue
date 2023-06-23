@@ -9,7 +9,7 @@ import { getArrayKeyByValue } from '../utils';
 const props = defineProps<{ squareSize: number }>();
 
 const baseStore = useBaseStore();
-baseStore.initStore(true);
+baseStore.initStore();
 
 const spaceBetween = ref(8);
 const boardSize = computed(() => {
@@ -99,8 +99,7 @@ watch(
   position: relative;
 }
 .board-veil {
-  opacity: 0.3;
-  background-color: #ccc;
+  opacity: 0.2;
 }
 .paused-veil {
   display: flex;
@@ -113,6 +112,7 @@ watch(
   position: relative;
   background-color: transparent;
   z-index: 1000;
+  cursor: pointer;
 }
 .paused-veil .bigger {
   color: navy;
@@ -122,6 +122,13 @@ watch(
 }
 .paused-veil .smaller {
   color: navy;
-  font-size: 27px;
+  font-size: 32px;
+  font-weight: 500;
+}
+@media screen and (max-width: 601px) {
+  .paused-veil .bigger {
+    font-size: 48px;
+    line-height: 48px;
+  }
 }
 </style>

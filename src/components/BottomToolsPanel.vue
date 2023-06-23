@@ -86,7 +86,6 @@ watch(
       </button>
       <button
         class="tool-button pause-button"
-        :class="{ 'green-button': baseStore.paused }"
         :disabled="showConfirm || !baseStore.afterDoneAnimationEnd || isDone"
         @click="baseStore.invertPaused"
       >

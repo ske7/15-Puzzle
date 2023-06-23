@@ -116,10 +116,6 @@ img[alt] {
 .tool-item .pause-button {
   margin-left: 20px;
 }
-.tool-item .green-button {
-  color: green;
-  background-color: white;
-}
 .moves-count {
   min-width: 10px;
   display: flex;
@@ -173,9 +169,5 @@ img[alt] {
 @media screen and (min-width: 600px) {
   .tool-button:hover:not([disabled]) {
     background-color: #2db3d525;
-  }
-  .tool-item .green-button:hover:not([disabled]) {
-    color: green;
-    background-color: white;
   }
 }

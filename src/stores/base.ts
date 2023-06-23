@@ -24,10 +24,11 @@ export const useBaseStore = defineStore('base', {
     interval: 0,
     paused: false,
     movesRecord: 0,
-    timeRecord: 0
+    timeRecord: 0,
+    doneFirstMove: false
   }),
   actions: {
-    initStore(firstTime = false) {
+    initStore() {
       this.numLines = CORE_NUM;
       this.freeElement = CORE_NUM ** 2;
       this.time = 0;
@@ -35,12 +36,8 @@ export const useBaseStore = defineStore('base', {
       this.afterDoneCount = 0;
       this.actualOrders = generateAndShuffle(this.arrayLength);
       this.mixedOrders = generateAndShuffle(this.arrayLength);
-      if (firstTime) {
-        setTimeout(() => {
-          this.actualOrders = generateAndShuffle(this.arrayLength);
-        }, 200);
-      }
       this.doResetList = false;
+      this.doneFirstMove = false;
     },
     incMoves() {
       this.movesCount++;
@@ -56,7 +53,7 @@ export const useBaseStore = defineStore('base', {
         this.stopInterval();
       }
       this.interval = setInterval(() => {
-        if (this.paused) {
+        if (this.paused || !this.doneFirstMove) {
           return;
         }
         this.time++;
@@ -66,6 +63,9 @@ export const useBaseStore = defineStore('base', {
       this.paused = !this.paused;
     },
     saveActualOrder(order: number, moveDirection: Direction) {
+      if (!this.doneFirstMove) {
+        this.doneFirstMove = true;
+      }
       const prevOrder = this.actualOrders[order];
       switch (moveDirection) {
         case Direction.Right:
