@@ -1,5 +1,5 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { generateAndShuffle } from '../utils';
+import { generateAndShuffle, generate, isSolvable } from '../utils';
 
 const CORE_NUM = 4;
 
@@ -35,8 +35,13 @@ export const useBaseStore = defineStore('base', {
       this.time = 0;
       this.movesCount = 0;
       this.afterDoneCount = 0;
-      this.actualOrders = generateAndShuffle(this.arrayLength);
+      this.actualOrders = generate(this.arrayLength);
       this.mixedOrders = generateAndShuffle(this.arrayLength);
+      let solvable = isSolvable(this.mixedOrders, this.freeElement);
+      while (!solvable) {
+        this.mixedOrders = generateAndShuffle(this.arrayLength);
+        solvable = isSolvable(this.mixedOrders, this.freeElement);
+      }
       this.doResetList = false;
       this.doneFirstMove = false;
     },

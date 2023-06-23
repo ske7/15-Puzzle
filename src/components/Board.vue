@@ -77,15 +77,15 @@ watch(
     </div>
     <div v-if="isMounted">
       <Square
-        v-for="n in baseStore.numLines ** 2 - 1"
-        :key="n"
+        v-for="(value, index) in baseStore.mixedOrders"
+        :key="index"
         :square-size="squareSize"
         :container-right="right"
         :container-bottom="bottom"
         :container-top="top"
         :container-left="left"
-        :order="n - 1"
-        :mixed-order="baseStore.mixedOrders[n - 1]"
+        :order="index"
+        :mixed-order="value"
         :space-between="spaceBetween"
         :class="{ 'board-veil': baseStore.paused }"
       />

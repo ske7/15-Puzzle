@@ -31,3 +31,29 @@ export function generate(length: number): number[] {
 export function getArrayKeyByValue(array: number[], value: number): number {
   return Number(Object.keys(array).find((key) => array[Number(key)] === value));
 }
+
+export function isSolvable(array: number[], freeElement: number): boolean {
+  const inArray: number[] = array.slice(0);
+  inArray.push(0);
+  const rowCount: number = Math.sqrt(inArray.length);
+  const freeElementRow = Math.ceil(freeElement / rowCount);
+
+  let parity = 0;
+  for (let i = 0; i < inArray.length; i++) {
+    for (let j = i + 1; j < inArray.length; j++) {
+      if (inArray[i] > inArray[j] && inArray[j] !== 0) {
+        parity++;
+      }
+    }
+  }
+
+  if (rowCount % 2 === 0) {
+    if (freeElementRow % 2 === 0) {
+      return parity % 2 === 0;
+    } else {
+      return parity % 2 !== 0;
+    }
+  } else {
+    return parity % 2 === 0;
+  }
+}
