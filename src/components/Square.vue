@@ -27,32 +27,32 @@ const actualOrder = computed(() => {
 const calculatedLeft = computed(() => {
   return (
     props.containerLeft +
-    ((actualOrder.value - 1) % baseStore.numLines) * props.spaceBetween +
+    (actualOrder.value % baseStore.numLines) * props.spaceBetween +
     props.spaceBetween +
-    props.squareSize * ((actualOrder.value - 1) % baseStore.numLines)
+    props.squareSize * (actualOrder.value % baseStore.numLines)
   );
 });
 const calculatedTop = computed(() => {
   return (
     props.containerTop +
-    Math.floor((actualOrder.value - 1) / baseStore.numLines) * props.spaceBetween +
+    Math.floor(actualOrder.value / baseStore.numLines) * props.spaceBetween +
     props.spaceBetween +
-    props.squareSize * (Math.ceil(actualOrder.value / baseStore.numLines) - 1)
+    props.squareSize * (Math.ceil((actualOrder.value + 1) / baseStore.numLines) - 1)
   );
 });
 
 const isSquareInPlace = computed(() => {
-  return actualOrder.value === props.mixedOrder;
+  return actualOrder.value + 1 === props.mixedOrder;
 });
 const isDoneAll = computed(() => {
   return baseStore.isDone;
 });
 
 const canMoveRight = computed(() => {
-  return actualOrder.value + 1 === baseStore.freeElement && actualOrder.value % baseStore.numLines !== 0;
+  return actualOrder.value + 1 === baseStore.freeElement && (actualOrder.value + 1) % baseStore.numLines !== 0;
 });
 const canMoveLeft = computed(() => {
-  return actualOrder.value - 1 === baseStore.freeElement && (actualOrder.value - 1) % baseStore.numLines !== 0;
+  return actualOrder.value - 1 === baseStore.freeElement && actualOrder.value % baseStore.numLines !== 0;
 });
 const canMoveUp = computed(() => {
   return actualOrder.value - baseStore.numLines === baseStore.freeElement;
@@ -114,7 +114,7 @@ watch([calculatedLeft, calculatedTop], () => {
 watch(
   isDoneAll,
   (newValue) => {
-    if (newValue) {
+    if (newValue && props.mixedOrder !== 0) {
       setTimeout(() => {
         isCaptured.value = true;
         baseStore.afterDoneCount += 1;
@@ -140,6 +140,7 @@ watch(
   <div
     class="square"
     :class="{
+      free: props.mixedOrder === 0,
       'in-place': isSquareInPlace,
       captured: isCaptured,
       'cur-auto': cannotMove,
@@ -175,6 +176,7 @@ watch(
   border-radius: 8px;
   box-sizing: border-box;
   box-shadow: 0 0 4px inset rgba(0, 0, 0, 0.2);
+  -webkit-tap-highlight-color: transparent;
 }
 .captured {
   background-color: gold !important;
@@ -184,6 +186,9 @@ watch(
 }
 .in-place {
   background-color: rgb(224, 245, 250);
+}
+.free {
+  display: none;
 }
 .item {
   display: flex;

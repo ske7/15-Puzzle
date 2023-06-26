@@ -20,33 +20,30 @@ export function* sequenceGenerator(minVal: number, maxVal: number) {
   while (currVal < maxVal) yield currVal++;
 }
 
-export function generateAndShuffle(length: number): number[] {
-  return shuffle([...sequenceGenerator(1, length)]);
+export function generateAndShuffle(length: number, fromZero = true): number[] {
+  return shuffle([...sequenceGenerator(fromZero ? 0 : 1, length)]);
 }
 
-export function generate(length: number): number[] {
-  return [...sequenceGenerator(1, length)];
+export function generate(length: number, fromZero = true): number[] {
+  return [...sequenceGenerator(fromZero ? 0 : 1, length)];
 }
 
 export function getArrayKeyByValue(array: number[], value: number): number {
   return Number(Object.keys(array).find((key) => array[Number(key)] === value));
 }
 
-export function isSolvable(array: number[], freeElement: number): boolean {
-  const inArray: number[] = array.slice(0);
-  inArray.push(0);
-  const rowCount: number = Math.sqrt(inArray.length);
+export function isSolvable(array: number[]): boolean {
+  const rowCount: number = Math.sqrt(array.length);
+  const freeElement = array.findIndex((x) => x === 0) + 1;
   const freeElementRow = Math.ceil(freeElement / rowCount);
-
   let parity = 0;
-  for (let i = 0; i < inArray.length; i++) {
-    for (let j = i + 1; j < inArray.length; j++) {
-      if (inArray[i] > inArray[j] && inArray[j] !== 0) {
+  for (let i = 0; i < array.length; i++) {
+    for (let j = i + 1; j < array.length; j++) {
+      if (array[i] > array[j] && array[j] !== 0) {
         parity++;
       }
     }
   }
-
   if (rowCount % 2 === 0) {
     if (freeElementRow % 2 === 0) {
       return parity % 2 === 0;

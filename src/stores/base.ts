@@ -37,11 +37,13 @@ export const useBaseStore = defineStore('base', {
       this.afterDoneCount = 0;
       this.actualOrders = generate(this.arrayLength);
       this.mixedOrders = generateAndShuffle(this.arrayLength);
-      let solvable = isSolvable(this.mixedOrders, this.freeElement);
+      let solvable = isSolvable(this.mixedOrders);
       while (!solvable) {
         this.mixedOrders = generateAndShuffle(this.arrayLength);
-        solvable = isSolvable(this.mixedOrders, this.freeElement);
+        solvable = isSolvable(this.mixedOrders);
       }
+      this.freeElement = this.actualOrders[this.mixedOrders.findIndex((x) => x === 0)];
+      this.actualOrders[this.mixedOrders.findIndex((x) => x === 0)] = -1;
       this.doResetList = false;
       this.doneFirstMove = false;
     },
@@ -102,7 +104,7 @@ export const useBaseStore = defineStore('base', {
     orderedCount(): number {
       let count = 0;
       for (const i in this.actualOrders) {
-        if (this.actualOrders[i] === this.mixedOrders[i]) {
+        if (this.actualOrders[i] !== -1 && this.actualOrders[i] + 1 === this.mixedOrders[i]) {
           count += 1;
         }
       }

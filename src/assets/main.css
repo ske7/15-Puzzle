@@ -112,6 +112,7 @@ img[alt] {
   font-size: 15px;
   font-weight: 500;
   transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 .tool-item .pause-button {
   margin-left: 20px;

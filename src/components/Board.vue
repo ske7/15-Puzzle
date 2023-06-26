@@ -30,22 +30,22 @@ onMounted(() => {
     let newFreeElement: number | null = null;
     if (event.code === 'ArrowRight') {
       newFreeElement = baseStore.freeElement - 1;
-      if (newFreeElement > 0 && newFreeElement % baseStore.numLines !== 0) {
+      if (newFreeElement >= 0 && (newFreeElement + 1) % baseStore.numLines !== 0) {
         baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement), Direction.Right);
       }
     } else if (event.code === 'ArrowLeft') {
       newFreeElement = baseStore.freeElement + 1;
-      if (newFreeElement <= baseStore.arrayLength && baseStore.freeElement % baseStore.numLines !== 0) {
+      if (newFreeElement < baseStore.arrayLength && (baseStore.freeElement + 1) % baseStore.numLines !== 0) {
         baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement), Direction.Left);
       }
     } else if (event.code === 'ArrowUp') {
       newFreeElement = baseStore.freeElement + baseStore.numLines;
-      if (newFreeElement <= baseStore.arrayLength) {
+      if (newFreeElement < baseStore.arrayLength) {
         baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement), Direction.Up);
       }
     } else if (event.code === 'ArrowDown') {
       newFreeElement = baseStore.freeElement - baseStore.numLines;
-      if (newFreeElement > 0) {
+      if (newFreeElement >= 0) {
         baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement), Direction.Down);
       }
     }
