@@ -3,6 +3,8 @@
 "15 Puzzle" made using Vue 3 (Typescript + Pinia)\
 _featuring Nic Cage_
 
+![15 Puzzle image](public/game7.png)
+
 Try it here:\
 https://cage15.onrender.com/
 
