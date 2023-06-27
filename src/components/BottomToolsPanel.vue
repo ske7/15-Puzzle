@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { watch, ref } from 'vue';
-import { useWindowSize } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 
 const baseStore = useBaseStore();
-const { width: windowWidth } = useWindowSize();
 
 const newMovesRecord = ref(false);
 const newTimeRecord = ref(false);
@@ -18,7 +16,6 @@ const reset = () => {
   baseStore.reset();
   baseStore.restartInterval();
 };
-
 const doShowConfirm = () => {
   if (!baseStore.afterDoneAnimationEnd) {
     return;
@@ -75,7 +72,7 @@ watch(
 
 <template>
   <div class="bottom-tools-panel">
-    <div class="tool-item">
+    <div class="tool-items first-row">
       <button
         class="tool-button"
         :disabled="baseStore.showConfirm || !baseStore.afterDoneAnimationEnd || baseStore.paused"
@@ -85,14 +82,14 @@ watch(
       </button>
       <button
         class="tool-button pause-button"
-        :disabled="baseStore.showConfirm || !baseStore.afterDoneAnimationEnd || isDone"
+        :disabled="baseStore.showConfirm || !baseStore.afterDoneAnimationEnd || isDone || !baseStore.doneFirstMove"
         @click="baseStore.invertPaused"
       >
-        {{ baseStore.paused ? 'Resume' : 'Pause' }}
+        {{ baseStore.paused && !baseStore.showConfirm ? 'Resume' : 'Pause' }}
       </button>
     </div>
-    <div class="tool-item end records">
-      <span class="caption">{{ windowWidth > 600 ? 'Record:' : 'Rec.:' }}</span>
+    <div class="tool-items end records">
+      <span class="caption">Record:</span>
       <span class="moves-count" :class="{ red: newMovesRecord }">{{ baseStore.movesRecord || '?' }} </span>&nbsp;/&nbsp;
       <span class="time" :class="{ red: newTimeRecord }">
         {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecordMinutes || '0' }}m&nbsp;

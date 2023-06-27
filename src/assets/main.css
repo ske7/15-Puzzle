@@ -31,7 +31,7 @@ body {
   justify-content: center;
   align-items: center;
   margin-top: 30px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 .header h1 {
   display: flex;
@@ -50,6 +50,9 @@ body {
 }
 .board-container {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
 }
 .finish-message {
   display: flex;
@@ -76,25 +79,31 @@ img[alt] {
 }
 .bottom-tools-panel {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
   position: relative;
   margin-top: 10px;
 }
-.tool-item {
+.tool-items {
   display: flex;
-  min-width: 90px;
 }
-.tool-item.end {
-  justify-content: flex-end;
+.tool-items.first-row {
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 30px;
 }
-.tool-item span {
+.tool-items span {
   font-size: 15px;
 }
-.tool-item > .time {
+.tool-items > .time {
   display: flex;
   justify-content: flex-end;
   font-family: 'consolas';
+}
+.tool-items.end {
+  justify-content: flex-end;
 }
 .tool-button {
   display: flex;
@@ -114,21 +123,11 @@ img[alt] {
   transition: all 0.3s ease;
   -webkit-tap-highlight-color: transparent;
 }
-.tool-item .pause-button {
-  margin-left: 20px;
-}
 .moves-count {
   min-width: 10px;
   display: flex;
   justify-content: flex-end;
   font-family: 'consolas';
-}
-.instruction {
-  text-align: center;
-  max-width: 380px;
-  font-size: 15px;
-  margin: 0 auto;
-  margin-top: 10px;
 }
 .records {
   align-items: flex-end;
@@ -139,7 +138,7 @@ img[alt] {
   color: navy;
 }
 .records .caption {
-  margin-right: 3px;
+  margin-right: 5px;
 }
 .red {
   color: red !important;
@@ -147,28 +146,23 @@ img[alt] {
 .cur-auto {
   cursor: auto !important;
 }
-@media screen and (max-width: 601px) {
-  .instruction {
-    max-width: 300px;
-  }
-}
-@media screen and (max-width: 401px) {
-  .instruction {
-    text-align: left;
-    max-width: 270px;
-  }
-  .tool-item .pause-button {
-    margin-left: 3px;
-  }
-  .records span {
-    font-size: 14px;
-    font-style: italic;
-    color: navy;
-  }
-}
 .tool-button:disabled {
   cursor: auto;
   opacity: 0.5;
+}
+.tool-button:active:not([disabled]) {
+  background-color: #2db3d525;
+}
+@media screen and (max-width: 401px) {
+  .header h1 {
+    font-size: 36px;
+  }
+  .finish-message p {
+    font-size: 20px;
+    line-height: 27px;
+    font-weight: 600;
+    max-width: 280px;
+  }
 }
 @media screen and (min-width: 600px) {
   .tool-button:hover:not([disabled]) {

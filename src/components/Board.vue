@@ -22,6 +22,11 @@ const isMounted = ref(false);
 onMounted(() => {
   isMounted.value = true;
 
+  baseStore.showSquareNum = false;
+  setTimeout(() => {
+    baseStore.showSquareNum = true;
+  }, 200);
+
   window.addEventListener('keydown', (event) => {
     event.preventDefault();
     if (baseStore.isDone || baseStore.paused) {
@@ -57,7 +62,11 @@ watch(
   doResetList,
   (value, oldValue) => {
     if (value && !oldValue) {
-      baseStore.initStore();
+      baseStore.showSquareNum = false;
+      setTimeout(() => {
+        baseStore.initStore();
+        baseStore.showSquareNum = true;
+      }, 300);
     }
   },
   { immediate: true, flush: 'post' }

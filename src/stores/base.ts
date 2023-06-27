@@ -1,7 +1,9 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { generateAndShuffle, generate, isSolvable } from '../utils';
 
-const CORE_NUM = 4;
+type puzzleCores = 3 | 4 | 5;
+
+const CORE_NUM: puzzleCores = 4;
 
 export const enum Direction {
   None = 0,
@@ -14,7 +16,7 @@ export const enum Direction {
 export const useBaseStore = defineStore('base', {
   state: () => ({
     numLines: CORE_NUM,
-    freeElement: CORE_NUM ** 2,
+    freeElement: 0,
     time: 0,
     movesCount: 0,
     afterDoneCount: 0,
@@ -26,12 +28,13 @@ export const useBaseStore = defineStore('base', {
     movesRecord: 0,
     timeRecord: 0,
     doneFirstMove: false,
-    showConfirm: false
+    showConfirm: false,
+    showSquareNum: false
   }),
   actions: {
     initStore() {
       this.numLines = CORE_NUM;
-      this.freeElement = CORE_NUM ** 2;
+      this.freeElement = 0;
       this.time = 0;
       this.movesCount = 0;
       this.afterDoneCount = 0;

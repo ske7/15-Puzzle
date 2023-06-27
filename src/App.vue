@@ -30,9 +30,7 @@ const squareSize = computed(() => {
     <Board :square-size="squareSize" />
   </div>
   <BottomToolsPanel />
-  <p v-if="!baseStore.isDone" class="instruction">Game rule: move blocks until they are in regular order</p>
   <div v-if="baseStore.isDone" class="finish-message">
-    <p>Congratulations!</p>
-    <p>You've done it.</p>
+    <p>Congrats! You've done it. 🏆</p>
   </div>
 </template>

@@ -6,12 +6,12 @@ const baseStore = useBaseStore();
 
 <template>
   <div class="top-info-panel">
-    <div class="tool-item">
+    <div class="tool-items">
       <span>Time:&nbsp;</span>
       <span class="time">{{ baseStore.minutes || '0' }}m&nbsp;</span>
       <span class="time">{{ baseStore.seconds || '00' }}s</span>
     </div>
-    <div class="tool-item end">
+    <div class="tool-items end">
       <span>Moves:&nbsp;</span>
       <span class="moves-count">{{ baseStore.movesCount }}</span>
     </div>

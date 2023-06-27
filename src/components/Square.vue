@@ -154,12 +154,34 @@ watch(
     @click="move"
   >
     <div class="item">
-      <span>{{ props.mixedOrder }}</span>
+      <Transition name="bounce">
+        <span v-if="baseStore.showSquareNum">{{ props.mixedOrder }}</span>
+      </Transition>
     </div>
   </div>
 </template>
 
 <style scoped>
+.bounce-enter-active {
+  animation: bounce-in 0.3s ease-in-out;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.1);
+    color: #0a0a23;
+    opacity: 0.5;
+  }
+  60% {
+    transform: scale(0.8);
+    color: navy;
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    color: #0a0a23;
+    opacity: 1;
+  }
+}
 .square {
   position: fixed;
   width: v-bind(sizeVar);
@@ -200,5 +222,10 @@ watch(
   font-size: 21px;
   font-weight: 500;
   color: #0a0a23;
+}
+@media screen and (max-width: 401px) {
+  .item span {
+    font-size: 19px;
+  }
 }
 </style>
