@@ -74,7 +74,7 @@ watch(
 </script>
 
 <template>
-  <div ref="container" class="board">
+  <div ref="container" class="board" @touchmove.prevent>
     <div
       v-if="baseStore.paused"
       class="paused-veil"

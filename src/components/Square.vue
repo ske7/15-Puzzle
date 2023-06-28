@@ -151,6 +151,7 @@ watch(
     @mouseout.left="release"
     @touchstart.passive="capture"
     @touchend="release"
+    @touchmove.prevent
     @click="move"
   >
     <div class="item">
