@@ -49,10 +49,16 @@ const isDoneAll = computed(() => {
 });
 
 const canMoveRight = computed(() => {
-  return actualOrder.value + 1 === baseStore.freeElement && (actualOrder.value + 1) % baseStore.numLines !== 0;
+  return (
+    actualOrder.value + 1 === baseStore.freeElement &&
+    (actualOrder.value + 1) % baseStore.numLines !== 0
+  );
 });
 const canMoveLeft = computed(() => {
-  return actualOrder.value - 1 === baseStore.freeElement && actualOrder.value % baseStore.numLines !== 0;
+  return (
+    actualOrder.value - 1 === baseStore.freeElement &&
+    actualOrder.value % baseStore.numLines !== 0
+  );
 });
 const canMoveUp = computed(() => {
   return actualOrder.value - baseStore.numLines === baseStore.freeElement;

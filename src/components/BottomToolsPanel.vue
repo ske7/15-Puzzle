@@ -54,12 +54,18 @@ watch(
   (value, oldValue) => {
     if (value && !oldValue) {
       baseStore.stopInterval();
-      if (baseStore.movesCount > 0 && (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord)) {
+      if (
+        baseStore.movesCount > 0 &&
+        (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord)
+      ) {
         baseStore.movesRecord = baseStore.movesCount;
         localStorage.setItem('movesRecord', baseStore.movesCount.toString());
         newMovesRecord.value = true;
       }
-      if (baseStore.time > 0 && (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord)) {
+      if (
+        baseStore.time > 0 &&
+        (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord)
+      ) {
         baseStore.timeRecord = baseStore.time;
         localStorage.setItem('timeRecord', baseStore.time.toString());
         newTimeRecord.value = true;
@@ -75,14 +81,21 @@ watch(
     <div class="tool-items first-row">
       <button
         class="tool-button"
-        :disabled="baseStore.showConfirm || !baseStore.afterDoneAnimationEnd || baseStore.paused"
+        :disabled="
+          baseStore.showConfirm || !baseStore.afterDoneAnimationEnd || baseStore.paused
+        "
         @click="doShowConfirm"
       >
         Restart
       </button>
       <button
         class="tool-button pause-button"
-        :disabled="baseStore.showConfirm || !baseStore.afterDoneAnimationEnd || isDone || !baseStore.doneFirstMove"
+        :disabled="
+          baseStore.showConfirm ||
+          !baseStore.afterDoneAnimationEnd ||
+          isDone ||
+          !baseStore.doneFirstMove
+        "
         @click="baseStore.invertPaused"
       >
         {{ baseStore.paused && !baseStore.showConfirm ? 'Resume' : 'Pause' }}
@@ -90,7 +103,9 @@ watch(
     </div>
     <div class="tool-items end records">
       <span class="caption">Record:</span>
-      <span class="moves-count" :class="{ red: newMovesRecord }">{{ baseStore.movesRecord || '?' }} </span>&nbsp;/&nbsp;
+      <span class="moves-count" :class="{ red: newMovesRecord }"
+        >{{ baseStore.movesRecord || '?' }} </span
+      >&nbsp;/&nbsp;
       <span class="time" :class="{ red: newTimeRecord }">
         {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecordMinutes || '0' }}m&nbsp;
       </span>
@@ -99,5 +114,9 @@ watch(
       </span>
     </div>
   </div>
-  <ConfirmDialog v-if="baseStore.showConfirm" @confirm="doConfirmRestart" @decline="declineConfirm" />
+  <ConfirmDialog
+    v-if="baseStore.showConfirm"
+    @confirm="doConfirmRestart"
+    @decline="declineConfirm"
+  />
 </template>

@@ -107,7 +107,10 @@ export const useBaseStore = defineStore('base', {
     orderedCount(): number {
       let count = 0;
       for (const i in this.actualOrders) {
-        if (this.actualOrders[i] !== -1 && this.actualOrders[i] + 1 === this.mixedOrders[i]) {
+        if (
+          this.actualOrders[i] !== -1 &&
+          this.actualOrders[i] + 1 === this.mixedOrders[i]
+        ) {
           count += 1;
         }
       }

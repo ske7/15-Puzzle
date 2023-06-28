@@ -13,7 +13,9 @@ baseStore.initStore();
 
 const spaceBetween = ref(8);
 const boardSize = computed(() => {
-  return `${baseStore.numLines * props.squareSize + spaceBetween.value * (baseStore.numLines + 1)}px`;
+  return `${
+    baseStore.numLines * props.squareSize + spaceBetween.value * (baseStore.numLines + 1)
+  }px`;
 });
 const container = ref();
 const { left, right, top, bottom } = useElementBounding(container);
@@ -36,22 +38,37 @@ onMounted(() => {
     if (event.code === 'ArrowRight') {
       newFreeElement = baseStore.freeElement - 1;
       if (newFreeElement >= 0 && (newFreeElement + 1) % baseStore.numLines !== 0) {
-        baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement), Direction.Right);
+        baseStore.saveActualOrder(
+          getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
+          Direction.Right
+        );
       }
     } else if (event.code === 'ArrowLeft') {
       newFreeElement = baseStore.freeElement + 1;
-      if (newFreeElement < baseStore.arrayLength && (baseStore.freeElement + 1) % baseStore.numLines !== 0) {
-        baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement), Direction.Left);
+      if (
+        newFreeElement < baseStore.arrayLength &&
+        (baseStore.freeElement + 1) % baseStore.numLines !== 0
+      ) {
+        baseStore.saveActualOrder(
+          getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
+          Direction.Left
+        );
       }
     } else if (event.code === 'ArrowUp') {
       newFreeElement = baseStore.freeElement + baseStore.numLines;
       if (newFreeElement < baseStore.arrayLength) {
-        baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement), Direction.Up);
+        baseStore.saveActualOrder(
+          getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
+          Direction.Up
+        );
       }
     } else if (event.code === 'ArrowDown') {
       newFreeElement = baseStore.freeElement - baseStore.numLines;
       if (newFreeElement >= 0) {
-        baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement), Direction.Down);
+        baseStore.saveActualOrder(
+          getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
+          Direction.Down
+        );
       }
     }
   });
@@ -127,6 +144,7 @@ watch(
   background-color: transparent;
   z-index: 1000;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 .paused-veil .bigger {
   color: navy;
