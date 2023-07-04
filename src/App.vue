@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { useWindowSize } from '@vueuse/core';
+import { useWindowSize, useDocumentVisibility } from '@vueuse/core';
 import { useBaseStore } from './stores/base';
 import Board from './components/Board.vue';
 import TopInfoPanel from './components/TopInfoPanel.vue';
 import BottomToolsPanel from './components/BottomToolsPanel.vue';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 
 const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
+const visibility = useDocumentVisibility();
 
 const squareSize = computed(() => {
   if (windowWidth.value <= 400) {
@@ -16,6 +17,12 @@ const squareSize = computed(() => {
     return 70;
   } else {
     return 90;
+  }
+});
+
+watch(visibility, (value) => {
+  if (value === 'hidden' && baseStore.time > 0) {
+    baseStore.paused = true;
   }
 });
 </script>
