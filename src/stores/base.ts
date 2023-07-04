@@ -5,6 +5,8 @@ type puzzleCores = 3 | 4 | 5;
 
 const CORE_NUM: puzzleCores = 4;
 
+export const SPACE_BETWEEN_SQUARES = 8;
+
 export const enum Direction {
   None = 0,
   Up = 1,

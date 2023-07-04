@@ -2,7 +2,7 @@
 import { computed, ref, onMounted, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
-import { useBaseStore, Direction } from '../stores/base';
+import { useBaseStore, Direction, SPACE_BETWEEN_SQUARES } from '../stores/base';
 import Square from './Square.vue';
 import { getArrayKeyByValue } from '../utils';
 
@@ -11,7 +11,7 @@ const props = defineProps<{ squareSize: number }>();
 const baseStore = useBaseStore();
 baseStore.initStore();
 
-const spaceBetween = ref(8);
+const spaceBetween = ref(SPACE_BETWEEN_SQUARES);
 const boardSize = computed(() => {
   return `${
     baseStore.numLines * props.squareSize + spaceBetween.value * (baseStore.numLines + 1)

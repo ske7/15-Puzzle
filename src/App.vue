@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useWindowSize, useDocumentVisibility } from '@vueuse/core';
-import { useBaseStore } from './stores/base';
+import { useBaseStore, SPACE_BETWEEN_SQUARES } from './stores/base';
 import Board from './components/Board.vue';
 import TopInfoPanel from './components/TopInfoPanel.vue';
 import BottomToolsPanel from './components/BottomToolsPanel.vue';
@@ -11,17 +11,18 @@ const { width: windowWidth } = useWindowSize();
 const visibility = useDocumentVisibility();
 
 const squareSize = computed(() => {
-  if (windowWidth.value <= 400) {
-    return 60;
-  } else if (windowWidth.value <= 600) {
-    return 70;
+  const spaces = SPACE_BETWEEN_SQUARES * 5;
+  if (windowWidth.value <= 360) {
+    return Math.floor((windowWidth.value - (spaces + 40)) / 4);
+  } else if (windowWidth.value <= 500) {
+    return Math.floor((windowWidth.value - (spaces + 60)) / 4);
   } else {
     return 90;
   }
 });
 
 watch(visibility, (value) => {
-  if (value === 'hidden' && baseStore.time > 0) {
+  if (value === 'hidden' && baseStore.time > 0 && !baseStore.isDone) {
     baseStore.paused = true;
   }
 });
