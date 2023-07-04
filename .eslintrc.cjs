@@ -31,6 +31,7 @@ module.exports = {
     'vue/multi-word-component-names': 'off',
     'vue/script-setup-uses-vars': 'error',
     'vue/max-attributes-per-line': 'off',
+    'vue/padding-lines-in-component-definition': 'error',
     'prefer-template': 'warn',
     'no-plusplus': 'off',
     'sort-imports': 'off',
