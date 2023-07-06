@@ -10,7 +10,7 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module'
   },
-  plugins: ['@typescript-eslint', 'prettier'],
+  plugins: ['@typescript-eslint'],
   extends: [
     'standard',
     'eslint:recommended',
@@ -18,16 +18,15 @@ module.exports = {
     'plugin:vue/vue3-essential',
     'plugin:vue/vue3-strongly-recommended',
     'plugin:vue/vue3-recommended',
-    '@vue/eslint-config-prettier/skip-formatting',
     '@vue/typescript/recommended',
-    '@vue/eslint-config-typescript',
-    '@vue/eslint-config-prettier'
+    '@vue/eslint-config-typescript'
   ],
   rules: {
     quotes: ['warn', 'single'],
     semi: ['warn', 'always', { omitLastInOneLineBlock: true }],
+    'comma-dangle': ['error', 'never'],
+    indent: ['error', 2, { SwitchCase: 1 }],
     'space-before-function-paren': 'off',
-    'prettier/prettier': 'error',
     'vue/multi-word-component-names': 'off',
     'vue/script-setup-uses-vars': 'error',
     'vue/max-attributes-per-line': 'off',
@@ -41,6 +40,22 @@ module.exports = {
     '@typescript-eslint/no-shadow': 'error',
     'max-statements': ['error', { max: 20 }],
     'func-style': 'off',
-    'no-ternary': 'off'
+    'no-ternary': 'off',
+    'generator-star-spacing': ['error', { before: false, after: true }],
+    'vue/max-len': ['error', {
+      code: 100,
+      template: 100,
+      tabWidth: 2,
+      comments: 100,
+      ignorePattern: '',
+      ignoreComments: false,
+      ignoreTrailingComments: false,
+      ignoreUrls: false,
+      ignoreStrings: false,
+      ignoreTemplateLiterals: false,
+      ignoreRegExpLiterals: false,
+      ignoreHTMLAttributeValues: false,
+      ignoreHTMLTextContents: true
+    }]
   }
 };

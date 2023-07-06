@@ -100,6 +100,9 @@ export const useBaseStore = defineStore('base', {
       }
       this.incMoves();
       this.freeElement = prevOrder;
+    },
+    boardSize(squareSize: number) {
+      return `${this.numLines * squareSize + SPACE_BETWEEN_SQUARES * (this.numLines + 1)}px`;
     }
   },
   getters: {

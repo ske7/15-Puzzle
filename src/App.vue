@@ -21,6 +21,10 @@ const squareSize = computed(() => {
   }
 });
 
+const boardSize = computed(() => {
+  return baseStore.boardSize(squareSize.value);
+});
+
 watch(visibility, (value) => {
   if (value === 'hidden' && baseStore.time > 0 && !baseStore.isDone) {
     baseStore.paused = true;
@@ -31,7 +35,7 @@ watch(visibility, (value) => {
 <template>
   <div class="header">
     <h1>15 Puzzle</h1>
-    <img src="./assets/cage.webp" alt="Nic.Cage" width="48" height="48" />
+    <img src="./assets/cage.webp" alt="Nic.Cage" width="48" height="48">
   </div>
   <TopInfoPanel />
   <div class="board-container">
@@ -41,4 +45,20 @@ watch(visibility, (value) => {
   <div v-if="baseStore.isDone" class="finish-message">
     <p>Congrats! You've done it. 🏆</p>
   </div>
+  <p v-else class="instruction">
+    Game instruction: Move blocks until they are in regular order.
+    You can play and beat records of time and moves.
+  </p>
 </template>
+
+<style scoped>
+.instruction {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  max-width: v-bind(boardSize);
+  font-size: 14px;
+  margin-top: 5px;
+}
+</style>

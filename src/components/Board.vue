@@ -2,7 +2,7 @@
 import { computed, ref, onMounted, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
-import { useBaseStore, Direction, SPACE_BETWEEN_SQUARES } from '../stores/base';
+import { useBaseStore, Direction } from '../stores/base';
 import Square from './Square.vue';
 import { getArrayKeyByValue } from '../utils';
 
@@ -11,11 +11,8 @@ const props = defineProps<{ squareSize: number }>();
 const baseStore = useBaseStore();
 baseStore.initStore();
 
-const spaceBetween = ref(SPACE_BETWEEN_SQUARES);
 const boardSize = computed(() => {
-  return `${
-    baseStore.numLines * props.squareSize + spaceBetween.value * (baseStore.numLines + 1)
-  }px`;
+  return baseStore.boardSize(props.squareSize);
 });
 const container = ref();
 const { left, right, top, bottom } = useElementBounding(container);
@@ -98,8 +95,12 @@ watch(
       :class="{ 'cur-auto': baseStore.showConfirm }"
       @click="baseStore.invertPaused"
     >
-      <p v-if="!baseStore.showConfirm"><span class="bigger">Paused</span></p>
-      <p v-if="!baseStore.showConfirm"><span class="smaller">Click to resume</span></p>
+      <p v-if="!baseStore.showConfirm">
+        <span class="bigger">Paused</span>
+      </p>
+      <p v-if="!baseStore.showConfirm">
+        <span class="smaller">Click to resume</span>
+      </p>
     </div>
     <div v-if="isMounted">
       <Square
@@ -112,7 +113,6 @@ watch(
         :container-left="left"
         :order="index"
         :mixed-order="value"
-        :space-between="spaceBetween"
         :class="{ 'board-veil': baseStore.paused }"
       />
     </div>

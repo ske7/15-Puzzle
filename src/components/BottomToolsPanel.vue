@@ -90,27 +90,24 @@ watch(
       </button>
       <button
         class="tool-button pause-button"
-        :disabled="
-          baseStore.showConfirm ||
-          !baseStore.afterDoneAnimationEnd ||
-          isDone ||
-          !baseStore.doneFirstMove
-        "
+        :disabled="baseStore.showConfirm || !baseStore.afterDoneAnimationEnd ||
+          isDone || !baseStore.doneFirstMove"
         @click="baseStore.invertPaused"
       >
         {{ baseStore.paused && !baseStore.showConfirm ? 'Resume' : 'Pause' }}
       </button>
     </div>
     <div class="tool-items end records">
-      <span class="caption">Record:</span>
-      <span class="moves-count" :class="{ red: newMovesRecord }"
-        >{{ baseStore.movesRecord || '?' }} </span
-      >&nbsp;/&nbsp;
+      <span class="caption">Your record:</span>
       <span class="time" :class="{ red: newTimeRecord }">
         {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecordMinutes || '0' }}m&nbsp;
       </span>
       <span class="time" :class="{ red: newTimeRecord }">
         {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecordSeconds || '00' }}s
+      </span>
+      &nbsp;/&nbsp;
+      <span class="moves-count" :class="{ red: newMovesRecord }">
+        {{ baseStore.movesRecord || '?' }} moves
       </span>
     </div>
   </div>

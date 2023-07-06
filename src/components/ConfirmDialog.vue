@@ -13,8 +13,12 @@ const emit = defineEmits<{ confirm: []; decline: [] }>();
     <div class="confirm" @touchmove.prevent>
       <p>{{ props.confirmQuestion }}</p>
       <div class="buttons">
-        <button class="tool-button" @click="emit('confirm')">Yes</button>
-        <button class="tool-button" @click="emit('decline')">No</button>
+        <button class="tool-button" @click="emit('confirm')">
+          Yes
+        </button>
+        <button class="tool-button" @click="emit('decline')">
+          No
+        </button>
       </div>
     </div>
   </Teleport>

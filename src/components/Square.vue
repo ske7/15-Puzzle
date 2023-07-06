@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { useBaseStore, Direction } from '../stores/base';
+import { useBaseStore, Direction, SPACE_BETWEEN_SQUARES } from '../stores/base';
 import { storeToRefs } from 'pinia';
 
 const props = defineProps<{
@@ -11,7 +11,6 @@ const props = defineProps<{
   containerRight: number;
   order: number;
   mixedOrder: number;
-  spaceBetween: number;
 }>();
 
 const baseStore = useBaseStore();
@@ -27,16 +26,16 @@ const actualOrder = computed(() => {
 const calculatedLeft = computed(() => {
   return (
     props.containerLeft +
-    (actualOrder.value % baseStore.numLines) * props.spaceBetween +
-    props.spaceBetween +
+    (actualOrder.value % baseStore.numLines) * SPACE_BETWEEN_SQUARES +
+    SPACE_BETWEEN_SQUARES +
     props.squareSize * (actualOrder.value % baseStore.numLines)
   );
 });
 const calculatedTop = computed(() => {
   return (
     props.containerTop +
-    Math.floor(actualOrder.value / baseStore.numLines) * props.spaceBetween +
-    props.spaceBetween +
+    Math.floor(actualOrder.value / baseStore.numLines) * SPACE_BETWEEN_SQUARES +
+    SPACE_BETWEEN_SQUARES +
     props.squareSize * (Math.ceil((actualOrder.value + 1) / baseStore.numLines) - 1)
   );
 });
