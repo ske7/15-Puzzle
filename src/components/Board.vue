@@ -86,7 +86,11 @@ watch(
         }
         if (baseStore.eligibleForCageMode) {
           baseStore.cageMode = true;
-          baseStore.cagePath = randArrayItem(CAGES_PATH_ARR);
+          if (baseStore.shownCages.size === CAGES_PATH_ARR.length) {
+            baseStore.shownCages.clear();
+          }
+          baseStore.cagePath = randArrayItem(CAGES_PATH_ARR, baseStore.shownCages);
+          baseStore.shownCages.add(baseStore.cagePath);
           baseStore.eligibleForCageMode = false;
         }
         baseStore.initStore();
@@ -119,7 +123,10 @@ watch(
         <span class="smaller">Click to resume</span>
       </p>
     </div>
-    <div v-if="isMounted">
+    <div
+      v-if="isMounted && !(baseStore.cageMode && baseStore.isDone &&
+        cageCompleteImg && baseStore.afterDoneAnimationEnd)"
+    >
       <Square
         v-for="(value, index) in baseStore.mixedOrders"
         :key="index"

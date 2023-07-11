@@ -101,7 +101,6 @@ watch(visibility, (value) => {
   max-width: v-bind(boardSize);
   font-size: 16px;
   margin-top: 5px;
-  /* margin: 5px 10px; */
   text-align: left;
   line-height: 1.4;
 }

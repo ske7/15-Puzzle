@@ -153,7 +153,7 @@ watchEffect(async () => {
     return;
   }
   const imgNum = props.mixedOrder.toString().padStart(2, '0');
-  img.value = new URL(`../assets/cages/${baseStore.cagePath}/${imgNum}.png`, import.meta.url).href;
+  img.value = (await import(`../assets/cages/${baseStore.cagePath}/${imgNum}.png`)).default;
 });
 const imagePath = computed(() => {
   return `url(${img.value})`;
@@ -166,6 +166,7 @@ watch(
     if (value && !oldValue) {
       isCaptured.value = false;
       isNoBorder.value = false;
+      img.value = 'none';
     }
   },
   { immediate: true }
@@ -193,7 +194,10 @@ watch(
   >
     <div class="item">
       <Transition name="bounce">
-        <span v-if="baseStore.showSquareNum" :class="{'cage-mode': baseStore.cageMode}">
+        <span
+          v-if="baseStore.showSquareNum"
+          :class="{'cage-mode': baseStore.cageMode }"
+        >
           {{ props.mixedOrder }}
         </span>
       </Transition>

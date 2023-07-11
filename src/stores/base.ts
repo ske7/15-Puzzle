@@ -37,7 +37,8 @@ export const useBaseStore = defineStore('base', {
     showSquareNum: false,
     cageMode: false,
     eligibleForCageMode: false,
-    cagePath: '' as (string | number)
+    cagePath: '' as (string | number),
+    shownCages: new Set() as Set<string | number>
   }),
   actions: {
     initStore() {
