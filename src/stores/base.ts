@@ -1,21 +1,6 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { generateAndShuffle, generate, isSolvable } from '../utils';
-
-type puzzleCores = 3 | 4 | 5;
-
-const CORE_NUM: puzzleCores = 4;
-
-export const SPACE_BETWEEN_SQUARES = 8;
-
-export const enum Direction {
-  None = 0,
-  Up = 1,
-  Right = 2,
-  Down = 3,
-  Left = 4
-}
-
-export const CAGES_PATH_ARR = ['01-joe', '02-primal', '03-willy'];
+import { CORE_NUM, SPACE_BETWEEN_SQUARES, Direction } from './const';
 
 export const useBaseStore = defineStore('base', {
   state: () => ({

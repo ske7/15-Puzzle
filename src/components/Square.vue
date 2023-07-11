@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, watchEffect } from 'vue';
-import { useBaseStore, Direction } from '../stores/base';
+import { useBaseStore } from '../stores/base';
+import { Direction } from '../stores/const';
 import { storeToRefs } from 'pinia';
 
 const props = defineProps<{

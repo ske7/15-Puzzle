@@ -2,7 +2,8 @@
 import { computed, ref, onMounted, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
-import { useBaseStore, Direction, CAGES_PATH_ARR } from '../stores/base';
+import { useBaseStore } from '../stores/base';
+import { Direction, CAGES_PATH_ARR } from '../stores/const';
 import Square from './Square.vue';
 import { getArrayKeyByValue, randArrayItem } from '../utils';
 
