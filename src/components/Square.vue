@@ -154,7 +154,7 @@ watchEffect(async () => {
     return;
   }
   const imgNum = props.mixedOrder.toString().padStart(2, '0');
-  img.value = (await import(`../assets/cages/${baseStore.cagePath}/${imgNum}.png`)).default;
+  img.value = (await import(`../assets/cages/${baseStore.cagePath}/${imgNum}.jpg`)).default;
 });
 const imagePath = computed(() => {
   return `url(${img.value})`;
