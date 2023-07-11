@@ -106,7 +106,7 @@ watch(
 <template>
   <div ref="container" class="board" @touchmove.prevent>
     <img
-      v-show="baseStore.cageMode && baseStore.isDone &&
+      v-if="baseStore.cageMode && baseStore.isDone &&
         cageCompleteImg && baseStore.afterDoneAnimationEnd"
       :src="cageCompleteImg"
       class="complete-cage"
