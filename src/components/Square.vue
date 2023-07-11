@@ -145,7 +145,7 @@ watch(
 );
 
 const img = ref();
-watchEffect(async () => {
+watchEffect(() => {
   if (props.mixedOrder === 0) {
     return;
   }
@@ -154,7 +154,7 @@ watchEffect(async () => {
     return;
   }
   const imgNum = props.mixedOrder.toString().padStart(2, '0');
-  img.value = (await import(`../assets/cages/${baseStore.cagePath}/${imgNum}.jpg`)).default;
+  img.value = new URL(`../assets/cages/${baseStore.cagePath}/${imgNum}.jpg`, import.meta.url).href;
 });
 const imagePath = computed(() => {
   return `url(${img.value})`;
