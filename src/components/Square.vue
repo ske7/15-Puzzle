@@ -157,6 +157,9 @@ watchEffect(() => {
   img.value = new URL(`../assets/cages/${baseStore.cagePath}/${imgNum}.jpg`, import.meta.url).href;
 });
 const imagePath = computed(() => {
+  if (!baseStore.cageMode) {
+    return 'none';
+  }
   return `url(${img.value})`;
 });
 
