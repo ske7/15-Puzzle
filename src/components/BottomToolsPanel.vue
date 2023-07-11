@@ -70,6 +70,9 @@ watch(
         localStorage.setItem('timeRecord', baseStore.time.toString());
         newTimeRecord.value = true;
       }
+      if (baseStore.time > 0 && baseStore.time < 60) {
+        baseStore.eligibleForCageMode = true;
+      }
     }
   },
   { immediate: true }

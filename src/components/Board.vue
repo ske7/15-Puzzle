@@ -2,9 +2,9 @@
 import { computed, ref, onMounted, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
-import { useBaseStore, Direction } from '../stores/base';
+import { useBaseStore, Direction, CAGES_PATH_ARR } from '../stores/base';
 import Square from './Square.vue';
-import { getArrayKeyByValue } from '../utils';
+import { getArrayKeyByValue, randArrayItem } from '../utils';
 
 const props = defineProps<{ squareSize: number }>();
 
@@ -70,6 +70,9 @@ onMounted(() => {
     }
   });
 });
+const cageCompleteImg = computed(() => {
+  return new URL(`../assets/cages/${baseStore.cagePath}/complete.jpg`, import.meta.url).href;
+});
 
 const { doResetList } = storeToRefs(baseStore);
 watch(
@@ -78,6 +81,14 @@ watch(
     if (value && !oldValue) {
       baseStore.showSquareNum = false;
       setTimeout(() => {
+        if (baseStore.cageMode) {
+          baseStore.cageMode = false;
+        }
+        if (baseStore.eligibleForCageMode) {
+          baseStore.cageMode = true;
+          baseStore.cagePath = randArrayItem(CAGES_PATH_ARR);
+          baseStore.eligibleForCageMode = false;
+        }
         baseStore.initStore();
         baseStore.showSquareNum = true;
       }, 300);
@@ -89,6 +100,12 @@ watch(
 
 <template>
   <div ref="container" class="board" @touchmove.prevent>
+    <img
+      v-show="baseStore.cageMode && baseStore.isDone &&
+        cageCompleteImg && baseStore.afterDoneAnimationEnd"
+      :src="cageCompleteImg"
+      class="complete-cage"
+    >
     <div
       v-if="baseStore.paused"
       class="paused-veil"
@@ -156,6 +173,9 @@ watch(
   color: navy;
   font-size: 32px;
   font-weight: 500;
+}
+.complete-cage {
+  z-index: 3000;
 }
 @media screen and (max-width: 601px) {
   .paused-veil .bigger {

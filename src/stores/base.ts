@@ -15,9 +15,12 @@ export const enum Direction {
   Left = 4
 }
 
+export const CAGES_PATH_ARR = ['01-joe', '02-primal', '03-willy'];
+
 export const useBaseStore = defineStore('base', {
   state: () => ({
     numLines: CORE_NUM,
+    spaceBetween: SPACE_BETWEEN_SQUARES,
     freeElement: 0,
     time: 0,
     movesCount: 0,
@@ -31,11 +34,19 @@ export const useBaseStore = defineStore('base', {
     timeRecord: 0,
     doneFirstMove: false,
     showConfirm: false,
-    showSquareNum: false
+    showSquareNum: false,
+    cageMode: false,
+    eligibleForCageMode: false,
+    cagePath: '' as (string | number)
   }),
   actions: {
     initStore() {
       this.numLines = CORE_NUM;
+      if (this.cageMode) {
+        this.spaceBetween = 0;
+      } else {
+        this.spaceBetween = SPACE_BETWEEN_SQUARES;
+      }
       this.freeElement = 0;
       this.time = 0;
       this.movesCount = 0;
@@ -102,7 +113,7 @@ export const useBaseStore = defineStore('base', {
       this.freeElement = prevOrder;
     },
     boardSize(squareSize: number) {
-      return `${this.numLines * squareSize + SPACE_BETWEEN_SQUARES * (this.numLines + 1)}px`;
+      return `${this.numLines * squareSize + this.spaceBetween * (this.numLines + 1)}px`;
     }
   },
   getters: {

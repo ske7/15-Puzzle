@@ -54,3 +54,7 @@ export function isSolvable(array: number[]): boolean {
     return parity % 2 === 0;
   }
 }
+
+export function randArrayItem(array: (string | number)[]): string | number {
+  return array[Math.floor(Math.random() * array.length)];
+}

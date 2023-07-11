@@ -17,57 +17,13 @@ body {
   color: #181818;
   background: white;
   line-height: 1.6;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Segoe UI', Roboto, sans-serif;
   font-size: 16px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   display: flex;
   justify-content: center;
-}
-.header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 30px;
-  margin-bottom: 15px;
-}
-.header h1 {
-  display: flex;
-  justify-content: center;
-  font-size: 40px;
-  align-items: center;
-  line-height: 48px;
-}
-.header img {
-  width: 48px;
-  height: 48px;
-  margin-left: 15px;
-  display: flex;
-  align-items: center;
-  border-radius: 8px;
-}
-.board-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto;
-}
-.finish-message {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding-top: 5px;
-}
-.finish-message p {
-  font-size: 24px;
-  line-height: 36px;
-  text-align: center;
-  color: goldenrod;
-  font-weight: 600;
 }
 img[alt] {
   font-size: 15px;
@@ -76,7 +32,6 @@ img[alt] {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 0px;
   position: relative;
 }
 .bottom-tools-panel {
@@ -89,6 +44,7 @@ img[alt] {
 }
 .tool-items {
   display: flex;
+  align-items: baseline;
 }
 .tool-items.first-row {
   justify-content: center;
@@ -131,11 +87,8 @@ img[alt] {
   justify-content: flex-end;
   font-family: 'consolas';
 }
-.records {
-  align-items: flex-end;
-}
 .records span {
-  font-size: 15px;
+  font-size: 16px;
   font-style: italic;
   color: navy;
 }
@@ -155,17 +108,6 @@ img[alt] {
 }
 .tool-button:active:not([disabled]) {
   background-color: #2db3d525;
-}
-@media screen and (max-width: 401px) {
-  .header h1 {
-    font-size: 36px;
-  }
-  .finish-message p {
-    font-size: 20px;
-    line-height: 27px;
-    font-weight: 600;
-    max-width: 280px;
-  }
 }
 @media screen and (min-width: 600px) {
   .tool-button:hover:not([disabled]) {

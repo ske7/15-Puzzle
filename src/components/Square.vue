@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import { useBaseStore, Direction, SPACE_BETWEEN_SQUARES } from '../stores/base';
+import { computed, ref, watch, watchEffect } from 'vue';
+import { useBaseStore, Direction } from '../stores/base';
 import { storeToRefs } from 'pinia';
 
 const props = defineProps<{
@@ -18,6 +18,12 @@ const baseStore = useBaseStore();
 const sizeVar = computed(() => {
   return `${props.squareSize}px`;
 });
+const borderRadiusVar = computed(() => {
+  if (baseStore.cageMode) {
+    return '0px';
+  }
+  return '8px';
+});
 
 const actualOrder = computed(() => {
   return baseStore.actualOrders[props.order];
@@ -26,16 +32,16 @@ const actualOrder = computed(() => {
 const calculatedLeft = computed(() => {
   return (
     props.containerLeft +
-    (actualOrder.value % baseStore.numLines) * SPACE_BETWEEN_SQUARES +
-    SPACE_BETWEEN_SQUARES +
+    (actualOrder.value % baseStore.numLines) * baseStore.spaceBetween +
+    baseStore.spaceBetween +
     props.squareSize * (actualOrder.value % baseStore.numLines)
   );
 });
 const calculatedTop = computed(() => {
   return (
     props.containerTop +
-    Math.floor(actualOrder.value / baseStore.numLines) * SPACE_BETWEEN_SQUARES +
-    SPACE_BETWEEN_SQUARES +
+    Math.floor(actualOrder.value / baseStore.numLines) * baseStore.spaceBetween +
+    baseStore.spaceBetween +
     props.squareSize * (Math.ceil((actualOrder.value + 1) / baseStore.numLines) - 1)
   );
 });
@@ -113,21 +119,45 @@ watch([calculatedLeft, calculatedTop], () => {
     setTimeout(() => {
       renderFlag.value = false;
     }, 15);
-  }, 290);
+  }, 25);
 });
 
+const isNoBorder = ref(false);
 watch(
   isDoneAll,
   (newValue) => {
     if (newValue && props.mixedOrder !== 0) {
-      setTimeout(() => {
-        isCaptured.value = true;
-        baseStore.afterDoneCount += 1;
-      }, actualOrder.value * 70);
+      if (baseStore.cageMode) {
+        setTimeout(() => {
+          isNoBorder.value = true;
+          baseStore.afterDoneCount += 1;
+        }, actualOrder.value * 100);
+      } else {
+        setTimeout(() => {
+          isCaptured.value = true;
+          baseStore.afterDoneCount += 1;
+        }, actualOrder.value * 70);
+      }
     }
   },
   { immediate: true }
 );
+
+const img = ref();
+watchEffect(async () => {
+  if (props.mixedOrder === 0) {
+    return;
+  }
+  if (!baseStore.cageMode) {
+    img.value = 'none';
+    return;
+  }
+  const imgNum = props.mixedOrder.toString().padStart(2, '0');
+  img.value = new URL(`../assets/cages/${baseStore.cagePath}/${imgNum}.png`, import.meta.url).href;
+});
+const imagePath = computed(() => {
+  return `url(${img.value})`;
+});
 
 const { doResetList } = storeToRefs(baseStore);
 watch(
@@ -135,6 +165,7 @@ watch(
   (value, oldValue) => {
     if (value && !oldValue) {
       isCaptured.value = false;
+      isNoBorder.value = false;
     }
   },
   { immediate: true }
@@ -149,7 +180,8 @@ watch(
       'in-place': isSquareInPlace,
       captured: isCaptured,
       'cur-auto': cannotMove,
-      'render-bg': renderFlag
+      'render-bg': renderFlag,
+      'no-border-no-shadow': isNoBorder
     }"
     :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px` }"
     @mousedown.left="capture"
@@ -161,7 +193,9 @@ watch(
   >
     <div class="item">
       <Transition name="bounce">
-        <span v-if="baseStore.showSquareNum">{{ props.mixedOrder }}</span>
+        <span v-if="baseStore.showSquareNum" :class="{'cage-mode': baseStore.cageMode}">
+          {{ props.mixedOrder }}
+        </span>
       </Transition>
     </div>
   </div>
@@ -201,10 +235,15 @@ watch(
   -moz-user-select: none;
   user-select: none;
   transition: all 0.3s ease 0s;
-  border-radius: 8px;
+  border-radius: v-bind(borderRadiusVar);
   box-sizing: border-box;
   box-shadow: 0 0 4px inset rgba(0, 0, 0, 0.2);
   -webkit-tap-highlight-color: transparent;
+  background-image: v-bind(imagePath);
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
 .captured {
   background-color: gold !important;
@@ -214,6 +253,10 @@ watch(
 }
 .in-place {
   background-color: rgb(224, 245, 250);
+}
+.no-border-no-shadow {
+  border: 0px;
+  box-shadow: none;
 }
 .free {
   display: none;
@@ -226,8 +269,12 @@ watch(
 }
 .item span {
   font-size: 21px;
-  font-weight: 500;
+  font-weight: 600;
   color: #0a0a23;
+}
+.cage-mode {
+  color: white !important;
+  opacity: 0.8;
 }
 @media screen and (max-width: 401px) {
   .item span {
