@@ -17,9 +17,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:vue/vue3-essential',
     'plugin:vue/vue3-strongly-recommended',
-    'plugin:vue/vue3-recommended',
-    '@vue/typescript/recommended',
-    '@vue/eslint-config-typescript'
+    'plugin:vue/vue3-recommended'
   ],
   rules: {
     quotes: ['warn', 'single'],
@@ -48,9 +46,9 @@ module.exports = {
       tabWidth: 2,
       comments: 100,
       ignorePattern: '',
-      ignoreComments: false,
-      ignoreTrailingComments: false,
-      ignoreUrls: false,
+      ignoreComments: true,
+      ignoreTrailingComments: true,
+      ignoreUrls: true,
       ignoreStrings: false,
       ignoreTemplateLiterals: false,
       ignoreRegExpLiterals: false,
