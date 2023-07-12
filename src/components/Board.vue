@@ -31,6 +31,12 @@ const cageCompleteImg = computed(() => {
 const onCageCompleteImgLoaded = () => {
   cageCompleteImgLoaded.value = true;
 };
+
+const hideWhenCageShowCageCompleteImg = computed(() => {
+  return baseStore.cageMode && baseStore.isDone && cageCompleteImg &&
+         baseStore.afterDoneAnimationEnd && cageCompleteImgLoaded;
+});
+
 const isMounted = ref(false);
 onMounted(() => {
   isMounted.value = true;
@@ -147,7 +153,7 @@ watch(
       </div>
     </div>
     <div
-      v-if="isMounted && !cageCompleteImgLoaded"
+      v-if="isMounted && !hideWhenCageShowCageCompleteImg"
     >
       <Square
         v-for="(value, index) in baseStore.mixedOrders"

@@ -132,7 +132,7 @@ watch(
         setTimeout(() => {
           isNoBorder.value = true;
           baseStore.afterDoneCount += 1;
-        }, actualOrder.value * 150);
+        }, actualOrder.value * 100);
       } else {
         setTimeout(() => {
           isCaptured.value = true;
