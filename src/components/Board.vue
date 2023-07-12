@@ -18,7 +18,7 @@ const boardSize = computed(() => {
 const container = ref();
 const { left, right, top, bottom } = useElementBounding(container);
 const borderRadiusVar = computed(() => {
-  if (baseStore.cageMode && baseStore.finishLoadingAllCageImages) {
+  if (baseStore.cageMode) {
     return '0px';
   }
   return '8px';

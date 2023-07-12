@@ -51,7 +51,7 @@ const declineConfirm = () => {
   }
 };
 const showAboutModal = () => {
-  if (!baseStore.paused) {
+  if (!baseStore.paused && baseStore.doneFirstMove && !baseStore.isDone) {
     baseStore.invertPaused();
   }
   baseStore.showInfo = true;

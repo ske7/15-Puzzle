@@ -40,6 +40,11 @@ const emit = defineEmits<{ confirm: []; decline: [] }>();
   padding: 20px;
   box-shadow: 0 8px 16px gray;
 }
+@media screen and (max-width: 420px) {
+  .confirm {
+    top: 170px;
+  }
+}
 p {
   text-align: center;
   max-width: 200px;

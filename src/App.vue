@@ -31,6 +31,13 @@ const squareSize = computed(() => {
   return value + cageAdd;
 });
 
+const cageImgSize = computed(() => {
+  if (windowWidth.value <= 420) {
+    return 36;
+  }
+  return 48;
+});
+
 const boardSize = computed(() => {
   return baseStore.boardSize(squareSize.value);
 });
@@ -45,7 +52,7 @@ watch(visibility, (value) => {
 <template>
   <div class="header">
     <h1>15 Puzzle</h1>
-    <img src="./assets/cage.webp" alt="Nic.Cage" width="48" height="48">
+    <img src="./assets/cage.webp" alt="Nic.Cage" :width="cageImgSize" :height="cageImgSize">
   </div>
   <TopInfoPanel />
   <div class="board-container">
@@ -104,13 +111,21 @@ watch(visibility, (value) => {
   font-weight: 600;
   max-width: v-bind(boardSize);
 }
-@media screen and (max-width: 401px) {
+@media screen and (max-width: 420px) {
+  .header {
+    margin-top: 20px;
+  }
   .header h1 {
-    font-size: 36px;
+    font-size: 32px;
+    line-height: 36px;
+  }
+  .header img {
+    width: 36px;
+    height: 36px;
   }
   .finish-message p {
-    font-size: 20px;
-    line-height: 27px;
+    font-size: 18px;
+    line-height: 25px;
     font-weight: 600;
   }
 }

@@ -47,14 +47,23 @@ const getYear = computed(() => {
   width: var(--modal-width);
   position: fixed;
   z-index: 2000;
-  top: 20%;
+  top: 130px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
   box-shadow: 0 8px 16px gray;
 }
+@media screen and (max-width: 420px) {
+  .info-modal {
+    width: calc(100% - 40px);
+    left: 20px;
+    top: 75px;
+    min-height: 320px;
+  }
+}
 .info-header {
   text-align: center;
   margin-bottom: 10px;
+  margin-top: 5px;
 }
 .info-header span{
   font-weight: 500;
@@ -79,7 +88,7 @@ const getYear = computed(() => {
 }
 .copyright {
   margin-top: 10px;
-  margin-bottom: 0px;
+  margin-bottom: 5px;
   text-align: center;
   line-height: 1.1;
 }
