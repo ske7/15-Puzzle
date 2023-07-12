@@ -17,7 +17,20 @@ const boardSize = computed(() => {
 });
 const container = ref();
 const { left, right, top, bottom } = useElementBounding(container);
+const borderRadiusVar = computed(() => {
+  if (baseStore.cageMode && baseStore.finishLoadingAllCageImages) {
+    return '0px';
+  }
+  return '8px';
+});
+const cageCompleteImgLoaded = ref(false);
+const cageCompleteImg = computed(() => {
+  return new URL(`../assets/cages/${baseStore.cagePath}/complete.jpg`, import.meta.url).href;
+});
 
+const onCageCompleteImgLoaded = () => {
+  cageCompleteImgLoaded.value = true;
+};
 const isMounted = ref(false);
 onMounted(() => {
   isMounted.value = true;
@@ -71,9 +84,6 @@ onMounted(() => {
     }
   });
 });
-const cageCompleteImg = computed(() => {
-  return new URL(`../assets/cages/${baseStore.cagePath}/complete.jpg`, import.meta.url).href;
-});
 
 const { doResetList } = storeToRefs(baseStore);
 watch(
@@ -95,6 +105,7 @@ watch(
           baseStore.eligibleForCageMode = false;
         }
         baseStore.initStore();
+        cageCompleteImgLoaded.value = false;
         baseStore.showSquareNum = true;
       }, 300);
     }
@@ -106,27 +117,37 @@ watch(
 <template>
   <div ref="container" class="board" @touchmove.prevent>
     <img
-      v-if="baseStore.cageMode && baseStore.isDone &&
-        cageCompleteImg && baseStore.afterDoneAnimationEnd"
+      v-if="baseStore.cageMode && baseStore.isDone && cageCompleteImg"
+      v-show="baseStore.afterDoneAnimationEnd && cageCompleteImgLoaded"
       :src="cageCompleteImg"
       class="complete-cage"
+      @load="onCageCompleteImgLoaded"
     >
     <div
-      v-if="baseStore.paused"
+      v-if="baseStore.paused || (baseStore.cageMode && !baseStore.finishLoadingAllCageImages)"
       class="paused-veil"
       :class="{ 'cur-auto': baseStore.showConfirm }"
       @click="baseStore.invertPaused"
     >
-      <p v-if="!baseStore.showConfirm">
-        <span class="bigger">Paused</span>
-      </p>
-      <p v-if="!baseStore.showConfirm">
-        <span class="smaller">Click to resume</span>
-      </p>
+      <div v-if="baseStore.cageMode && !baseStore.finishLoadingAllCageImages">
+        <p>
+          <span class="smaller">Loading...</span>
+        </p>
+        <p>
+          <span class="smaller">Please wait a moment</span>
+        </p>
+      </div>
+      <div v-if="baseStore.paused">
+        <p v-if="!baseStore.showConfirm">
+          <span class="bigger">Paused</span>
+        </p>
+        <p v-if="!baseStore.showConfirm">
+          <span class="smaller">Click to resume</span>
+        </p>
+      </div>
     </div>
     <div
-      v-if="isMounted && !(baseStore.cageMode && baseStore.isDone &&
-        cageCompleteImg && baseStore.afterDoneAnimationEnd)"
+      v-if="isMounted && !cageCompleteImgLoaded"
     >
       <Square
         v-for="(value, index) in baseStore.mixedOrders"
@@ -138,7 +159,8 @@ watch(
         :container-left="left"
         :order="index"
         :mixed-order="value"
-        :class="{ 'board-veil': baseStore.paused }"
+        :class="{ 'board-veil': baseStore.paused,
+                  'loading-veil': baseStore.cageMode && !baseStore.finishLoadingAllCageImages }"
       />
     </div>
   </div>
@@ -150,7 +172,7 @@ watch(
   width: v-bind(boardSize);
   height: v-bind(boardSize);
   box-shadow: rgba(0, 0, 0, 0.3) 0px 5px 15px;
-  border-radius: 8px;
+  border-radius: v-bind(borderRadiusVar);
   align-content: center;
   position: relative;
 }
@@ -162,7 +184,7 @@ watch(
   flex-direction: column;
   width: v-bind(boardSize);
   height: v-bind(boardSize);
-  border-radius: 8px;
+  border-radius: v-bind(borderRadiusVar);
   justify-content: center;
   align-items: center;
   position: relative;
@@ -176,11 +198,18 @@ watch(
   font-size: 56px;
   line-height: 56px;
   padding-bottom: 5px;
+  display: block;
+  text-align: center;
 }
 .paused-veil .smaller {
   color: navy;
   font-size: 32px;
   font-weight: 500;
+  display: block;
+  text-align: center;
+}
+.loading-veil {
+  opacity: 0 !important;
 }
 .complete-cage {
   z-index: 3000;

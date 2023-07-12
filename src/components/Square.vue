@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { Direction } from '../stores/const';
 import { storeToRefs } from 'pinia';
@@ -20,7 +20,7 @@ const sizeVar = computed(() => {
   return `${props.squareSize}px`;
 });
 const borderRadiusVar = computed(() => {
-  if (baseStore.cageMode) {
+  if (baseStore.cageMode && baseStore.finishLoadingAllCageImages) {
     return '0px';
   }
   return '8px';
@@ -132,7 +132,7 @@ watch(
         setTimeout(() => {
           isNoBorder.value = true;
           baseStore.afterDoneCount += 1;
-        }, actualOrder.value * 100);
+        }, actualOrder.value * 150);
       } else {
         setTimeout(() => {
           isCaptured.value = true;
@@ -144,24 +144,14 @@ watch(
   { immediate: true }
 );
 
-const img = ref();
-watchEffect(() => {
-  if (props.mixedOrder === 0) {
-    return;
-  }
-  if (!baseStore.cageMode) {
-    img.value = 'none';
-    return;
-  }
+const loadedImg = computed(() => {
   const imgNum = props.mixedOrder.toString().padStart(2, '0');
-  img.value = new URL(`../assets/cages/${baseStore.cagePath}/${imgNum}.jpg`, import.meta.url).href;
+  return new URL(`../assets/cages/${baseStore.cagePath}/${imgNum}.jpg`, import.meta.url).href;
 });
-const imagePath = computed(() => {
-  if (!baseStore.cageMode) {
-    return 'none';
-  }
-  return `url(${img.value})`;
-});
+
+const onImgLoad = () => {
+  baseStore.cageImageLoadedCount += 1;
+};
 
 const { doResetList } = storeToRefs(baseStore);
 watch(
@@ -170,7 +160,6 @@ watch(
     if (value && !oldValue) {
       isCaptured.value = false;
       isNoBorder.value = false;
-      img.value = 'none';
     }
   },
   { immediate: true }
@@ -197,11 +186,15 @@ watch(
     @click="move"
   >
     <div class="item">
+      <img v-if="baseStore.cageMode" :src="loadedImg" class="item-img" @load="onImgLoad">
+      <span
+        v-if="baseStore.showSquareNum && baseStore.cageMode && baseStore.finishLoadingAllCageImages"
+        class="item-img-span"
+      >
+        {{ props.mixedOrder }}
+      </span>
       <Transition name="bounce">
-        <span
-          v-if="baseStore.showSquareNum"
-          :class="{'cage-mode': baseStore.cageMode }"
-        >
+        <span v-if="baseStore.showSquareNum && !baseStore.cageMode">
           {{ props.mixedOrder }}
         </span>
       </Transition>
@@ -247,11 +240,19 @@ watch(
   box-sizing: border-box;
   box-shadow: 0 0 4px inset rgba(0, 0, 0, 0.2);
   -webkit-tap-highlight-color: transparent;
-  background-image: v-bind(imagePath);
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
+}
+.item-img {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.item-img-span {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white !important;
+  opacity: 0.8;
 }
 .captured {
   background-color: gold !important;

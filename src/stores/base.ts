@@ -23,7 +23,8 @@ export const useBaseStore = defineStore('base', {
     cageMode: false,
     eligibleForCageMode: false,
     cagePath: '' as (string | number),
-    shownCages: new Set() as Set<string | number>
+    shownCages: new Set() as Set<string | number>,
+    cageImageLoadedCount: 0
   }),
   actions: {
     initStore() {
@@ -48,6 +49,7 @@ export const useBaseStore = defineStore('base', {
       this.actualOrders[this.mixedOrders.findIndex((x) => x === 0)] = -1;
       this.doResetList = false;
       this.doneFirstMove = false;
+      this.cageImageLoadedCount = 0;
     },
     incMoves() {
       this.movesCount++;
@@ -126,6 +128,9 @@ export const useBaseStore = defineStore('base', {
         return true;
       }
       return this.afterDoneCount === this.arrayLength - 1;
+    },
+    finishLoadingAllCageImages(): boolean {
+      return this.cageImageLoadedCount === this.arrayLength - 1;
     },
     minutes(): number {
       return Math.floor(this.time / 60);
