@@ -17,13 +17,13 @@ const squareSize = computed(() => {
     cageAdd = 10;
   }
   let value = 0;
-  if (windowWidth.value <= 360) {
+  if (windowWidth.value <= 370) {
     if (baseStore.cageMode) {
       value = Math.floor((windowWidth.value - (spaces + 60)) / 4);
     } else {
       value = Math.floor((windowWidth.value - (spaces + 40)) / 4);
     }
-  } else if (windowWidth.value <= 500) {
+  } else if (windowWidth.value <= 420) {
     value = Math.floor((windowWidth.value - (spaces + 60)) / 4);
   } else {
     value = 80;
@@ -58,10 +58,6 @@ watch(visibility, (value) => {
       You unlocked "cage mode" for the next game!
     </p>
   </div>
-  <p v-else class="instruction">
-    Game instruction: Move blocks until they are in regular order.
-    You can play and beat records of time and moves. Unlock "cage mode" completing the puzzle in less than a minute.
-  </p>
 </template>
 
 <style scoped>
@@ -92,17 +88,6 @@ watch(visibility, (value) => {
   display: flex;
   align-items: center;
   border-radius: 8px;
-}
-.instruction {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  max-width: v-bind(boardSize);
-  font-size: 16px;
-  margin-top: 5px;
-  text-align: left;
-  line-height: 1.4;
 }
 .finish-message {
   display: flex;

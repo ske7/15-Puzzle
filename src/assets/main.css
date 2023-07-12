@@ -66,7 +66,7 @@ img[alt] {
 .tool-button {
   display: flex;
   width: 70px;
-  height: 24px;
+  height: 32px;
   justify-content: center;
   align-items: center;
   cursor: pointer;
@@ -76,7 +76,7 @@ img[alt] {
   color: navy;
   border-radius: 8px;
   font-style: italic;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   transition: all 0.3s ease;
   -webkit-tap-highlight-color: transparent;

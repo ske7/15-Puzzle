@@ -24,7 +24,8 @@ export const useBaseStore = defineStore('base', {
     eligibleForCageMode: false,
     cagePath: '' as (string | number),
     shownCages: new Set() as Set<string | number>,
-    cageImageLoadedCount: 0
+    cageImageLoadedCount: 0,
+    showInfo: false
   }),
   actions: {
     initStore() {
@@ -50,6 +51,7 @@ export const useBaseStore = defineStore('base', {
       this.doResetList = false;
       this.doneFirstMove = false;
       this.cageImageLoadedCount = 0;
+      this.showInfo = false;
     },
     incMoves() {
       this.movesCount++;
@@ -72,7 +74,7 @@ export const useBaseStore = defineStore('base', {
       }, 1000);
     },
     invertPaused() {
-      if (this.showConfirm) {
+      if (this.showConfirm || this.showInfo) {
         return;
       }
       this.paused = !this.paused;

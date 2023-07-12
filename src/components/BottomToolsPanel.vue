@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import { watch, ref } from 'vue';
+import { watch, ref, defineAsyncComponent } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
-import ConfirmDialog from '../components/ConfirmDialog.vue';
+const ConfirmDialog = defineAsyncComponent({
+  loader: () => import('../components/ConfirmDialog.vue'),
+  delay: 150
+});
+const InfoModal = defineAsyncComponent({
+  loader: () => import('../components/InfoModal.vue'),
+  delay: 150
+});
 
 const baseStore = useBaseStore();
 
@@ -40,6 +47,18 @@ const doConfirmRestart = () => {
 const declineConfirm = () => {
   baseStore.showConfirm = false;
   if (!wasPausedBeforeConfirm.value) {
+    baseStore.invertPaused();
+  }
+};
+const showAboutModal = () => {
+  if (!baseStore.paused) {
+    baseStore.invertPaused();
+  }
+  baseStore.showInfo = true;
+};
+const closeAboutModal = () => {
+  baseStore.showInfo = false;
+  if (baseStore.paused && baseStore.movesCount === 0) {
     baseStore.invertPaused();
   }
 };
@@ -85,7 +104,8 @@ watch(
       <button
         class="tool-button"
         :disabled="
-          baseStore.showConfirm || !baseStore.afterDoneAnimationEnd || baseStore.paused
+          baseStore.showConfirm || baseStore.showInfo ||
+            !baseStore.afterDoneAnimationEnd || baseStore.paused
         "
         @click="doShowConfirm"
       >
@@ -93,11 +113,18 @@ watch(
       </button>
       <button
         class="tool-button pause-button"
-        :disabled="baseStore.showConfirm || !baseStore.afterDoneAnimationEnd ||
-          isDone || !baseStore.doneFirstMove"
+        :disabled="baseStore.showConfirm || baseStore.showInfo ||
+          !baseStore.afterDoneAnimationEnd || isDone || !baseStore.doneFirstMove"
         @click="baseStore.invertPaused"
       >
-        {{ baseStore.paused && !baseStore.showConfirm ? 'Resume' : 'Pause' }}
+        {{ baseStore.paused && !baseStore.showConfirm && !baseStore.showInfo ? 'Resume' : 'Pause' }}
+      </button>
+      <button
+        class="tool-button"
+        :disabled="baseStore.showConfirm || baseStore.showInfo"
+        @click="showAboutModal"
+      >
+        About
       </button>
     </div>
     <div class="tool-items end records">
@@ -118,5 +145,9 @@ watch(
     v-if="baseStore.showConfirm"
     @confirm="doConfirmRestart"
     @decline="declineConfirm"
+  />
+  <InfoModal
+    v-if="baseStore.showInfo"
+    @close="closeAboutModal"
   />
 </template>
