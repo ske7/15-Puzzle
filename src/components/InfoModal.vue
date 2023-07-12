@@ -56,7 +56,7 @@ const getYear = computed(() => {
   .info-modal {
     width: calc(100% - 40px);
     left: 20px;
-    top: 75px;
+    top: 70px;
     min-height: 320px;
   }
 }

@@ -218,7 +218,7 @@ watch(
   opacity: 0 !important;
 }
 .complete-cage {
-  z-index: 3000;
+  z-index: 1001;
 }
 @media screen and (max-width: 601px) {
   .paused-veil .bigger {
