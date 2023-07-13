@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useWindowSize, useDocumentVisibility } from '@vueuse/core';
+import { useWindowSize, useDocumentVisibility, useEventBus } from '@vueuse/core';
 import { useBaseStore } from './stores/base';
 import Board from './components/Board.vue';
 import TopInfoPanel from './components/TopInfoPanel.vue';
@@ -9,6 +9,8 @@ import { computed, watch } from 'vue';
 const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
 const visibility = useDocumentVisibility();
+
+const eventBus = useEventBus<string>('event-bus');
 
 const squareSize = computed(() => {
   const spaces = baseStore.spaceBetween * 5;
@@ -61,8 +63,8 @@ watch(visibility, (value) => {
   <BottomToolsPanel />
   <div v-if="baseStore.isDone" class="finish-message">
     <p>Congrats! You've done it. 🏆</p>
-    <p v-if="baseStore.eligibleForCageMode">
-      You unlocked "cage mode" for the next game!
+    <p v-if="baseStore.eligibleForCageMode" class="unlock-message">
+      "Cage mode" is unlocked for the next <a @click="eventBus.emit('restart')">game</a>!
     </p>
   </div>
 </template>
@@ -111,6 +113,19 @@ watch(visibility, (value) => {
   font-weight: 600;
   max-width: v-bind(boardSize);
 }
+.unlock-message {
+  font-size: 16px !important;
+  line-height: 25px !important;
+  color: navy !important;
+  font-style: italic;
+}
+.unlock-message a {
+  text-decoration: underline;
+  cursor: pointer;
+}
+.unlock-message a:hover {
+  color: goldenrod !important
+}
 @media screen and (max-width: 420px) {
   .header {
     margin-top: 20px;
@@ -125,8 +140,13 @@ watch(visibility, (value) => {
   }
   .finish-message p {
     font-size: 18px;
-    line-height: 25px;
+    line-height: 29px;
     font-weight: 600;
+  }
+}
+@media screen and (max-width: 350px) {
+  .unlock-message {
+    font-size: 14px !important;
   }
 }
 </style>

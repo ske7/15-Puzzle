@@ -74,7 +74,8 @@ export const useBaseStore = defineStore('base', {
       }, 1000);
     },
     invertPaused() {
-      if (this.showConfirm || this.showInfo) {
+      if (this.showConfirm || this.showInfo ||
+        (this.cageMode && !this.finishLoadingAllCageImages)) {
         return;
       }
       this.paused = !this.paused;

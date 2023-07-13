@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { watch, ref, defineAsyncComponent } from 'vue';
+import { watch, ref, defineAsyncComponent, onMounted, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
+import { useEventBus } from '@vueuse/core';
 const ConfirmDialog = defineAsyncComponent({
   loader: () => import('../components/ConfirmDialog.vue'),
   delay: 150
@@ -10,6 +11,13 @@ const InfoModal = defineAsyncComponent({
   loader: () => import('../components/InfoModal.vue'),
   delay: 150
 });
+
+const eventBus = useEventBus<string>('event-bus');
+const listener = (event: string) => {
+  if (event === 'restart') {
+    doShowConfirm();
+  }
+};
 
 const baseStore = useBaseStore();
 
@@ -27,7 +35,7 @@ const doShowConfirm = () => {
   if (!baseStore.afterDoneAnimationEnd) {
     return;
   }
-  if (isDone.value || (baseStore.time < 10 && baseStore.movesCount < 10)) {
+  if (baseStore.isDone || (baseStore.time < 10 && baseStore.movesCount < 10)) {
     reset();
     return;
   }
@@ -96,6 +104,12 @@ watch(
   },
   { immediate: true }
 );
+onMounted(() => {
+  eventBus.on(listener);
+});
+onUnmounted(() => {
+  eventBus.off(listener);
+});
 </script>
 
 <template>
