@@ -19,5 +19,7 @@ export const CAGES_PATH_ARR = [
   '04-renfield',
   '05-ghost',
   '06-ghost',
-  '07-8mm'
+  '07-8mm',
+  '08-boy',
+  '09-pig'
 ];
