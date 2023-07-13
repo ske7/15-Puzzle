@@ -3,9 +3,20 @@
 "15 Puzzle" made using Vue 3 (Typescript + Pinia)\
 _featuring Nic Cage_
 
-![15 Puzzle image](public/game7.png)
+![15 Puzzle image](public/game15.png)
 
-Try it here:\
+### Game instructions:
+
+Move blocks until they are in regular order.\
+You can play and beat your records of time and moves.\
+Unlock "Cage mode" completing the puzzle in less than a minute.\
+There are lots of funny "Cages". Try to reach them all if you can.
+
+_One of the "Cages"_\
+![Cage mode](public/cage_mode.png)
+
+### Try the game here:
+
 https://cage15.onrender.com/
 
 ## Project Setup
@@ -24,10 +35,4 @@ npm run dev
 
 ```sh
 npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
 ```
