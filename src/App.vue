@@ -64,7 +64,7 @@ watch(visibility, (value) => {
   <div v-if="baseStore.isDone" class="finish-message">
     <p>Congrats! You've done it. 🏆</p>
     <p v-if="baseStore.eligibleForCageMode" class="unlock-message">
-      "Cage mode" is unlocked for the next <a @click="eventBus.emit('restart')">game</a>!
+      "Cage mode" is unlocked for the <a @click="eventBus.emit('restart')">next game!</a>
     </p>
   </div>
 </template>
@@ -121,10 +121,13 @@ watch(visibility, (value) => {
 }
 .unlock-message a {
   text-decoration: underline;
+  color: #105d97;
+  font-weight: 600;
   cursor: pointer;
 }
 .unlock-message a:hover {
-  color: goldenrod !important
+  color: navy !important;
+  text-decoration: underline;
 }
 @media screen and (max-width: 420px) {
   .header {

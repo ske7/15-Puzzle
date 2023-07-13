@@ -29,7 +29,7 @@ const getYear = computed(() => {
       <p class="copyright">
         <span>© {{ getYear }} SKE</span>
         <br>
-        <span>This game is open <a target="_blank" href="https://github.com/ske7/15-Puzzle">source</a></span>
+        <span><a target="_blank" href="https://github.com/ske7/15-Puzzle">This game is open source</a></span>
       </p>
     </div>
   </Teleport>
@@ -98,6 +98,12 @@ const getYear = computed(() => {
   font-size: 12px;
 }
 .copyright a {
+  color: #105d97;
   text-decoration: underline;
+  cursor: pointer;
+}
+.copyright a:hover {
+  text-decoration: underline;
+  color: navy;
 }
 </style>
