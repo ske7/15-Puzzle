@@ -1,7 +1,6 @@
 # Cage 15 Puzzle
 
-"15 Puzzle" made using Vue 3 (Typescript + Pinia)\
-_featuring Nic Cage_
+"15 Puzzle" online game (_featuring Nic Cage_) made using Vue 3 (Typescript + Pinia)
 
 ![15 Puzzle image](public/game15.png)
 
@@ -12,7 +11,6 @@ You can play and beat your records of time and moves.\
 Unlock "Cage mode" completing the puzzle in less than a minute.\
 There are lots of funny "Cages". Try to reach them all if you can.
 
-_One of the "Cages"_\
 ![Cage mode](public/cage_mode.png)
 
 ### Try the game here:
