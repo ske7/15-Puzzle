@@ -123,6 +123,14 @@ watch([calculatedLeft, calculatedTop], () => {
   }, 25);
 });
 
+const getCursor = computed(() => {
+  if (cannotMove.value) {
+    return 'auto';
+  } else {
+    return 'pointer';
+  }
+});
+
 const isNoBorder = ref(false);
 watch(
   isDoneAll,
@@ -173,7 +181,6 @@ watch(
       free: props.mixedOrder === 0,
       'in-place': isSquareInPlace,
       captured: isCaptured,
-      'cur-auto': cannotMove,
       'render-bg': renderFlag,
       'no-border-no-shadow': isNoBorder
     }"
@@ -185,7 +192,7 @@ watch(
     @touchmove.prevent
     @click="move"
   >
-    <div class="item">
+    <div class="item" :style="{cursor: getCursor }">
       <img
         v-if="baseStore.cageMode && props.mixedOrder !== 0"
         :src="loadedImg"
@@ -233,7 +240,6 @@ watch(
   width: v-bind(sizeVar);
   height: v-bind(sizeVar);
   border: 1px solid rgba(136, 165, 191, 0.3);
-  cursor: pointer;
   display: flex;
   justify-content: center;
   background-color: beige;

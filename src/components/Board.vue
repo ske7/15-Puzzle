@@ -215,6 +215,9 @@ watch(
   display: block;
   text-align: center;
 }
+.cur-auto {
+  cursor: auto !important;
+}
 .loading-veil {
   opacity: 0 !important;
 }
