@@ -25,7 +25,7 @@ const borderRadiusVar = computed(() => {
 });
 const cageCompleteImgLoaded = ref(false);
 const cageCompleteImg = computed(() => {
-  return new URL(`../assets/cages/${baseStore.cagePath}/complete.jpg`, import.meta.url).href;
+  return `/cages/${baseStore.cagePath}/complete.jpg`;
 });
 
 const onCageCompleteImgLoaded = () => {

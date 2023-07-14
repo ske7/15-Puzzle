@@ -146,7 +146,7 @@ watch(
 
 const loadedImg = computed(() => {
   const imgNum = props.mixedOrder.toString().padStart(2, '0');
-  return new URL(`../assets/cages/${baseStore.cagePath}/${imgNum}.jpg`, import.meta.url).href;
+  return `/cages/${baseStore.cagePath}/${imgNum}.jpg`;
 });
 
 const onImgLoad = () => {
@@ -186,7 +186,12 @@ watch(
     @click="move"
   >
     <div class="item">
-      <img v-if="baseStore.cageMode" :src="loadedImg" class="item-img" @load="onImgLoad">
+      <img
+        v-if="baseStore.cageMode && props.mixedOrder !== 0"
+        :src="loadedImg"
+        class="item-img"
+        @load="onImgLoad"
+      >
       <span
         v-if="baseStore.showSquareNum && baseStore.cageMode && baseStore.finishLoadingAllCageImages"
         class="item-img-span"
