@@ -16,6 +16,11 @@ const getYear = computed(() => {
   }
   return `2023 - ${currentYear}`;
 });
+
+const setCageHardcoreMode = (): void => {
+  baseStore.cageHardcoreMode = !baseStore.cageHardcoreMode;
+  localStorage.setItem('cageHardcoreMode', baseStore.cageHardcoreMode.toString());
+};
 </script>
 
 <template>
@@ -37,7 +42,7 @@ const getYear = computed(() => {
           type="checkbox"
           name="hardcore"
           :checked="baseStore.cageHardcoreMode"
-          @change="baseStore.cageHardcoreMode = !baseStore.cageHardcoreMode"
+          @change="setCageHardcoreMode"
         >
         <label for="hardcore">Cage Hardcore Mode</label>
       </div>
