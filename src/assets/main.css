@@ -99,6 +99,9 @@ img[alt] {
 .red {
   color: red !important;
 }
+.mt-10 {
+  margin-top: 10px !important;
+}
 .tool-button:disabled {
   cursor: auto;
   opacity: 0.5;

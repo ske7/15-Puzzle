@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { useBaseStore } from '../stores/base';
+import { onClickOutside } from '@vueuse/core';
+
+const baseStore = useBaseStore();
+
+const infoModal = ref(null);
+onClickOutside(infoModal, () => { emit('close') });
 
 const emit = defineEmits<{ close: [] }>();
 const getYear = computed(() => {
@@ -13,14 +20,27 @@ const getYear = computed(() => {
 
 <template>
   <Teleport to="body">
-    <div class="info-modal">
+    <div ref="infoModal" class="info-modal">
       <p class="info-header">
         <span>Game instructions</span>
       </p>
       <p class="instruction">
         Move blocks until they are in regular order.
-        You can play and beat your records of time and moves. Unlock "Cage mode" completing the puzzle in less than a minute. There are lots of funny "Cages". Try to reach them all if you can.
+        You can play and beat your records of time and moves. Unlock "Cage mode" completing the puzzle in less than a minute. There are lots of funny "Cages". Try to reach them all if you can. Cage Hardcore Mode is for puzzle gurus... you won't see numbers on "Cages".
       </p>
+      <p class="info-header mt-10">
+        <span>Options</span>
+      </p>
+      <div class="hardcore-mode">
+        <input
+          id="hardcore"
+          type="checkbox"
+          name="hardcore"
+          :checked="baseStore.cageHardcoreMode"
+          @change="baseStore.cageHardcoreMode = !baseStore.cageHardcoreMode"
+        >
+        <label for="hardcore">Cage Hardcore Mode</label>
+      </div>
       <div class="buttons">
         <button class="tool-button" @click="emit('close')">
           OK
@@ -37,7 +57,7 @@ const getYear = computed(() => {
 
 <style scoped>
 .info-modal {
-  --modal-width: 300px;
+  --modal-width: 320px;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -62,7 +82,7 @@ const getYear = computed(() => {
 }
 .info-header {
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   margin-top: 5px;
 }
 .info-header span{
@@ -105,5 +125,23 @@ const getYear = computed(() => {
 .copyright a:hover {
   text-decoration: underline;
   color: navy;
+}
+.hardcore-mode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+label {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+input[type=checkbox] {
+  margin-bottom: -3px;
+  height: 15px;
+  width: 15px;
+
 }
 </style>

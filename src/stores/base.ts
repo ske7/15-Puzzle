@@ -25,11 +25,11 @@ export const useBaseStore = defineStore('base', {
     cagePath: '' as (number | string),
     shownCages: new Set<number | string>(),
     cageImageLoadedCount: 0,
-    showInfo: false
+    showInfo: false,
+    cageHardcoreMode: false
   }),
   actions: {
     initStore() {
-      this.numLines = CORE_NUM;
       if (this.cageMode) {
         this.spaceBetween = 0;
       } else {

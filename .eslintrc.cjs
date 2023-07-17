@@ -51,7 +51,7 @@ module.exports = {
     'sort-keys': 'off',
     'no-shadow': 'off',
     '@typescript-eslint/no-shadow': 'error',
-    'max-statements': ['error', { max: 20 }],
+    'max-statements': ['error', { max: 30 }],
     'func-style': 'off',
     'no-ternary': 'off',
     'generator-star-spacing': ['error', { before: false, after: true }],

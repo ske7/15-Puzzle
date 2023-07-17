@@ -202,6 +202,7 @@ watch(
       >
       <span
         v-if="baseStore.showSquareNum && baseStore.cageMode && baseStore.finishLoadingAllCageImages"
+        v-show="!baseStore.cageHardcoreMode"
         class="item-img-span"
       >
         {{ props.mixedOrder }}
