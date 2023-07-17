@@ -54,7 +54,13 @@ watch(visibility, (value) => {
 <template>
   <div class="header">
     <h1>15 Puzzle</h1>
-    <img src="./assets/cage.webp" alt="Nic.Cage" :width="cageImgSize" :height="cageImgSize">
+    <img
+      src="./assets/cage.webp"
+      alt="Nic.Cage"
+      :width="cageImgSize"
+      :height="cageImgSize"
+      draggable="false"
+    >
   </div>
   <TopInfoPanel />
   <div class="board-container">
@@ -64,7 +70,7 @@ watch(visibility, (value) => {
   <div v-if="baseStore.isDone" class="finish-message">
     <p>Congrats! You've done it. 🏆</p>
     <p v-if="baseStore.eligibleForCageMode" class="unlock-message">
-      "Cage mode" is unlocked for the <a @click="eventBus.emit('restart')">next game!</a>
+      "Cage mode" is unlocked for the <a draggable="false" @click="eventBus.emit('restart')">next game!</a>
     </p>
   </div>
 </template>

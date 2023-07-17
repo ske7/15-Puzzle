@@ -127,6 +127,7 @@ watch(
       v-show="baseStore.afterDoneAnimationEnd && cageCompleteImgLoaded"
       :src="cageCompleteImg"
       class="complete-cage"
+      draggable="false"
       @load="onCageCompleteImgLoaded"
     >
     <div

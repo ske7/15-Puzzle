@@ -197,6 +197,7 @@ watch(
         v-if="baseStore.cageMode && props.mixedOrder !== 0"
         :src="loadedImg"
         class="item-img"
+        draggable="false"
         @load="onImgLoad"
       >
       <span
