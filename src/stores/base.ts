@@ -22,8 +22,8 @@ export const useBaseStore = defineStore('base', {
     showSquareNum: false,
     cageMode: false,
     eligibleForCageMode: false,
-    cagePath: '' as (string | number),
-    shownCages: new Set() as Set<string | number>,
+    cagePath: '' as (number | string),
+    shownCages: new Set<number | string>(),
     cageImageLoadedCount: 0,
     showInfo: false
   }),
@@ -113,14 +113,14 @@ export const useBaseStore = defineStore('base', {
     },
     orderedCount(): number {
       let count = 0;
-      for (const i in this.actualOrders) {
+      this.actualOrders.forEach((value, i) => {
         if (
-          this.actualOrders[i] !== -1 &&
-          this.actualOrders[i] + 1 === this.mixedOrders[i]
+          value !== -1 &&
+          value + 1 === this.mixedOrders[i]
         ) {
           count += 1;
         }
-      }
+      });
       return count;
     },
     isDone(): boolean {

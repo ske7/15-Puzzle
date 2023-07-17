@@ -28,12 +28,12 @@ const cageCompleteImg = computed(() => {
   return `/cages/${baseStore.cagePath}/complete.jpg`;
 });
 
-const onCageCompleteImgLoaded = () => {
+const onCageCompleteImgLoaded = (): void => {
   cageCompleteImgLoaded.value = true;
 };
 
 const hideWhenCageShowCageCompleteImg = computed(() => {
-  return baseStore.cageMode && baseStore.isDone && cageCompleteImg &&
+  return baseStore.cageMode && baseStore.isDone &&
          baseStore.afterDoneAnimationEnd && cageCompleteImgLoaded;
 });
 
@@ -94,8 +94,8 @@ onMounted(() => {
 const { doResetList } = storeToRefs(baseStore);
 watch(
   doResetList,
-  (value, oldValue) => {
-    if (value && !oldValue) {
+  (value) => {
+    if (value) {
       baseStore.showSquareNum = false;
       setTimeout(() => {
         if (baseStore.cageMode) {

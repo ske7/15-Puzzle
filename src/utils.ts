@@ -1,5 +1,5 @@
-export function shuffle(array: number[]): number[] {
-  const length = array === null ? 0 : array.length;
+export function shuffle(array: readonly number[]): number[] {
+  const length = array.length;
   if (!length) {
     return [];
   }
@@ -15,7 +15,7 @@ export function shuffle(array: number[]): number[] {
   return result;
 }
 
-export function* sequenceGenerator(minVal: number, maxVal: number) {
+export function* sequenceGenerator(minVal: number, maxVal: number): Generator<number> {
   let currVal = minVal;
   while (currVal < maxVal) yield currVal++;
 }
@@ -28,11 +28,11 @@ export function generate(length: number, fromZero = true): number[] {
   return [...sequenceGenerator(fromZero ? 0 : 1, length)];
 }
 
-export function getArrayKeyByValue(array: number[], value: number): number {
+export function getArrayKeyByValue(array: readonly number[], value: number): number {
   return Number(Object.keys(array).find((key) => array[Number(key)] === value));
 }
 
-export function isSolvable(array: number[]): boolean {
+export function isSolvable(array: readonly number[]): boolean {
   const rowCount: number = Math.sqrt(array.length);
   const freeElement = array.findIndex((x) => x === 0) + 1;
   const freeElementRow = Math.ceil(freeElement / rowCount);
@@ -55,8 +55,8 @@ export function isSolvable(array: number[]): boolean {
   }
 }
 
-export function randArrayItem(array: (string | number)[],
-  s: Set<string | number>): string | number {
+export function randArrayItem(array: readonly (number | string)[],
+  s: Set<number | string>): number | string {
   const a = array.filter(n => ![...s].includes(n));
   return a[Math.floor(Math.random() * a.length)];
 }

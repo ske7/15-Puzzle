@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const emit = defineEmits<{ close: []; }>();
+const emit = defineEmits<{ close: [] }>();
 const getYear = computed(() => {
   const currentYear = new Date().getFullYear();
   if (currentYear === 2023) {

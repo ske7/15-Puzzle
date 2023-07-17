@@ -4,20 +4,13 @@ import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
 const ConfirmDialog = defineAsyncComponent({
-  loader: () => import('../components/ConfirmDialog.vue'),
+  loader: async () => import('../components/ConfirmDialog.vue'),
   delay: 150
 });
 const InfoModal = defineAsyncComponent({
-  loader: () => import('../components/InfoModal.vue'),
+  loader: async () => import('../components/InfoModal.vue'),
   delay: 150
 });
-
-const eventBus = useEventBus<string>('event-bus');
-const listener = (event: string) => {
-  if (event === 'restart') {
-    doShowConfirm();
-  }
-};
 
 const baseStore = useBaseStore();
 
@@ -25,13 +18,13 @@ const newMovesRecord = ref(false);
 const newTimeRecord = ref(false);
 const wasPausedBeforeConfirm = ref(false);
 
-const reset = () => {
+const reset = (): void => {
   newMovesRecord.value = false;
   newTimeRecord.value = false;
   baseStore.reset();
   baseStore.restartInterval();
 };
-const doShowConfirm = () => {
+const doShowConfirm = (): void => {
   if (!baseStore.afterDoneAnimationEnd) {
     return;
   }
@@ -45,29 +38,36 @@ const doShowConfirm = () => {
   }
   baseStore.showConfirm = true;
 };
-const doConfirmRestart = () => {
+const doConfirmRestart = (): void => {
   baseStore.showConfirm = false;
   reset();
   if (!wasPausedBeforeConfirm.value) {
     baseStore.invertPaused();
   }
 };
-const declineConfirm = () => {
+const declineConfirm = (): void => {
   baseStore.showConfirm = false;
   if (!wasPausedBeforeConfirm.value) {
     baseStore.invertPaused();
   }
 };
-const showAboutModal = () => {
+const showAboutModal = (): void => {
   if (!baseStore.paused && baseStore.doneFirstMove && !baseStore.isDone) {
     baseStore.invertPaused();
   }
   baseStore.showInfo = true;
 };
-const closeAboutModal = () => {
+const closeAboutModal = (): void => {
   baseStore.showInfo = false;
   if (baseStore.paused && baseStore.movesCount === 0) {
     baseStore.invertPaused();
+  }
+};
+
+const eventBus = useEventBus<string>('event-bus');
+const listener = (event: string): void => {
+  if (event === 'restart') {
+    doShowConfirm();
   }
 };
 
@@ -78,8 +78,8 @@ baseStore.restartInterval();
 const { isDone } = storeToRefs(baseStore);
 watch(
   isDone,
-  (value, oldValue) => {
-    if (value && !oldValue) {
+  (value) => {
+    if (value) {
       baseStore.stopInterval();
       if (
         baseStore.movesCount > 0 &&

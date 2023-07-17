@@ -1,7 +1,7 @@
 import './assets/main.css';
-import { createApp } from 'vue';
+import { createApp, defineComponent } from 'vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 
-const app = createApp(App);
+const app = createApp(App as unknown as typeof defineComponent);
 app.use(createPinia()).mount('#app');

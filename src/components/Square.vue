@@ -89,20 +89,20 @@ const cannotMove = computed(() => {
 });
 
 const isCaptured = ref(false);
-const capture = () => {
+const capture = (): void => {
   if (cannotMove.value) {
     return;
   }
   isCaptured.value = true;
 };
-const release = () => {
+const release = (): void => {
   if (isDoneAll.value) {
     return;
   }
   isCaptured.value = false;
 };
 
-const move = () => {
+const move = (): void => {
   release();
   if (cannotMove.value) {
     return;
@@ -157,15 +157,15 @@ const loadedImg = computed(() => {
   return `/cages/${baseStore.cagePath}/${imgNum}.jpg`;
 });
 
-const onImgLoad = () => {
+const onImgLoad = (): void => {
   baseStore.cageImageLoadedCount += 1;
 };
 
 const { doResetList } = storeToRefs(baseStore);
 watch(
   doResetList,
-  (value, oldValue) => {
-    if (value && !oldValue) {
+  (value) => {
+    if (value) {
       isCaptured.value = false;
       isNoBorder.value = false;
     }
