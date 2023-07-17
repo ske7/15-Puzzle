@@ -31,7 +31,7 @@ const setCageHardcoreMode = (): void => {
       </p>
       <p class="instruction">
         Move blocks until they are in regular order.
-        You can play and beat your records of time and moves. Unlock "Cage mode" completing the puzzle in less than a minute. There are lots of funny "Cages". Try to reach them all if you can. Cage Hardcore Mode is for puzzle gurus... you won't see numbers on "Cages".
+        You can play and beat your records of time and moves. Unlock "Cage mode" by solving the puzzle in less than 60 seconds. There are lots of funny "Cages". Try to reach them all if you can. Cage Hardcore Mode is for puzzle gurus... you won't see numbers on "Cages".
       </p>
       <p class="info-header mt-10">
         <span>Options</span>
@@ -72,25 +72,17 @@ const setCageHardcoreMode = (): void => {
   width: var(--modal-width);
   position: fixed;
   z-index: 2000;
-  top: 130px;
+  top: 120px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
   box-shadow: 0 8px 16px gray;
-}
-@media screen and (max-width: 420px) {
-  .info-modal {
-    width: calc(100% - 40px);
-    left: 20px;
-    top: 70px;
-    min-height: 320px;
-  }
 }
 .info-header {
   text-align: center;
   margin-bottom: 5px;
   margin-top: 5px;
 }
-.info-header span{
+.info-header span {
   font-weight: 500;
   font-size: 18px;
   color: navy;
@@ -110,6 +102,9 @@ const setCageHardcoreMode = (): void => {
   margin-top: 10px;
   display: flex;
   justify-content: space-evenly;
+}
+.buttons button {
+  width: 90px;
 }
 .copyright {
   margin-top: 10px;
@@ -144,9 +139,25 @@ label {
   line-height: 1;
 }
 input[type=checkbox] {
-  margin-bottom: -3px;
+  margin-bottom: -2px;
   height: 15px;
   width: 15px;
-
+}
+@media screen and (max-width: 420px) {
+  .info-modal {
+    width: calc(100% - 40px);
+    left: 20px;
+    top: 70px;
+    min-height: 320px;
+  }
+  .instruction  {
+    font-size: 15px;
+  }
+  label {
+    font-size: 15px;
+  }
+  .info-header span {
+    font-size: 17px;
+  }
 }
 </style>

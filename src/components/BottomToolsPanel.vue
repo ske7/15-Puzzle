@@ -144,10 +144,7 @@ onUnmounted(() => {
     <div class="tool-items end records">
       <span class="caption">Your record:</span>
       <span class="time" :class="{ red: newTimeRecord }">
-        {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecordMinutes || '0' }}m&nbsp;
-      </span>
-      <span class="time" :class="{ red: newTimeRecord }">
-        {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecordSeconds || '00' }}s
+        {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecord }}s
       </span>
       &nbsp;/&nbsp;
       <span class="moves-count" :class="{ red: newMovesRecord }">
