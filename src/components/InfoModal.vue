@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useBaseStore } from '../stores/base';
-import { onClickOutside } from '@vueuse/core';
+import { onClickOutside, useEventBus } from '@vueuse/core';
 
 const baseStore = useBaseStore();
 const emit = defineEmits<{ close: [] }>();
+const eventBus = useEventBus<string>('event-bus');
 
 const infoModal = ref(null);
 onClickOutside(infoModal, (event) => {
@@ -19,7 +20,13 @@ const getYear = computed(() => {
   }
   return `2023 - ${currentYear}`;
 });
-
+const setDisableCageMode = (): void => {
+  baseStore.disableCageMode = !baseStore.disableCageMode;
+  localStorage.setItem('disableCageMode', baseStore.disableCageMode.toString());
+  if (baseStore.cageMode) {
+    eventBus.emit('restart');
+  }
+};
 const setCageHardcoreMode = (): void => {
   baseStore.cageHardcoreMode = !baseStore.cageHardcoreMode;
   localStorage.setItem('cageHardcoreMode', baseStore.cageHardcoreMode.toString());
@@ -39,15 +46,28 @@ const setCageHardcoreMode = (): void => {
       <p class="info-header mt-10">
         <span>Options</span>
       </p>
-      <div class="hardcore-mode">
+      <div class="option">
+        <input
+          id="disable-cage-mode"
+          type="checkbox"
+          name="disable-cage-mode"
+          :checked="baseStore.disableCageMode"
+          @change="setDisableCageMode"
+        >
+        <label for="disable-cage-mode">Disable Cage Mode</label>
+      </div>
+      <div class="option">
         <input
           id="hardcore"
           type="checkbox"
           name="hardcore"
+          :disabled="baseStore.disableCageMode"
           :checked="baseStore.cageHardcoreMode"
           @change="setCageHardcoreMode"
         >
-        <label for="hardcore">Cage Hardcore Mode</label>
+        <label for="hardcore" :class="{ 'disabled-label': baseStore.disableCageMode }">
+          Cage Hardcore Mode
+        </label>
       </div>
       <div class="buttons">
         <button class="tool-button" @click="emit('close')">
@@ -126,7 +146,7 @@ const setCageHardcoreMode = (): void => {
   text-decoration: underline;
   color: navy;
 }
-.hardcore-mode {
+.option {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -137,6 +157,9 @@ label {
   display: flex;
   align-items: center;
   line-height: 1;
+}
+.disabled-label {
+  opacity: 0.3;
 }
 input[type=checkbox] {
   margin-bottom: -2px;

@@ -95,7 +95,7 @@ watch(
         localStorage.setItem('timeRecord', baseStore.time.toString());
         newTimeRecord.value = true;
       }
-      if (baseStore.time > 0 && baseStore.time < 60) {
+      if (!baseStore.disableCageMode && baseStore.time > 0 && baseStore.time < 60) {
         baseStore.eligibleForCageMode = true;
       }
     }
@@ -148,7 +148,7 @@ onUnmounted(() => {
         {{ baseStore.movesRecord || '?' }}
       </span>&nbsp;<span>moves</span>
     </div>
-    <div class="tool-items records consolas">
+    <div v-if="!baseStore.disableCageMode" class="tool-items records consolas">
       <span>
         Unlocked
         <span class="italic">

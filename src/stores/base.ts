@@ -26,6 +26,7 @@ export const useBaseStore = defineStore('base', {
     shownCages: new Set<string>(),
     cageImageLoadedCount: 0,
     showInfo: false,
+    disableCageMode: localStorage.getItem('disableCageMode') === 'true',
     cageHardcoreMode: localStorage.getItem('cageHardcoreMode') === 'true',
     unlockedCages: new Set<number>()
   }),
