@@ -55,8 +55,7 @@ export function isSolvable(array: readonly number[]): boolean {
   }
 }
 
-export function randArrayItem(array: readonly (number | string)[],
-  s: Set<number | string>): number | string {
+export function randArrayItem(array: readonly string[], s: ReadonlySet<string>): string {
   const a = array.filter(n => ![...s].includes(n));
   return a[Math.floor(Math.random() * a.length)];
 }
