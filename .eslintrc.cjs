@@ -40,21 +40,22 @@ module.exports = {
     'comma-dangle': ['error', 'never'],
     indent: ['error', 2, { SwitchCase: 1 }],
     'space-before-function-paren': 'off',
+    'prefer-template': 'error',
+    'no-magic-numbers': 'off',
+    'no-mixed-operators': 'off',
+    'max-statements': ['error', { max: 30 }],
+    'generator-star-spacing': ['error', { before: false, after: true }],
     'vue/multi-word-component-names': 'off',
     'vue/script-setup-uses-vars': 'error',
-    'vue/max-attributes-per-line': 'off',
+    'vue/max-attributes-per-line': ['error', {
+      singleline: {
+        max: 3
+      },
+      multiline: {
+        max: 1
+      }
+    }],
     'vue/padding-lines-in-component-definition': 'error',
-    'prefer-template': 'warn',
-    'no-plusplus': 'off',
-    'sort-imports': 'off',
-    'no-magic-numbers': 'off',
-    'sort-keys': 'off',
-    'no-shadow': 'off',
-    '@typescript-eslint/no-shadow': 'error',
-    'max-statements': ['error', { max: 30 }],
-    'func-style': 'off',
-    'no-ternary': 'off',
-    'generator-star-spacing': ['error', { before: false, after: true }],
     'vue/max-len': ['error', {
       code: 100,
       template: 100,

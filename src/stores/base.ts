@@ -75,7 +75,7 @@ export const useBaseStore = defineStore('base', {
     },
     invertPaused() {
       if (this.showConfirm || this.showInfo ||
-        (this.cageMode && !this.finishLoadingAllCageImages)) {
+        this.cageMode && !this.finishLoadingAllCageImages) {
         return;
       }
       this.paused = !this.paused;
@@ -109,12 +109,12 @@ export const useBaseStore = defineStore('base', {
     setUnlockedCages() {
       if (this.cagePath) {
         this.unlockedCages.add(CAGES_PATH_ARR.indexOf(this.cagePath.toString()));
-        localStorage.setItem('_xcu', btoa([...this.unlockedCages].sort().join(',')));
+        localStorage.setItem('_xcu', btoa([...this.unlockedCages].sort((a, b) => a - b).join(',')));
       }
     },
     loadUnlockedCagesFromLocalStorage() {
       const xcu = localStorage.getItem('_xcu');
-      if (xcu) {
+      if (xcu !== null) {
         const arr = atob(xcu).split(',');
         for (const item of arr) {
           this.unlockedCages.add(Number(item));

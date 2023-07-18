@@ -4,6 +4,7 @@ import { useBaseStore } from '../stores/base';
 import { onClickOutside } from '@vueuse/core';
 
 const baseStore = useBaseStore();
+const emit = defineEmits<{ close: [] }>();
 
 const infoModal = ref(null);
 onClickOutside(infoModal, (event) => {
@@ -11,7 +12,6 @@ onClickOutside(infoModal, (event) => {
   emit('close');
 });
 
-const emit = defineEmits<{ close: [] }>();
 const getYear = computed(() => {
   const currentYear = new Date().getFullYear();
   if (currentYear === 2023) {

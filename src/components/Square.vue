@@ -33,7 +33,7 @@ const actualOrder = computed(() => {
 const calculatedLeft = computed(() => {
   return (
     props.containerLeft +
-    (actualOrder.value % baseStore.numLines) * baseStore.spaceBetween +
+    actualOrder.value % baseStore.numLines * baseStore.spaceBetween +
     baseStore.spaceBetween +
     props.squareSize * (actualOrder.value % baseStore.numLines)
   );

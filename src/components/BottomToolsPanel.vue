@@ -28,7 +28,7 @@ const doShowConfirm = (): void => {
   if (!baseStore.afterDoneAnimationEnd) {
     return;
   }
-  if (baseStore.isDone || (baseStore.time < 10 && baseStore.movesCount < 10)) {
+  if (baseStore.isDone || baseStore.time < 10 && baseStore.movesCount < 10) {
     reset();
     return;
   }
@@ -38,15 +38,15 @@ const doShowConfirm = (): void => {
   }
   baseStore.showConfirm = true;
 };
-const confirmRestart = (): void => {
-  reset();
-  closeConfirmModal();
-};
 const closeConfirmModal = (): void => {
   baseStore.showConfirm = false;
   if (!wasPausedBeforeOpenModal.value) {
     baseStore.invertPaused();
   }
+};
+const confirmRestart = (): void => {
+  reset();
+  closeConfirmModal();
 };
 const showAboutModal = (): void => {
   wasPausedBeforeOpenModal.value = baseStore.paused;
