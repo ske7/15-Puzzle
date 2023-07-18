@@ -6,7 +6,10 @@ import { onClickOutside } from '@vueuse/core';
 const baseStore = useBaseStore();
 
 const infoModal = ref(null);
-onClickOutside(infoModal, () => { emit('close') });
+onClickOutside(infoModal, (event) => {
+  event.stopPropagation();
+  emit('close');
+});
 
 const emit = defineEmits<{ close: [] }>();
 const getYear = computed(() => {
@@ -62,7 +65,7 @@ const setCageHardcoreMode = (): void => {
 
 <style scoped>
 .info-modal {
-  --modal-width: 320px;
+  --modal-width: 360px;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -72,7 +75,7 @@ const setCageHardcoreMode = (): void => {
   width: var(--modal-width);
   position: fixed;
   z-index: 2000;
-  top: 120px;
+  top: 117px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
   box-shadow: 0 8px 16px gray;
@@ -143,6 +146,7 @@ input[type=checkbox] {
 @media screen and (max-width: 420px) {
   .info-modal {
     width: calc(100% - 40px);
+    margin: 0 auto;
     left: 20px;
     top: 70px;
     min-height: 320px;

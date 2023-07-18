@@ -16,7 +16,7 @@ const baseStore = useBaseStore();
 
 const newMovesRecord = ref(false);
 const newTimeRecord = ref(false);
-const wasPausedBeforeConfirm = ref(false);
+const wasPausedBeforeOpenModal = ref(false);
 
 const reset = (): void => {
   newMovesRecord.value = false;
@@ -32,34 +32,32 @@ const doShowConfirm = (): void => {
     reset();
     return;
   }
-  wasPausedBeforeConfirm.value = baseStore.paused;
-  if (!wasPausedBeforeConfirm.value) {
+  wasPausedBeforeOpenModal.value = baseStore.paused;
+  if (!baseStore.paused) {
     baseStore.invertPaused();
   }
   baseStore.showConfirm = true;
 };
-const doConfirmRestart = (): void => {
-  baseStore.showConfirm = false;
+const confirmRestart = (): void => {
   reset();
-  if (!wasPausedBeforeConfirm.value) {
-    baseStore.invertPaused();
-  }
+  closeConfirmModal();
 };
-const declineConfirm = (): void => {
+const closeConfirmModal = (): void => {
   baseStore.showConfirm = false;
-  if (!wasPausedBeforeConfirm.value) {
+  if (!wasPausedBeforeOpenModal.value) {
     baseStore.invertPaused();
   }
 };
 const showAboutModal = (): void => {
-  if (!baseStore.paused && baseStore.doneFirstMove && !baseStore.isDone) {
+  wasPausedBeforeOpenModal.value = baseStore.paused;
+  if (!baseStore.paused && !baseStore.isDone) {
     baseStore.invertPaused();
   }
   baseStore.showInfo = true;
 };
 const closeAboutModal = (): void => {
   baseStore.showInfo = false;
-  if (baseStore.paused && baseStore.movesCount === 0) {
+  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
     baseStore.invertPaused();
   }
 };
@@ -161,8 +159,8 @@ onUnmounted(() => {
   </div>
   <ConfirmDialog
     v-if="baseStore.showConfirm"
-    @confirm="doConfirmRestart"
-    @decline="declineConfirm"
+    @confirm="confirmRestart"
+    @decline="closeConfirmModal"
   />
   <InfoModal
     v-if="baseStore.showInfo"
