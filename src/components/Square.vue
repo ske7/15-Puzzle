@@ -110,19 +110,6 @@ const move = (): void => {
   baseStore.saveActualOrder(props.order, moveDirection.value);
 };
 
-const renderFlag = ref(false);
-watch([calculatedLeft, calculatedTop], () => {
-  setTimeout(() => {
-    if (isDoneAll.value) {
-      return;
-    }
-    renderFlag.value = true;
-    setTimeout(() => {
-      renderFlag.value = false;
-    }, 15);
-  }, 25);
-});
-
 const getCursor = computed(() => {
   if (cannotMove.value) {
     return 'auto';
@@ -181,7 +168,6 @@ watch(
       free: props.mixedOrder === 0,
       'in-place': isSquareInPlace,
       captured: isCaptured,
-      'render-bg': renderFlag,
       'no-border-no-shadow': isNoBorder
     }"
     :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px` }"
@@ -270,9 +256,6 @@ watch(
 .captured {
   background-color: gold !important;
 }
-.render-bg {
-  background-color: rgb(245, 245, 221) !important;
-}
 .in-place {
   background-color: rgb(224, 245, 250);
 }
@@ -293,10 +276,6 @@ watch(
   font-size: 21px;
   font-weight: 600;
   color: #0a0a23;
-}
-.cage-mode {
-  color: white !important;
-  opacity: 0.8;
 }
 @media screen and (max-width: 401px) {
   .item span {
