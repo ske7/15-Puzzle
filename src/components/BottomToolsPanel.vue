@@ -126,7 +126,7 @@ onUnmounted(() => {
         Restart
       </button>
       <button
-        class="tool-button pause-button"
+        class="tool-button"
         :disabled="baseStore.showConfirm || baseStore.showInfo ||
           !baseStore.afterDoneAnimationEnd || isDone || !baseStore.doneFirstMove"
         @click="baseStore.invertPaused"
@@ -141,14 +141,21 @@ onUnmounted(() => {
         About
       </button>
     </div>
-    <div class="tool-items end records">
-      <span class="caption">Your record:</span>
-      <span class="time" :class="{ red: newTimeRecord }">
-        {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecord }}s
-      </span>
-      &nbsp;/&nbsp;
-      <span class="moves-count" :class="{ red: newMovesRecord }">
-        {{ baseStore.movesRecord || '?' }} moves
+    <div class="tool-items records consolas">
+      <span>Your record:</span>
+      <span class="ml-5 italic" :class="{ red: newTimeRecord }">
+        {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecord }}
+      </span>s&nbsp;/&nbsp;
+      <span class="italic" :class="{ red: newMovesRecord }">
+        {{ baseStore.movesRecord || '?' }}
+      </span>&nbsp;<span>moves</span>
+    </div>
+    <div class="tool-items records consolas">
+      <span>
+        Unlocked
+        <span class="italic">
+          {{ baseStore.unlockedCages.size }}
+        </span> out of {{ baseStore.cagesCount }} "Cages"
       </span>
     </div>
   </div>

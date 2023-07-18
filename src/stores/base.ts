@@ -1,6 +1,6 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { generateAndShuffle, generate, isSolvable } from '../utils';
-import { CORE_NUM, SPACE_BETWEEN_SQUARES, Direction } from './const';
+import { CORE_NUM, SPACE_BETWEEN_SQUARES, CAGES_PATH_ARR, Direction } from './const';
 
 export const useBaseStore = defineStore('base', {
   state: () => ({
@@ -26,7 +26,8 @@ export const useBaseStore = defineStore('base', {
     shownCages: new Set<number | string>(),
     cageImageLoadedCount: 0,
     showInfo: false,
-    cageHardcoreMode: Boolean(localStorage.getItem('cageHardcoreMode')) || false
+    cageHardcoreMode: localStorage.getItem('cageHardcoreMode') === 'true',
+    unlockedCages: new Set<number>()
   }),
   actions: {
     initStore() {
@@ -104,9 +105,27 @@ export const useBaseStore = defineStore('base', {
     },
     boardSize(squareSize: number) {
       return `${this.numLines * squareSize + this.spaceBetween * (this.numLines + 1)}px`;
+    },
+    setUnlockedCages() {
+      if (this.cagePath) {
+        this.unlockedCages.add(CAGES_PATH_ARR.indexOf(this.cagePath.toString()));
+        localStorage.setItem('_xcu', btoa([...this.unlockedCages].sort().join(',')));
+      }
+    },
+    loadUnlockedCagesFromLocalStorage() {
+      const xcu = localStorage.getItem('_xcu');
+      if (xcu) {
+        const arr = atob(xcu).split(',');
+        for (const item of arr) {
+          this.unlockedCages.add(Number(item));
+        }
+      }
     }
   },
   getters: {
+    cagesCount(): number {
+      return CAGES_PATH_ARR.length;
+    },
     arrayLength(): number {
       return this.numLines ** 2;
     },

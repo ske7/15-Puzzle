@@ -41,6 +41,7 @@ const isMounted = ref(false);
 onMounted(() => {
   isMounted.value = true;
 
+  baseStore.loadUnlockedCagesFromLocalStorage();
   baseStore.showSquareNum = false;
   setTimeout(() => {
     baseStore.showSquareNum = true;
@@ -108,6 +109,7 @@ watch(
           }
           baseStore.cagePath = randArrayItem(CAGES_PATH_ARR, baseStore.shownCages);
           baseStore.shownCages.add(baseStore.cagePath);
+          baseStore.setUnlockedCages();
           baseStore.eligibleForCageMode = false;
         }
         baseStore.initStore();

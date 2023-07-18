@@ -103,9 +103,6 @@ const setCageHardcoreMode = (): void => {
   display: flex;
   justify-content: space-evenly;
 }
-.buttons button {
-  width: 90px;
-}
 .copyright {
   margin-top: 10px;
   margin-bottom: 5px;

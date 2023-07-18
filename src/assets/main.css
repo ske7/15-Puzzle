@@ -37,7 +37,6 @@ img[alt] {
 .bottom-tools-panel {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
   position: relative;
   margin-top: 10px;
@@ -47,21 +46,8 @@ img[alt] {
   align-items: baseline;
 }
 .tool-items.first-row {
-  justify-content: center;
-  align-items: center;
   margin-bottom: 10px;
   gap: 30px;
-}
-.tool-items span {
-  font-size: 15px;
-}
-.tool-items > .time {
-  display: flex;
-  justify-content: flex-end;
-  font-family: 'consolas';
-}
-.tool-items.end {
-  justify-content: flex-end;
 }
 .tool-button {
   display: flex;
@@ -81,23 +67,21 @@ img[alt] {
   transition: all 0.3s ease;
   -webkit-tap-highlight-color: transparent;
 }
-.moves-count {
-  min-width: 10px;
-  display: flex;
-  justify-content: flex-end;
-  font-family: 'consolas';
-}
-.records span {
-  font-size: 16px;
-  font-style: italic;
+.records {
   color: navy;
-}
-.records .caption {
-  margin-right: 5px;
-  font-style: normal;
+  font-size: 16px;
 }
 .red {
   color: red !important;
+}
+.consolas span {
+  font-family: 'consolas';
+}
+.italic {
+  font-style: italic;
+}
+.ml-5 {
+  margin-left: 5px;
 }
 .mt-10 {
   margin-top: 10px !important;
@@ -112,5 +96,10 @@ img[alt] {
 @media screen and (min-width: 600px) {
   .tool-button:hover:not([disabled]) {
     background-color: #2db3d525;
+  }
+}
+@media screen and (max-width: 420px) {
+  .tool-button {
+    font-size: 15px;
   }
 }
