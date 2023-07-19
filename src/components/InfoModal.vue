@@ -46,28 +46,30 @@ const setCageHardcoreMode = (): void => {
       <p class="info-header mt-10">
         <span>Options</span>
       </p>
-      <div class="option">
-        <input
-          id="disable-cage-mode"
-          type="checkbox"
-          name="disable-cage-mode"
-          :checked="baseStore.disableCageMode"
-          @change="setDisableCageMode"
-        >
-        <label for="disable-cage-mode">Disable Cage Mode</label>
-      </div>
-      <div class="option">
-        <input
-          id="hardcore"
-          type="checkbox"
-          name="hardcore"
-          :disabled="baseStore.disableCageMode"
-          :checked="baseStore.cageHardcoreMode"
-          @change="setCageHardcoreMode"
-        >
-        <label for="hardcore" :class="{ 'disabled-label': baseStore.disableCageMode }">
-          Cage Hardcore Mode
-        </label>
+      <div class="options">
+        <div class="option">
+          <input
+            id="disable-cage-mode"
+            type="checkbox"
+            name="disable-cage-mode"
+            :checked="baseStore.disableCageMode"
+            @change="setDisableCageMode"
+          >
+          <label for="disable-cage-mode">Disable Cage Mode</label>
+        </div>
+        <div class="option">
+          <input
+            id="hardcore"
+            type="checkbox"
+            name="hardcore"
+            :disabled="baseStore.disableCageMode"
+            :checked="baseStore.cageHardcoreMode"
+            @change="setCageHardcoreMode"
+          >
+          <label for="hardcore" :class="{ 'disabled-label': baseStore.disableCageMode }">
+            Cage Hardcore Mode
+          </label>
+        </div>
       </div>
       <div class="buttons">
         <button class="tool-button" @click="emit('close')">
@@ -146,10 +148,14 @@ const setCageHardcoreMode = (): void => {
   text-decoration: underline;
   color: navy;
 }
+.options {
+  margin: 0 auto;
+  margin-top: 5px;
+}
 .option {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: left;
+  align-items: normal;
   gap: 10px;
   margin-bottom: 15px;
 }
@@ -162,15 +168,13 @@ label {
   opacity: 0.3;
 }
 input[type=checkbox] {
-  margin-bottom: -2px;
-  height: 15px;
-  width: 15px;
+  margin-top: 1px;
 }
 @media screen and (max-width: 420px) {
   .info-modal {
-    width: calc(100% - 40px);
+    width: calc(100% - 30px);
     margin: 0 auto;
-    left: 20px;
+    left: 15px;
     top: 70px;
     min-height: 320px;
   }

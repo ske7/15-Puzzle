@@ -182,6 +182,7 @@ watch(
   width: v-bind(boardSize);
   height: v-bind(boardSize);
   box-shadow: rgba(0, 0, 0, 0.3) 0px 5px 15px;
+  background-color: white;
   border-radius: v-bind(borderRadiusVar);
   align-content: center;
   position: relative;
