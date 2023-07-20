@@ -141,7 +141,6 @@ export const useBaseStore = defineStore('base', {
       return count;
     },
     isDone(): boolean {
-      // return this.orderedCount > 2; // todo del
       return this.orderedCount === this.arrayLength - 1;
     },
     afterDoneAnimationEnd(): boolean {
