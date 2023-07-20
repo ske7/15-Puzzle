@@ -31,12 +31,15 @@ const squareSize = computed(() => {
     } else {
       value = Math.floor((windowWidth.value - (spaces + 40)) / 4);
     }
+    value = Math.floor((windowWidth.value - (spaces + 40)) / 4);
   } else if (windowWidth.value <= 420) {
     value = Math.floor((windowWidth.value - (spaces + 60)) / 4);
+  } else if (windowWidth.value <= 820 && windowWidth.value >= 500) {
+    value = 100 + cageAdd;
   } else {
-    value = 80;
+    value = 80 + cageAdd;
   }
-  return value + cageAdd;
+  return value;
 });
 
 const cageImgSize = computed(() => {
@@ -63,32 +66,42 @@ watch(isDoneAll, (value) => {
 </script>
 
 <template>
-  <div class="header">
-    <h1>15 Puzzle</h1>
-    <img
-      src="./assets/cage.webp"
-      alt="Nic.Cage"
-      :width="cageImgSize"
-      :height="cageImgSize"
-      draggable="false"
+  <div class="wrapper">
+    <div class="header">
+      <h1>15 Puzzle</h1>
+      <img
+        src="./assets/cage.webp"
+        alt="Nic.Cage"
+        :width="cageImgSize"
+        :height="cageImgSize"
+        draggable="false"
+      >
+    </div>
+    <TopInfoPanel />
+    <div class="board-container">
+      <Board :square-size="squareSize" />
+    </div>
+    <BottomToolsPanel />
+    <Transition
+      name="modal"
     >
+      <WinModal
+        v-if="baseStore.isDone && baseStore.afterDoneAnimationEnd && baseStore.showWinModal"
+        @close="baseStore.showWinModal = false"
+      />
+    </Transition>
   </div>
-  <TopInfoPanel />
-  <div class="board-container">
-    <Board :square-size="squareSize" />
-  </div>
-  <BottomToolsPanel />
-  <Transition
-    name="modal"
-  >
-    <WinModal
-      v-if="baseStore.isDone && baseStore.afterDoneAnimationEnd && baseStore.showWinModal"
-      @close="baseStore.showWinModal=false"
-    />
-  </Transition>
 </template>
 
 <style scoped>
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  height: 100%;
+  margin-top: -10%;
+}
 .modal-enter-active {
   transition: opacity 0.3s ease;
 }

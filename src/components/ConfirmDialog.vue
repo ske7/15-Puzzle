@@ -35,15 +35,10 @@ const emit = defineEmits<{ confirm: []; decline: [] }>();
   width: 250px;
   position: fixed;
   z-index: 2000;
-  top: 30%;
+  top: calc(50% - 150px);
   left: calc(50% - 125px);
   padding: 20px;
   box-shadow: 0 8px 16px gray;
-}
-@media screen and (max-width: 420px) {
-  .confirm {
-    top: 170px;
-  }
 }
 p {
   text-align: center;

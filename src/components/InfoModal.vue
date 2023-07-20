@@ -187,6 +187,11 @@ label {
 input[type=checkbox] {
   margin-top: 1px;
 }
+@media (min-height: 1024px), screen and (max-width: 820px) and (min-width: 500px) {
+  .info-modal {
+    top: calc(50% - 300px);
+  }
+}
 @media screen and (max-width: 420px) {
   .info-modal {
     width: calc(100% - 30px);

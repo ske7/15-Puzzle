@@ -232,8 +232,11 @@ watch(
 }
 @media screen and (max-width: 601px) {
   .paused-veil .bigger {
-    font-size: 48px;
-    line-height: 48px;
+    font-size: 42px;
+    line-height: 42px;
+  }
+  .paused-veil .smaller {
+    font-size: 27px;
   }
 }
 </style>

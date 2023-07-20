@@ -61,6 +61,11 @@ onBeforeUnmount(() => {
   padding: 20px;
   box-shadow: 0 8px 16px gray;
 }
+@media (min-height: 1024px), screen and (max-width: 820px) and (min-width: 500px) {
+  .win-modal {
+    top: calc(50% - 180px);
+  }
+}
 .finish-message {
   display: flex;
   justify-content: center;
