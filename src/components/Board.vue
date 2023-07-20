@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted, watch, nextTick } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
@@ -122,6 +122,12 @@ watch(
   },
   { immediate: true, flush: 'post' }
 );
+
+const { disableCageMode } = storeToRefs(baseStore);
+watch(disableCageMode, async () => {
+  await nextTick();
+  top.value = useElementBounding(container).top.value;
+});
 </script>
 
 <template>
