@@ -135,7 +135,7 @@ watch(
     <div
       v-if="baseStore.paused || (baseStore.cageMode && !baseStore.finishLoadingAllCageImages)"
       class="paused-veil"
-      :class="{ 'cur-auto': baseStore.showConfirm || baseStore.showInfo ||
+      :class="{ 'cur-auto': baseStore.showConfirm || baseStore.showInfo || baseStore.showWinModal ||
         (baseStore.cageMode && !baseStore.finishLoadingAllCageImages) }"
       @click="baseStore.invertPaused"
     >
@@ -148,10 +148,10 @@ watch(
         </p>
       </div>
       <div v-if="baseStore.paused">
-        <p v-if="!baseStore.showConfirm && !baseStore.showInfo">
+        <p v-if="!baseStore.showConfirm && !baseStore.showInfo && !baseStore.showWinModal">
           <span class="bigger">Paused</span>
         </p>
-        <p v-if="!baseStore.showConfirm && !baseStore.showInfo">
+        <p v-if="!baseStore.showConfirm && !baseStore.showInfo && !baseStore.showWinModal">
           <span class="smaller">Click to resume</span>
         </p>
       </div>

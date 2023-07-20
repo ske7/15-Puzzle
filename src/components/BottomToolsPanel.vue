@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, ref, defineAsyncComponent, onMounted, onUnmounted } from 'vue';
+import { watch, ref, defineAsyncComponent, onMounted, onUnmounted, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
@@ -73,6 +73,10 @@ baseStore.timeRecord = Number(localStorage.getItem('timeRecord'));
 baseStore.movesRecord = Number(localStorage.getItem('movesRecord'));
 baseStore.restartInterval();
 
+const disableButton = computed(() => {
+  return baseStore.showConfirm || baseStore.showInfo || baseStore.showWinModal ||
+    (baseStore.cageMode && !baseStore.finishLoadingAllCageImages);
+});
 const { isDone } = storeToRefs(baseStore);
 watch(
   isDone,
@@ -115,25 +119,22 @@ onUnmounted(() => {
     <div class="tool-items first-row">
       <button
         class="tool-button"
-        :disabled="
-          baseStore.showConfirm || baseStore.showInfo ||
-            !baseStore.afterDoneAnimationEnd || baseStore.paused
-        "
+        :disabled="disableButton || baseStore.paused"
         @click="doShowConfirm"
       >
         Restart
       </button>
       <button
         class="tool-button"
-        :disabled="baseStore.showConfirm || baseStore.showInfo ||
-          !baseStore.afterDoneAnimationEnd || isDone || !baseStore.doneFirstMove"
+        :disabled="disableButton || !baseStore.doneFirstMove"
         @click="baseStore.invertPaused"
       >
-        {{ baseStore.paused && !baseStore.showConfirm && !baseStore.showInfo ? 'Resume' : 'Pause' }}
+        {{ baseStore.paused && !baseStore.showConfirm &&
+          !baseStore.showInfo && !baseStore.showWinModal ? 'Resume' : 'Pause' }}
       </button>
       <button
         class="tool-button"
-        :disabled="baseStore.showConfirm || baseStore.showInfo"
+        :disabled="disableButton"
         @click="showAboutModal"
       >
         About

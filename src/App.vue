@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { useWindowSize, useDocumentVisibility, useEventBus } from '@vueuse/core';
+import { computed, watch } from 'vue';
+import { useWindowSize, useDocumentVisibility } from '@vueuse/core';
 import { useBaseStore } from './stores/base';
 import Board from './components/Board.vue';
 import TopInfoPanel from './components/TopInfoPanel.vue';
 import BottomToolsPanel from './components/BottomToolsPanel.vue';
-import { computed, watch } from 'vue';
+import WinModal from './components/WinModal.vue';
 
 const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
 const visibility = useDocumentVisibility();
 
-const eventBus = useEventBus<string>('event-bus');
+const isDoneAll = computed(() => {
+  return baseStore.isDone;
+});
 
 const squareSize = computed(() => {
   const spaces = baseStore.spaceBetween * 5;
@@ -40,15 +43,18 @@ const cageImgSize = computed(() => {
   return 48;
 });
 
-const boardSize = computed(() => {
-  return baseStore.boardSize(squareSize.value);
-});
-
 watch(visibility, (value) => {
   if (value === 'hidden' && baseStore.time > 0 && !baseStore.isDone) {
     baseStore.paused = true;
   }
 });
+
+watch(isDoneAll, (value) => {
+  if (value) {
+    baseStore.showWinModal = true;
+  }
+}, { immediate: true }
+);
 </script>
 
 <template>
@@ -67,15 +73,27 @@ watch(visibility, (value) => {
     <Board :square-size="squareSize" />
   </div>
   <BottomToolsPanel />
-  <div v-if="baseStore.isDone" class="finish-message">
-    <p>Congrats! You've done it. 🏆</p>
-    <p v-if="baseStore.eligibleForCageMode" class="unlock-message">
-      "Cage mode" is unlocked for the <a draggable="false" @click="eventBus.emit('restart')">next game!</a>
-    </p>
-  </div>
+  <Transition
+    name="modal"
+  >
+    <WinModal
+      v-if="baseStore.isDone && baseStore.afterDoneAnimationEnd && baseStore.showWinModal"
+      @close="baseStore.showWinModal=false"
+    />
+  </Transition>
 </template>
 
 <style scoped>
+.modal-enter-active {
+  transition: opacity 0.3s ease;
+}
+.modal-leave-active {
+  transition: opacity 0.1s ease;
+}
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
 .board-container {
   display: flex;
   justify-content: center;
@@ -104,37 +122,6 @@ watch(visibility, (value) => {
   align-items: center;
   border-radius: 8px;
 }
-.finish-message {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding-top: 5px;
-}
-.finish-message p {
-  font-size: 21px;
-  line-height: 32px;
-  text-align: center;
-  color: goldenrod;
-  font-weight: 600;
-  max-width: v-bind(boardSize);
-}
-.unlock-message {
-  font-size: 16px !important;
-  line-height: 25px !important;
-  color: navy !important;
-  font-style: italic;
-}
-.unlock-message a {
-  text-decoration: underline;
-  color: #105d97;
-  font-weight: 600;
-  cursor: pointer;
-}
-.unlock-message a:hover {
-  color: navy !important;
-  text-decoration: underline;
-}
 @media screen and (max-width: 420px) {
   .header {
     margin-top: 20px;
@@ -146,16 +133,6 @@ watch(visibility, (value) => {
   .header img {
     width: 36px;
     height: 36px;
-  }
-  .finish-message p {
-    font-size: 18px;
-    line-height: 29px;
-    font-weight: 600;
-  }
-}
-@media screen and (max-width: 350px) {
-  .unlock-message {
-    font-size: 14px !important;
   }
 }
 </style>

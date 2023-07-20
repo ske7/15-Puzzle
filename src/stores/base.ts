@@ -28,7 +28,8 @@ export const useBaseStore = defineStore('base', {
     showInfo: false,
     disableCageMode: localStorage.getItem('disableCageMode') === 'true',
     cageHardcoreMode: localStorage.getItem('cageHardcoreMode') === 'true',
-    unlockedCages: new Set<number>()
+    unlockedCages: new Set<number>(),
+    showWinModal: false
   }),
   actions: {
     initStore() {
@@ -75,7 +76,7 @@ export const useBaseStore = defineStore('base', {
       }, 1000);
     },
     invertPaused() {
-      if (this.showConfirm || this.showInfo ||
+      if (this.showConfirm || this.showInfo || this.showWinModal ||
         this.cageMode && !this.finishLoadingAllCageImages) {
         return;
       }
@@ -140,6 +141,7 @@ export const useBaseStore = defineStore('base', {
       return count;
     },
     isDone(): boolean {
+      // return this.orderedCount > 2; // todo del
       return this.orderedCount === this.arrayLength - 1;
     },
     afterDoneAnimationEnd(): boolean {
