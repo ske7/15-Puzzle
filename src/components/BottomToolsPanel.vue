@@ -75,6 +75,7 @@ baseStore.restartInterval();
 
 const disableButton = computed(() => {
   return baseStore.showConfirm || baseStore.showInfo || baseStore.showWinModal ||
+  (baseStore.isDone && !baseStore.afterDoneAnimationEnd) ||
     (baseStore.cageMode && !baseStore.finishLoadingAllCageImages);
 });
 const { isDone } = storeToRefs(baseStore);

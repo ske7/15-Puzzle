@@ -97,6 +97,7 @@ watch(
   doResetList,
   (value) => {
     if (value) {
+      baseStore.processingReInit = true;
       baseStore.showSquareNum = false;
       setTimeout(() => {
         if (baseStore.cageMode) {
@@ -114,6 +115,7 @@ watch(
         }
         baseStore.initStore();
         cageCompleteImgLoaded.value = false;
+        baseStore.processingReInit = false;
         baseStore.showSquareNum = true;
       }, 300);
     }

@@ -32,6 +32,10 @@ const setCageHardcoreMode = (): void => {
   baseStore.cageHardcoreMode = !baseStore.cageHardcoreMode;
   localStorage.setItem('cageHardcoreMode', baseStore.cageHardcoreMode.toString());
 };
+const setDisableWinMessage = (): void => {
+  baseStore.disableWinMessage = !baseStore.disableWinMessage;
+  localStorage.setItem('disableWinMessage', baseStore.disableWinMessage.toString());
+};
 </script>
 
 <template>
@@ -69,6 +73,18 @@ const setCageHardcoreMode = (): void => {
           >
           <label for="hardcore" :class="{ 'disabled-label': baseStore.disableCageMode }">
             Cage Hardcore Mode
+          </label>
+        </div>
+        <div class="option">
+          <input
+            id="disable-win-message"
+            type="checkbox"
+            name="disable-win-message"
+            :checked="baseStore.disableWinMessage"
+            @change="setDisableWinMessage"
+          >
+          <label for="disable-win-message">
+            Disable Win Message
           </label>
         </div>
       </div>

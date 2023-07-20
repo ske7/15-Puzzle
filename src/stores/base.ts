@@ -29,7 +29,9 @@ export const useBaseStore = defineStore('base', {
     disableCageMode: localStorage.getItem('disableCageMode') === 'true',
     cageHardcoreMode: localStorage.getItem('cageHardcoreMode') === 'true',
     unlockedCages: new Set<number>(),
-    showWinModal: false
+    showWinModal: false,
+    processingReInit: false,
+    disableWinMessage: localStorage.getItem('disableWinMessage') === 'true'
   }),
   actions: {
     initStore() {

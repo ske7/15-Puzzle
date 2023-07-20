@@ -54,7 +54,9 @@ watch(visibility, (value) => {
 
 watch(isDoneAll, (value) => {
   if (value) {
-    baseStore.showWinModal = true;
+    if (!baseStore.disableWinMessage) {
+      baseStore.showWinModal = true;
+    }
   }
 }, { immediate: true }
 );

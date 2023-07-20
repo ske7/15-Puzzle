@@ -166,7 +166,7 @@ watch(
     class="square"
     :class="{
       free: props.mixedOrder === 0,
-      'in-place': isSquareInPlace,
+      'in-place': isSquareInPlace && !baseStore.processingReInit,
       captured: isCaptured,
       'no-border-no-shadow': isNoBorder
     }"
@@ -223,6 +223,15 @@ watch(
     opacity: 1;
   }
 }
+@keyframes bounce-in2 {
+  0% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(110%);
+  }
+}
 .square {
   position: fixed;
   width: v-bind(sizeVar);
@@ -262,6 +271,7 @@ watch(
 .no-border-no-shadow {
   border: 0px;
   box-shadow: none;
+  animation: bounce-in2 0.2s ease;
 }
 .free {
   display: none;
