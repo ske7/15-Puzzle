@@ -23,7 +23,8 @@ const getYear = computed(() => {
 const setDisableCageMode = (): void => {
   baseStore.disableCageMode = !baseStore.disableCageMode;
   localStorage.setItem('disableCageMode', baseStore.disableCageMode.toString());
-  if (baseStore.cageMode) {
+  if (baseStore.cageMode || baseStore.eligibleForCageMode) {
+    baseStore.eligibleForCageMode = false;
     eventBus.emit('restart');
   }
 };
@@ -87,7 +88,7 @@ const setCageHardcoreMode = (): void => {
 
 <style scoped>
 .info-modal {
-  --modal-width: 360px;
+  --modal-width: 370px;
   display: flex;
   justify-content: center;
   flex-direction: column;

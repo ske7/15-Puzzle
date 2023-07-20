@@ -5,7 +5,8 @@ import { onClickOutside, useEventBus } from '@vueuse/core';
 
 const emit = defineEmits<{ close: []; }>();
 const winModal = ref(null);
-onClickOutside(winModal, () => {
+onClickOutside(winModal, (event) => {
+  event.stopPropagation();
   emit('close');
 });
 

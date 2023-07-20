@@ -126,7 +126,7 @@ onUnmounted(() => {
       </button>
       <button
         class="tool-button"
-        :disabled="disableButton || !baseStore.doneFirstMove"
+        :disabled="disableButton || !baseStore.doneFirstMove || isDone"
         @click="baseStore.invertPaused"
       >
         {{ baseStore.paused && !baseStore.showConfirm &&
