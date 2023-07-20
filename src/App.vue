@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue';
+import { computed, watch, defineAsyncComponent } from 'vue';
 import { useWindowSize, useDocumentVisibility } from '@vueuse/core';
 import { useBaseStore } from './stores/base';
 import Board from './components/Board.vue';
 import TopInfoPanel from './components/TopInfoPanel.vue';
 import BottomToolsPanel from './components/BottomToolsPanel.vue';
-import WinModal from './components/WinModal.vue';
+const WinModal = defineAsyncComponent({
+  loader: async () => import('./components/WinModal.vue'),
+  delay: 150
+});
 
 const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
