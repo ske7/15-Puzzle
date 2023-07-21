@@ -30,7 +30,7 @@ const getYear = computed(() => {
         You can play and beat your records of time and moves. Unlock "Cage mode" by solving the puzzle in less than 60 seconds. There are lots of funny "Cages". Try to reach them all if you can. Cage Hardcore Mode is for puzzle gurus... you won't see numbers on "Cages".
       </p>
       <div class="buttons">
-        <button class="tool-button" @click="emit('close')">
+        <button type="button" class="tool-button" @click="emit('close')">
           OK
         </button>
       </div>

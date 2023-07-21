@@ -43,10 +43,20 @@ onBeforeUnmount(() => {
       </p>
     </div>
     <div class="buttons">
-      <button v-if="!baseStore.cageMode" class="tool-button" @click="closeAndRestart">
+      <button
+        v-if="!baseStore.cageMode"
+        type="button"
+        class="tool-button"
+        @click="closeAndRestart"
+      >
         New Game
       </button>
-      <button v-if="baseStore.cageMode" class="tool-button" @click="emit('close')">
+      <button
+        v-if="baseStore.cageMode"
+        type="button"
+        class="tool-button"
+        @click="emit('close')"
+      >
         OK
       </button>
     </div>

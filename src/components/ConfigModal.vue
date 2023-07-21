@@ -75,7 +75,7 @@ const setDisableWinMessage = (): void => {
         </div>
       </div>
       <div class="buttons">
-        <button class="tool-button" @click="emit('close')">
+        <button type="button" class="tool-button" @click="emit('close')">
           OK
         </button>
       </div>

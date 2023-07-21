@@ -134,6 +134,7 @@ onUnmounted(() => {
   <div class="bottom-tools-panel">
     <div class="tool-items first-row">
       <button
+        type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.paused"
         @click="doShowConfirm"
@@ -141,6 +142,7 @@ onUnmounted(() => {
         Restart
       </button>
       <button
+        type="button"
         class="tool-button"
         :disabled="disableButton || !baseStore.doneFirstMove || isDone"
         @click="baseStore.invertPaused"
@@ -148,6 +150,7 @@ onUnmounted(() => {
         {{ baseStore.paused && !baseStore.showModal ? 'Resume' : 'Pause' }}
       </button>
       <button
+        type="button"
         class="tool-button"
         :disabled="disableButton"
         @click="showConfigModal"
@@ -155,6 +158,7 @@ onUnmounted(() => {
         Config
       </button>
       <button
+        type="button"
         class="tool-button"
         :disabled="disableButton"
         @click="showAboutModal"
