@@ -30,6 +30,14 @@ onBeforeUnmount(() => {
   <div ref="winModal" class="win-modal">
     <div class="finish-message">
       <p>Congrats! You've done it. 🏆</p>
+      <p
+        v-if="baseStore.newTimeRecord || baseStore.newMovesRecord"
+        class="unlock-message mb-5 mt-5"
+      >
+        Your new record: <span v-show="baseStore.newTimeRecord">{{ baseStore.timeRecord }}s</span>
+        <span v-show="baseStore.newMovesRecord && baseStore.newTimeRecord"> / </span>
+        <span v-show="baseStore.newMovesRecord">{{ baseStore.movesRecord }} moves</span>
+      </p>
       <p v-if="baseStore.eligibleForCageMode" class="unlock-message">
         "Cage mode" is unlocked for the next game!
       </p>
@@ -83,7 +91,10 @@ onBeforeUnmount(() => {
   font-size: 16px !important;
   line-height: 25px !important;
   color: navy !important;
-  font-style: italic;
+  font-style: italic !important;
+}
+.unlock-message  span {
+  font-weight: 600;
 }
 .buttons {
   margin-top: 20px;

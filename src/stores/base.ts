@@ -31,7 +31,9 @@ export const useBaseStore = defineStore('base', {
     unlockedCages: new Set<number>(),
     showWinModal: false,
     processingReInit: false,
-    disableWinMessage: localStorage.getItem('disableWinMessage') === 'true'
+    disableWinMessage: localStorage.getItem('disableWinMessage') === 'true',
+    newMovesRecord: false,
+    newTimeRecord: false
   }),
   actions: {
     initStore() {
@@ -43,6 +45,8 @@ export const useBaseStore = defineStore('base', {
       this.freeElement = 0;
       this.time = 0;
       this.movesCount = 0;
+      this.newMovesRecord = false;
+      this.newTimeRecord = false;
       this.afterDoneCount = 0;
       this.actualOrders = generate(this.arrayLength);
       this.mixedOrders = generateAndShuffle(this.arrayLength);

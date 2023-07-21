@@ -14,13 +14,9 @@ const InfoModal = defineAsyncComponent({
 
 const baseStore = useBaseStore();
 
-const newMovesRecord = ref(false);
-const newTimeRecord = ref(false);
 const wasPausedBeforeOpenModal = ref(false);
 
 const reset = (): void => {
-  newMovesRecord.value = false;
-  newTimeRecord.value = false;
   baseStore.reset();
   baseStore.restartInterval();
 };
@@ -90,7 +86,7 @@ watch(
       ) {
         baseStore.movesRecord = baseStore.movesCount;
         localStorage.setItem('movesRecord', baseStore.movesCount.toString());
-        newMovesRecord.value = true;
+        baseStore.newMovesRecord = true;
       }
       if (
         baseStore.time > 0 &&
@@ -98,7 +94,7 @@ watch(
       ) {
         baseStore.timeRecord = baseStore.time;
         localStorage.setItem('timeRecord', baseStore.time.toString());
-        newTimeRecord.value = true;
+        baseStore.newTimeRecord = true;
       }
       if (!baseStore.disableCageMode && baseStore.time > 0 && baseStore.time < 60) {
         baseStore.eligibleForCageMode = true;
@@ -143,10 +139,10 @@ onUnmounted(() => {
     </div>
     <div class="tool-items records consolas">
       <span>Your record:</span>
-      <span class="ml-5 italic" :class="{ red: newTimeRecord }">
+      <span class="ml-5 italic" :class="{ red: baseStore.newTimeRecord }">
         {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecord }}
       </span>s&nbsp;/&nbsp;
-      <span class="italic" :class="{ red: newMovesRecord }">
+      <span class="italic" :class="{ red: baseStore.newMovesRecord }">
         {{ baseStore.movesRecord || '?' }}
       </span>&nbsp;<span>moves</span>
     </div>
