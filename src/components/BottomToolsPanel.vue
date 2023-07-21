@@ -7,6 +7,10 @@ const ConfirmDialog = defineAsyncComponent({
   loader: async () => import('../components/ConfirmDialog.vue'),
   delay: 150
 });
+const ConfigModal = defineAsyncComponent({
+  loader: async () => import('../components/ConfigModal.vue'),
+  delay: 150
+});
 const InfoModal = defineAsyncComponent({
   loader: async () => import('../components/InfoModal.vue'),
   delay: 150
@@ -57,6 +61,19 @@ const closeAboutModal = (): void => {
     baseStore.invertPaused();
   }
 };
+const showConfigModal = (): void => {
+  wasPausedBeforeOpenModal.value = baseStore.paused;
+  if (!baseStore.paused && !baseStore.isDone) {
+    baseStore.invertPaused();
+  }
+  baseStore.showConfig = true;
+};
+const closeConfigModal = (): void => {
+  baseStore.showConfig = false;
+  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
+    baseStore.invertPaused();
+  }
+};
 
 const eventBus = useEventBus<string>('event-bus');
 const listener = (event: string): void => {
@@ -70,10 +87,11 @@ baseStore.movesRecord = Number(localStorage.getItem('movesRecord'));
 baseStore.restartInterval();
 
 const disableButton = computed(() => {
-  return baseStore.showConfirm || baseStore.showInfo || baseStore.showWinModal ||
-  (baseStore.isDone && !baseStore.afterDoneAnimationEnd) ||
-    (baseStore.cageMode && !baseStore.finishLoadingAllCageImages);
+  return baseStore.showModal ||
+        (baseStore.isDone && !baseStore.afterDoneAnimationEnd) ||
+        (baseStore.cageMode && !baseStore.finishLoadingAllCageImages);
 });
+
 const { isDone } = storeToRefs(baseStore);
 watch(
   isDone,
@@ -103,6 +121,7 @@ watch(
   },
   { immediate: true }
 );
+
 onMounted(() => {
   eventBus.on(listener);
 });
@@ -126,8 +145,14 @@ onUnmounted(() => {
         :disabled="disableButton || !baseStore.doneFirstMove || isDone"
         @click="baseStore.invertPaused"
       >
-        {{ baseStore.paused && !baseStore.showConfirm &&
-          !baseStore.showInfo && !baseStore.showWinModal ? 'Resume' : 'Pause' }}
+        {{ baseStore.paused && !baseStore.showModal ? 'Resume' : 'Pause' }}
+      </button>
+      <button
+        class="tool-button"
+        :disabled="disableButton"
+        @click="showConfigModal"
+      >
+        Config
       </button>
       <button
         class="tool-button"
@@ -159,6 +184,10 @@ onUnmounted(() => {
     v-if="baseStore.showConfirm"
     @confirm="confirmRestart"
     @decline="closeConfirmModal"
+  />
+  <ConfigModal
+    v-if="baseStore.showConfig"
+    @close="closeConfigModal"
   />
   <InfoModal
     v-if="baseStore.showInfo"

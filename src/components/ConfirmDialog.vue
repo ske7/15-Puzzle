@@ -35,7 +35,7 @@ const emit = defineEmits<{ confirm: []; decline: [] }>();
   width: 250px;
   position: fixed;
   z-index: 2000;
-  top: calc(50% - 150px);
+  top: calc(50% - 125px);
   left: calc(50% - 125px);
   padding: 20px;
   box-shadow: 0 8px 16px gray;

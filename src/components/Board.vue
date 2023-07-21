@@ -143,7 +143,7 @@ watch(disableCageMode, async () => {
     <div
       v-if="baseStore.paused || (baseStore.cageMode && !baseStore.finishLoadingAllCageImages)"
       class="paused-veil"
-      :class="{ 'cur-auto': baseStore.showConfirm || baseStore.showInfo || baseStore.showWinModal ||
+      :class="{ 'cur-auto': baseStore.showModal ||
         (baseStore.cageMode && !baseStore.finishLoadingAllCageImages) }"
       @click="baseStore.invertPaused"
     >
@@ -155,11 +155,11 @@ watch(disableCageMode, async () => {
           <span class="smaller">Please wait a moment</span>
         </p>
       </div>
-      <div v-if="baseStore.paused">
-        <p v-if="!baseStore.showConfirm && !baseStore.showInfo && !baseStore.showWinModal">
+      <div v-if="baseStore.paused && !baseStore.showModal">
+        <p>
           <span class="bigger">Paused</span>
         </p>
-        <p v-if="!baseStore.showConfirm && !baseStore.showInfo && !baseStore.showWinModal">
+        <p>
           <span class="smaller">Click to resume</span>
         </p>
       </div>

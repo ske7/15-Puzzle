@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useBaseStore } from '../stores/base';
-import { onClickOutside, useEventBus } from '@vueuse/core';
+import { onClickOutside } from '@vueuse/core';
 
-const baseStore = useBaseStore();
 const emit = defineEmits<{ close: [] }>();
-const eventBus = useEventBus<string>('event-bus');
 
 const infoModal = ref(null);
 onClickOutside(infoModal, (event) => {
@@ -20,22 +17,6 @@ const getYear = computed(() => {
   }
   return `2023 - ${currentYear}`;
 });
-const setDisableCageMode = (): void => {
-  baseStore.disableCageMode = !baseStore.disableCageMode;
-  localStorage.setItem('disableCageMode', baseStore.disableCageMode.toString());
-  if (baseStore.cageMode || baseStore.eligibleForCageMode) {
-    baseStore.eligibleForCageMode = false;
-    eventBus.emit('restart');
-  }
-};
-const setCageHardcoreMode = (): void => {
-  baseStore.cageHardcoreMode = !baseStore.cageHardcoreMode;
-  localStorage.setItem('cageHardcoreMode', baseStore.cageHardcoreMode.toString());
-};
-const setDisableWinMessage = (): void => {
-  baseStore.disableWinMessage = !baseStore.disableWinMessage;
-  localStorage.setItem('disableWinMessage', baseStore.disableWinMessage.toString());
-};
 </script>
 
 <template>
@@ -48,46 +29,6 @@ const setDisableWinMessage = (): void => {
         Move blocks until they are in regular order.
         You can play and beat your records of time and moves. Unlock "Cage mode" by solving the puzzle in less than 60 seconds. There are lots of funny "Cages". Try to reach them all if you can. Cage Hardcore Mode is for puzzle gurus... you won't see numbers on "Cages".
       </p>
-      <p class="info-header mt-10">
-        <span>Options</span>
-      </p>
-      <div class="options">
-        <div class="option">
-          <input
-            id="disable-cage-mode"
-            type="checkbox"
-            name="disable-cage-mode"
-            :checked="baseStore.disableCageMode"
-            @change="setDisableCageMode"
-          >
-          <label for="disable-cage-mode">Disable Cage Mode</label>
-        </div>
-        <div class="option">
-          <input
-            id="hardcore"
-            type="checkbox"
-            name="hardcore"
-            :disabled="baseStore.disableCageMode"
-            :checked="baseStore.cageHardcoreMode"
-            @change="setCageHardcoreMode"
-          >
-          <label for="hardcore" :class="{ 'disabled-label': baseStore.disableCageMode }">
-            Cage Hardcore Mode
-          </label>
-        </div>
-        <div class="option">
-          <input
-            id="disable-win-message"
-            type="checkbox"
-            name="disable-win-message"
-            :checked="baseStore.disableWinMessage"
-            @change="setDisableWinMessage"
-          >
-          <label for="disable-win-message">
-            Disable Win Message
-          </label>
-        </div>
-      </div>
       <div class="buttons">
         <button class="tool-button" @click="emit('close')">
           OK
@@ -104,7 +45,7 @@ const setDisableWinMessage = (): void => {
 
 <style scoped>
 .info-modal {
-  --modal-width: 370px;
+  --modal-width: 350px;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -114,7 +55,7 @@ const setDisableWinMessage = (): void => {
   width: var(--modal-width);
   position: fixed;
   z-index: 2000;
-  top: 117px;
+  top: 155px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
   box-shadow: 0 8px 16px gray;
@@ -126,7 +67,7 @@ const setDisableWinMessage = (): void => {
 }
 .info-header span {
   font-weight: 500;
-  font-size: 18px;
+  font-size: 21px;
   color: navy;
 }
 .instruction {
@@ -142,8 +83,9 @@ const setDisableWinMessage = (): void => {
 }
 .buttons {
   margin-top: 10px;
+  margin-bottom: 5px;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
 }
 .copyright {
   margin-top: 10px;
@@ -154,7 +96,7 @@ const setDisableWinMessage = (): void => {
 .copyright span {
   font-style: italic;
   color: navy;
-  font-size: 12px;
+  font-size: 14px;
 }
 .copyright a {
   color: #105d97;
@@ -165,31 +107,9 @@ const setDisableWinMessage = (): void => {
   text-decoration: underline;
   color: navy;
 }
-.options {
-  margin: 0 auto;
-  margin-top: 5px;
-}
-.option {
-  display: flex;
-  justify-content: left;
-  align-items: normal;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-label {
-  display: flex;
-  align-items: center;
-  line-height: 1;
-}
-.disabled-label {
-  opacity: 0.3;
-}
-input[type=checkbox] {
-  margin-top: 1px;
-}
-@media (min-height: 1024px), screen and (max-width: 820px) and (min-width: 500px) {
+@media (min-height: 800px), screen and (max-width: 820px) and (min-width: 500px) {
   .info-modal {
-    top: calc(50% - 300px);
+    top: calc(50% - 200px);
   }
 }
 @media screen and (max-width: 420px) {
@@ -197,17 +117,11 @@ input[type=checkbox] {
     width: calc(100% - 30px);
     margin: 0 auto;
     left: 15px;
-    top: 70px;
+    top: calc(50% - 215px);
     min-height: 320px;
   }
   .instruction  {
     font-size: 15px;
-  }
-  label {
-    font-size: 15px;
-  }
-  .info-header span {
-    font-size: 17px;
   }
 }
 </style>

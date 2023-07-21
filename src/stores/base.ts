@@ -33,7 +33,8 @@ export const useBaseStore = defineStore('base', {
     processingReInit: false,
     disableWinMessage: localStorage.getItem('disableWinMessage') === 'true',
     newMovesRecord: false,
-    newTimeRecord: false
+    newTimeRecord: false,
+    showConfig: false
   }),
   actions: {
     initStore() {
@@ -82,8 +83,7 @@ export const useBaseStore = defineStore('base', {
       }, 1000);
     },
     invertPaused() {
-      if (this.showConfirm || this.showInfo || this.showWinModal ||
-        this.cageMode && !this.finishLoadingAllCageImages) {
+      if (this.showModal || this.cageMode && !this.finishLoadingAllCageImages) {
         return;
       }
       this.paused = !this.paused;
@@ -160,6 +160,9 @@ export const useBaseStore = defineStore('base', {
     },
     seconds(): number {
       return this.time;
+    },
+    showModal(): boolean {
+      return this.showConfirm || this.showConfig || this.showInfo || this.showWinModal;
     }
   }
 });

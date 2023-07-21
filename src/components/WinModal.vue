@@ -64,15 +64,10 @@ onBeforeUnmount(() => {
   width: 300px;
   position: fixed;
   z-index: 2000;
-  top: 25%;
+  top: calc(50% - 160px);
   left: calc(50% - 150px);
   padding: 20px;
   box-shadow: 0 8px 16px gray;
-}
-@media (min-height: 1024px), screen and (max-width: 820px) and (min-width: 500px) {
-  .win-modal {
-    top: calc(50% - 180px);
-  }
 }
 .finish-message {
   display: flex;
@@ -91,18 +86,18 @@ onBeforeUnmount(() => {
   font-size: 16px !important;
   line-height: 25px !important;
   color: navy !important;
-  font-style: italic !important;
+  font-style: italic;
 }
 .unlock-message  span {
   font-weight: 600;
 }
 .buttons {
   margin-top: 20px;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   display: flex;
   justify-content: center;
 }
 .buttons .tool-button {
-  width: 100px;
+  width: 90px;
 }
 </style>
