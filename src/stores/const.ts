@@ -29,5 +29,7 @@ export const CAGES_PATH_ARR = [
   '14-mandolin',
   '15-army',
   '16-mom',
-  '17-mom'
+  '17-mom',
+  '18-face',
+  '19-face'
 ];

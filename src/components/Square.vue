@@ -188,7 +188,7 @@ watch(
       >
       <span
         v-if="baseStore.showSquareNum && baseStore.cageMode && baseStore.finishLoadingAllCageImages"
-        v-show="!baseStore.cageHardcoreMode"
+        v-show="!baseStore.cageHardcoreMode && !isNoBorder"
         class="item-img-span"
       >
         {{ props.mixedOrder }}
