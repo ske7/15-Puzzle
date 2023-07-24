@@ -117,7 +117,7 @@ const getYear = computed(() => {
     width: calc(100% - 30px);
     margin: 0 auto;
     left: 15px;
-    top: calc(50% - 215px);
+    top: calc(50% - 220px);
     min-height: 320px;
   }
   .instruction  {

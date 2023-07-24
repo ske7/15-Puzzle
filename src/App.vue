@@ -97,10 +97,16 @@ watch(isDoneAll, (value) => {
 .wrapper {
   display: flex;
   flex-direction: column;
-  align-content: center;
-  justify-content: center;
-  height: 100%;
-  margin-top: -10%;
+  padding-top: 40px;
+}
+@media (min-height: 800px), screen and (max-width: 820px) {
+  .wrapper {
+    padding-top: 0px;
+    align-content: center;
+    justify-content: center;
+    height: 100%;
+    margin-top: -10%;
+  }
 }
 .modal-enter-active {
   transition: opacity 0.3s ease;
