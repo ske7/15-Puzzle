@@ -10,7 +10,7 @@ const emit = defineEmits<{ confirm: []; decline: [] }>();
 
 <template>
   <Teleport to="body">
-    <div class="confirm" @touchmove.prevent>
+    <div class="confirm">
       <p>{{ props.confirmQuestion }}</p>
       <div class="buttons">
         <button type="button" class="tool-button" @click="emit('confirm')">
