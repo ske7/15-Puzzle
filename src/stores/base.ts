@@ -130,6 +130,64 @@ export const useBaseStore = defineStore('base', {
           this.unlockedCages.add(Number(item));
         }
       }
+    },
+    setTimeRecord(timeRecord: number, onlySetToStorage = false) {
+      this.timeRecord = timeRecord;
+      const xt = btoa(`${Math.random().toString().slice(-4) +
+        (timeRecord).toString().padStart(4, '0')}hey7`);
+      localStorage.setItem('timeRecord', xt);
+      if (!onlySetToStorage) {
+        this.newTimeRecord = true;
+      }
+    },
+    setMovesRecord(movesRecord: number, onlySetToStorage = false) {
+      this.movesRecord = movesRecord;
+      const xm = btoa(`${Math.random().toString().slice(-4) +
+        (movesRecord).toString().padStart(4, '0')}hey9`);
+      localStorage.setItem('movesRecord', xm);
+      if (!onlySetToStorage) {
+        this.newMovesRecord = true;
+      }
+    },
+    loadTimeRecordFromLocalStorage() {
+      try {
+        const lt = localStorage.getItem('timeRecord');
+        if (!isNaN(Number(lt)) && new Date() < new Date('2023-07-25')) {
+          this.setTimeRecord(Number(lt), true);
+          return Number(lt);
+        }
+        if (lt !== null) {
+          const decoded = atob(lt);
+          if (!decoded.endsWith('hey7')) {
+            this.setTimeRecord(0, true);
+            return 0;
+          }
+          return Number(decoded.slice(4, 8));
+        }
+        return 0;
+      } catch {
+        return 0;
+      }
+    },
+    loadMovesRecordFromLocalStorage() {
+      try {
+        const lm = localStorage.getItem('movesRecord');
+        if (!isNaN(Number(lm)) && new Date() < new Date('2023-07-25')) {
+          this.setMovesRecord(Number(lm), true);
+          return Number(lm);
+        }
+        if (lm !== null) {
+          const decoded = atob(lm);
+          if (!decoded.endsWith('hey9')) {
+            this.setMovesRecord(0, true);
+            return 0;
+          }
+          return Number(atob(lm).slice(4, 8));
+        }
+        return 0;
+      } catch {
+        return 0;
+      }
     }
   },
   getters: {

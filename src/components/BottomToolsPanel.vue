@@ -82,8 +82,8 @@ const listener = (event: string): void => {
   }
 };
 
-baseStore.timeRecord = Number(localStorage.getItem('timeRecord'));
-baseStore.movesRecord = Number(localStorage.getItem('movesRecord'));
+baseStore.timeRecord = baseStore.loadTimeRecordFromLocalStorage();
+baseStore.movesRecord = baseStore.loadMovesRecordFromLocalStorage();
 baseStore.restartInterval();
 
 const disableButton = computed(() => {
@@ -102,17 +102,13 @@ watch(
         baseStore.movesCount > 0 &&
         (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord)
       ) {
-        baseStore.movesRecord = baseStore.movesCount;
-        localStorage.setItem('movesRecord', baseStore.movesCount.toString());
-        baseStore.newMovesRecord = true;
+        baseStore.setMovesRecord(baseStore.movesCount);
       }
       if (
         baseStore.time > 0 &&
         (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord)
       ) {
-        baseStore.timeRecord = baseStore.time;
-        localStorage.setItem('timeRecord', baseStore.time.toString());
-        baseStore.newTimeRecord = true;
+        baseStore.setTimeRecord(baseStore.time);
       }
       if (!baseStore.disableCageMode && baseStore.time > 0 && baseStore.time < 60) {
         baseStore.eligibleForCageMode = true;
