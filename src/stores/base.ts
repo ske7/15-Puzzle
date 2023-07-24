@@ -50,17 +50,19 @@ export const useBaseStore = defineStore('base', {
       this.newTimeRecord = false;
       this.afterDoneCount = 0;
       this.actualOrders = generate(this.arrayLength);
-      this.mixedOrders = generateAndShuffle(this.arrayLength);
-      let solvable = isSolvable(this.mixedOrders);
+      let solvable = this.mixAndCheckSolvable();
       while (!solvable) {
-        this.mixedOrders = generateAndShuffle(this.arrayLength);
-        solvable = isSolvable(this.mixedOrders);
+        solvable = this.mixAndCheckSolvable();
       }
       this.freeElement = this.actualOrders[this.mixedOrders.findIndex((x) => x === 0)];
-      this.actualOrders[this.mixedOrders.findIndex((x) => x === 0)] = -1;
+      this.actualOrders[this.mixedOrders.findIndex((x) => x === 0)] = this.arrayLength - 1;
       this.doResetList = false;
       this.doneFirstMove = false;
       this.cageImageLoadedCount = 0;
+    },
+    mixAndCheckSolvable() {
+      this.mixedOrders = generateAndShuffle(this.arrayLength);
+      return isSolvable(this.mixedOrders);
     },
     incMoves() {
       this.movesCount++;
@@ -156,7 +158,7 @@ export const useBaseStore = defineStore('base', {
       return this.afterDoneCount === this.arrayLength - 1;
     },
     finishLoadingAllCageImages(): boolean {
-      return this.cageImageLoadedCount === this.arrayLength - 1;
+      return this.cageImageLoadedCount === this.arrayLength;
     },
     seconds(): number {
       return this.time;

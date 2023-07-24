@@ -140,7 +140,10 @@ watch(
 );
 
 const loadedImg = computed(() => {
-  const imgNum = props.mixedOrder.toString().padStart(2, '0');
+  let imgNum = props.mixedOrder.toString().padStart(2, '0');
+  if (props.mixedOrder === 0) {
+    imgNum = baseStore.arrayLength.toString();
+  }
   return `/cages/${baseStore.cagePath}/${imgNum}.jpg`;
 });
 
@@ -165,7 +168,7 @@ watch(
   <div
     class="square"
     :class="{
-      free: props.mixedOrder === 0,
+      free: props.mixedOrder === 0 && !(baseStore.cageMode && isDoneAll),
       'in-place': isSquareInPlace && !baseStore.processingReInit,
       captured: isCaptured,
       'no-border-no-shadow': isNoBorder
@@ -180,7 +183,7 @@ watch(
   >
     <div class="item" :style="{cursor: getCursor }">
       <img
-        v-if="baseStore.cageMode && props.mixedOrder !== 0"
+        v-if="baseStore.cageMode"
         :src="loadedImg"
         class="item-img"
         draggable="false"
@@ -188,7 +191,7 @@ watch(
       >
       <span
         v-if="baseStore.showSquareNum && baseStore.cageMode && baseStore.finishLoadingAllCageImages"
-        v-show="!baseStore.cageHardcoreMode && !isNoBorder"
+        v-show="!baseStore.cageHardcoreMode && !isNoBorder && props.mixedOrder !== 0"
         class="item-img-span"
       >
         {{ props.mixedOrder }}
