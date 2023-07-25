@@ -81,7 +81,7 @@ watch(isDoneAll, (value) => {
     <div class="board-container">
       <Board :square-size="squareSize" />
     </div>
-    <BottomToolsPanel />
+    <BottomToolsPanel :square-size="squareSize" />
     <Transition
       name="modal"
     >

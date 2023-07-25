@@ -15,6 +15,12 @@ const InfoModal = defineAsyncComponent({
   loader: async () => import('../components/InfoModal.vue'),
   delay: 150
 });
+const ImageGallery = defineAsyncComponent({
+  loader: async () => import('../components/ImageGallery.vue'),
+  delay: 150
+});
+
+const props = defineProps<{ squareSize: number; }>();
 
 const baseStore = useBaseStore();
 
@@ -74,6 +80,19 @@ const closeConfigModal = (): void => {
     baseStore.invertPaused();
   }
 };
+const showImageGallery = (): void => {
+  wasPausedBeforeOpenModal.value = baseStore.paused;
+  if (!baseStore.paused && !baseStore.isDone) {
+    baseStore.invertPaused();
+  }
+  baseStore.showImageGallery = true;
+};
+const closeImageGallery = (): void => {
+  baseStore.showImageGallery = false;
+  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
+    baseStore.invertPaused();
+  }
+};
 
 const eventBus = useEventBus<string>('event-bus');
 const listener = (event: string): void => {
@@ -82,8 +101,8 @@ const listener = (event: string): void => {
   }
 };
 
-baseStore.timeRecord = baseStore.loadTimeRecordFromLocalStorage();
-baseStore.movesRecord = baseStore.loadMovesRecordFromLocalStorage();
+baseStore.timeRecord = baseStore.loadTimeRecord();
+baseStore.movesRecord = baseStore.loadMovesRecord();
 baseStore.restartInterval();
 
 const disableButton = computed(() => {
@@ -127,7 +146,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="bottom-tools-panel">
+  <div class="bottom-tools-panel" :class="{ paused: baseStore.paused }">
     <div class="tool-items first-row">
       <button
         type="button"
@@ -172,9 +191,8 @@ onUnmounted(() => {
       </span>&nbsp;<span>moves</span>
     </div>
     <div v-if="!baseStore.disableCageMode" class="tool-items records consolas">
-      <span>
-        Unlocked
-        <span class="italic">
+      <span :class="{ paused: baseStore.paused }">
+        <span class="unlocked" @click="showImageGallery">Unlocked</span>  <span class="italic">
           {{ baseStore.unlockedCages.size }}
         </span> out of {{ baseStore.cagesCount }} "Cages"
       </span>
@@ -192,5 +210,10 @@ onUnmounted(() => {
   <InfoModal
     v-if="baseStore.showInfo"
     @close="closeAboutModal"
+  />
+  <ImageGallery
+    v-if="baseStore.showImageGallery"
+    :square-size="props.squareSize"
+    @close="closeImageGallery"
   />
 </template>
