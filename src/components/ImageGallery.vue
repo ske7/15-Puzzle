@@ -23,7 +23,7 @@ const isLocked = computed(() => {
   return !baseStore.unlockedCages.has(currentIndex.value);
 });
 const loadedNotLocked = computed(() => {
-  return !loaded.value && !isLocked.value && time.value > 3;
+  return !loaded.value && !isLocked.value && time.value > 5;
 });
 const currentIndex = ref(0);
 const loaded = ref(false);
@@ -75,7 +75,7 @@ watch(loaded, (newValue, oldValue) => {
 },
 { immediate: true });
 
-const tolerance = ref(20);
+const tolerance = ref(15);
 const gesture = reactive({ x: [] as number[], y: [] as number[] });
 const touchstart = (e: TouchEvent) => {
   for (const t of e.touches) {
@@ -141,7 +141,7 @@ const touchend = () => {
           Loading
         </span>
         <span
-          v-show="isLocked"
+          v-if="isLocked"
           class="cage-locked-txt"
           @touchstart.prevent="touchstart"
           @touchmove.prevent="touchmove"
@@ -253,10 +253,14 @@ h2 {
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
-  scale: 1.1;
 }
-.arrow-button:hover, .arrow-button:active {
-  color: navy;
-  scale: 1.2;
+@media screen and (min-width: 820px) {
+  .arrow-button {
+    scale: 1.1;
+  }
+  .arrow-button:hover, .arrow-button:active {
+    color: navy;
+    scale: 1.2;
+  }
 }
 </style>

@@ -108,6 +108,6 @@ onBeforeUnmount(() => {
   justify-content: center;
 }
 .buttons .tool-button {
-  width: 90px;
+  width: 100px;
 }
 </style>
