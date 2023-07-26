@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, reactive } from 'vue';
+import { ref, computed, watch, reactive, nextTick } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside } from '@vueuse/core';
@@ -58,37 +58,44 @@ const loadedCageImg = computed(() => {
     return `/cages/${CAGES_PATH_ARR[getRealIndex.value]}/complete.jpg`;
   }
 });
-const loadNext = () => {
+const showImg = ref(true);
+const enum LoadMode {
+  next = 1,
+  prev = -1
+}
+const loadImage = async (mode: LoadMode) => {
   if (!loaded.value && !isLocked.value) {
     return;
   }
   if (baseStore.showOnlyUnlockedItems && baseStore.unlockedCages.size === 1) {
     return;
   }
-  if (currentIndex.value === maxIndex.value) {
-    currentIndex.value = 0;
-  } else {
-    currentIndex.value += 1;
+  showImg.value = false;
+  await nextTick();
+  if (mode === LoadMode.next) {
+    if (currentIndex.value === maxIndex.value) {
+      currentIndex.value = 0;
+    } else {
+      currentIndex.value += 1;
+    }
+  }
+  if (mode === LoadMode.prev) {
+    if (currentIndex.value === 0) {
+      currentIndex.value = maxIndex.value;
+    } else {
+      currentIndex.value -= 1;
+    }
   }
   if (!isLocked.value) {
     loaded.value = false;
   }
+  showImg.value = true;
 };
-const loadPrev = () => {
-  if (!loaded.value && !isLocked.value) {
-    return;
-  }
-  if (baseStore.showOnlyUnlockedItems && baseStore.unlockedCages.size === 1) {
-    return;
-  }
-  if (currentIndex.value === 0) {
-    currentIndex.value = maxIndex.value;
-  } else {
-    currentIndex.value -= 1;
-  }
-  if (!isLocked.value) {
-    loaded.value = false;
-  }
+const loadNext = async () => {
+  await loadImage(LoadMode.next);
+};
+const loadPrev = async () => {
+  await loadImage(LoadMode.prev);
 };
 
 const interval = ref(0);
@@ -118,16 +125,17 @@ const touchmove = (e: TouchEvent) => {
     gesture.x.push(t.clientX);
   }
 };
-const touchend = () => {
+const touchend = async () => {
   const xTravel = gesture.x[gesture.x.length - 1] - gesture.x[0];
   gesture.x = [];
   if (xTravel < -tolerance.value) {
-    loadNext();
+    await loadNext();
   }
   if (xTravel > tolerance.value) {
-    loadPrev();
+    await loadPrev();
   }
 };
+
 const oldCurrentIndex = ref(0);
 const setShowOnlyUnlockedItems = () => {
   if (baseStore.showOnlyUnlockedItems) {
@@ -185,30 +193,33 @@ watch(showOnlyUnlockedItems, (newValue, oldValue) => {
         </div>
       </div>
       <div class="image-wrapper" :class="{ wait: loadedNotLocked }">
-        <img
-          :src="loadedCageImg"
-          class="cage-img"
-          draggable="false"
-          @load="onCageImgLoad"
-          @touchstart="touchstart"
-          @touchmove.prevent="touchmove"
-          @touchend.prevent="touchend"
-        >
-        <span
-          v-if="loadedNotLocked"
-          class="cage-loading-txt"
-        >
-          Loading
-        </span>
-        <span
-          v-if="isLocked && loaded"
-          class="cage-locked-txt"
-          @touchstart.prevent="touchstart"
-          @touchmove.prevent="touchmove"
-          @touchend.prevent="touchend"
-        >
-          Locked
-        </span>
+        <TransitionGroup name="fade" mode="out-in">
+          <img
+            v-if="showImg"
+            :src="loadedCageImg"
+            class="cage-img"
+            draggable="false"
+            @load="onCageImgLoad"
+            @touchstart="touchstart"
+            @touchmove.prevent="touchmove"
+            @touchend.prevent="touchend"
+          >
+          <span
+            v-if="showImg && isLocked && loaded"
+            class="cage-locked-txt"
+            @touchstart.prevent="touchstart"
+            @touchmove.prevent="touchmove"
+            @touchend.prevent="touchend"
+          >
+            Locked
+          </span>
+          <span
+            v-if="loadedNotLocked"
+            class="cage-loading-txt"
+          >
+            Loading
+          </span>
+        </TransitionGroup>
       </div>
       <div class="options">
         <div class="option">
@@ -235,7 +246,19 @@ watch(showOnlyUnlockedItems, (newValue, oldValue) => {
 </template>
 
 <style scoped>
+.fade-enter-active {
+  transition: opacity 0.5s ease-in;
+}
+.fade-leave-active {
+  transition: opacity 0.2s ease-out;
+}
 
+.fade-enter-from {
+  opacity: 0.7;
+}
+.fade-leave-to {
+  opacity: 0.7;
+}
 .image-gallery {
   display: flex;
   justify-content: start;
