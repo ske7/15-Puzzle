@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, reactive } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside } from '@vueuse/core';
 import { CAGES_PATH_ARR } from '../stores/const';
@@ -19,14 +20,33 @@ onClickOutside(imageGallery, (event) => {
   emit('close');
 });
 
+const currentIndex = ref(0);
+const { showOnlyUnlockedItems } = storeToRefs(baseStore);
+const getRealIndex = computed(() => {
+  const index = currentIndex.value;
+  if (showOnlyUnlockedItems.value) {
+    const arr = [...baseStore.unlockedCages];
+    return arr[index];
+  }
+  return index;
+});
+const maxIndex = computed(() => {
+  if (showOnlyUnlockedItems.value) {
+    return baseStore.unlockedCages.size - 1;
+  }
+  return baseStore.cagesCount - 1;
+});
 const isLocked = computed(() => {
+  if (showOnlyUnlockedItems.value) {
+    return false;
+  }
   return !baseStore.unlockedCages.has(currentIndex.value);
 });
 const loadedNotLocked = computed(() => {
   return !loaded.value && !isLocked.value &&
   (time.value > 5 || (currentIndex.value === 0 && time.value > 0));
 });
-const currentIndex = ref(0);
+
 const loaded = ref(false);
 const onCageImgLoad = (): void => {
   loaded.value = true;
@@ -35,14 +55,17 @@ const loadedCageImg = computed(() => {
   if (isLocked.value) {
     return '/cages/placeholder.jpg';
   } else {
-    return `/cages/${CAGES_PATH_ARR[currentIndex.value]}/complete.jpg`;
+    return `/cages/${CAGES_PATH_ARR[getRealIndex.value]}/complete.jpg`;
   }
 });
 const loadNext = () => {
   if (!loaded.value && !isLocked.value) {
     return;
   }
-  if (currentIndex.value === baseStore.cagesCount - 1) {
+  if (baseStore.showOnlyUnlockedItems && baseStore.unlockedCages.size === 1) {
+    return;
+  }
+  if (currentIndex.value === maxIndex.value) {
     currentIndex.value = 0;
   } else {
     currentIndex.value += 1;
@@ -55,8 +78,11 @@ const loadPrev = () => {
   if (!loaded.value && !isLocked.value) {
     return;
   }
+  if (baseStore.showOnlyUnlockedItems && baseStore.unlockedCages.size === 1) {
+    return;
+  }
   if (currentIndex.value === 0) {
-    currentIndex.value = baseStore.cagesCount - 1;
+    currentIndex.value = maxIndex.value;
   } else {
     currentIndex.value -= 1;
   }
@@ -102,6 +128,25 @@ const touchend = () => {
     loadPrev();
   }
 };
+const oldCurrentIndex = ref(0);
+const setShowOnlyUnlockedItems = () => {
+  if (baseStore.showOnlyUnlockedItems) {
+    oldCurrentIndex.value = getRealIndex.value;
+  } else {
+    oldCurrentIndex.value = currentIndex.value;
+    if (isLocked.value) {
+      oldCurrentIndex.value = [...baseStore.unlockedCages][0];
+    }
+  }
+  baseStore.showOnlyUnlockedItems = !baseStore.showOnlyUnlockedItems;
+};
+watch(showOnlyUnlockedItems, (newValue, oldValue) => {
+  if (newValue && !oldValue) {
+    currentIndex.value = [...baseStore.unlockedCages].indexOf(oldCurrentIndex.value);
+  } else if (!newValue && oldValue) {
+    currentIndex.value = oldCurrentIndex.value;
+  }
+});
 </script>
 
 <template>
@@ -123,7 +168,7 @@ const touchend = () => {
             <polygon points="15.293 3.293 6.586 12 15.293 20.707 16.707 19.293 9.414 12 16.707 4.707 15.293 3.293" fill="navy" />
           </svg>
         </div>
-        <div>Cage {{ currentIndex + 1 }}</div>
+        <div>Cage {{ getRealIndex + 1 }}</div>
         <div
           class="arrow-button"
           :class="{ 'low-opacity': loadedNotLocked }"
@@ -165,6 +210,21 @@ const touchend = () => {
           Locked
         </span>
       </div>
+      <div class="options">
+        <div class="option">
+          <input
+            id="show-only-unlocked"
+            type="checkbox"
+            name="show-only-unlocked"
+            :checked="showOnlyUnlockedItems"
+            :disabled="baseStore.unlockedCages.size === 0"
+            @change="setShowOnlyUnlockedItems"
+          >
+          <label for="show-only-unlocked" :class="{ 'disabled-label': baseStore.unlockedCages.size === 0 }">
+            Show only unlocked items
+          </label>
+        </div>
+      </div>
       <div class="buttons">
         <button type="button" class="tool-button" @click="emit('close')">
           OK
@@ -184,18 +244,18 @@ const touchend = () => {
   background-color: white;
   border-radius: 8px;
   height: 100%;
-  max-height: calc(v-bind(boardSize) + 110px);
+  max-height: calc(v-bind(boardSize) + 135px);
   width: v-bind(boardSize);
   position: fixed;
   z-index: 2000;
-  top: 135px;
+  top: 120px;
   left: calc(50% - v-bind(boardSize) / 2);
   padding: 10px;
   box-shadow: 0 8px 16px gray;
 }
 @media (min-height: 800px), screen and (max-width: 820px) {
   .image-gallery {
-    top: calc(50% - (v-bind(boardSize) + 110px) / 2);
+    top: calc(50% - (v-bind(boardSize) + 135px) / 2);
   }
 }
 h2 {
@@ -281,5 +341,28 @@ h2 {
   .arrow-button:hover, .arrow-button:active {
     scale: 0.8;
   }
+}
+.options {
+  margin: 0 auto;
+  margin-top: 5px;
+}
+.option {
+  display: flex;
+  justify-content: left;
+  align-items: normal;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+label {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  font-size: 16px;
+}
+.disabled-label {
+  opacity: 0.3;
+}
+input[type=checkbox] {
+  margin-top: 1px;
 }
 </style>

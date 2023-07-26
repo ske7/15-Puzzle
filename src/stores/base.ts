@@ -35,7 +35,8 @@ export const useBaseStore = defineStore('base', {
     newMovesRecord: false,
     newTimeRecord: false,
     showConfig: false,
-    showImageGallery: false
+    showImageGallery: false,
+    showOnlyUnlockedItems: false
   }),
   actions: {
     initStore() {
