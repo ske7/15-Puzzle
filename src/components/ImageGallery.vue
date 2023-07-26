@@ -193,7 +193,7 @@ const touchend = () => {
   padding: 10px;
   box-shadow: 0 8px 16px gray;
 }
-@media (min-height: 800px), screen and (max-width: 820px) and (min-width: 500px) {
+@media (min-height: 800px), screen and (max-width: 820px) {
   .image-gallery {
     top: calc(50% - (v-bind(boardSize) + 110px) / 2);
   }
