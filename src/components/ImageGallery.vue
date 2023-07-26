@@ -113,7 +113,14 @@ const touchend = () => {
           :class="{'low-opacity': loadedNotLocked }"
           @click="loadPrev"
         >
-          &#129186;
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+          >
+            <polygon points="15.293 3.293 6.586 12 15.293 20.707 16.707 19.293 9.414 12 16.707 4.707 15.293 3.293" fill="navy" />
+          </svg>
         </div>
         <div>Cage {{ currentIndex + 1 }}</div>
         <div
@@ -121,7 +128,14 @@ const touchend = () => {
           :class="{ 'low-opacity': loadedNotLocked }"
           @click="loadNext"
         >
-          &#129187;
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+          >
+            <polygon points="7.293 4.707 14.586 12 7.293 19.293 8.707 20.707 17.414 12 8.707 3.293 7.293 4.707" fill="navy" />
+          </svg>
         </div>
       </div>
       <div class="image-wrapper" :class="{ wait: loadedNotLocked }">
@@ -256,11 +270,10 @@ h2 {
 }
 @media screen and (min-width: 820px) {
   .arrow-button {
-    scale: 1.1;
+    scale: 0.8;
   }
   .arrow-button:hover, .arrow-button:active {
-    color: navy;
-    scale: 1.2;
+    scale: 0.9;
   }
 }
 </style>
