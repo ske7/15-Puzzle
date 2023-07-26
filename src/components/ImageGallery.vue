@@ -23,7 +23,8 @@ const isLocked = computed(() => {
   return !baseStore.unlockedCages.has(currentIndex.value);
 });
 const loadedNotLocked = computed(() => {
-  return !loaded.value && !isLocked.value && time.value > 5;
+  return !loaded.value && !isLocked.value &&
+  (time.value > 5 || (currentIndex.value === 0 && time.value > 0));
 });
 const currentIndex = ref(0);
 const loaded = ref(false);
@@ -46,7 +47,9 @@ const loadNext = () => {
   } else {
     currentIndex.value += 1;
   }
-  loaded.value = false;
+  if (!isLocked.value) {
+    loaded.value = false;
+  }
 };
 const loadPrev = () => {
   if (!loaded.value && !isLocked.value) {
@@ -57,13 +60,15 @@ const loadPrev = () => {
   } else {
     currentIndex.value -= 1;
   }
-  loaded.value = false;
+  if (!isLocked.value) {
+    loaded.value = false;
+  }
 };
 
 const interval = ref(0);
 const time = ref(0);
 watch(loaded, (newValue, oldValue) => {
-  if (!newValue && oldValue) {
+  if (!newValue && (oldValue ?? (currentIndex.value === 0))) {
     time.value = 0;
     interval.value = setInterval(() => {
       time.value += 1;
@@ -75,29 +80,25 @@ watch(loaded, (newValue, oldValue) => {
 },
 { immediate: true });
 
-const tolerance = ref(15);
-const gesture = reactive({ x: [] as number[], y: [] as number[] });
+const tolerance = ref(30);
+const gesture = reactive({ x: [] as number[] });
 const touchstart = (e: TouchEvent) => {
   for (const t of e.touches) {
     gesture.x.push(t.clientX);
-    gesture.y.push(t.clientY);
   }
 };
 const touchmove = (e: TouchEvent) => {
   for (const t of e.touches) {
     gesture.x.push(t.clientX);
-    gesture.y.push(t.clientY);
   }
 };
 const touchend = () => {
   const xTravel = gesture.x[gesture.x.length - 1] - gesture.x[0];
-  const yTravel = gesture.y[gesture.y.length - 1] - gesture.y[0];
   gesture.x = [];
-  gesture.y = [];
-  if (yTravel < tolerance.value && yTravel > -tolerance.value && xTravel < -tolerance.value) {
+  if (xTravel < -tolerance.value) {
     loadNext();
   }
-  if (yTravel < tolerance.value && yTravel > -tolerance.value && xTravel > tolerance.value) {
+  if (xTravel > tolerance.value) {
     loadPrev();
   }
 };
@@ -155,7 +156,7 @@ const touchend = () => {
           Loading
         </span>
         <span
-          v-if="isLocked"
+          v-if="isLocked && loaded"
           class="cage-locked-txt"
           @touchstart.prevent="touchstart"
           @touchmove.prevent="touchmove"
@@ -187,10 +188,15 @@ const touchend = () => {
   width: v-bind(boardSize);
   position: fixed;
   z-index: 2000;
-  top: calc(50% - (v-bind(boardSize) + 110px) / 2);
+  top: 135px;
   left: calc(50% - v-bind(boardSize) / 2);
   padding: 10px;
   box-shadow: 0 8px 16px gray;
+}
+@media (min-height: 800px), screen and (max-width: 820px) and (min-width: 500px) {
+  .image-gallery {
+    top: calc(50% - (v-bind(boardSize) + 110px) / 2);
+  }
 }
 h2 {
   display: flex;
@@ -268,12 +274,12 @@ h2 {
   -moz-user-select: none;
   user-select: none;
 }
+.arrow-button {
+  scale: 0.7;
+}
 @media screen and (min-width: 820px) {
-  .arrow-button {
-    scale: 0.8;
-  }
   .arrow-button:hover, .arrow-button:active {
-    scale: 0.9;
+    scale: 0.8;
   }
 }
 </style>
