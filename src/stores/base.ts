@@ -186,9 +186,6 @@ export const useBaseStore = defineStore('base', {
       }
     },
     preloadImage(item: string, isPlaceholder = false) {
-      if (this.preloadedImages.find(x => (x.item === item && x.done))) {
-        return;
-      }
       const img = new Image();
       let url = '';
       if (isPlaceholder) {
@@ -197,7 +194,7 @@ export const useBaseStore = defineStore('base', {
         url = `/cages/${item}/complete.jpg`;
       }
       img.src = url;
-      const pi: PreloadedImage = { url, item, done: true };
+      const pi: PreloadedImage = { url, item };
       this.preloadedImages.push(pi);
     }
   },
