@@ -117,7 +117,6 @@ watch(
           }
           baseStore.cagePath = randArrayItem(CAGES_PATH_ARR, baseStore.shownCages);
           baseStore.shownCages.add(baseStore.cagePath);
-          baseStore.setUnlockedCages();
           baseStore.eligibleForCageMode = false;
         }
         baseStore.initStore();

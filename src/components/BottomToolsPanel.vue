@@ -81,8 +81,11 @@ const closeConfigModal = (): void => {
   }
 };
 const showImageGallery = (): void => {
+  if (baseStore.paused) {
+    return;
+  }
   wasPausedBeforeOpenModal.value = baseStore.paused;
-  if (!baseStore.paused && !baseStore.isDone) {
+  if (!baseStore.isDone) {
     baseStore.invertPaused();
   }
   baseStore.showImageGallery = true;
@@ -131,6 +134,9 @@ watch(
       }
       if (!baseStore.disableCageMode && baseStore.time > 0 && baseStore.time < 60) {
         baseStore.eligibleForCageMode = true;
+      }
+      if (baseStore.cageMode) {
+        baseStore.setUnlockedCages();
       }
     }
   },
@@ -192,7 +198,7 @@ onUnmounted(() => {
     </div>
     <div v-if="!baseStore.disableCageMode" class="tool-items records consolas">
       <span :class="{ paused: baseStore.paused }">
-        <span class="unlocked" @click="showImageGallery">Unlocked</span>  <span class="italic">
+        <span class="unlocked" @click="showImageGallery">Completed</span>  <span class="italic">
           {{ baseStore.unlockedCages.size }}
         </span> out of {{ baseStore.cagesCount }} "Cages"
       </span>

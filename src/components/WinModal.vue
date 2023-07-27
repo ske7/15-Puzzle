@@ -38,8 +38,11 @@ onBeforeUnmount(() => {
         <span v-show="baseStore.newMovesRecord && baseStore.newTimeRecord"> / </span>
         <span v-show="baseStore.newMovesRecord">{{ baseStore.movesRecord }} moves</span>
       </p>
-      <p v-if="baseStore.eligibleForCageMode" class="unlock-message">
+      <p v-if="baseStore.eligibleForCageMode && !baseStore.cageMode" class="unlock-message">
         "Cage mode" is unlocked for the next game!
+      </p>
+      <p v-if="baseStore.cageMode && baseStore.isDone" class="unlock-message mt-5">
+        You've completed Cage game (#{{ baseStore.cageImgIndex + 1 }})
       </p>
     </div>
     <div class="buttons">

@@ -23,12 +23,10 @@ onClickOutside(imageGallery, (event) => {
 const currentIndex = ref(0);
 const { showOnlyUnlockedItems } = storeToRefs(baseStore);
 const getRealIndex = computed(() => {
-  const index = currentIndex.value;
   if (showOnlyUnlockedItems.value) {
-    const arr = [...baseStore.unlockedCages];
-    return arr[index];
+    return baseStore.unlockedCagesSortedArr[currentIndex.value];
   }
-  return index;
+  return currentIndex.value;
 });
 const maxIndex = computed(() => {
   if (showOnlyUnlockedItems.value) {
@@ -152,7 +150,7 @@ const setShowOnlyUnlockedItems = () => {
     oldCurrentIndex.value = currentIndex.value;
     if (isLocked.value) {
       wasLocked.value = true;
-      oldCurrentIndex.value = [...baseStore.unlockedCages][0];
+      oldCurrentIndex.value = baseStore.unlockedCagesSortedArr[0];
     }
   }
   baseStore.showOnlyUnlockedItems = !baseStore.showOnlyUnlockedItems;
@@ -166,7 +164,7 @@ watch(showOnlyUnlockedItems, async (newValue, oldValue) => {
       loaded.value = false;
       showImg.value = true;
     }
-    currentIndex.value = [...baseStore.unlockedCages].indexOf(oldCurrentIndex.value);
+    currentIndex.value = baseStore.unlockedCagesSortedArr.indexOf(oldCurrentIndex.value);
   } else if (!newValue && oldValue) {
     currentIndex.value = oldCurrentIndex.value;
   }

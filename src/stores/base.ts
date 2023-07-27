@@ -124,8 +124,8 @@ export const useBaseStore = defineStore('base', {
     },
     setUnlockedCages() {
       if (this.cagePath) {
-        this.unlockedCages.add(CAGES_PATH_ARR.indexOf(this.cagePath.toString()));
-        localStorage.setItem('_xcu', btoa([...this.unlockedCages].sort((a, b) => a - b).join(',')));
+        this.unlockedCages.add(this.cageImgIndex);
+        localStorage.setItem('_xcu', btoa(this.unlockedCagesSortedArr.join(',')));
       }
     },
     loadUnlockedCagesFromLocalStorage() {
@@ -232,6 +232,12 @@ export const useBaseStore = defineStore('base', {
     showModal(): boolean {
       return this.showConfirm || this.showConfig || this.showInfo ||
         this.showWinModal || this.showImageGallery;
+    },
+    cageImgIndex(): number {
+      return CAGES_PATH_ARR.indexOf(this.cagePath.toString());
+    },
+    unlockedCagesSortedArr(): number[] {
+      return [...this.unlockedCages].sort((a, b) => a - b);
     }
   }
 });
