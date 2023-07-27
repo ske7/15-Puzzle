@@ -38,5 +38,9 @@ export const CAGES_PATH_ARR = [
   '18-face',
   '19-face',
   '20-face',
-  '21-face'
+  '21-face',
+  '22-tess',
+  '23-tess',
+  '24-tess',
+  '25-glass'
 ];
