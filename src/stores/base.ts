@@ -36,7 +36,7 @@ export const useBaseStore = defineStore('base', {
     newTimeRecord: false,
     showConfig: false,
     showImageGallery: false,
-    showOnlyUnlockedItems: false
+    showOnlyUnlockedItems: localStorage.getItem('showOnlyUnlockedItems') === 'true'
   }),
   actions: {
     initStore() {

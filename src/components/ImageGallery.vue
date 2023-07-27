@@ -160,6 +160,7 @@ const setShowOnlyUnlockedItems = () => {
     }
   }
   baseStore.showOnlyUnlockedItems = !baseStore.showOnlyUnlockedItems;
+  localStorage.setItem('showOnlyUnlockedItems', baseStore.showOnlyUnlockedItems.toString());
 };
 watch(showOnlyUnlockedItems, (newValue, oldValue) => {
   if (newValue && !oldValue) {
