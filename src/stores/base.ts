@@ -1,6 +1,9 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { generateAndShuffle, generate, isSolvable } from '../utils';
-import { CORE_NUM, SPACE_BETWEEN_SQUARES, CAGES_PATH_ARR, Direction } from './const';
+import {
+  CORE_NUM, SPACE_BETWEEN_SQUARES,
+  CAGES_PATH_ARR, Direction, type PreloadedImage
+} from './const';
 
 export const useBaseStore = defineStore('base', {
   state: () => ({
@@ -36,7 +39,8 @@ export const useBaseStore = defineStore('base', {
     newTimeRecord: false,
     showConfig: false,
     showImageGallery: false,
-    showOnlyUnlockedItems: localStorage.getItem('showOnlyUnlockedItems') === 'true'
+    showOnlyUnlockedItems: localStorage.getItem('showOnlyUnlockedItems') === 'true',
+    preloadedImages: [] as PreloadedImage[]
   }),
   actions: {
     initStore() {
@@ -180,6 +184,16 @@ export const useBaseStore = defineStore('base', {
       } catch {
         return 0;
       }
+    },
+    preloadImage(item: string) {
+      if (this.preloadedImages.find(x => (x.item === item && x.done))) {
+        return;
+      }
+      const img = new Image();
+      const url = `/cages/${item}/complete.jpg`;
+      img.src = url;
+      const pi: PreloadedImage = { url, item, done: true };
+      this.preloadedImages.push(pi);
     }
   },
   getters: {

@@ -12,6 +12,12 @@ export const enum Direction {
   Left = 4
 }
 
+export interface PreloadedImage {
+  url?: string,
+  item: string,
+  done: boolean;
+}
+
 export const CAGES_PATH_ARR = [
   '01-joe',
   '02-primal',

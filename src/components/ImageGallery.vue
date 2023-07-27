@@ -172,6 +172,12 @@ watch(showOnlyUnlockedItems, (newValue, oldValue) => {
     currentIndex.value = oldCurrentIndex.value;
   }
 });
+
+for (const [index, value] of CAGES_PATH_ARR.entries()) {
+  if (baseStore.unlockedCages.has(index)) {
+    baseStore.preloadImage(value);
+  }
+}
 </script>
 
 <template>

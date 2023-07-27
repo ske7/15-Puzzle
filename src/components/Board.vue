@@ -90,6 +90,13 @@ onMounted(() => {
       }
     }
   });
+
+  setTimeout(() => {
+    if (baseStore.unlockedCages.size > 0) {
+      const first = [...baseStore.unlockedCages][0];
+      baseStore.preloadImage(CAGES_PATH_ARR[first]);
+    }
+  }, 1000);
 });
 
 const { doResetList } = storeToRefs(baseStore);
