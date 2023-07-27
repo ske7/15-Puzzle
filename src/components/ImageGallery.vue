@@ -173,6 +173,15 @@ watch(showOnlyUnlockedItems, (newValue, oldValue) => {
   }
 });
 
+const wheel = (event: WheelEvent) => {
+  const delta = Math.sign(event.deltaY);
+  if (delta === -1) {
+    loadNext();
+  } else if (delta === 1) {
+    loadPrev();
+  }
+};
+
 for (const [index, value] of CAGES_PATH_ARR.entries()) {
   if (baseStore.unlockedCages.has(index)) {
     baseStore.preloadImage(value);
@@ -182,7 +191,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
 
 <template>
   <Teleport to="body">
-    <div ref="imageGallery" class="image-gallery">
+    <div ref="imageGallery" class="image-gallery" @wheel.prevent.passive="wheel">
       <h2>Cage Image Gallery</h2>
       <div class="controls">
         <div
