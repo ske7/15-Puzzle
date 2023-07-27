@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, reactive } from 'vue';
+import { ref, computed, watch, reactive, nextTick, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside } from '@vueuse/core';
@@ -44,17 +44,14 @@ const isLocked = computed(() => {
 });
 const loadedNotLocked = computed(() => {
   return !loaded.value && !isLocked.value &&
-  (time.value > 5 || (currentIndex.value === 0 && time.value > 0));
+  (time.value > 5 || (currentIndex.value === 0 && time.value > 2));
 });
 
 const loaded = ref(false);
-const onCageImgLoad = async (): Promise<void> => {
+const onCageImgLoad = (): void => {
   loaded.value = true;
   if (!isLocked.value) {
     showImg.value = true;
-    showAnimation.value = true;
-    await new Promise(resolve => setTimeout(resolve, 400));
-    showAnimation.value = false;
   }
 };
 const loadedCageImg = computed(() => {
@@ -64,7 +61,6 @@ const loadedCageImg = computed(() => {
     return `/cages/${CAGES_PATH_ARR[getRealIndex.value]}/complete.jpg`;
   }
 });
-const showAnimation = ref(false);
 const showImg = ref(false);
 if (isLocked.value) {
   showImg.value = true;
@@ -73,14 +69,13 @@ const enum LoadMode {
   next = 1,
   prev = -1
 }
-const loadImage = (mode: LoadMode) => {
+const loadImage = async (mode: LoadMode) => {
   if (!loaded.value && !isLocked.value) {
     return;
   }
   if (baseStore.showOnlyUnlockedItems && baseStore.unlockedCages.size === 1) {
     return;
   }
-  showImg.value = false;
   if (mode === LoadMode.next) {
     if (currentIndex.value === maxIndex.value) {
       currentIndex.value = 0;
@@ -96,16 +91,17 @@ const loadImage = (mode: LoadMode) => {
     }
   }
   if (!isLocked.value) {
+    showImg.value = false;
+    await nextTick();
     loaded.value = false;
-  } else {
     showImg.value = true;
   }
 };
-const loadNext = () => {
-  loadImage(LoadMode.next);
+const loadNext = async () => {
+  await loadImage(LoadMode.next);
 };
-const loadPrev = () => {
-  loadImage(LoadMode.prev);
+const loadPrev = async () => {
+  await loadImage(LoadMode.prev);
 };
 
 const interval = ref(0);
@@ -135,14 +131,14 @@ const touchmove = (e: TouchEvent) => {
     gesture.x.push(t.clientX);
   }
 };
-const touchend = () => {
+const touchend = async () => {
   const xTravel = gesture.x[gesture.x.length - 1] - gesture.x[0];
   gesture.x = [];
   if (xTravel < -tolerance.value) {
-    loadNext();
+    await loadNext();
   }
   if (xTravel > tolerance.value) {
-    loadPrev();
+    await loadPrev();
   }
 };
 
@@ -162,10 +158,13 @@ const setShowOnlyUnlockedItems = () => {
   baseStore.showOnlyUnlockedItems = !baseStore.showOnlyUnlockedItems;
   localStorage.setItem('showOnlyUnlockedItems', baseStore.showOnlyUnlockedItems.toString());
 };
-watch(showOnlyUnlockedItems, (newValue, oldValue) => {
+watch(showOnlyUnlockedItems, async (newValue, oldValue) => {
   if (newValue && !oldValue) {
-    if (!isLocked.value && wasLocked.value) {
+    if (wasLocked.value) {
       showImg.value = false;
+      await nextTick();
+      loaded.value = false;
+      showImg.value = true;
     }
     currentIndex.value = [...baseStore.unlockedCages].indexOf(oldCurrentIndex.value);
   } else if (!newValue && oldValue) {
@@ -173,15 +172,18 @@ watch(showOnlyUnlockedItems, (newValue, oldValue) => {
   }
 });
 
-const wheel = (event: WheelEvent) => {
+const wheel = async (event: WheelEvent) => {
   const delta = Math.sign(event.deltaY);
   if (delta === -1) {
-    loadNext();
+    await loadNext();
   } else if (delta === 1) {
-    loadPrev();
+    await loadPrev();
   }
 };
-
+onMounted(() => {
+  showImg.value = true;
+});
+baseStore.preloadImage('placeholder', true);
 for (const [index, value] of CAGES_PATH_ARR.entries()) {
   if (baseStore.unlockedCages.has(index)) {
     baseStore.preloadImage(value);
@@ -191,7 +193,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
 
 <template>
   <Teleport to="body">
-    <div ref="imageGallery" class="image-gallery" @wheel.prevent.passive="wheel">
+    <div ref="imageGallery" class="image-gallery" @wheel.prevent="wheel">
       <h2>Cage Image Gallery</h2>
       <div class="controls">
         <div
@@ -225,32 +227,33 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
         </div>
       </div>
       <div class="image-wrapper" :class="{ wait: loadedNotLocked }">
-        <img
-          v-show="showImg"
-          :src="loadedCageImg"
-          class="cage-img"
-          :class="{ 'cage-image-animation': showAnimation }"
-          draggable="false"
-          @load="onCageImgLoad"
-          @touchstart="touchstart"
-          @touchmove.prevent="touchmove"
-          @touchend.prevent="touchend"
-        >
-        <span
-          v-if="isLocked && loaded"
-          class="cage-locked-txt"
-          @touchstart.prevent="touchstart"
-          @touchmove.prevent="touchmove"
-          @touchend.prevent="touchend"
-        >
-          Locked
-        </span>
-        <span
-          v-if="loadedNotLocked"
-          class="cage-loading-txt"
-        >
-          Loading
-        </span>
+        <TransitionGroup name="fade" mode="out-in">
+          <img
+            v-if="showImg"
+            :src="loadedCageImg"
+            class="cage-img"
+            draggable="false"
+            @load="onCageImgLoad"
+            @touchstart="touchstart"
+            @touchmove.prevent="touchmove"
+            @touchend.prevent="touchend"
+          >
+          <span
+            v-show="isLocked && loaded"
+            class="cage-locked-txt"
+            @touchstart.prevent="touchstart"
+            @touchmove.prevent="touchmove"
+            @touchend.prevent="touchend"
+          >
+            Locked
+          </span>
+          <span
+            v-if="loadedNotLocked"
+            class="cage-loading-txt"
+          >
+            Loading
+          </span>
+        </TransitionGroup>
       </div>
       <div class="options">
         <div class="option">
@@ -277,6 +280,22 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
 </template>
 
 <style scoped>
+* {
+  --v-width: 440px;
+}
+.fade-enter-active {
+  transition: opacity 0.5s ease-in;
+}
+.fade-leave-active {
+  transition: opacity 0.2s ease-out;
+}
+
+.fade-enter-from {
+  opacity: 0.7;
+}
+.fade-leave-to {
+  opacity: 0.7;
+}
 .image-gallery {
   display: flex;
   justify-content: start;
@@ -285,18 +304,21 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
   background-color: white;
   border-radius: 8px;
   height: 100%;
-  max-height: calc(v-bind(boardSize) + 137px);
-  width: v-bind(boardSize);
+  max-height: calc(var(--v-width) + 137px);
+  width: var(--v-width);
   position: fixed;
   z-index: 2000;
-  top: 120px;
-  left: calc(50% - v-bind(boardSize) / 2);
+  top: 40px;
+  left: calc(50% - var(--v-width) / 2);
   padding: 10px;
   box-shadow: 0 8px 16px gray;
 }
 @media (min-height: 800px), screen and (max-width: 820px) {
+  * {
+    --v-width: v-bind(boardSize);
+  }
   .image-gallery {
-    top: calc(50% - (v-bind(boardSize) + 137px) / 2);
+    top: calc(50% - (var(--v-width) + 137px) / 2);
   }
 }
 h2 {
@@ -307,28 +329,21 @@ h2 {
 }
 .controls {
   display: flex;
-  width: calc(v-bind(boardSize) - 40px);
+  width: calc(var(--v-width) - 40px);
   justify-content: space-between;
 }
 .image-wrapper {
-  height: calc(v-bind(boardSize) - 40px);
-  width: calc(v-bind(boardSize) - 40px);
+  height: calc(var(--v-width) - 40px);
+  width: calc(var(--v-width) - 40px);
   position: relative;
   background-color: #dfdfdf;
 }
 .cage-img {
-  height: calc(v-bind(boardSize) - 40px);
-  width: calc(v-bind(boardSize) - 40px);
+  height: calc(var(--v-width) - 40px);
+  width: calc(var(--v-width) - 40px);
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
-}
-@keyframes cage-in {
-    0% { opacity: 0; scale: 0.1; border-radius: 100%;}
-  100% { opacity: 1; scale: 1.0; border-radius: 0%;}
-}
-.cage-image-animation {
-  animation: cage-in 0.5s ease;
 }
 .cage-locked-txt {
   display: flex;

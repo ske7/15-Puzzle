@@ -185,12 +185,17 @@ export const useBaseStore = defineStore('base', {
         return 0;
       }
     },
-    preloadImage(item: string) {
+    preloadImage(item: string, isPlaceholder = false) {
       if (this.preloadedImages.find(x => (x.item === item && x.done))) {
         return;
       }
       const img = new Image();
-      const url = `/cages/${item}/complete.jpg`;
+      let url = '';
+      if (isPlaceholder) {
+        url = '/cages/placeholder.jpg';
+      } else {
+        url = `/cages/${item}/complete.jpg`;
+      }
       img.src = url;
       const pi: PreloadedImage = { url, item, done: true };
       this.preloadedImages.push(pi);
