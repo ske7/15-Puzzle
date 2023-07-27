@@ -110,7 +110,7 @@ img[alt] {
   color: navy;
 }
 .paused > .records {
-  opacity: 0.2;
+  opacity: 0.5;
 }
 .paused > .unlocked:hover {
   color: #105d97;
