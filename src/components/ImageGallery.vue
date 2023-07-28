@@ -225,7 +225,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
         </div>
       </div>
       <div class="image-wrapper" :class="{ wait: loadedNotLocked }">
-        <TransitionGroup name="fade" mode="out-in">
+        <Transition name="fade" mode="out-in">
           <img
             v-if="showImg"
             :src="loadedCageImg"
@@ -236,22 +236,22 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
             @touchmove.prevent="touchmove"
             @touchend.prevent="touchend"
           >
-          <span
-            v-show="isLocked && loaded"
-            class="cage-locked-txt"
-            @touchstart.prevent="touchstart"
-            @touchmove.prevent="touchmove"
-            @touchend.prevent="touchend"
-          >
-            Locked
-          </span>
-          <span
-            v-if="loadedNotLocked"
-            class="cage-loading-txt"
-          >
-            Loading
-          </span>
-        </TransitionGroup>
+        </Transition>
+        <span
+          v-show="isLocked && loaded"
+          class="cage-locked-txt"
+          @touchstart.prevent="touchstart"
+          @touchmove.prevent="touchmove"
+          @touchend.prevent="touchend"
+        >
+          Locked
+        </span>
+        <span
+          v-if="loadedNotLocked"
+          class="cage-loading-txt"
+        >
+          Loading
+        </span>
       </div>
       <div class="options">
         <div class="option">
