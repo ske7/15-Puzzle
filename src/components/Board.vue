@@ -112,11 +112,15 @@ watch(
         }
         if (baseStore.eligibleForCageMode) {
           baseStore.cageMode = true;
-          if (baseStore.shownCages.size === CAGES_PATH_ARR.length) {
-            baseStore.shownCages.clear();
+          if (baseStore.unlockedCages.size === baseStore.cagesCount) {
+            if (baseStore.shownCages.size === CAGES_PATH_ARR.length) {
+              baseStore.shownCages.clear();
+            }
+            baseStore.cagePath = randArrayItem(CAGES_PATH_ARR, Array.from(baseStore.shownCages));
+            baseStore.shownCages.add(baseStore.cagePath);
+          } else {
+            baseStore.cagePath = randArrayItem(CAGES_PATH_ARR, baseStore.unlockedCagesValues);
           }
-          baseStore.cagePath = randArrayItem(CAGES_PATH_ARR, baseStore.shownCages);
-          baseStore.shownCages.add(baseStore.cagePath);
           baseStore.eligibleForCageMode = false;
         }
         baseStore.initStore();

@@ -238,6 +238,11 @@ export const useBaseStore = defineStore('base', {
     },
     unlockedCagesSortedArr(): number[] {
       return [...this.unlockedCages].sort((a, b) => a - b);
+    },
+    unlockedCagesValues(): string[] {
+      return CAGES_PATH_ARR.filter((_item, index) => {
+        return this.unlockedCages.has(index);
+      });
     }
   }
 });
