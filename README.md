@@ -11,7 +11,7 @@ You can play and beat your records of time and moves.\
 Unlock "Cage mode" completing the puzzle in less than a minute.\
 There are lots of funny "Cages". Try to reach them all if you can.
 
-![Cage mode](public/mode2.png)
+![Cage mode](public/mode2.jpg)
 
 ### Try the game here:
 
