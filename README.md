@@ -2,7 +2,7 @@
 
 "15 Puzzle" online game (_featuring Nic Cage_) made using Vue 3 (Typescript + Pinia)
 
-![15 Puzzle image](public/mode1.jpg)
+![15 Puzzle image](public/mode1.png)
 
 ### Game instructions:
 
