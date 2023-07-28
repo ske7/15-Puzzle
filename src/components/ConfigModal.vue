@@ -29,6 +29,10 @@ const setDisableWinMessage = (): void => {
   baseStore.disableWinMessage = !baseStore.disableWinMessage;
   localStorage.setItem('disableWinMessage', baseStore.disableWinMessage.toString());
 };
+const setNoBordersInCageMode = (): void => {
+  baseStore.noBordersInCageMode = !baseStore.noBordersInCageMode;
+  localStorage.setItem('noBordersInCageMode', baseStore.noBordersInCageMode.toString());
+};
 </script>
 
 <template>
@@ -71,6 +75,18 @@ const setDisableWinMessage = (): void => {
           >
           <label for="disable-win-message">
             Disable Win Message
+          </label>
+        </div>
+        <div class="option">
+          <input
+            id="no-borders-in-cage-mode"
+            type="checkbox"
+            name="no-borders-in-cage-mode"
+            :checked="baseStore.noBordersInCageMode"
+            @change="setNoBordersInCageMode"
+          >
+          <label for="no-borders-in-cage-mode">
+            No Borders In Cage Mode
           </label>
         </div>
       </div>

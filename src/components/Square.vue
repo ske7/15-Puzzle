@@ -171,7 +171,8 @@ watch(
       free: props.mixedOrder === 0 && !(baseStore.cageMode && isDoneAll),
       'in-place': isSquareInPlace && !baseStore.processingReInit,
       captured: isCaptured,
-      'no-border-no-shadow': isNoBorder
+      'no-border-no-shadow': isNoBorder,
+      'no-border': baseStore.cageMode && baseStore.noBordersInCageMode
     }"
     :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px` }"
     @mousedown.left="capture"
@@ -275,6 +276,9 @@ watch(
   border: 0px;
   box-shadow: none;
   animation: bounce-in2 0.2s ease;
+}
+.no-border {
+  border: none;
 }
 .free {
   display: none;
