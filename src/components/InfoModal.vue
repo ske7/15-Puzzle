@@ -26,8 +26,7 @@ const getYear = computed(() => {
         <span>Game instructions</span>
       </p>
       <p class="instruction">
-        Move blocks until they are in regular order.
-        You can play and beat your records of time and moves. Unlock "Cage mode" by solving the puzzle in less than 60 seconds. There are lots of funny "Cages". Try to reach them all if you can. Cage Hardcore Mode is for puzzle gurus... you won't see numbers on "Cages".
+        Move blocks until they are in regular order. You can play and beat your records of time and moves. Unlock "Cage mode" by solving the puzzle in less than 60 seconds. There are lots of funny Cage images - complete puzzles in "Cage mode" and try to reach them all if you can.
       </p>
       <div class="buttons">
         <button type="button" class="tool-button" @click="emit('close')">
@@ -55,7 +54,7 @@ const getYear = computed(() => {
   width: var(--modal-width);
   position: fixed;
   z-index: 2000;
-  top: 155px;
+  top: 165px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
   box-shadow: 0 8px 16px gray;
@@ -82,7 +81,7 @@ const getYear = computed(() => {
   line-height: 1.4;
 }
 .buttons {
-  margin-top: 10px;
+  margin-top: 15px;
   margin-bottom: 5px;
   display: flex;
   justify-content: center;
@@ -109,7 +108,7 @@ const getYear = computed(() => {
 }
 @media (min-height: 800px), screen and (max-width: 820px) and (min-width: 500px) {
   .info-modal {
-    top: calc(50% - 200px);
+    top: calc(50% - 210px);
   }
 }
 @media screen and (max-width: 420px) {
@@ -117,7 +116,7 @@ const getYear = computed(() => {
     width: calc(100% - 30px);
     margin: 0 auto;
     left: 15px;
-    top: calc(50% - 220px);
+    top: calc(50% - 210px);
     min-height: 320px;
   }
   .instruction  {
