@@ -56,11 +56,12 @@ module.exports = {
       }
     }],
     'vue/padding-lines-in-component-definition': 'error',
+    'vue/require-typed-object-prop': 'error',
     'vue/max-len': ['error', {
-      code: 100,
-      template: 100,
+      code: 110,
+      template: 110,
       tabWidth: 2,
-      comments: 100,
+      comments: 110,
       ignorePattern: '',
       ignoreComments: true,
       ignoreTrailingComments: true,
