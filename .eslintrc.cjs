@@ -46,7 +46,6 @@ module.exports = {
     'max-statements': ['error', { max: 30 }],
     'generator-star-spacing': ['error', { before: false, after: true }],
     'vue/multi-word-component-names': 'off',
-    'vue/script-setup-uses-vars': 'error',
     'vue/max-attributes-per-line': ['error', {
       singleline: {
         max: 3
@@ -57,6 +56,11 @@ module.exports = {
     }],
     'vue/padding-lines-in-component-definition': 'error',
     'vue/require-typed-object-prop': 'error',
+    'vue/require-typed-ref': 'error',
+    'vue/define-props-declaration': ['error', 'type-based'],
+    'vue/define-emits-declaration': ['error', 'type-based'],
+    'vue/no-ref-object-destructure': 'error',
+    'vue/html-button-has-type': 'error',
     'vue/max-len': ['error', {
       code: 110,
       template: 110,

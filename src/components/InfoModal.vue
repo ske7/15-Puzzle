@@ -4,7 +4,7 @@ import { onClickOutside } from '@vueuse/core';
 
 const emit = defineEmits<{ close: [] }>();
 
-const infoModal = ref(null);
+const infoModal = ref<HTMLElement>();
 onClickOutside(infoModal, (event) => {
   event.stopPropagation();
   emit('close');

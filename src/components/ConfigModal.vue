@@ -7,7 +7,7 @@ const baseStore = useBaseStore();
 const emit = defineEmits<{ close: []; }>();
 const eventBus = useEventBus<string>('event-bus');
 
-const configModal = ref(null);
+const configModal = ref<HTMLElement>();
 onClickOutside(configModal, (event) => {
   event.stopPropagation();
   emit('close');

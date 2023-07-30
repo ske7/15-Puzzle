@@ -4,7 +4,7 @@ import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
 
 const emit = defineEmits<{ close: []; }>();
-const winModal = ref(null);
+const winModal = ref<HTMLElement>();
 onClickOutside(winModal, (event) => {
   event.stopPropagation();
   emit('close');

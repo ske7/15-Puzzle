@@ -15,7 +15,7 @@ baseStore.initStore();
 const boardSize = computed(() => {
   return baseStore.boardSize(props.squareSize);
 });
-const container = ref();
+const container = ref<HTMLElement>();
 const { left, right, top, bottom } = useElementBounding(container);
 const borderRadiusVar = computed(() => {
   if (baseStore.cageMode) {

@@ -14,7 +14,7 @@ const boardSize = computed(() => {
   return baseStore.boardSize(props.squareSize);
 });
 
-const imageGallery = ref(null);
+const imageGallery = ref<HTMLElement>();
 onClickOutside(imageGallery, (event) => {
   event.stopPropagation();
   emit('close');
@@ -45,6 +45,7 @@ const loadedNotLocked = computed(() => {
   (time.value > 5 || (currentIndex.value === 0 && time.value > 2));
 });
 
+const showImg = ref(false);
 const loaded = ref(false);
 const onCageImgLoad = (): void => {
   loaded.value = true;
@@ -59,10 +60,12 @@ const loadedCageImg = computed(() => {
     return `/cages/${CAGES_PATH_ARR[getRealIndex.value]}/complete.jpg`;
   }
 });
-const showImg = ref(false);
-if (isLocked.value) {
-  showImg.value = true;
-}
+const checkIsLocked = (): void => {
+  if (isLocked.value) {
+    showImg.value = true;
+  }
+};
+checkIsLocked();
 const enum LoadMode {
   next = 1,
   prev = -1
