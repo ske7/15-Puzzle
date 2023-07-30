@@ -57,6 +57,7 @@ watch(visibility, (value) => {
 
 watch(isDoneAll, (value) => {
   if (value) {
+    baseStore.actualOrders[baseStore.mixedOrders.findIndex((x) => x === 0)] = baseStore.arrayLength - 1;
     if (!baseStore.disableWinMessage) {
       baseStore.showWinModal = true;
     }

@@ -62,7 +62,7 @@ export const useBaseStore = defineStore('base', {
         solvable = this.mixAndCheckSolvable();
       }
       this.freeElement = this.actualOrders[this.mixedOrders.findIndex((x) => x === 0)];
-      this.actualOrders[this.mixedOrders.findIndex((x) => x === 0)] = this.arrayLength - 1;
+      this.actualOrders[this.mixedOrders.findIndex((x) => x === 0)] = -1;
       this.doResetList = false;
       this.doneFirstMove = false;
       this.cageImageLoadedCount = 0;
