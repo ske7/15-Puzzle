@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { watch, ref, defineAsyncComponent, onMounted, onUnmounted, computed } from 'vue';
-import { storeToRefs } from 'pinia';
+import { ref, defineAsyncComponent, onMounted, onUnmounted, computed } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
 const ConfirmDialog = defineAsyncComponent({
@@ -104,44 +103,15 @@ const listener = (event: string): void => {
   }
 };
 
-baseStore.timeRecord = baseStore.loadTimeRecord();
-baseStore.movesRecord = baseStore.loadMovesRecord();
-baseStore.restartInterval();
-
 const disableButton = computed(() => {
   return baseStore.showModal ||
         (baseStore.isDone && !baseStore.afterDoneAnimationEnd) ||
         (baseStore.cageMode && !baseStore.finishLoadingAllCageImages);
 });
 
-const { isDone } = storeToRefs(baseStore);
-watch(
-  isDone,
-  (value) => {
-    if (value) {
-      baseStore.stopInterval();
-      if (
-        baseStore.movesCount > 0 &&
-        (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord)
-      ) {
-        baseStore.setMovesRecord(baseStore.movesCount);
-      }
-      if (
-        baseStore.time > 0 &&
-        (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord)
-      ) {
-        baseStore.setTimeRecord(baseStore.time);
-      }
-      if (!baseStore.disableCageMode && baseStore.time > 0 && baseStore.time < 60) {
-        baseStore.eligibleForCageMode = true;
-      }
-      if (baseStore.cageMode) {
-        baseStore.setUnlockedCages();
-      }
-    }
-  },
-  { immediate: true }
-);
+baseStore.timeRecord = baseStore.loadTimeRecord();
+baseStore.movesRecord = baseStore.loadMovesRecord();
+baseStore.restartInterval();
 
 onMounted(() => {
   eventBus.on(listener);
@@ -165,7 +135,7 @@ onUnmounted(() => {
       <button
         type="button"
         class="tool-button"
-        :disabled="disableButton || !baseStore.doneFirstMove || isDone"
+        :disabled="disableButton || !baseStore.doneFirstMove || baseStore.isDone"
         @click="baseStore.invertPaused"
       >
         {{ baseStore.paused && !baseStore.showModal ? 'Resume' : 'Pause' }}

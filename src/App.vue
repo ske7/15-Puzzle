@@ -57,7 +57,23 @@ watch(visibility, (value) => {
 
 watch(isDoneAll, (value) => {
   if (value) {
-    baseStore.actualOrders[baseStore.mixedOrders.findIndex((x) => x === 0)] = baseStore.arrayLength - 1;
+    baseStore.stopInterval();
+    if (
+      baseStore.movesCount > 0 &&
+      (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord)
+    ) {
+      baseStore.setMovesRecord(baseStore.movesCount);
+    }
+    if (baseStore.time > 0 && (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord)) {
+      baseStore.setTimeRecord(baseStore.time);
+    }
+    if (!baseStore.disableCageMode && baseStore.time > 0 && baseStore.time < 60) {
+      baseStore.eligibleForCageMode = true;
+    }
+    if (baseStore.cageMode) {
+      baseStore.actualOrders[baseStore.mixedOrders.findIndex((x) => x === 0)] = baseStore.arrayLength - 1;
+      baseStore.setUnlockedCages();
+    }
     if (!baseStore.disableWinMessage) {
       baseStore.showWinModal = true;
     }
@@ -83,9 +99,7 @@ watch(isDoneAll, (value) => {
       <Board :square-size="squareSize" />
     </div>
     <BottomToolsPanel :square-size="squareSize" />
-    <Transition
-      name="modal"
-    >
+    <Transition name="modal">
       <WinModal
         v-if="baseStore.isDone && baseStore.afterDoneAnimationEnd && baseStore.showWinModal"
         @close="baseStore.showWinModal = false"
