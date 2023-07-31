@@ -243,7 +243,7 @@ watch(
   }
 }
 .square {
-  position: fixed;
+  position: absolute;
   width: v-bind(sizeVar);
   height: v-bind(sizeVar);
   border: 1px solid rgba(136, 165, 191, 0.3);
