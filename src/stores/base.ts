@@ -41,7 +41,8 @@ export const useBaseStore = defineStore('base', {
     showImageGallery: false,
     showOnlyUnlockedItems: localStorage.getItem('showOnlyUnlockedItems') === 'true',
     preloadedImages: [] as PreloadedImage[],
-    noBordersInCageMode: localStorage.getItem('noBordersInCageMode') === 'true'
+    noBordersInCageMode: localStorage.getItem('noBordersInCageMode') === 'true',
+    fasterSliding: localStorage.getItem('fasterSliding') === 'true'
   }),
   actions: {
     initStore() {

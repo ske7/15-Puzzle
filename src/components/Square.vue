@@ -25,6 +25,12 @@ const borderRadiusVar = computed(() => {
   }
   return '8px';
 });
+const blockTransition = computed(() => {
+  if (baseStore.fasterSliding) {
+    return 'all 0.1s ease 0s';
+  }
+  return 'all 0.3s ease 0s';
+});
 
 const actualOrder = computed(() => {
   return baseStore.actualOrders[props.order];
@@ -247,7 +253,7 @@ watch(
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
-  transition: all 0.3s ease 0s;
+  transition: v-bind(blockTransition);
   border-radius: v-bind(borderRadiusVar);
   box-sizing: border-box;
   box-shadow: 0 0 4px inset rgba(0, 0, 0, 0.2);

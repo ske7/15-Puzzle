@@ -25,13 +25,17 @@ const setCageHardcoreMode = (): void => {
   baseStore.cageHardcoreMode = !baseStore.cageHardcoreMode;
   localStorage.setItem('cageHardcoreMode', baseStore.cageHardcoreMode.toString());
 };
+const setNoBordersInCageMode = (): void => {
+  baseStore.noBordersInCageMode = !baseStore.noBordersInCageMode;
+  localStorage.setItem('noBordersInCageMode', baseStore.noBordersInCageMode.toString());
+};
 const setDisableWinMessage = (): void => {
   baseStore.disableWinMessage = !baseStore.disableWinMessage;
   localStorage.setItem('disableWinMessage', baseStore.disableWinMessage.toString());
 };
-const setNoBordersInCageMode = (): void => {
-  baseStore.noBordersInCageMode = !baseStore.noBordersInCageMode;
-  localStorage.setItem('noBordersInCageMode', baseStore.noBordersInCageMode.toString());
+const setFasterSliding = (): void => {
+  baseStore.fasterSliding = !baseStore.fasterSliding;
+  localStorage.setItem('fasterSliding', baseStore.fasterSliding.toString());
 };
 </script>
 
@@ -90,6 +94,18 @@ const setNoBordersInCageMode = (): void => {
             Disable Win Message
           </label>
         </div>
+        <div class="option">
+          <input
+            id="faster-sliding"
+            type="checkbox"
+            name="faster-sliding"
+            :checked="baseStore.fasterSliding"
+            @change="setFasterSliding"
+          >
+          <label for="faster-sliding">
+            Fast Blocks Moving
+          </label>
+        </div>
       </div>
       <div class="buttons">
         <button type="button" class="tool-button" @click="emit('close')">
@@ -111,7 +127,7 @@ const setNoBordersInCageMode = (): void => {
   width: 280px;
   position: fixed;
   z-index: 2000;
-  top: calc(50% - 140px);
+  top: calc(50% - 175px);
   left: calc(50% - 140px);
   padding: 20px;
   box-shadow: 0 8px 16px gray;
