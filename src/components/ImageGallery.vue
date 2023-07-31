@@ -143,6 +143,11 @@ const touchend = async () => {
   }
 };
 
+const disabledShowOnlyUnlockedItems = computed(() => {
+  return baseStore.unlockedCages.size === 0 ||
+  baseStore.unlockedCages.size === baseStore.cagesCount;
+});
+
 const oldCurrentIndex = ref(0);
 const wasLocked = ref(false);
 const setShowOnlyUnlockedItems = () => {
@@ -263,10 +268,10 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
             type="checkbox"
             name="show-only-unlocked"
             :checked="showOnlyUnlockedItems"
-            :disabled="baseStore.unlockedCages.size === 0"
+            :disabled="disabledShowOnlyUnlockedItems"
             @change="setShowOnlyUnlockedItems"
           >
-          <label for="show-only-unlocked" :class="{ 'disabled-label': baseStore.unlockedCages.size === 0 }">
+          <label for="show-only-unlocked" :class="{ 'disabled-label': disabledShowOnlyUnlockedItems }">
             Show only unlocked items
           </label>
         </div>
