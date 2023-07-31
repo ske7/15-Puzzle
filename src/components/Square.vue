@@ -270,7 +270,8 @@ watch(
   justify-content: center;
   align-items: center;
   color: white !important;
-  opacity: 0.8;
+  text-shadow: 0 3px 3px black;
+  opacity: 1;
 }
 .captured {
   background-color: gold !important;
