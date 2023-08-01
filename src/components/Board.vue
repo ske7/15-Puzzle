@@ -11,7 +11,10 @@ const props = defineProps<{ squareSize: number }>();
 
 const baseStore = useBaseStore();
 baseStore.initStore();
-
+if (location.href.toLowerCase().includes('eligibleforcagemode')) {
+  baseStore.eligibleForCageMode = true;
+  baseStore.reset();
+}
 const boardSize = computed(() => {
   return baseStore.boardSize(props.squareSize);
 });

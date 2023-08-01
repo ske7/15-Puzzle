@@ -235,11 +235,13 @@ watch(
 }
 @keyframes bounce-in2 {
   0% {
-    transform: scale(1.05);
+    filter: brightness(90%) contrast(90%);
+  }
+  50% {
+    filter: brightness(110%) contrast(110%);
   }
   100% {
-    transform: scale(1);
-    filter: brightness(110%);
+    filter: brightness(100%) contrast(100%);
   }
 }
 .square {

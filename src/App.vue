@@ -80,10 +80,6 @@ watch(isDoneAll, (value) => {
   }
 }, { immediate: true }
 );
-
-if (location.href.toLowerCase().includes('eligibleforcagemode')) {
-  baseStore.eligibleForCageMode = true;
-}
 </script>
 
 <template>
