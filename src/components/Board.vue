@@ -11,7 +11,8 @@ const props = defineProps<{ squareSize: number }>();
 
 const baseStore = useBaseStore();
 baseStore.initStore();
-if (location.href.toLowerCase().includes('eligibleforcagemode')) {
+if (!(baseStore.disableCageMode || baseStore.marathonMode) &&
+location.href.toLowerCase().includes('eligibleforcagemode')) {
   baseStore.eligibleForCageMode = true;
   baseStore.reset();
 }

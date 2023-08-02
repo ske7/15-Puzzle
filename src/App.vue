@@ -57,25 +57,43 @@ watch(visibility, (value) => {
 
 watch(isDoneAll, (value) => {
   if (value) {
-    baseStore.stopInterval();
-    if (
-      baseStore.movesCount > 0 &&
-      (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord)
-    ) {
-      baseStore.setMovesRecord(baseStore.movesCount);
-    }
-    if (baseStore.time > 0 && (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord)) {
-      baseStore.setTimeRecord(baseStore.time);
-    }
-    if (!baseStore.disableCageMode && baseStore.time > 0 && baseStore.time < 60) {
-      baseStore.eligibleForCageMode = true;
-    }
-    if (baseStore.cageMode) {
-      baseStore.actualOrders[baseStore.mixedOrders.findIndex((x) => x === 0)] = baseStore.arrayLength - 1;
-      baseStore.setUnlockedCages();
-    }
-    if (!baseStore.disableWinMessage) {
-      baseStore.showWinModal = true;
+    if (baseStore.marathonMode) {
+      baseStore.solvedPuzzlesInMarathon += 1;
+      if (baseStore.solvedPuzzlesInMarathon === 5) {
+        baseStore.stopInterval();
+        if (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord) {
+          baseStore.setMovesRecord(baseStore.movesCount);
+        }
+        if (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord) {
+          baseStore.setTimeRecord(baseStore.time);
+        }
+        if (!baseStore.disableWinMessage) {
+          baseStore.showWinModal = true;
+        }
+      } else {
+        baseStore.renewPuzzle();
+      }
+    } else {
+      baseStore.stopInterval();
+      if (
+        baseStore.movesCount > 0 &&
+        (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord)
+      ) {
+        baseStore.setMovesRecord(baseStore.movesCount);
+      }
+      if (baseStore.time > 0 && (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord)) {
+        baseStore.setTimeRecord(baseStore.time);
+      }
+      if (!baseStore.disableCageMode && baseStore.time > 0 && baseStore.time < 60) {
+        baseStore.eligibleForCageMode = true;
+      }
+      if (baseStore.cageMode) {
+        baseStore.actualOrders[baseStore.mixedOrders.findIndex((x) => x === 0)] = baseStore.arrayLength - 1;
+        baseStore.setUnlockedCages();
+      }
+      if (!baseStore.disableWinMessage) {
+        baseStore.showWinModal = true;
+      }
     }
   }
 }, { immediate: true }

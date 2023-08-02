@@ -29,11 +29,11 @@ const reset = (): void => {
   baseStore.reset();
   baseStore.restartInterval();
 };
-const doShowConfirm = (): void => {
+const doShowConfirm = (noAsk = false): void => {
   if (!baseStore.afterDoneAnimationEnd) {
     return;
   }
-  if (baseStore.isDone || baseStore.time < 10 && baseStore.movesCount < 10) {
+  if (noAsk || baseStore.isDone || baseStore.time < 10 && baseStore.movesCount < 10) {
     reset();
     return;
   }
@@ -99,7 +99,7 @@ const closeImageGallery = (): void => {
 const eventBus = useEventBus<string>('event-bus');
 const listener = (event: string): void => {
   if (event === 'restart') {
-    doShowConfirm();
+    doShowConfirm(true);
   }
 };
 
@@ -109,8 +109,6 @@ const disableButton = computed(() => {
         (baseStore.cageMode && !baseStore.finishLoadingAllCageImages);
 });
 
-baseStore.timeRecord = baseStore.loadTimeRecord();
-baseStore.movesRecord = baseStore.loadMovesRecord();
 baseStore.restartInterval();
 
 onMounted(() => {
@@ -128,7 +126,7 @@ onUnmounted(() => {
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.paused"
-        @click="doShowConfirm"
+        @click="doShowConfirm(false)"
       >
         Restart
       </button>
@@ -158,19 +156,40 @@ onUnmounted(() => {
       </button>
     </div>
     <div class="tool-items records consolas">
-      <span>Your record:</span>
-      <span class="ml-5 italic" :class="{ red: baseStore.newTimeRecord }">
-        {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecord }}
-      </span>s&nbsp;/&nbsp;
-      <span class="italic" :class="{ red: baseStore.newMovesRecord }">
+      <div v-if="baseStore.marathonMode">
+        <span>Your marathon record:</span>
+        <span v-if="!baseStore.waitForUpdate">
+          <span class="ml-5 italic" :class="{ red: baseStore.newTimeRecord }">
+            {{ baseStore.timeRecord === 0 ? '?' :
+              `${baseStore.timeRecordMinutes}:${baseStore.timeRecordSeconds}` }}
+          </span>&nbsp;/&nbsp;
+        </span>
+      </div>
+      <div v-else>
+        <span>Your record:</span>
+        <span v-if="!baseStore.waitForUpdate">
+          <span class="ml-5 italic" :class="{ red: baseStore.newTimeRecord }">
+            {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecord }}
+          </span>s&nbsp;/&nbsp;
+        </span>
+      </div>
+      <span v-if="!baseStore.waitForUpdate" class="italic" :class="{ red: baseStore.newMovesRecord }">
         {{ baseStore.movesRecord || '?' }}
-      </span>&nbsp;<span>moves</span>
+      </span>&nbsp;<span v-if="!baseStore.waitForUpdate">moves</span>
     </div>
-    <div v-if="!baseStore.disableCageMode" class="tool-items records consolas">
+    <div v-if="!(baseStore.disableCageMode || baseStore.marathonMode)" class="tool-items records consolas">
       <span :class="{ paused: baseStore.paused }">
         <span class="unlocked" @click="showImageGallery">Completed</span>  <span class="italic">
           {{ baseStore.unlockedCages.size }}
         </span> out of {{ baseStore.cagesCount }} "Cages"
+      </span>
+    </div>
+    <div v-if="baseStore.marathonMode" class="tool-items records consolas">
+      <span>
+        Solved
+        <span class="italic">
+          {{ baseStore.solvedPuzzlesInMarathon }}
+        </span> out of 5 puzzles
       </span>
     </div>
   </div>

@@ -37,6 +37,13 @@ const setFasterSliding = (): void => {
   baseStore.fasterSliding = !baseStore.fasterSliding;
   localStorage.setItem('fasterSliding', baseStore.fasterSliding.toString());
 };
+const setMarathonMode = (): void => {
+  baseStore.waitForUpdate = true;
+  baseStore.marathonMode = !baseStore.marathonMode;
+  localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
+  baseStore.eligibleForCageMode = false;
+  eventBus.emit('restart');
+};
 </script>
 
 <template>
@@ -51,21 +58,22 @@ const setFasterSliding = (): void => {
             id="disable-cage-mode"
             type="checkbox"
             name="disable-cage-mode"
+            :disabled="baseStore.marathonMode"
             :checked="baseStore.disableCageMode"
             @change="setDisableCageMode"
           >
-          <label for="disable-cage-mode">Disable Cage Mode</label>
+          <label for="disable-cage-mode" :class="{ 'disabled-label': baseStore.marathonMode }">Disable Cage Mode</label>
         </div>
         <div class="option">
           <input
             id="hardcore"
             type="checkbox"
             name="hardcore"
-            :disabled="baseStore.disableCageMode"
+            :disabled="baseStore.disableCageMode || baseStore.marathonMode"
             :checked="baseStore.cageHardcoreMode"
             @change="setCageHardcoreMode"
           >
-          <label for="hardcore" :class="{ 'disabled-label': baseStore.disableCageMode }">
+          <label for="hardcore" :class="{ 'disabled-label': baseStore.disableCageMode || baseStore.marathonMode }">
             Cage Hardcore Mode
           </label>
         </div>
@@ -74,11 +82,14 @@ const setFasterSliding = (): void => {
             id="no-borders-in-cage-mode"
             type="checkbox"
             name="no-borders-in-cage-mode"
-            :disabled="baseStore.disableCageMode"
+            :disabled="baseStore.disableCageMode || baseStore.marathonMode"
             :checked="baseStore.noBordersInCageMode"
             @change="setNoBordersInCageMode"
           >
-          <label for="no-borders-in-cage-mode" :class="{ 'disabled-label': baseStore.disableCageMode }">
+          <label
+            for="no-borders-in-cage-mode"
+            :class="{ 'disabled-label': baseStore.disableCageMode || baseStore.marathonMode }"
+          >
             No Borders In Cage Mode
           </label>
         </div>
@@ -104,6 +115,18 @@ const setFasterSliding = (): void => {
           >
           <label for="faster-sliding">
             Fast Blocks Moving
+          </label>
+        </div>
+        <div class="option">
+          <input
+            id="marathon-mode"
+            type="checkbox"
+            name="marathon-mode"
+            :checked="baseStore.marathonMode"
+            @change="setMarathonMode"
+          >
+          <label for="marathon-mode">
+            Marathon Mode
           </label>
         </div>
       </div>

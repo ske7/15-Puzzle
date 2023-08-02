@@ -42,7 +42,10 @@ export const useBaseStore = defineStore('base', {
     showOnlyUnlockedItems: localStorage.getItem('showOnlyUnlockedItems') === 'true',
     preloadedImages: [] as PreloadedImage[],
     noBordersInCageMode: localStorage.getItem('noBordersInCageMode') === 'true',
-    fasterSliding: localStorage.getItem('fasterSliding') === 'true'
+    fasterSliding: localStorage.getItem('fasterSliding') === 'true',
+    marathonMode: localStorage.getItem('marathonMode') === 'true',
+    solvedPuzzlesInMarathon: 0,
+    waitForUpdate: false
   }),
   actions: {
     initStore() {
@@ -54,9 +57,18 @@ export const useBaseStore = defineStore('base', {
       this.freeElement = 0;
       this.time = 0;
       this.movesCount = 0;
+      this.solvedPuzzlesInMarathon = 0;
       this.newMovesRecord = false;
       this.newTimeRecord = false;
+      this.setRecords();
       this.afterDoneCount = 0;
+      this.renewPuzzle();
+      this.doResetList = false;
+      this.doneFirstMove = false;
+      this.cageImageLoadedCount = 0;
+      this.waitForUpdate = false;
+    },
+    renewPuzzle() {
       this.actualOrders = generate(this.arrayLength);
       let solvable = this.mixAndCheckSolvable();
       while (!solvable) {
@@ -64,9 +76,6 @@ export const useBaseStore = defineStore('base', {
       }
       this.freeElement = this.actualOrders[this.mixedOrders.findIndex((x) => x === 0)];
       this.actualOrders[this.mixedOrders.findIndex((x) => x === 0)] = -1;
-      this.doResetList = false;
-      this.doneFirstMove = false;
-      this.cageImageLoadedCount = 0;
     },
     mixAndCheckSolvable() {
       this.mixedOrders = generateAndShuffle(this.arrayLength);
@@ -143,7 +152,7 @@ export const useBaseStore = defineStore('base', {
       this.timeRecord = timeRecord;
       const xt = btoa(`${Math.random().toString().slice(-4) +
         (timeRecord).toString().padStart(4, '0')}hey7`);
-      localStorage.setItem('timeRecord', xt);
+      localStorage.setItem(this.marathonMode ? 'timeMRecord' : 'timeRecord', xt);
       if (!onlySetToStorage) {
         this.newTimeRecord = true;
       }
@@ -152,21 +161,21 @@ export const useBaseStore = defineStore('base', {
       this.movesRecord = movesRecord;
       const xm = btoa(`${Math.random().toString().slice(-4) +
         (movesRecord).toString().padStart(4, '0')}hey9`);
-      localStorage.setItem('movesRecord', xm);
+      localStorage.setItem(this.marathonMode ? 'movesMRecord' : 'movesRecord', xm);
       if (!onlySetToStorage) {
         this.newMovesRecord = true;
       }
     },
     loadRecordFromLocalStorage(recordName: string, codeWord: string) {
       const lsItem = localStorage.getItem(recordName);
-      if (!isNaN(Number(lsItem)) && new Date() < new Date('2023-07-25')) {
-        this.setTimeRecord(Number(lsItem), true);
-        return Number(lsItem);
-      }
       if (lsItem !== null) {
         const decoded = atob(lsItem);
         if (!decoded.endsWith(codeWord)) {
-          this.setTimeRecord(0, true);
+          if (recordName.includes('time')) {
+            this.setTimeRecord(0, true);
+          } else {
+            this.setMovesRecord(0, true);
+          }
           return 0;
         }
         return Number(decoded.slice(4, 8));
@@ -175,17 +184,21 @@ export const useBaseStore = defineStore('base', {
     },
     loadTimeRecord() {
       try {
-        return this.loadRecordFromLocalStorage('timeRecord', 'hey7');
+        return this.loadRecordFromLocalStorage(this.marathonMode ? 'timeMRecord' : 'timeRecord', 'hey7');
       } catch {
         return 0;
       }
     },
     loadMovesRecord() {
       try {
-        return this.loadRecordFromLocalStorage('movesRecord', 'hey9');
+        return this.loadRecordFromLocalStorage(this.marathonMode ? 'movesMRecord' : 'movesRecord', 'hey9');
       } catch {
         return 0;
       }
+    },
+    setRecords() {
+      this.timeRecord = this.loadTimeRecord();
+      this.movesRecord = this.loadMovesRecord();
     },
     preloadImage(item: string, isPlaceholder = false) {
       const img = new Image();
@@ -230,6 +243,21 @@ export const useBaseStore = defineStore('base', {
     },
     seconds(): number {
       return this.time;
+    },
+    mMinutes(): number {
+      return Math.floor(this.time / 60);
+    },
+    mSeconds(): string {
+      return (this.time % 60).toString().padStart(2, '0');
+    },
+    timeMRecord(): string {
+      return `${this.timeRecordMinutes}:${this.timeRecordSeconds}`;
+    },
+    timeRecordMinutes(): number {
+      return Math.floor(this.timeRecord / 60);
+    },
+    timeRecordSeconds(): string {
+      return (this.timeRecord % 60).toString().padStart(2, '0');
     },
     showModal(): boolean {
       return this.showConfirm || this.showConfig || this.showInfo ||

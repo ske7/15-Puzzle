@@ -30,11 +30,11 @@ onBeforeUnmount(() => {
   <div ref="winModal" class="win-modal">
     <div class="finish-message">
       <p>Congrats! You've done it. 🏆</p>
-      <p
-        v-if="baseStore.newTimeRecord || baseStore.newMovesRecord"
-        class="unlock-message mb-5 mt-5"
-      >
-        Your new record: <span v-show="baseStore.newTimeRecord">{{ baseStore.timeRecord }}s</span>
+      <p v-if="baseStore.newTimeRecord || baseStore.newMovesRecord" class="unlock-message mb-5 mt-5">
+        Your new record: <span v-show="baseStore.newTimeRecord">
+          <span v-show="!baseStore.marathonMode">{{ baseStore.timeRecord }}s</span>
+          <span v-show="baseStore.marathonMode">{{ baseStore.timeMRecord }}</span>
+        </span>
         <span v-show="baseStore.newMovesRecord && baseStore.newTimeRecord"> / </span>
         <span v-show="baseStore.newMovesRecord">{{ baseStore.movesRecord }} moves</span>
       </p>
