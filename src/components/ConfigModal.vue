@@ -36,6 +36,7 @@ const setDisableWinMessage = (): void => {
 const setProMode = (): void => {
   baseStore.proMode = !baseStore.proMode;
   localStorage.setItem('proMode', baseStore.proMode.toString());
+  localStorage.setItem('fasterSliding', baseStore.proMode.toString());
   baseStore.setSpaceBetween();
   eventBus.emit('restart');
 };
