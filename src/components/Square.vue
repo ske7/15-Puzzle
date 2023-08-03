@@ -136,6 +136,9 @@ const moveByMouse = (): void => {
 };
 
 const getCursor = computed(() => {
+  if (baseStore.proMode) {
+    return;
+  }
   if (cannotMove.value) {
     return 'auto';
   } else {
@@ -209,7 +212,7 @@ watch(
     @click="move"
     @mousemove="moveByMouse"
   >
-    <div class="item" :style="{cursor: getCursor }">
+    <div class="item" :style="{ cursor: getCursor }">
       <img
         v-if="baseStore.cageMode"
         :src="loadedImg"

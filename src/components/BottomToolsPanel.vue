@@ -32,7 +32,7 @@ const doShowConfirm = (noAsk = false): void => {
   if (!baseStore.afterDoneAnimationEnd) {
     return;
   }
-  if (noAsk || baseStore.isDone || baseStore.seconds < 10 && baseStore.movesCount < 10) {
+  if (baseStore.proMode || noAsk || baseStore.isDone || baseStore.seconds < 10 && baseStore.movesCount < 10) {
     reset();
     return;
   }

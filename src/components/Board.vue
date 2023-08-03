@@ -27,6 +27,12 @@ const borderRadiusVar = computed(() => {
   }
   return '8px';
 });
+const boxShadow = computed(() => {
+  if (baseStore.proMode) {
+    return 'none';
+  }
+  return 'rgba(0, 0, 0, 0.3) 0px 5px 15px';
+});
 const cageCompleteImgLoaded = ref(false);
 const cageCompleteImg = computed(() => {
   return `/cages/${baseStore.cagePath}/complete.jpg`;
@@ -203,7 +209,7 @@ watch(disableCageMode, async () => {
   display: flex;
   width: v-bind(boardSize);
   height: v-bind(boardSize);
-  box-shadow: rgba(0, 0, 0, 0.3) 0px 5px 15px;
+  box-shadow: v-bind(boxShadow);
   background-color: white;
   border-radius: v-bind(borderRadiusVar);
   align-content: center;
