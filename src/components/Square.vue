@@ -34,9 +34,36 @@ const blockTransition = computed(() => {
 });
 const bgColor = computed(() => {
   if (baseStore.proMode) {
+    if (baseStore.proPalette) {
+      if ([1, 2, 3, 4].includes(props.mixedOrder)) {
+        return '#ff6767';
+      } else if ([5, 9, 13].includes(props.mixedOrder)) {
+        return '#fff054';
+      } else if ([6, 7, 8].includes(props.mixedOrder)) {
+        return '#7eff64';
+      } else if ([10, 14].includes(props.mixedOrder)) {
+        return '#7effde';
+      } else if ([11, 12].includes(props.mixedOrder)) {
+        return '#8eb3fe';
+      } else if ([15].includes(props.mixedOrder)) {
+        return '#cd88fe';
+      }
+    }
     return '#d2d2d2';
   }
   return 'beige';
+});
+const fontSizeD = computed(() => {
+  if (baseStore.proMode) {
+    return '39px';
+  }
+  return '21px';
+});
+const fontSizeM = computed(() => {
+  if (baseStore.proMode) {
+    return '23px';
+  }
+  return '19px';
 });
 const inPlaceColor = computed(() => {
   if (baseStore.proMode) {
@@ -226,8 +253,8 @@ watch(
     class="square"
     :class="{
       free: props.mixedOrder === 0 && !(baseStore.cageMode && isDoneAll),
-      'in-place': isSquareInPlace && !baseStore.processingReInit,
-      captured: isCaptured,
+      'in-place': isSquareInPlace && !baseStore.processingReInit && !baseStore.proPalette,
+      captured: isCaptured && !baseStore.proPalette,
       'animate': isNoBorder,
       'no-border': isNoBorder ||
         (baseStore.cageMode && baseStore.noBordersInCageMode) || baseStore.proMode
@@ -354,13 +381,14 @@ watch(
   align-items: center;
 }
 .item span {
-  font-size: 21px;
+  font-size: v-bind(fontSizeD);
   font-weight: 600;
   color: #0a0a23;
+  font-family: 'consolas';
 }
 @media screen and (max-width: 401px) {
   .item span {
-    font-size: 19px;
+    font-size: v-bind(fontSizeM);
   }
 }
 </style>

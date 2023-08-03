@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
 
@@ -11,6 +11,9 @@ const configModal = ref<HTMLElement>();
 onClickOutside(configModal, (event) => {
   event.stopPropagation();
   emit('close');
+});
+const disabledCageMode = computed(() => {
+  return baseStore.disableCageMode || baseStore.marathonMode || baseStore.proMode;
 });
 
 const setDisableCageMode = (): void => {
@@ -40,6 +43,10 @@ const setProMode = (): void => {
   baseStore.setSpaceBetween();
   eventBus.emit('restart');
 };
+const setProPalette = (): void => {
+  baseStore.proPalette = !baseStore.proPalette;
+  localStorage.setItem('proPalette', baseStore.proPalette.toString());
+};
 const setMarathonMode = (): void => {
   baseStore.waitForUpdate = true;
   baseStore.marathonMode = !baseStore.marathonMode;
@@ -61,22 +68,24 @@ const setMarathonMode = (): void => {
             id="disable-cage-mode"
             type="checkbox"
             name="disable-cage-mode"
-            :disabled="baseStore.marathonMode"
+            :disabled="baseStore.marathonMode || baseStore.proMode"
             :checked="baseStore.disableCageMode"
             @change="setDisableCageMode"
           >
-          <label for="disable-cage-mode" :class="{ 'disabled-label': baseStore.marathonMode }">Disable Cage Mode</label>
+          <label for="disable-cage-mode" :class="{ 'disabled-label': baseStore.marathonMode || baseStore.proMode }">
+            Disable Cage Mode
+          </label>
         </div>
         <div class="option">
           <input
             id="hardcore"
             type="checkbox"
             name="hardcore"
-            :disabled="baseStore.disableCageMode || baseStore.marathonMode"
+            :disabled="disabledCageMode"
             :checked="baseStore.cageHardcoreMode"
             @change="setCageHardcoreMode"
           >
-          <label for="hardcore" :class="{ 'disabled-label': baseStore.disableCageMode || baseStore.marathonMode }">
+          <label for="hardcore" :class="{ 'disabled-label': disabledCageMode }">
             Cage Hardcore Mode
           </label>
         </div>
@@ -85,14 +94,11 @@ const setMarathonMode = (): void => {
             id="no-borders-in-cage-mode"
             type="checkbox"
             name="no-borders-in-cage-mode"
-            :disabled="baseStore.disableCageMode || baseStore.marathonMode"
+            :disabled="disabledCageMode"
             :checked="baseStore.noBordersInCageMode"
             @change="setNoBordersInCageMode"
           >
-          <label
-            for="no-borders-in-cage-mode"
-            :class="{ 'disabled-label': baseStore.disableCageMode || baseStore.marathonMode }"
-          >
+          <label for="no-borders-in-cage-mode" :class="{ 'disabled-label': disabledCageMode }">
             No Borders In Cage Mode
           </label>
         </div>
@@ -110,14 +116,27 @@ const setMarathonMode = (): void => {
         </div>
         <div class="option">
           <input
-            id="faster-sliding"
+            id="pro-mode"
             type="checkbox"
-            name="faster-sliding"
+            name="pro-mode"
             :checked="baseStore.proMode"
             @change="setProMode"
           >
-          <label for="faster-sliding">
-            Pro Mode
+          <label for="pro-mode">
+            Pro Mode (speed sliding)
+          </label>
+        </div>
+        <div class="option">
+          <input
+            id="pro-palette"
+            type="checkbox"
+            name="pro-palette"
+            :disabled="!baseStore.proMode"
+            :checked="baseStore.proPalette"
+            @change="setProPalette"
+          >
+          <label for="pro-palette" :class="{ 'disabled-label': !baseStore.proMode }">
+            Pro Palette
           </label>
         </div>
         <div class="option">
@@ -153,7 +172,7 @@ const setMarathonMode = (): void => {
   width: 280px;
   position: fixed;
   z-index: 2000;
-  top: calc(50% - 185px);
+  top: calc(50% - 210px);
   left: calc(50% - 140px);
   padding: 20px;
   box-shadow: 0 8px 16px gray;

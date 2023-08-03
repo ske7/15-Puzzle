@@ -50,7 +50,8 @@ export const useBaseStore = defineStore('base', {
     solvedPuzzlesInMarathon: 0,
     waitForUpdate: false,
     startTime: 0,
-    savedTime: 0
+    savedTime: 0,
+    proPalette: localStorage.getItem('proPalette') === 'true'
   }),
   actions: {
     initStore() {
