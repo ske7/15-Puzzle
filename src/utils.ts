@@ -59,3 +59,15 @@ export function randArrayItem(array: readonly string[], af: readonly string[]): 
   const a = array.filter(n => !af.includes(n));
   return a[Math.floor(Math.random() * a.length)];
 }
+
+export function getElementCol(el: number, numLines: number): number {
+  const c = (el + 1) % numLines;
+  if (c === 0) {
+    return numLines;
+  }
+  return c;
+}
+
+export function getElementRow(el: number, numLines: number): number {
+  return Math.ceil((el + 1) / numLines);
+}

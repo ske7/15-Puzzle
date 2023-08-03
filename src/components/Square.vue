@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { Direction } from '../stores/const';
 import { storeToRefs } from 'pinia';
+import { getElementCol, getElementRow, getArrayKeyByValue } from '../utils';
 
 const props = defineProps<{
   squareSize: number;
@@ -72,23 +73,24 @@ const isDoneAll = computed(() => {
   return baseStore.isDone;
 });
 
+const elementCol = computed(() => {
+  return getElementCol(actualOrder.value, baseStore.numLines);
+});
+const elementRow = computed(() => {
+  return getElementRow(actualOrder.value, baseStore.numLines);
+});
+
 const canMoveRight = computed(() => {
-  return (
-    actualOrder.value + 1 === baseStore.freeElement &&
-    (actualOrder.value + 1) % baseStore.numLines !== 0
-  );
+  return baseStore.freeElementRow === elementRow.value && baseStore.freeElement > actualOrder.value;
 });
 const canMoveLeft = computed(() => {
-  return (
-    actualOrder.value - 1 === baseStore.freeElement &&
-    actualOrder.value % baseStore.numLines !== 0
-  );
+  return baseStore.freeElementRow === elementRow.value && baseStore.freeElement < actualOrder.value;
 });
 const canMoveUp = computed(() => {
-  return actualOrder.value - baseStore.numLines === baseStore.freeElement;
+  return baseStore.freeElementCol === elementCol.value && baseStore.freeElement < actualOrder.value;
 });
 const canMoveDown = computed(() => {
-  return actualOrder.value + baseStore.numLines === baseStore.freeElement;
+  return baseStore.freeElementCol === elementCol.value && baseStore.freeElement > actualOrder.value;
 });
 const moveDirection = computed(() => {
   if (canMoveRight.value) {
@@ -125,7 +127,34 @@ const move = (): void => {
   if (cannotMove.value) {
     return;
   }
-  baseStore.saveActualOrder(props.order, moveDirection.value);
+  let diff = Math.abs(baseStore.freeElement - actualOrder.value);
+  if ([Direction.Up, Direction.Down].includes(moveDirection.value)) {
+    diff = diff / baseStore.numLines;
+  }
+  if (diff > 1) {
+    let newFreeElement = 0;
+    for (let i = 0; i < diff; i++) {
+      switch (moveDirection.value) {
+        case Direction.Right:
+          newFreeElement = baseStore.freeElement - 1;
+          break;
+        case Direction.Left:
+          newFreeElement = baseStore.freeElement + 1;
+          break;
+        case Direction.Down:
+          newFreeElement = baseStore.freeElement - baseStore.numLines;
+          break;
+        case Direction.Up:
+          newFreeElement = baseStore.freeElement + baseStore.numLines;
+          break;
+        default:
+      }
+      baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
+        moveDirection.value);
+    }
+  } else {
+    baseStore.saveActualOrder(props.order, moveDirection.value);
+  }
 };
 
 const moveByMouse = (): void => {

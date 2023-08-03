@@ -1,5 +1,8 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { generateAndShuffle, generate, isSolvable } from '../utils';
+import {
+  generateAndShuffle, generate, isSolvable,
+  getElementCol, getElementRow
+} from '../utils';
 import {
   CORE_NUM, SPACE_BETWEEN_SQUARES,
   CAGES_PATH_ARR, Direction, type PreloadedImage
@@ -301,6 +304,12 @@ export const useBaseStore = defineStore('base', {
       return CAGES_PATH_ARR.filter((_item, index) => {
         return this.unlockedCages.has(index);
       });
+    },
+    freeElementCol(): number {
+      return getElementCol(this.freeElement, this.numLines);
+    },
+    freeElementRow(): number {
+      return getElementRow(this.freeElement, this.numLines);
     }
   }
 });
