@@ -26,7 +26,7 @@ const getYear = computed(() => {
         <span>Game instructions</span>
       </p>
       <p class="instruction">
-        Move blocks until they are in regular order. You can play and beat your records of time and moves. Unlock "Cage mode" by solving the puzzle in less than 60 seconds. There are lots of funny Cage images - complete puzzles in "Cage mode" and try to reach them all if you can.
+        <span>Move blocks until they are in regular order. You can play and beat your records of time and moves. Unlock "Cage mode" by solving the puzzle in less than 60 seconds. There are lots of funny Cage images - complete puzzles in "Cage mode" and try to reach them all. Look under "Config" and try advanced modes: Pro and Marathon. For more information about the game, see <a target="_blank" href="https://github.com/ske7/15-Puzzle">here</a>.</span>
       </p>
       <div class="buttons">
         <button type="button" class="tool-button" @click="emit('close')">
@@ -44,7 +44,7 @@ const getYear = computed(() => {
 
 <style scoped>
 .info-modal {
-  --modal-width: 350px;
+  --modal-width: 360px;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -54,7 +54,7 @@ const getYear = computed(() => {
   width: var(--modal-width);
   position: fixed;
   z-index: 2000;
-  top: 165px;
+  top: 140px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
   box-shadow: 0 8px 16px gray;
