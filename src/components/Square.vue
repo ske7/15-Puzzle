@@ -207,7 +207,7 @@ watch(
     @touchend="release"
     @touchmove.prevent
     @click="move"
-    @mouseenter="moveByMouse"
+    @mousemove="moveByMouse"
   >
     <div class="item" :style="{cursor: getCursor }">
       <img
