@@ -154,7 +154,7 @@ onUnmounted(() => {
     </div>
     <div class="tool-items records consolas">
       <div>
-        <span>{{ baseStore.marathonMode ? 'Your marathon record' : 'Your record' }}:</span>
+        <span>{{ baseStore.marathonMode ? 'Marathon record' : 'Your record' }}:</span>
         <span v-if="!baseStore.waitForUpdate">
           <span class="ml-5 italic" :class="{ red: baseStore.newTimeRecord }">
             {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeMRecord }}

@@ -88,7 +88,7 @@ watch(isDoneAll, (value) => {
       if (baseStore.time > 0 && (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord)) {
         baseStore.setTimeRecord(baseStore.time);
       }
-      if (!baseStore.disableCageMode && baseStore.time > 0 && baseStore.time < 60000) {
+      if (!baseStore.disableCageMode && !baseStore.proMode && baseStore.time > 0 && baseStore.time < 60000) {
         baseStore.eligibleForCageMode = true;
       }
       if (baseStore.cageMode) {
