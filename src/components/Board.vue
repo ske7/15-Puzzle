@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, watch, nextTick } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useElementBounding } from '@vueuse/core';
+import { useElementBounding, useEventBus } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { Direction, CAGES_PATH_ARR } from '../stores/const';
 import Square from './Square.vue';
@@ -16,6 +16,7 @@ location.href.toLowerCase().includes('eligibleforcagemode')) {
   baseStore.eligibleForCageMode = true;
   baseStore.reset();
 }
+const eventBus = useEventBus<string>('event-bus');
 const boardSize = computed(() => {
   return baseStore.boardSize(props.squareSize);
 });
@@ -60,6 +61,10 @@ onMounted(() => {
   window.addEventListener('keydown', (event) => {
     event.preventDefault();
     if (baseStore.isDone || baseStore.paused) {
+      return;
+    }
+    if (event.code === 'Space') {
+      eventBus.emit('restart');
       return;
     }
     let newFreeElement: number | null = null;
