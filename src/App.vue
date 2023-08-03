@@ -24,6 +24,9 @@ const squareSize = computed(() => {
   if (baseStore.cageMode) {
     cageAdd = 10;
   }
+  if (baseStore.proMode) {
+    cageAdd = 20;
+  }
   let value = 0;
   if (windowWidth.value <= 370) {
     if (baseStore.cageMode) {
@@ -52,6 +55,7 @@ const cageImgSize = computed(() => {
 watch(visibility, (value) => {
   if (value === 'hidden' && baseStore.time > 0 && !baseStore.isDone) {
     baseStore.paused = true;
+    baseStore.saveTime();
   }
 });
 
@@ -84,7 +88,7 @@ watch(isDoneAll, (value) => {
       if (baseStore.time > 0 && (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord)) {
         baseStore.setTimeRecord(baseStore.time);
       }
-      if (!baseStore.disableCageMode && baseStore.time > 0 && baseStore.time < 60) {
+      if (!baseStore.disableCageMode && baseStore.time > 0 && baseStore.time < 60000) {
         baseStore.eligibleForCageMode = true;
       }
       if (baseStore.cageMode) {

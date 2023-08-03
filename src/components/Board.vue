@@ -22,7 +22,7 @@ const boardSize = computed(() => {
 const container = ref<HTMLElement>();
 const { left, right, top, bottom } = useElementBounding(container);
 const borderRadiusVar = computed(() => {
-  if (baseStore.cageMode) {
+  if (baseStore.cageMode || baseStore.proMode) {
     return '0px';
   }
   return '8px';
@@ -57,7 +57,7 @@ onMounted(() => {
       return;
     }
     let newFreeElement: number | null = null;
-    if (event.code === 'ArrowRight') {
+    if (['ArrowRight', 'KeyD', 'KeyL'].includes(event.code)) {
       newFreeElement = baseStore.freeElement - 1;
       if (newFreeElement >= 0 && (newFreeElement + 1) % baseStore.numLines !== 0) {
         baseStore.saveActualOrder(
@@ -65,7 +65,7 @@ onMounted(() => {
           Direction.Right
         );
       }
-    } else if (event.code === 'ArrowLeft') {
+    } else if (['ArrowLeft', 'KeyA', 'KeyJ'].includes(event.code)) {
       newFreeElement = baseStore.freeElement + 1;
       if (
         newFreeElement < baseStore.arrayLength &&
@@ -76,7 +76,7 @@ onMounted(() => {
           Direction.Left
         );
       }
-    } else if (event.code === 'ArrowUp') {
+    } else if (['ArrowUp', 'KeyW', 'KeyI'].includes(event.code)) {
       newFreeElement = baseStore.freeElement + baseStore.numLines;
       if (newFreeElement < baseStore.arrayLength) {
         baseStore.saveActualOrder(
@@ -84,7 +84,7 @@ onMounted(() => {
           Direction.Up
         );
       }
-    } else if (event.code === 'ArrowDown') {
+    } else if (['ArrowDown', 'KeyS', 'KeyK'].includes(event.code)) {
       newFreeElement = baseStore.freeElement - baseStore.numLines;
       if (newFreeElement >= 0) {
         baseStore.saveActualOrder(

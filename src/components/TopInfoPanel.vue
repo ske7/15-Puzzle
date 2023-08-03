@@ -7,14 +7,8 @@ const baseStore = useBaseStore();
 <template>
   <div class="top-info-panel">
     <div class="tool-items consolas">
-      <template v-if="baseStore.marathonMode">
-        <span>Marathon time</span>
-        <span class="ml-5">{{ baseStore.mMinutes }}:</span><span>{{ baseStore.mSeconds }}</span>
-      </template>
-      <template v-else>
-        <span>Time:</span>
-        <span class="ml-5">{{ baseStore.seconds }}s</span>
-      </template>
+      <span>{{ baseStore.marathonMode ? 'Marathon time' : 'Time' }}:</span>
+      <span v-if="!baseStore.waitForUpdate" class="ml-5">{{ baseStore.seconds }}.{{ baseStore.milliSeconds }}s</span>
     </div>
     <div class="tool-items consolas">
       <span>Moves:</span>

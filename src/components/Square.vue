@@ -20,16 +20,28 @@ const sizeVar = computed(() => {
   return `${props.squareSize}px`;
 });
 const borderRadiusVar = computed(() => {
-  if (baseStore.cageMode && baseStore.finishLoadingAllCageImages) {
+  if (baseStore.cageMode && baseStore.finishLoadingAllCageImages || baseStore.proMode) {
     return '0px';
   }
   return '8px';
 });
 const blockTransition = computed(() => {
-  if (baseStore.fasterSliding) {
-    return 'all 0.1s ease 0s';
+  if (baseStore.proMode) {
+    return 'none';
   }
-  return 'all 0.3s ease 0s';
+  return 'all 0.2s ease 0s';
+});
+const bgColor = computed(() => {
+  if (baseStore.proMode) {
+    return '#d2d2d2';
+  }
+  return 'beige';
+});
+const inPlaceColor = computed(() => {
+  if (baseStore.proMode) {
+    return '#40d9ff';
+  }
+  return '#e0f5fa';
 });
 
 const actualOrder = computed(() => {
@@ -96,7 +108,7 @@ const cannotMove = computed(() => {
 
 const isCaptured = ref(false);
 const capture = (): void => {
-  if (cannotMove.value) {
+  if (cannotMove.value || baseStore.proMode) {
     return;
   }
   isCaptured.value = true;
@@ -114,6 +126,13 @@ const move = (): void => {
     return;
   }
   baseStore.saveActualOrder(props.order, moveDirection.value);
+};
+
+const moveByMouse = (): void => {
+  if (!baseStore.proMode) {
+    return;
+  }
+  move();
 };
 
 const getCursor = computed(() => {
@@ -177,8 +196,9 @@ watch(
       free: props.mixedOrder === 0 && !(baseStore.cageMode && isDoneAll),
       'in-place': isSquareInPlace && !baseStore.processingReInit,
       captured: isCaptured,
-      'no-border-no-shadow': isNoBorder,
-      'no-border': baseStore.cageMode && baseStore.noBordersInCageMode
+      'animate': isNoBorder,
+      'no-border': isNoBorder ||
+        (baseStore.cageMode && baseStore.noBordersInCageMode) || baseStore.proMode
     }"
     :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px` }"
     @mousedown.left="capture"
@@ -187,6 +207,7 @@ watch(
     @touchend="release"
     @touchmove.prevent
     @click="move"
+    @mouseenter="moveByMouse"
   >
     <div class="item" :style="{cursor: getCursor }">
       <img
@@ -251,7 +272,7 @@ watch(
   border: 1px solid rgba(136, 165, 191, 0.3);
   display: flex;
   justify-content: center;
-  background-color: beige;
+  background-color: v-bind(bgColor);
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
@@ -279,11 +300,13 @@ watch(
   background-color: gold !important;
 }
 .in-place {
-  background-color: rgb(224, 245, 250);
+  background-color: v-bind(inPlaceColor);
 }
-.no-border-no-shadow {
+.no-border {
   border: 0px;
   box-shadow: none;
+}
+.animate {
   animation: bounce-in2 0.2s ease;
 }
 .no-border {

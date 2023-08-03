@@ -42,20 +42,19 @@ export const useBaseStore = defineStore('base', {
     showOnlyUnlockedItems: localStorage.getItem('showOnlyUnlockedItems') === 'true',
     preloadedImages: [] as PreloadedImage[],
     noBordersInCageMode: localStorage.getItem('noBordersInCageMode') === 'true',
-    fasterSliding: localStorage.getItem('fasterSliding') === 'true',
+    proMode: localStorage.getItem('fasterSliding') === 'true' || localStorage.getItem('proMode') === 'true',
     marathonMode: localStorage.getItem('marathonMode') === 'true',
     solvedPuzzlesInMarathon: 0,
-    waitForUpdate: false
+    waitForUpdate: false,
+    startTime: 0,
+    savedTime: 0
   }),
   actions: {
     initStore() {
-      if (this.cageMode) {
-        this.spaceBetween = 0;
-      } else {
-        this.spaceBetween = SPACE_BETWEEN_SQUARES;
-      }
+      this.setSpaceBetween();
       this.freeElement = 0;
       this.time = 0;
+      this.savedTime = 0;
       this.movesCount = 0;
       this.solvedPuzzlesInMarathon = 0;
       this.newMovesRecord = false;
@@ -81,35 +80,51 @@ export const useBaseStore = defineStore('base', {
       this.mixedOrders = generateAndShuffle(this.arrayLength);
       return isSolvable(this.mixedOrders);
     },
+    setSpaceBetween() {
+      if (this.cageMode) {
+        this.spaceBetween = 0;
+      } else if (this.proMode) {
+        this.spaceBetween = 2;
+      } else {
+        this.spaceBetween = SPACE_BETWEEN_SQUARES;
+      }
+    },
     incMoves() {
       this.movesCount++;
     },
     reset() {
+      this.stopInterval();
       this.doResetList = true;
     },
     stopInterval() {
       clearInterval(this.interval);
+      this.interval = 0;
     },
     restartInterval() {
-      if (this.interval) {
-        this.stopInterval();
-      }
+      this.startTime = Date.now();
       this.interval = setInterval(() => {
-        if (this.paused || !this.doneFirstMove) {
-          return;
-        }
-        this.time++;
-      }, 1000);
+        this.time = Date.now() - this.startTime + this.savedTime;
+      }, 5);
+    },
+    saveTime() {
+      this.savedTime = this.time;
+      this.stopInterval();
     },
     invertPaused() {
       if (this.showModal || this.cageMode && !this.finishLoadingAllCageImages) {
         return;
       }
       this.paused = !this.paused;
+      if (this.paused) {
+        this.saveTime();
+      }
     },
     saveActualOrder(order: number, moveDirection: Direction) {
       if (!this.doneFirstMove) {
         this.doneFirstMove = true;
+      }
+      if (this.interval === 0) {
+        this.restartInterval();
       }
       const prevOrder = this.actualOrders[order];
       switch (moveDirection) {
@@ -151,7 +166,7 @@ export const useBaseStore = defineStore('base', {
     setTimeRecord(timeRecord: number, onlySetToStorage = false) {
       this.timeRecord = timeRecord;
       const xt = btoa(`${Math.random().toString().slice(-4) +
-        (timeRecord).toString().padStart(4, '0')}hey7`);
+        (timeRecord).toString().padStart(6, '0')}heh7`);
       localStorage.setItem(this.marathonMode ? 'timeMRecord' : 'timeRecord', xt);
       if (!onlySetToStorage) {
         this.newTimeRecord = true;
@@ -160,7 +175,7 @@ export const useBaseStore = defineStore('base', {
     setMovesRecord(movesRecord: number, onlySetToStorage = false) {
       this.movesRecord = movesRecord;
       const xm = btoa(`${Math.random().toString().slice(-4) +
-        (movesRecord).toString().padStart(4, '0')}hey9`);
+        (movesRecord).toString().padStart(6, '0')}heh9`);
       localStorage.setItem(this.marathonMode ? 'movesMRecord' : 'movesRecord', xm);
       if (!onlySetToStorage) {
         this.newMovesRecord = true;
@@ -170,7 +185,8 @@ export const useBaseStore = defineStore('base', {
       const lsItem = localStorage.getItem(recordName);
       if (lsItem !== null) {
         const decoded = atob(lsItem);
-        if (!decoded.endsWith(codeWord)) {
+        const lastPart = decoded.slice(-4);
+        if (lastPart !== codeWord && lastPart.replace('y', 'h') !== codeWord.replace('y', 'h')) {
           if (recordName.includes('time')) {
             this.setTimeRecord(0, true);
           } else {
@@ -178,20 +194,28 @@ export const useBaseStore = defineStore('base', {
           }
           return 0;
         }
-        return Number(decoded.slice(4, 8));
+        if (lastPart.slice(2, -1) === 'h') {
+          return Number(decoded.slice(4, 10));
+        } else {
+          if (recordName.includes('time')) {
+            return Number(decoded.slice(4, 8)) * 1000;
+          } else {
+            return Number(decoded.slice(4, 8));
+          }
+        }
       }
       return 0;
     },
     loadTimeRecord() {
       try {
-        return this.loadRecordFromLocalStorage(this.marathonMode ? 'timeMRecord' : 'timeRecord', 'hey7');
+        return this.loadRecordFromLocalStorage(this.marathonMode ? 'timeMRecord' : 'timeRecord', 'heh7');
       } catch {
         return 0;
       }
     },
     loadMovesRecord() {
       try {
-        return this.loadRecordFromLocalStorage(this.marathonMode ? 'movesMRecord' : 'movesRecord', 'hey9');
+        return this.loadRecordFromLocalStorage(this.marathonMode ? 'movesMRecord' : 'movesRecord', 'heh9');
       } catch {
         return 0;
       }
@@ -242,22 +266,26 @@ export const useBaseStore = defineStore('base', {
       return this.cageImageLoadedCount === this.arrayLength;
     },
     seconds(): number {
-      return this.time;
+      return Math.floor(this.time / 1000);
     },
-    mMinutes(): number {
-      return Math.floor(this.time / 60);
-    },
-    mSeconds(): string {
-      return (this.time % 60).toString().padStart(2, '0');
+    milliSeconds(): string {
+      return (this.time % 1000).toString().padStart(3, '0');
     },
     timeMRecord(): string {
-      return `${this.timeRecordMinutes}:${this.timeRecordSeconds}`;
+      return `${this.timeRecordSeconds}${this.timeRecordMilliSeconds}`;
     },
     timeRecordMinutes(): number {
-      return Math.floor(this.timeRecord / 60);
+      return Math.floor(this.timeRecord / (60 * 1000));
     },
-    timeRecordSeconds(): string {
-      return (this.timeRecord % 60).toString().padStart(2, '0');
+    timeRecordSeconds(): number {
+      return Math.floor(this.timeRecord / 1000);
+    },
+    timeRecordMilliSeconds(): string {
+      const tr = this.timeRecord % 1000;
+      if (tr === 0) {
+        return '';
+      }
+      return `.${tr.toString().padStart(3, '0')}`;
     },
     showModal(): boolean {
       return this.showConfirm || this.showConfig || this.showInfo ||

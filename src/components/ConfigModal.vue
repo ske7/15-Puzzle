@@ -33,9 +33,11 @@ const setDisableWinMessage = (): void => {
   baseStore.disableWinMessage = !baseStore.disableWinMessage;
   localStorage.setItem('disableWinMessage', baseStore.disableWinMessage.toString());
 };
-const setFasterSliding = (): void => {
-  baseStore.fasterSliding = !baseStore.fasterSliding;
-  localStorage.setItem('fasterSliding', baseStore.fasterSliding.toString());
+const setProMode = (): void => {
+  baseStore.proMode = !baseStore.proMode;
+  localStorage.setItem('proMode', baseStore.proMode.toString());
+  baseStore.setSpaceBetween();
+  eventBus.emit('restart');
 };
 const setMarathonMode = (): void => {
   baseStore.waitForUpdate = true;
@@ -110,11 +112,11 @@ const setMarathonMode = (): void => {
             id="faster-sliding"
             type="checkbox"
             name="faster-sliding"
-            :checked="baseStore.fasterSliding"
-            @change="setFasterSliding"
+            :checked="baseStore.proMode"
+            @change="setProMode"
           >
           <label for="faster-sliding">
-            Fast Blocks Moving
+            Pro Mode
           </label>
         </div>
         <div class="option">
@@ -150,7 +152,7 @@ const setMarathonMode = (): void => {
   width: 280px;
   position: fixed;
   z-index: 2000;
-  top: calc(50% - 175px);
+  top: calc(50% - 185px);
   left: calc(50% - 140px);
   padding: 20px;
   box-shadow: 0 8px 16px gray;

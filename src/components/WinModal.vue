@@ -31,10 +31,8 @@ onBeforeUnmount(() => {
     <div class="finish-message">
       <p>Congrats! You've done it. 🏆</p>
       <p v-if="baseStore.newTimeRecord || baseStore.newMovesRecord" class="unlock-message mb-5 mt-5">
-        Your new record: <span v-show="baseStore.newTimeRecord">
-          <span v-show="!baseStore.marathonMode">{{ baseStore.timeRecord }}s</span>
-          <span v-show="baseStore.marathonMode">{{ baseStore.timeMRecord }}</span>
-        </span>
+        Your new record:
+        <span v-show="baseStore.newTimeRecord">{{ baseStore.timeMRecord }}s</span>
         <span v-show="baseStore.newMovesRecord && baseStore.newTimeRecord"> / </span>
         <span v-show="baseStore.newMovesRecord">{{ baseStore.movesRecord }} moves</span>
       </p>
@@ -74,11 +72,11 @@ onBeforeUnmount(() => {
   background-color: white;
   border-radius: 8px;
   height: auto;
-  width: 300px;
+  width: 320px;
   position: fixed;
   z-index: 2000;
-  top: calc(50% - 160px);
-  left: calc(50% - 150px);
+  top: calc(50% - 150px);
+  left: calc(50% - 160px);
   padding: 20px;
   box-shadow: 0 8px 16px gray;
 }

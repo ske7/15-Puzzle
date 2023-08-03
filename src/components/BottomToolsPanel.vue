@@ -27,13 +27,12 @@ const wasPausedBeforeOpenModal = ref(false);
 
 const reset = (): void => {
   baseStore.reset();
-  baseStore.restartInterval();
 };
 const doShowConfirm = (noAsk = false): void => {
   if (!baseStore.afterDoneAnimationEnd) {
     return;
   }
-  if (noAsk || baseStore.isDone || baseStore.time < 10 && baseStore.movesCount < 10) {
+  if (noAsk || baseStore.isDone || baseStore.seconds < 10 && baseStore.movesCount < 10) {
     reset();
     return;
   }
@@ -109,8 +108,6 @@ const disableButton = computed(() => {
         (baseStore.cageMode && !baseStore.finishLoadingAllCageImages);
 });
 
-baseStore.restartInterval();
-
 onMounted(() => {
   eventBus.on(listener);
 });
@@ -156,21 +153,12 @@ onUnmounted(() => {
       </button>
     </div>
     <div class="tool-items records consolas">
-      <div v-if="baseStore.marathonMode">
-        <span>Your marathon record:</span>
+      <div>
+        <span>{{ baseStore.marathonMode ? 'Your marathon record' : 'Your record' }}:</span>
         <span v-if="!baseStore.waitForUpdate">
           <span class="ml-5 italic" :class="{ red: baseStore.newTimeRecord }">
-            {{ baseStore.timeRecord === 0 ? '?' :
-              `${baseStore.timeRecordMinutes}:${baseStore.timeRecordSeconds}` }}
-          </span>&nbsp;/&nbsp;
-        </span>
-      </div>
-      <div v-else>
-        <span>Your record:</span>
-        <span v-if="!baseStore.waitForUpdate">
-          <span class="ml-5 italic" :class="{ red: baseStore.newTimeRecord }">
-            {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeRecord }}
-          </span>s&nbsp;/&nbsp;
+            {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeMRecord }}
+          </span>s/
         </span>
       </div>
       <span v-if="!baseStore.waitForUpdate" class="italic" :class="{ red: baseStore.newMovesRecord }">
