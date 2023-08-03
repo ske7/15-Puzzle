@@ -134,7 +134,7 @@ watch(isDoneAll, (value) => {
 .wrapper {
   display: flex;
   flex-direction: column;
-  padding-top: 40px;
+  padding-top: 20px;
 }
 @media (min-height: 800px), screen and (max-width: 820px) {
   .wrapper {
