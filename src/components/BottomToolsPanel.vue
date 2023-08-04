@@ -130,7 +130,7 @@ onUnmounted(() => {
       <button
         type="button"
         class="tool-button"
-        :disabled="disableButton || !baseStore.doneFirstMove || baseStore.isDone"
+        :disabled="disableButton || !baseStore.doneFirstMove || baseStore.isDone || baseStore.proMode"
         @click="baseStore.invertPaused"
       >
         {{ baseStore.paused && !baseStore.showModal ? 'Resume' : 'Pause' }}
@@ -152,33 +152,35 @@ onUnmounted(() => {
         About
       </button>
     </div>
-    <div class="tool-items records consolas">
-      <div>
-        <span>{{ baseStore.marathonMode ? 'Marathon record' : 'Your record' }}:</span>
-        <span v-if="!baseStore.waitForUpdate">
-          <span class="ml-5 italic" :class="{ red: baseStore.newTimeRecord }">
-            {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeMRecord }}
-          </span>s/
+    <div class="tool-items second-row">
+      <div class="tool-items records consolas">
+        <div>
+          <span>{{ baseStore.marathonMode ? 'Marathon record' : 'Your record' }}:</span>
+          <span v-if="!baseStore.waitForUpdate">
+            <span class="ml-5 italic" :class="{ red: baseStore.newTimeRecord }">
+              {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeMRecord }}
+            </span>s/
+          </span>
+        </div>
+        <span v-if="!baseStore.waitForUpdate" class="italic" :class="{ red: baseStore.newMovesRecord }">
+          {{ baseStore.movesRecord || '?' }}
+        </span>&nbsp;<span v-if="!baseStore.waitForUpdate">moves</span>
+      </div>
+      <div v-if="!(baseStore.disableCageMode || baseStore.marathonMode)" class="tool-items records consolas">
+        <span :class="{ paused: baseStore.paused }">
+          <span class="unlocked" @click="showImageGallery">Completed</span>  <span class="italic">
+            {{ baseStore.unlockedCages.size }}
+          </span> out of {{ baseStore.cagesCount }} "Cages"
         </span>
       </div>
-      <span v-if="!baseStore.waitForUpdate" class="italic" :class="{ red: baseStore.newMovesRecord }">
-        {{ baseStore.movesRecord || '?' }}
-      </span>&nbsp;<span v-if="!baseStore.waitForUpdate">moves</span>
-    </div>
-    <div v-if="!(baseStore.disableCageMode || baseStore.marathonMode)" class="tool-items records consolas">
-      <span :class="{ paused: baseStore.paused }">
-        <span class="unlocked" @click="showImageGallery">Completed</span>  <span class="italic">
-          {{ baseStore.unlockedCages.size }}
-        </span> out of {{ baseStore.cagesCount }} "Cages"
-      </span>
-    </div>
-    <div v-if="baseStore.marathonMode" class="tool-items records consolas">
-      <span>
-        Solved
-        <span class="italic">
-          {{ baseStore.solvedPuzzlesInMarathon }}
-        </span> out of 5 puzzles
-      </span>
+      <div v-if="baseStore.marathonMode" class="tool-items records consolas">
+        <span>
+          Solved
+          <span class="italic">
+            {{ baseStore.solvedPuzzlesInMarathon }}
+          </span> out of 5 puzzles
+        </span>
+      </div>
     </div>
   </div>
   <ConfirmDialog

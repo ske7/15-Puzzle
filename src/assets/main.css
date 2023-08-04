@@ -50,6 +50,12 @@ img[alt] {
   width: 100%;
   justify-content: space-around;
 }
+.tool-items.second-row {
+  display: flex;
+  flex-direction: column;
+  min-height: 60px;
+  align-items: center;
+}
 .tool-button {
   display: flex;
   width: 70px;

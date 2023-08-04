@@ -143,17 +143,22 @@ const capture = (): void => {
   isCaptured.value = true;
 };
 const release = (): void => {
-  if (isDoneAll.value) {
+  if (isDoneAll.value || baseStore.proMode) {
     return;
   }
   isCaptured.value = false;
 };
 
+const isMoving = ref(false);
 const move = (): void => {
   release();
   if (cannotMove.value) {
     return;
   }
+  if (isMoving.value) {
+    return;
+  }
+  isMoving.value = true;
   let diff = Math.abs(baseStore.freeElement - actualOrder.value);
   if ([Direction.Up, Direction.Down].includes(moveDirection.value)) {
     diff = diff / baseStore.numLines;
@@ -182,6 +187,7 @@ const move = (): void => {
   } else {
     baseStore.saveActualOrder(props.order, moveDirection.value);
   }
+  isMoving.value = false;
 };
 
 const moveByMouse = (): void => {
@@ -265,8 +271,7 @@ watch(
     @touchstart.passive="capture"
     @touchend="release"
     @touchmove.prevent
-    @click="move"
-    @mousemove="moveByMouse"
+    @mouseenter.prevent.stop="moveByMouse"
   >
     <div class="item" :style="{ cursor: getCursor }">
       <img

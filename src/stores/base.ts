@@ -89,6 +89,9 @@ export const useBaseStore = defineStore('base', {
         this.spaceBetween = 0;
       } else if (this.proMode) {
         this.spaceBetween = 2;
+        if (this.proPalette) {
+          this.spaceBetween = 0;
+        }
       } else {
         this.spaceBetween = SPACE_BETWEEN_SQUARES;
       }

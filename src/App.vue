@@ -26,6 +26,9 @@ const squareSize = computed(() => {
   }
   if (baseStore.proMode) {
     cageAdd = 20;
+    if (baseStore.proPalette) {
+      cageAdd = 22;
+    }
   }
   let value = 0;
   if (windowWidth.value <= 370) {
@@ -53,7 +56,7 @@ const cageImgSize = computed(() => {
 });
 
 watch(visibility, (value) => {
-  if (value === 'hidden' && baseStore.time > 0 && !baseStore.isDone) {
+  if (!baseStore.proMode && value === 'hidden' && baseStore.time > 0 && !baseStore.isDone) {
     baseStore.paused = true;
     baseStore.saveTime();
   }

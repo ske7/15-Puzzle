@@ -53,18 +53,22 @@ onMounted(() => {
   isMounted.value = true;
 
   baseStore.loadUnlockedCagesFromLocalStorage();
-  baseStore.showSquareNum = false;
-  setTimeout(() => {
+  if (!baseStore.proMode) {
+    baseStore.showSquareNum = false;
+    setTimeout(() => {
+      baseStore.showSquareNum = true;
+    }, 200);
+  } else {
     baseStore.showSquareNum = true;
-  }, 200);
+  }
 
   window.addEventListener('keydown', (event) => {
     event.preventDefault();
-    if (baseStore.isDone || baseStore.paused) {
-      return;
-    }
     if (event.code === 'Space') {
       eventBus.emit('restart');
+      return;
+    }
+    if (baseStore.isDone || baseStore.paused) {
       return;
     }
     let newFreeElement: number | null = null;
@@ -120,7 +124,7 @@ watch(
   (value) => {
     if (value) {
       baseStore.processingReInit = true;
-      baseStore.showSquareNum = false;
+      baseStore.showSquareNum = baseStore.proMode;
       setTimeout(() => {
         if (baseStore.cageMode) {
           baseStore.cageMode = false;
@@ -142,7 +146,7 @@ watch(
         cageCompleteImgLoaded.value = false;
         baseStore.processingReInit = false;
         baseStore.showSquareNum = true;
-      }, 300);
+      }, baseStore.proMode ? 5 : 300);
     }
   },
   { immediate: true, flush: 'post' }
