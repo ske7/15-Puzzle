@@ -7,10 +7,6 @@ import { getElementCol, getElementRow, getArrayKeyByValue } from '../utils';
 
 const props = defineProps<{
   squareSize: number;
-  containerTop: number;
-  containerLeft: number;
-  containerBottom: number;
-  containerRight: number;
   order: number;
   mixedOrder: number;
 }>();
@@ -78,7 +74,6 @@ const actualOrder = computed(() => {
 
 const calculatedLeft = computed(() => {
   return (
-    props.containerLeft +
     actualOrder.value % baseStore.numLines * baseStore.spaceBetween +
     baseStore.spaceBetween +
     props.squareSize * (actualOrder.value % baseStore.numLines)
@@ -86,7 +81,6 @@ const calculatedLeft = computed(() => {
 });
 const calculatedTop = computed(() => {
   return (
-    props.containerTop +
     Math.floor(actualOrder.value / baseStore.numLines) * baseStore.spaceBetween +
     baseStore.spaceBetween +
     props.squareSize * (Math.ceil((actualOrder.value + 1) / baseStore.numLines) - 1)
@@ -259,8 +253,9 @@ watch(
     class="square"
     :class="{
       free: props.mixedOrder === 0 && !(baseStore.cageMode && isDoneAll),
-      'in-place': isSquareInPlace && !baseStore.processingReInit && !baseStore.proPalette,
-      captured: isCaptured && !baseStore.proPalette,
+      'in-place': isSquareInPlace && !baseStore.processingReInit &&
+        !(baseStore.proMode && baseStore.proPalette),
+      captured: isCaptured && !(baseStore.proMode && baseStore.proPalette),
       'animate': isNoBorder,
       'no-border': isNoBorder ||
         (baseStore.cageMode && baseStore.noBordersInCageMode) || baseStore.proMode
@@ -300,7 +295,7 @@ watch(
 
 <style scoped>
 .bounce-enter-active {
-  animation: bounce-in 0.3s ease-in-out;
+  animation: bounce-in 0.1s ease;
 }
 @keyframes bounce-in {
   0% {

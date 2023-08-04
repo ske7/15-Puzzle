@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, watch, nextTick } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useElementBounding, useEventBus } from '@vueuse/core';
+import { useEventBus } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { Direction, CAGES_PATH_ARR } from '../stores/const';
 import Square from './Square.vue';
@@ -11,7 +11,7 @@ const props = defineProps<{ squareSize: number }>();
 
 const baseStore = useBaseStore();
 baseStore.initStore();
-if (!(baseStore.disableCageMode || baseStore.marathonMode) &&
+if (!(baseStore.disableCageMode || baseStore.marathonMode || baseStore.proMode) &&
 location.href.toLowerCase().includes('eligibleforcagemode')) {
   baseStore.eligibleForCageMode = true;
   baseStore.reset();
@@ -21,7 +21,6 @@ const boardSize = computed(() => {
   return baseStore.boardSize(props.squareSize);
 });
 const container = ref<HTMLElement>();
-const { left, right, top, bottom } = useElementBounding(container);
 const borderRadiusVar = computed(() => {
   if (baseStore.cageMode || baseStore.proMode) {
     return '0px';
@@ -51,17 +50,8 @@ const hideWhenCageShowCageCompleteImg = computed(() => {
 const isMounted = ref(false);
 onMounted(() => {
   isMounted.value = true;
-
   baseStore.loadUnlockedCagesFromLocalStorage();
-  if (!baseStore.proMode) {
-    baseStore.showSquareNum = false;
-    setTimeout(() => {
-      baseStore.showSquareNum = true;
-    }, 200);
-  } else {
-    baseStore.showSquareNum = true;
-  }
-
+  baseStore.showSquareNum = true;
   window.addEventListener('keydown', (event) => {
     event.preventDefault();
     if (event.code === 'Space') {
@@ -151,12 +141,6 @@ watch(
   },
   { immediate: true, flush: 'post' }
 );
-
-const { disableCageMode } = storeToRefs(baseStore);
-watch(disableCageMode, async () => {
-  await nextTick();
-  top.value = useElementBounding(container).top.value;
-});
 </script>
 
 <template>
@@ -193,17 +177,11 @@ watch(disableCageMode, async () => {
         </p>
       </div>
     </div>
-    <div
-      v-if="isMounted && !hideWhenCageShowCageCompleteImg"
-    >
+    <div v-if="isMounted && !hideWhenCageShowCageCompleteImg">
       <Square
         v-for="(value, index) in baseStore.mixedOrders"
         :key="index"
         :square-size="squareSize"
-        :container-right="right"
-        :container-bottom="bottom"
-        :container-top="top"
-        :container-left="left"
         :order="index"
         :mixed-order="value"
         :class="{ 'board-veil': baseStore.paused,
@@ -222,6 +200,7 @@ watch(disableCageMode, async () => {
   background-color: white;
   border-radius: v-bind(borderRadiusVar);
   align-content: center;
+  position: relative;
 }
 .board-veil {
   opacity: 0.2;
