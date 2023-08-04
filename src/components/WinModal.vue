@@ -15,7 +15,9 @@ const eventBus = useEventBus<string>('event-bus');
 
 const closeAndRestart = (): void => {
   emit('close');
-  eventBus.emit('restart');
+  if (!baseStore.proMode) {
+    eventBus.emit('restart');
+  }
 };
 
 onMounted(() => {
@@ -50,7 +52,7 @@ onBeforeUnmount(() => {
         class="tool-button"
         @click="closeAndRestart"
       >
-        New Game
+        {{ baseStore.proMode ? 'OK' : 'New Game' }}
       </button>
       <button
         v-if="baseStore.cageMode"
