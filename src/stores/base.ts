@@ -24,7 +24,6 @@ export const useBaseStore = defineStore('base', {
     movesRecord: 0,
     timeRecord: 0,
     doneFirstMove: false,
-    showConfirm: false,
     showSquareNum: false,
     cageMode: false,
     eligibleForCageMode: false,
@@ -295,8 +294,7 @@ export const useBaseStore = defineStore('base', {
       return `.${tr.toString().padStart(3, '0')}`;
     },
     showModal(): boolean {
-      return this.showConfirm || this.showConfig || this.showInfo ||
-        this.showWinModal || this.showImageGallery;
+      return this.showConfig || this.showInfo || this.showWinModal || this.showImageGallery;
     },
     cageImgIndex(): number {
       return CAGES_PATH_ARR.indexOf(this.cagePath.toString());

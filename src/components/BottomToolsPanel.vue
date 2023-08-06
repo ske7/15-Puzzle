@@ -2,10 +2,6 @@
 import { ref, defineAsyncComponent, onMounted, onUnmounted, computed } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
-const ConfirmDialog = defineAsyncComponent({
-  loader: async () => import('../components/ConfirmDialog.vue'),
-  delay: 150
-});
 const ConfigModal = defineAsyncComponent({
   loader: async () => import('../components/ConfigModal.vue'),
   delay: 150
@@ -28,29 +24,11 @@ const wasPausedBeforeOpenModal = ref(false);
 const reset = (): void => {
   baseStore.reset();
 };
-const doShowConfirm = (noAsk = false): void => {
+const doRestart = (): void => {
   if (!baseStore.afterDoneAnimationEnd) {
     return;
   }
-  if (baseStore.proMode || noAsk || baseStore.isDone || baseStore.seconds < 10 && baseStore.movesCount < 10) {
-    reset();
-    return;
-  }
-  wasPausedBeforeOpenModal.value = baseStore.paused;
-  if (!baseStore.paused) {
-    baseStore.invertPaused();
-  }
-  baseStore.showConfirm = true;
-};
-const closeConfirmModal = (): void => {
-  baseStore.showConfirm = false;
-  if (!wasPausedBeforeOpenModal.value) {
-    baseStore.invertPaused();
-  }
-};
-const confirmRestart = (): void => {
   reset();
-  closeConfirmModal();
 };
 const showAboutModal = (): void => {
   wasPausedBeforeOpenModal.value = baseStore.paused;
@@ -98,7 +76,7 @@ const closeImageGallery = (): void => {
 const eventBus = useEventBus<string>('event-bus');
 const listener = (event: string): void => {
   if (event === 'restart') {
-    doShowConfirm(true);
+    doRestart();
   }
 };
 
@@ -123,7 +101,7 @@ onUnmounted(() => {
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.paused"
-        @click="doShowConfirm(false)"
+        @click="doRestart"
       >
         Restart
       </button>
@@ -183,11 +161,6 @@ onUnmounted(() => {
       </div>
     </div>
   </div>
-  <ConfirmDialog
-    v-if="baseStore.showConfirm"
-    @confirm="confirmRestart"
-    @decline="closeConfirmModal"
-  />
   <ConfigModal
     v-if="baseStore.showConfig"
     @close="closeConfigModal"
