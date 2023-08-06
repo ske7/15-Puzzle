@@ -130,22 +130,8 @@ const cannotMove = computed(() => {
 });
 
 const isCaptured = ref(false);
-const capture = (): void => {
-  if (cannotMove.value || baseStore.proMode) {
-    return;
-  }
-  isCaptured.value = true;
-};
-const release = (): void => {
-  if (isDoneAll.value || baseStore.proMode) {
-    return;
-  }
-  isCaptured.value = false;
-};
-
 const isMoving = ref(false);
 const move = (): void => {
-  release();
   if (cannotMove.value) {
     return;
   }
@@ -261,12 +247,9 @@ watch(
         (baseStore.cageMode && baseStore.noBordersInCageMode) || baseStore.proMode
     }"
     :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px` }"
-    @mousedown.left="capture"
-    @mouseout.left="release"
-    @touchstart.passive="capture"
-    @touchend="release"
+    @mousedown.left="move"
+    @touchstart.prevent="move"
     @touchmove.prevent
-    @click="move"
     @mousemove="moveByMouse"
   >
     <div class="item" :style="{ cursor: getCursor }">
