@@ -77,10 +77,16 @@ onBeforeUnmount(() => {
   width: 320px;
   position: fixed;
   z-index: 2000;
-  top: calc(50% - 150px);
+  top: calc(50% - 140px);
   left: calc(50% - 160px);
   padding: 20px;
   box-shadow: 0 8px 16px gray;
+}
+@media screen and (max-width: 360px) {
+  .win-modal {
+    width: 300px;
+    left: calc(50% - 150px);
+  }
 }
 .finish-message {
   display: flex;
