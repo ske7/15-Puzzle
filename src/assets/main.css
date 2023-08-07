@@ -33,6 +33,7 @@ img[alt] {
   justify-content: space-between;
   align-items: flex-end;
   position: relative;
+  color: navy;
 }
 .bottom-tools-panel {
   display: flex;
@@ -109,11 +110,11 @@ img[alt] {
 .unlocked {
   color: #105d97;
   text-decoration: underline;
-  cursor: pointer;
 }
-.unlocked:hover {
+.unlocked:hover:not(.paused) {
   text-decoration: underline;
   color: navy;
+  cursor: pointer;
 }
 .paused {
   opacity: 0.5;

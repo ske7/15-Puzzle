@@ -54,7 +54,7 @@ onMounted(() => {
   baseStore.showSquareNum = true;
   window.addEventListener('keydown', (event) => {
     event.preventDefault();
-    if (event.code === 'Space') {
+    if (event.code === 'Space' && !baseStore.paused) {
       eventBus.emit('restart');
       return;
     }
@@ -154,7 +154,8 @@ watch(
       @load="onCageCompleteImgLoaded"
     >
     <div
-      v-if="baseStore.paused || (baseStore.cageMode && !baseStore.finishLoadingAllCageImages)"
+      v-if="(baseStore.paused && !baseStore.isDone) ||
+        (baseStore.cageMode && !baseStore.finishLoadingAllCageImages)"
       class="paused-veil"
       :class="{ 'cur-auto': baseStore.showModal ||
         (baseStore.cageMode && !baseStore.finishLoadingAllCageImages) }"
@@ -184,7 +185,7 @@ watch(
         :square-size="squareSize"
         :order="index"
         :mixed-order="value"
-        :class="{ 'board-veil': baseStore.paused,
+        :class="{ 'board-veil': baseStore.paused && !baseStore.isDone,
                   'loading-veil': baseStore.cageMode && !baseStore.finishLoadingAllCageImages }"
       />
     </div>

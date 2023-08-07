@@ -5,7 +5,7 @@ const baseStore = useBaseStore();
 </script>
 
 <template>
-  <div class="top-info-panel" :class="{ paused: baseStore.showModal }">
+  <div class="top-info-panel">
     <div class="tool-items consolas">
       <span>{{ baseStore.marathonMode ? 'Marathon time' : 'Time' }}:</span>
       <span v-if="!baseStore.waitForUpdate" class="ml-5">{{ baseStore.seconds }}.{{ baseStore.milliSeconds }}s</span>

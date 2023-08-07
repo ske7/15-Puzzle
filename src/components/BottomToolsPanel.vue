@@ -57,11 +57,8 @@ const closeConfigModal = (): void => {
   }
 };
 const showImageGallery = (): void => {
-  if (baseStore.paused) {
-    return;
-  }
   wasPausedBeforeOpenModal.value = baseStore.paused;
-  if (!baseStore.isDone) {
+  if (!baseStore.isDone && !wasPausedBeforeOpenModal.value) {
     baseStore.invertPaused();
   }
   baseStore.showImageGallery = true;
@@ -95,7 +92,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="bottom-tools-panel" :class="{ paused: baseStore.paused }">
+  <div class="bottom-tools-panel">
     <div class="tool-items first-row">
       <button
         type="button"
@@ -116,7 +113,7 @@ onUnmounted(() => {
       <button
         type="button"
         class="tool-button"
-        :disabled="disableButton"
+        :disabled="disableButton || baseStore.paused"
         @click="showConfigModal"
       >
         Config
@@ -144,9 +141,14 @@ onUnmounted(() => {
           {{ baseStore.movesRecord || '?' }}
         </span>&nbsp;<span v-if="!baseStore.waitForUpdate">moves</span>
       </div>
-      <div v-if="!(baseStore.disableCageMode || baseStore.marathonMode)" class="tool-items records consolas">
+      <div v-if="!(baseStore.disableCageMode || baseStore.marathonMode || baseStore.proMode)" class="tool-items records consolas">
         <span>
-          <span class="unlocked" @click="showImageGallery">Completed</span>  <span class="italic">
+          <span
+            class="unlocked"
+            :class="{ paused: baseStore.showModal }"
+            @click="showImageGallery"
+          >
+            Completed</span>  <span class="italic">
             {{ baseStore.unlockedCages.size }}
           </span> out of {{ baseStore.cagesCount }} "Cages"
         </span>

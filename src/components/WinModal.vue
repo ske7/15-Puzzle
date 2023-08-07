@@ -77,7 +77,7 @@ onBeforeUnmount(() => {
   width: 320px;
   position: fixed;
   z-index: 2000;
-  top: calc(50% - 140px);
+  top: calc(50% - 160px);
   left: calc(50% - 160px);
   padding: 20px;
   box-shadow: 0 8px 16px gray;
@@ -93,6 +93,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  min-height: 85px;
 }
 .finish-message p {
   font-size: 21px;
