@@ -119,10 +119,6 @@ img[alt] {
 .paused {
   opacity: 0.5;
 }
-.paused .unlocked:hover {
-  color: #105d97;
-  cursor: default;
-}
 @media screen and (min-width: 600px) {
   .tool-button:hover:not([disabled]) {
     background-color: #2db3d525;

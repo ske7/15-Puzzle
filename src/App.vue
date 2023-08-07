@@ -124,12 +124,12 @@ watch(isDoneAll, (value) => {
       <Board :square-size="squareSize" />
     </div>
     <BottomToolsPanel :square-size="squareSize" />
-    <Transition name="modal">
-      <WinModal
-        v-if="baseStore.isDone && baseStore.afterDoneAnimationEnd && baseStore.showWinModal"
-        @close="baseStore.showWinModal = false"
-      />
-    </Transition>
+    <WinModal
+      v-if="baseStore.isDone &&
+        (baseStore.afterDoneAnimationEnd || baseStore.proMode) &&
+        baseStore.showWinModal"
+      @close="baseStore.showWinModal = false"
+    />
   </div>
 </template>
 
@@ -147,16 +147,6 @@ watch(isDoneAll, (value) => {
     height: 100%;
     margin-top: -10%;
   }
-}
-.modal-enter-active {
-  transition: opacity 0.3s ease;
-}
-.modal-leave-active {
-  transition: opacity 0.1s ease;
-}
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
 }
 .board-container {
   display: flex;

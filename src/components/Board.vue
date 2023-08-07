@@ -55,7 +55,7 @@ onMounted(() => {
   window.addEventListener('keydown', (event) => {
     event.preventDefault();
     if (event.code === 'Space' && !baseStore.paused) {
-      eventBus.emit('restart');
+      eventBus.emit('restart', baseStore.showWinModal && baseStore.proMode ? 'fromWinProMode' : '');
       return;
     }
     if (baseStore.isDone || baseStore.paused) {

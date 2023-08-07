@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
 
@@ -15,17 +15,10 @@ const eventBus = useEventBus<string>('event-bus');
 
 const closeAndRestart = (): void => {
   emit('close');
-  if (!baseStore.proMode) {
+  if (!baseStore.cageMode) {
     eventBus.emit('restart');
   }
 };
-
-onMounted(() => {
-  baseStore.paused = true;
-});
-onBeforeUnmount(() => {
-  baseStore.paused = false;
-});
 </script>
 
 <template>
@@ -47,20 +40,11 @@ onBeforeUnmount(() => {
     </div>
     <div class="buttons">
       <button
-        v-if="!baseStore.cageMode"
         type="button"
         class="tool-button"
         @click="closeAndRestart"
       >
-        {{ baseStore.proMode ? 'OK' : 'New Game' }}
-      </button>
-      <button
-        v-if="baseStore.cageMode"
-        type="button"
-        class="tool-button"
-        @click="emit('close')"
-      >
-        OK
+        {{ baseStore.cageMode ? 'OK' : 'New Game' }}
       </button>
     </div>
   </div>
@@ -93,7 +77,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  min-height: 85px;
+  min-height: 42px;
 }
 .finish-message p {
   font-size: 21px;

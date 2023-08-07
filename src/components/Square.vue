@@ -193,6 +193,10 @@ watch(
   isDoneAll,
   (newValue) => {
     if (newValue && props.mixedOrder !== 0) {
+      if (baseStore.proMode) {
+        baseStore.afterDoneCount += 1;
+        return;
+      }
       if (baseStore.cageMode) {
         setTimeout(() => {
           isNoBorder.value = true;
