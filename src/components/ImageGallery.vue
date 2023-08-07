@@ -324,7 +324,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
     --v-width: v-bind(boardSize);
   }
   .image-gallery {
-    top: calc(50% - (var(--v-width) + 137px) / 2);
+    top: calc(50% - (var(--v-width) + 147px) / 2);
   }
 }
 h2 {

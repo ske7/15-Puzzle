@@ -173,7 +173,7 @@ const setMarathonMode = (): void => {
   width: 280px;
   position: fixed;
   z-index: 2000;
-  top: calc(50% - 210px);
+  top: calc(50% - 220px);
   left: calc(50% - 140px);
   padding: 20px;
   box-shadow: 0 8px 16px gray;

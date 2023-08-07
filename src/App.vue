@@ -110,7 +110,7 @@ watch(isDoneAll, (value) => {
 <template>
   <div class="wrapper">
     <div class="header">
-      <h1>15 Puzzle</h1>
+      <h1>15 Puzzle Online</h1>
       <img
         src="./assets/cage.webp"
         alt="Nic.Cage"
@@ -166,9 +166,9 @@ watch(isDoneAll, (value) => {
 }
 .header {
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
-  margin-top: 30px;
+  margin-top: 20px;
   margin-bottom: 15px;
 }
 .header h1 {
@@ -181,7 +181,6 @@ watch(isDoneAll, (value) => {
 .header img {
   width: 48px;
   height: 48px;
-  margin-left: 15px;
   display: flex;
   align-items: center;
   border-radius: 8px;
@@ -191,7 +190,7 @@ watch(isDoneAll, (value) => {
     margin-top: 20px;
   }
   .header h1 {
-    font-size: 32px;
+    font-size: 31px;
     line-height: 36px;
   }
   .header img {

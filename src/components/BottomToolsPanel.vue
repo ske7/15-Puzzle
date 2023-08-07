@@ -145,7 +145,7 @@ onUnmounted(() => {
         </span>&nbsp;<span v-if="!baseStore.waitForUpdate">moves</span>
       </div>
       <div v-if="!(baseStore.disableCageMode || baseStore.marathonMode)" class="tool-items records consolas">
-        <span :class="{ paused: baseStore.paused }">
+        <span>
           <span class="unlocked" @click="showImageGallery">Completed</span>  <span class="italic">
             {{ baseStore.unlockedCages.size }}
           </span> out of {{ baseStore.cagesCount }} "Cages"

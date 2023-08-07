@@ -54,7 +54,7 @@ const getYear = computed(() => {
   width: var(--modal-width);
   position: fixed;
   z-index: 2000;
-  top: 140px;
+  top: 130px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
   box-shadow: 0 8px 16px gray;

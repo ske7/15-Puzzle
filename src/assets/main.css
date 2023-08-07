@@ -115,10 +115,10 @@ img[alt] {
   text-decoration: underline;
   color: navy;
 }
-.paused > .records {
+.paused {
   opacity: 0.5;
 }
-.paused > .unlocked:hover {
+.paused .unlocked:hover {
   color: #105d97;
   cursor: default;
 }
