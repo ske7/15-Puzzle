@@ -24,8 +24,8 @@ const wasPausedBeforeOpenModal = ref(false);
 const reset = (): void => {
   baseStore.reset();
 };
-const doRestart = (): void => {
-  if (!baseStore.afterDoneAnimationEnd) {
+const doRestart = (initRestartPath: string): void => {
+  if (!baseStore.afterDoneAnimationEnd || (baseStore.showModal && initRestartPath !== 'fromConfig')) {
     return;
   }
   reset();
@@ -74,9 +74,9 @@ const closeImageGallery = (): void => {
 };
 
 const eventBus = useEventBus<string>('event-bus');
-const listener = (event: string): void => {
+const listener = (event: string, payload: string): void => {
   if (event === 'restart') {
-    doRestart();
+    doRestart(payload);
   }
 };
 
@@ -101,7 +101,7 @@ onUnmounted(() => {
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.paused"
-        @click="doRestart"
+        @click="doRestart('fromMain')"
       >
         Restart
       </button>

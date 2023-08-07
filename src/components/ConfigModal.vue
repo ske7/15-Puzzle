@@ -21,7 +21,7 @@ const setDisableCageMode = (): void => {
   localStorage.setItem('disableCageMode', baseStore.disableCageMode.toString());
   if (baseStore.cageMode || baseStore.eligibleForCageMode) {
     baseStore.eligibleForCageMode = false;
-    eventBus.emit('restart');
+    eventBus.emit('restart', 'fromConfig');
   }
 };
 const setCageHardcoreMode = (): void => {
@@ -41,7 +41,7 @@ const setProMode = (): void => {
   localStorage.setItem('proMode', baseStore.proMode.toString());
   localStorage.setItem('fasterSliding', baseStore.proMode.toString());
   baseStore.setSpaceBetween();
-  eventBus.emit('restart');
+  eventBus.emit('restart', 'fromConfig');
 };
 const setProPalette = (): void => {
   baseStore.proPalette = !baseStore.proPalette;
@@ -53,7 +53,7 @@ const setMarathonMode = (): void => {
   baseStore.marathonMode = !baseStore.marathonMode;
   localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
   baseStore.eligibleForCageMode = false;
-  eventBus.emit('restart');
+  eventBus.emit('restart', 'fromConfig');
 };
 </script>
 
