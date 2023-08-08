@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onUnmounted } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
 
@@ -19,6 +19,9 @@ const closeAndRestart = (): void => {
     eventBus.emit('restart');
   }
 };
+onUnmounted(() => {
+  baseStore.showWinModal = false;
+});
 </script>
 
 <template>
