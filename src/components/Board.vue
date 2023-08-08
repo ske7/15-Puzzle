@@ -31,7 +31,11 @@ const boxShadow = computed(() => {
   if (baseStore.proMode) {
     return 'none';
   }
-  return 'rgba(0, 0, 0, 0.3) 0px 5px 15px';
+  if (baseStore.darkMode) {
+    return '0 1px 3px var(--board-shadow-color), 0 3px 6px var(--board-shadow-color)';
+  }
+
+  return 'var(--board-shadow-color) 0px 3px 10px';
 });
 const cageCompleteImgLoaded = ref(false);
 const cageCompleteImg = computed(() => {
@@ -198,7 +202,7 @@ watch(
   width: v-bind(boardSize);
   height: v-bind(boardSize);
   box-shadow: v-bind(boxShadow);
-  background-color: white;
+  background-color: var(--background-color);
   border-radius: v-bind(borderRadiusVar);
   align-content: center;
   position: relative;
@@ -221,7 +225,7 @@ watch(
   -webkit-tap-highlight-color: transparent;
 }
 .paused-veil .bigger {
-  color: navy;
+  color: var(--text-color);
   font-size: 56px;
   line-height: 56px;
   padding-bottom: 5px;
@@ -229,7 +233,7 @@ watch(
   text-align: center;
 }
 .paused-veil .smaller {
-  color: navy;
+  color: var(--text-color);
   font-size: 32px;
   font-weight: 500;
   display: block;

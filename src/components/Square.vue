@@ -47,7 +47,7 @@ const bgColor = computed(() => {
     }
     return '#d2d2d2';
   }
-  return 'beige';
+  return 'var(--square-bg-color)';
 });
 const fontSizeD = computed(() => {
   if (baseStore.proMode) {
@@ -65,7 +65,10 @@ const inPlaceColor = computed(() => {
   if (baseStore.proMode) {
     return '#40d9ff';
   }
-  return '#e0f5fa';
+  return 'var(--square-in-place-color)';
+});
+const brightnessImg = computed(() => {
+  return baseStore.darkMode ? 'brightness(110%)' : 'brightness(105%)';
 });
 
 const actualOrder = computed(() => {
@@ -333,6 +336,7 @@ watch(
   width: 100%;
   height: 100%;
   position: relative;
+  filter: v-bind(brightnessImg);
 }
 .item-img-span {
   position: absolute;

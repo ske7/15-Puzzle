@@ -13,6 +13,7 @@ const WinModal = defineAsyncComponent({
 const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
 const visibility = useDocumentVisibility();
+document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');
 
 const isDoneAll = computed(() => {
   return baseStore.isDone;
@@ -134,6 +135,7 @@ watch(isDoneAll, (value) => {
 .wrapper {
   display: flex;
   flex-direction: column;
+  align-items: center;
   padding-top: 20px;
 }
 @media (min-height: 800px), screen and (max-width: 820px) {
@@ -157,6 +159,7 @@ watch(isDoneAll, (value) => {
   align-items: center;
   margin-top: 20px;
   margin-bottom: 15px;
+  width: 100%;
 }
 .header h1 {
   display: flex;

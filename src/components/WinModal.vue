@@ -58,7 +58,8 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   flex-direction: column;
-  background-color: white;
+  background-color: var(--background-modal-color);
+  color: var(--text-color);
   border-radius: 8px;
   height: auto;
   width: 320px;
@@ -67,7 +68,7 @@ onUnmounted(() => {
   top: calc(50% - 160px);
   left: calc(50% - 160px);
   padding: 20px;
-  box-shadow: 0 8px 16px gray;
+  box-shadow: 0 8px 16px var(--shadow-color);
 }
 @media screen and (max-width: 360px) {
   .win-modal {
@@ -86,13 +87,13 @@ onUnmounted(() => {
   font-size: 21px;
   line-height: 32px;
   text-align: center;
-  color: goldenrod;
+  color: var(--win-color);
   font-weight: 600;
 }
 .unlock-message {
   font-size: 16px !important;
   line-height: 25px !important;
-  color: navy !important;
+  color: var(--text-color) !important;
   font-style: italic;
 }
 .unlock-message  span {

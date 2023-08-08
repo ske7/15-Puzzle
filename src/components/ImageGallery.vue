@@ -213,7 +213,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
             height="24"
             viewBox="0 0 24 24"
           >
-            <polygon points="15.293 3.293 6.586 12 15.293 20.707 16.707 19.293 9.414 12 16.707 4.707 15.293 3.293" fill="navy" />
+            <polygon points="15.293 3.293 6.586 12 15.293 20.707 16.707 19.293 9.414 12 16.707 4.707 15.293 3.293" />
           </svg>
         </div>
         <div>Cage {{ getRealIndex + 1 }}</div>
@@ -228,7 +228,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
             height="24"
             viewBox="0 0 24 24"
           >
-            <polygon points="7.293 4.707 14.586 12 7.293 19.293 8.707 20.707 17.414 12 8.707 3.293 7.293 4.707" fill="navy" />
+            <polygon points="7.293 4.707 14.586 12 7.293 19.293 8.707 20.707 17.414 12 8.707 3.293 7.293 4.707" />
           </svg>
         </div>
       </div>
@@ -307,7 +307,8 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
   justify-content: start;
   align-items: center;
   flex-direction: column;
-  background-color: white;
+  background-color: var(--background-modal-color);
+  color: var(--text-color);
   border-radius: 8px;
   height: 100%;
   max-height: calc(var(--v-width) + 137px);
@@ -317,7 +318,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
   top: 40px;
   left: calc(50% - var(--v-width) / 2);
   padding: 10px;
-  box-shadow: 0 8px 16px gray;
+  box-shadow: 0 8px 16px var(--shadow-color);
 }
 @media (min-height: 800px), screen and (max-width: 820px) {
   * {
@@ -331,7 +332,8 @@ h2 {
   display: flex;
   justify-content: center;
   margin-bottom: 5px;
-  color: navy;
+  font-size: 21px;
+  font-weight: 600;
 }
 .controls {
   display: flex;
@@ -409,6 +411,9 @@ h2 {
   .arrow-button:hover, .arrow-button:active {
     scale: 0.8;
   }
+}
+.arrow-button:deep(polygon) {
+  fill: var(--text-color);
 }
 .options {
   margin: 0 auto;

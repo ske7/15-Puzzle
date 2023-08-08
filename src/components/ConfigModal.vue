@@ -32,6 +32,11 @@ const setNoBordersInCageMode = (): void => {
   baseStore.noBordersInCageMode = !baseStore.noBordersInCageMode;
   localStorage.setItem('noBordersInCageMode', baseStore.noBordersInCageMode.toString());
 };
+const setDarkMode = (): void => {
+  baseStore.darkMode = !baseStore.darkMode;
+  localStorage.setItem('darkMode', baseStore.darkMode.toString());
+  document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');
+};
 const setDisableWinMessage = (): void => {
   baseStore.disableWinMessage = !baseStore.disableWinMessage;
   localStorage.setItem('disableWinMessage', baseStore.disableWinMessage.toString());
@@ -104,6 +109,18 @@ const setMarathonMode = (): void => {
         </div>
         <div class="option">
           <input
+            id="dark-mode"
+            type="checkbox"
+            name="dark-mode"
+            :checked="baseStore.darkMode"
+            @change="setDarkMode"
+          >
+          <label for="dark-mode">
+            Dark Mode
+          </label>
+        </div>
+        <div class="option">
+          <input
             id="disable-win-message"
             type="checkbox"
             name="disable-win-message"
@@ -166,7 +183,8 @@ const setMarathonMode = (): void => {
   display: flex;
   justify-content: center;
   flex-direction: column;
-  background-color: white;
+  background-color: var(--background-modal-color);
+  color: var(--text-color);
   border-radius: 8px;
   height: auto;
   width: 280px;
@@ -175,7 +193,7 @@ const setMarathonMode = (): void => {
   top: calc(50% - 220px);
   left: calc(50% - 140px);
   padding: 20px;
-  box-shadow: 0 8px 16px gray;
+  box-shadow: 0 8px 16px var(--shadow-color);
 }
 .info-header {
   text-align: center;
@@ -183,9 +201,8 @@ const setMarathonMode = (): void => {
   margin-top: 5px;
 }
 .info-header span {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 21px;
-  color: navy;
 }
 .options {
   margin: 0 auto;
@@ -198,6 +215,9 @@ const setMarathonMode = (): void => {
   gap: 10px;
   margin-bottom: 15px;
 }
+input[type=checkbox] {
+  margin-top: 1px;
+}
 label {
   display: flex;
   align-items: center;
@@ -207,8 +227,12 @@ label {
 .disabled-label {
   opacity: 0.3;
 }
-input[type=checkbox] {
-  margin-top: 1px;
+.option:hover > label:not(.disabled-label) {
+  opacity: 0.8;
+  cursor: pointer;
+}
+.option:hover > input[type=checkbox]:hover:not(:disabled){
+  cursor: pointer;
 }
 .buttons {
   margin-top: 10px;

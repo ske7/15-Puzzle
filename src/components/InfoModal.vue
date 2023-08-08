@@ -48,16 +48,17 @@ const getYear = computed(() => {
   display: flex;
   justify-content: center;
   flex-direction: column;
-  background-color: white;
+  background-color: var(--background-modal-color);
+  color: var(--text-color);
   border-radius: 8px;
   height: auto;
   width: var(--modal-width);
   position: fixed;
   z-index: 2000;
-  top: 130px;
+  top: 140px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
-  box-shadow: 0 8px 16px gray;
+  box-shadow: 0 8px 16px var(--shadow-color);
 }
 .info-header {
   text-align: center;
@@ -65,9 +66,8 @@ const getYear = computed(() => {
   margin-top: 5px;
 }
 .info-header span {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 21px;
-  color: navy;
 }
 .instruction {
   display: flex;
@@ -94,17 +94,16 @@ const getYear = computed(() => {
 }
 .copyright span {
   font-style: italic;
-  color: navy;
   font-size: 14px;
 }
 .copyright a {
-  color: #105d97;
+  color: var(--link-color);
   text-decoration: underline;
   cursor: pointer;
 }
 .copyright a:hover {
   text-decoration: underline;
-  color: navy;
+  color: var(--text-color);
 }
 @media (min-height: 800px), screen and (max-width: 820px) and (min-width: 500px) {
   .info-modal {
