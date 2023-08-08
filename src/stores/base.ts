@@ -209,7 +209,7 @@ export const useBaseStore = defineStore('base', {
         }
         if (lastPart.slice(2, -1) === 'h') {
           const record = Number(decoded.slice(4, 10));
-          const adding = Number(decoded.slice(11, 16));
+          const adding = Number(decoded.slice(10, 16));
           return { record, adding };
         } else {
           let record = 0;
