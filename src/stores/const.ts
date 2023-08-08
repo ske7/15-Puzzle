@@ -17,6 +17,11 @@ export interface PreloadedImage {
   item: string;
 }
 
+export interface Record {
+  record: number;
+  adding: number;
+}
+
 export const CAGES_PATH_ARR = [
   '01-joe',
   '02-primal',

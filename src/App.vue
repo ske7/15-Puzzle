@@ -82,13 +82,10 @@ watch(isDoneAll, (value) => {
       }
     } else {
       baseStore.stopInterval();
-      if (
-        baseStore.movesCount > 0 &&
-        (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord)
-      ) {
+      if (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord) {
         baseStore.setMovesRecord(baseStore.movesCount, baseStore.time, baseStore.marathonMode);
       }
-      if (baseStore.time > 0 && (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord)) {
+      if (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord) {
         baseStore.setTimeRecord(baseStore.time, baseStore.movesCount, baseStore.marathonMode);
       }
       if (!baseStore.disableCageMode && !baseStore.proMode && baseStore.time > 0 && baseStore.time < 60000) {

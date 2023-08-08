@@ -134,12 +134,16 @@ onUnmounted(() => {
         <div>
           <p>
             <span>PB {{ baseStore.marathonMode ? 'marathon ' : ' ' }}time: </span>
-            <span class="italic" :class="{ red: baseStore.newTimeRecord }">{{ baseStore.timeRecord === 0 ? '?' : baseStore.timeMRecord }}s</span>
+            <span class="italic" :class="{ red: baseStore.newTimeRecord }">
+              {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeMRecord }}s
+            </span>
             <span> ({{ baseStore.timeRecordMoves }})</span>
           </p>
           <p>
             <span>PB {{ baseStore.marathonMode ? 'marathon ' : ' ' }}moves:  </span>
-            <span class="italic" :class="{ red: baseStore.newMovesRecord }">{{ baseStore.movesRecord || '?' }}</span>
+            <span class="italic" :class="{ red: baseStore.newMovesRecord }">
+              {{ baseStore.movesRecord || '?' }}
+            </span>
             <span> ({{ displayedTime(baseStore.movesRecordTime) }}s)</span>
           </p>
         </div>

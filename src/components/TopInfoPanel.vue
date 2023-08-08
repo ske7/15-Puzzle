@@ -8,7 +8,7 @@ const baseStore = useBaseStore();
   <div class="top-info-panel">
     <div class="tool-items consolas">
       <span>{{ baseStore.marathonMode ? 'Marathon time' : 'Time' }}:</span>
-      <span class="ml-5">{{ baseStore.seconds }}.{{ baseStore.milliSeconds }}s</span>
+      <span class="ml-5">{{ baseStore.timeStr }}s</span>
     </div>
     <div class="tool-items consolas">
       <span>Moves:</span>

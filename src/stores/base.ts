@@ -1,12 +1,12 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import {
   generateAndShuffle, generate, isSolvable,
-  getElementCol, getElementRow, getSeconds,
-  displayedTime
+  getElementCol, getElementRow, displayedTime
 } from '../utils';
 import {
   CORE_NUM, SPACE_BETWEEN_SQUARES,
-  CAGES_PATH_ARR, Direction, type PreloadedImage
+  CAGES_PATH_ARR, Direction,
+  type PreloadedImage, type Record
 } from './const';
 
 export const useBaseStore = defineStore('base', {
@@ -152,7 +152,7 @@ export const useBaseStore = defineStore('base', {
       this.incMoves();
       this.freeElement = prevOrder;
     },
-    boardSize(squareSize: number) {
+    boardSize(squareSize: number): string {
       return `${this.numLines * squareSize + this.spaceBetween * (this.numLines + 1)}px`;
     },
     setUnlockedCages() {
@@ -194,7 +194,7 @@ export const useBaseStore = defineStore('base', {
         this.newMovesRecord = true;
       }
     },
-    loadRecordFromLocalStorage(recordName: string, codeWord: string) {
+    loadRecordFromLocalStorage(recordName: string, codeWord: string): Record {
       const lsItem = localStorage.getItem(recordName);
       if (lsItem !== null) {
         const decoded = atob(lsItem);
@@ -223,14 +223,14 @@ export const useBaseStore = defineStore('base', {
       }
       return { record: 0, adding: 0 };
     },
-    loadTimeRecord(marathonMode: boolean) {
+    loadTimeRecord(marathonMode: boolean): Record {
       try {
         return this.loadRecordFromLocalStorage(marathonMode ? 'timeMRecord' : 'timeRecord', 'heh7');
       } catch {
         return { record: 0, adding: 0 };
       }
     },
-    loadMovesRecord(marathonMode: boolean) {
+    loadMovesRecord(marathonMode: boolean): Record {
       try {
         return this.loadRecordFromLocalStorage(marathonMode ? 'movesMRecord' : 'movesRecord', 'heh9');
       } catch {
@@ -238,21 +238,22 @@ export const useBaseStore = defineStore('base', {
       }
     },
     setRecords() {
-      const recordVer = localStorage.getItem('recordVer');
-      if (recordVer === null) {
-        // fix for previous format(first load and resave standard records, then marathon)
-        this.timeRecord = this.loadTimeRecord(false).record;
-        this.movesRecord = this.loadMovesRecord(false).record;
-        this.timeRecordMoves = this.movesRecord;
-        this.movesRecordTime = this.timeRecord;
-        this.setTimeRecord(this.timeRecord, this.movesRecord, false, true);
-        this.setMovesRecord(this.movesRecord, this.timeRecord, false, true);
-        this.timeRecord = this.loadTimeRecord(true).record;
-        this.movesRecord = this.loadMovesRecord(true).record;
-        this.timeRecordMoves = this.movesRecord;
-        this.movesRecordTime = this.timeRecord;
-        this.setTimeRecord(this.timeRecord, this.movesRecord, true, true);
-        this.setMovesRecord(this.movesRecord, this.timeRecord, true, true);
+      if (localStorage.getItem('recordVer') === null) {
+        if (localStorage.getItem('timeRecord') !== null || localStorage.getItem('timeMRecord') !== null) {
+          // fix for previous format (first load and resave standard records, then the same for marathon)
+          this.timeRecord = this.loadTimeRecord(false).record;
+          this.movesRecord = this.loadMovesRecord(false).record;
+          this.timeRecordMoves = this.movesRecord;
+          this.movesRecordTime = this.timeRecord;
+          this.setTimeRecord(this.timeRecord, this.movesRecord, false, true);
+          this.setMovesRecord(this.movesRecord, this.timeRecord, false, true);
+          this.timeRecord = this.loadTimeRecord(true).record;
+          this.movesRecord = this.loadMovesRecord(true).record;
+          this.timeRecordMoves = this.movesRecord;
+          this.movesRecordTime = this.timeRecord;
+          this.setTimeRecord(this.timeRecord, this.movesRecord, true, true);
+          this.setMovesRecord(this.movesRecord, this.timeRecord, true, true);
+        }
         localStorage.setItem('recordVer', '1');
       }
       const { record, adding } = this.loadTimeRecord(this.marathonMode);
@@ -303,14 +304,11 @@ export const useBaseStore = defineStore('base', {
     finishLoadingAllCageImages(): boolean {
       return this.cageImageLoadedCount === this.arrayLength;
     },
-    seconds(): number {
-      return getSeconds(this.time);
-    },
-    milliSeconds(): string {
-      return (this.time % 1000).toString().padStart(3, '0');
-    },
     timeMRecord(): string {
       return displayedTime(this.timeRecord);
+    },
+    timeStr(): string {
+      return displayedTime(this.time);
     },
     showModal(): boolean {
       return this.showConfig || this.showInfo || this.showWinModal || this.showImageGallery;

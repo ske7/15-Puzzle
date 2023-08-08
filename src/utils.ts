@@ -72,10 +72,6 @@ export function getElementRow(el: number, numLines: number): number {
   return Math.ceil((el + 1) / numLines);
 }
 
-export function getMinutes(time: number): number {
-  return Math.floor(time / (60 * 1000));
-}
-
 export function getSeconds(time: number): number {
   return Math.floor(time / 1000);
 }
