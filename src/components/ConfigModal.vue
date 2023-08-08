@@ -49,7 +49,6 @@ const setProPalette = (): void => {
   baseStore.setSpaceBetween();
 };
 const setMarathonMode = (): void => {
-  baseStore.waitForUpdate = true;
   baseStore.marathonMode = !baseStore.marathonMode;
   localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
   baseStore.eligibleForCageMode = false;

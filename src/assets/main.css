@@ -54,7 +54,6 @@ img[alt] {
 .tool-items.second-row {
   display: flex;
   flex-direction: column;
-  min-height: 60px;
   align-items: center;
 }
 .tool-button {

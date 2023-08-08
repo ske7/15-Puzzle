@@ -114,7 +114,7 @@ watch(
   (value) => {
     if (value) {
       baseStore.processingReInit = true;
-      baseStore.showSquareNum = baseStore.proMode;
+      baseStore.showSquareNum = baseStore.proMode || baseStore.showConfig;
       setTimeout(() => {
         if (baseStore.cageMode) {
           baseStore.cageMode = false;
@@ -136,7 +136,7 @@ watch(
         cageCompleteImgLoaded.value = false;
         baseStore.processingReInit = false;
         baseStore.showSquareNum = true;
-      }, baseStore.proMode ? 5 : 300);
+      }, baseStore.proMode || baseStore.showConfig ? 5 : 200);
     }
   },
   { immediate: true, flush: 'post' }

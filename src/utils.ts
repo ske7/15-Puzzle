@@ -71,3 +71,23 @@ export function getElementCol(el: number, numLines: number): number {
 export function getElementRow(el: number, numLines: number): number {
   return Math.ceil((el + 1) / numLines);
 }
+
+export function getMinutes(time: number): number {
+  return Math.floor(time / (60 * 1000));
+}
+
+export function getSeconds(time: number): number {
+  return Math.floor(time / 1000);
+}
+
+export function getMilliSeconds(time: number): string {
+  const tr = time % 1000;
+  if (tr === 0) {
+    return '';
+  }
+  return `.${tr.toString().padStart(3, '0')}`;
+}
+
+export function displayedTime(time: number): string {
+  return `${getSeconds(time)}${getMilliSeconds(time)}`;
+}

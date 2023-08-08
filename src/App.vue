@@ -69,10 +69,10 @@ watch(isDoneAll, (value) => {
       if (baseStore.solvedPuzzlesInMarathon === 5) {
         baseStore.stopInterval();
         if (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord) {
-          baseStore.setMovesRecord(baseStore.movesCount);
+          baseStore.setMovesRecord(baseStore.movesCount, baseStore.time, baseStore.marathonMode);
         }
         if (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord) {
-          baseStore.setTimeRecord(baseStore.time);
+          baseStore.setTimeRecord(baseStore.time, baseStore.movesCount, baseStore.marathonMode);
         }
         if (!baseStore.disableWinMessage) {
           baseStore.showWinModal = true;
@@ -86,10 +86,10 @@ watch(isDoneAll, (value) => {
         baseStore.movesCount > 0 &&
         (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord)
       ) {
-        baseStore.setMovesRecord(baseStore.movesCount);
+        baseStore.setMovesRecord(baseStore.movesCount, baseStore.time, baseStore.marathonMode);
       }
       if (baseStore.time > 0 && (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord)) {
-        baseStore.setTimeRecord(baseStore.time);
+        baseStore.setTimeRecord(baseStore.time, baseStore.movesCount, baseStore.marathonMode);
       }
       if (!baseStore.disableCageMode && !baseStore.proMode && baseStore.time > 0 && baseStore.time < 60000) {
         baseStore.eligibleForCageMode = true;

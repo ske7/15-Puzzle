@@ -1,7 +1,8 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import {
   generateAndShuffle, generate, isSolvable,
-  getElementCol, getElementRow
+  getElementCol, getElementRow, getSeconds,
+  displayedTime
 } from '../utils';
 import {
   CORE_NUM, SPACE_BETWEEN_SQUARES,
@@ -21,8 +22,10 @@ export const useBaseStore = defineStore('base', {
     doResetList: false,
     interval: 0,
     paused: false,
-    movesRecord: 0,
     timeRecord: 0,
+    movesRecord: 0,
+    timeRecordMoves: 0,
+    movesRecordTime: 0,
     doneFirstMove: false,
     showSquareNum: false,
     cageMode: false,
@@ -47,7 +50,6 @@ export const useBaseStore = defineStore('base', {
     proMode: localStorage.getItem('fasterSliding') === 'true' || localStorage.getItem('proMode') === 'true',
     marathonMode: localStorage.getItem('marathonMode') === 'true',
     solvedPuzzlesInMarathon: 0,
-    waitForUpdate: false,
     startTime: 0,
     savedTime: 0,
     proPalette: localStorage.getItem('proPalette') === 'true'
@@ -68,7 +70,6 @@ export const useBaseStore = defineStore('base', {
       this.doResetList = false;
       this.doneFirstMove = false;
       this.cageImageLoadedCount = 0;
-      this.waitForUpdate = false;
     },
     renewPuzzle() {
       this.actualOrders = generate(this.arrayLength);
@@ -169,20 +170,26 @@ export const useBaseStore = defineStore('base', {
         }
       }
     },
-    setTimeRecord(timeRecord: number, onlySetToStorage = false) {
+    setTimeRecord(timeRecord: number, moves: number, marathonMode: boolean, onlySetToStorage = false) {
       this.timeRecord = timeRecord;
-      const xt = btoa(`${Math.random().toString().slice(-4) +
-        (timeRecord).toString().padStart(6, '0')}heh7`);
-      localStorage.setItem(this.marathonMode ? 'timeMRecord' : 'timeRecord', xt);
+      this.timeRecordMoves = moves;
+      const headerPart = Math.random().toString().slice(-4);
+      const timePart = timeRecord.toString().padStart(6, '0');
+      const movesPart = moves.toString().padStart(6, '0');
+      const xt = btoa(`${headerPart}${timePart}${movesPart}heh7`);
+      localStorage.setItem(marathonMode ? 'timeMRecord' : 'timeRecord', xt);
       if (!onlySetToStorage) {
         this.newTimeRecord = true;
       }
     },
-    setMovesRecord(movesRecord: number, onlySetToStorage = false) {
+    setMovesRecord(movesRecord: number, time: number, marathonMode: boolean, onlySetToStorage = false) {
       this.movesRecord = movesRecord;
-      const xm = btoa(`${Math.random().toString().slice(-4) +
-        (movesRecord).toString().padStart(6, '0')}heh9`);
-      localStorage.setItem(this.marathonMode ? 'movesMRecord' : 'movesRecord', xm);
+      this.movesRecordTime = time;
+      const headerPart = Math.random().toString().slice(-4);
+      const movesPart = movesRecord.toString().padStart(6, '0');
+      const timePart = time.toString().padStart(6, '0');
+      const xm = btoa(`${headerPart}${movesPart}${timePart}heh9`);
+      localStorage.setItem(marathonMode ? 'movesMRecord' : 'movesRecord', xm);
       if (!onlySetToStorage) {
         this.newMovesRecord = true;
       }
@@ -194,41 +201,66 @@ export const useBaseStore = defineStore('base', {
         const lastPart = decoded.slice(-4);
         if (lastPart !== codeWord && lastPart.replace('y', 'h') !== codeWord.replace('y', 'h')) {
           if (recordName.includes('time')) {
-            this.setTimeRecord(0, true);
+            this.setTimeRecord(0, 0, false, true);
           } else {
-            this.setMovesRecord(0, true);
+            this.setMovesRecord(0, 0, false, true);
           }
-          return 0;
+          return { record: 0, adding: 0 };
         }
         if (lastPart.slice(2, -1) === 'h') {
-          return Number(decoded.slice(4, 10));
+          const record = Number(decoded.slice(4, 10));
+          const adding = Number(decoded.slice(11, 16));
+          return { record, adding };
         } else {
+          let record = 0;
           if (recordName.includes('time')) {
-            return Number(decoded.slice(4, 8)) * 1000;
+            record = Number(decoded.slice(4, 8)) * 1000;
           } else {
-            return Number(decoded.slice(4, 8));
+            record = Number(decoded.slice(4, 8));
           }
+          return { record, adding: 0 };
         }
       }
-      return 0;
+      return { record: 0, adding: 0 };
     },
-    loadTimeRecord() {
+    loadTimeRecord(marathonMode: boolean) {
       try {
-        return this.loadRecordFromLocalStorage(this.marathonMode ? 'timeMRecord' : 'timeRecord', 'heh7');
+        return this.loadRecordFromLocalStorage(marathonMode ? 'timeMRecord' : 'timeRecord', 'heh7');
       } catch {
-        return 0;
+        return { record: 0, adding: 0 };
       }
     },
-    loadMovesRecord() {
+    loadMovesRecord(marathonMode: boolean) {
       try {
-        return this.loadRecordFromLocalStorage(this.marathonMode ? 'movesMRecord' : 'movesRecord', 'heh9');
+        return this.loadRecordFromLocalStorage(marathonMode ? 'movesMRecord' : 'movesRecord', 'heh9');
       } catch {
-        return 0;
+        return { record: 0, adding: 0 };
       }
     },
     setRecords() {
-      this.timeRecord = this.loadTimeRecord();
-      this.movesRecord = this.loadMovesRecord();
+      const recordVer = localStorage.getItem('recordVer');
+      if (recordVer === null) {
+        // fix for previous format(first load and resave standard records, then marathon)
+        this.timeRecord = this.loadTimeRecord(false).record;
+        this.movesRecord = this.loadMovesRecord(false).record;
+        this.timeRecordMoves = this.movesRecord;
+        this.movesRecordTime = this.timeRecord;
+        this.setTimeRecord(this.timeRecord, this.movesRecord, false, true);
+        this.setMovesRecord(this.movesRecord, this.timeRecord, false, true);
+        this.timeRecord = this.loadTimeRecord(true).record;
+        this.movesRecord = this.loadMovesRecord(true).record;
+        this.timeRecordMoves = this.movesRecord;
+        this.movesRecordTime = this.timeRecord;
+        this.setTimeRecord(this.timeRecord, this.movesRecord, true, true);
+        this.setMovesRecord(this.movesRecord, this.timeRecord, true, true);
+        localStorage.setItem('recordVer', '1');
+      }
+      const { record, adding } = this.loadTimeRecord(this.marathonMode);
+      this.timeRecord = record;
+      this.timeRecordMoves = adding;
+      const { record: recordM, adding: addingM } = this.loadMovesRecord(this.marathonMode);
+      this.movesRecord = recordM;
+      this.movesRecordTime = addingM;
     },
     preloadImage(item: string, isPlaceholder = false) {
       const img = new Image();
@@ -272,26 +304,13 @@ export const useBaseStore = defineStore('base', {
       return this.cageImageLoadedCount === this.arrayLength;
     },
     seconds(): number {
-      return Math.floor(this.time / 1000);
+      return getSeconds(this.time);
     },
     milliSeconds(): string {
       return (this.time % 1000).toString().padStart(3, '0');
     },
     timeMRecord(): string {
-      return `${this.timeRecordSeconds}${this.timeRecordMilliSeconds}`;
-    },
-    timeRecordMinutes(): number {
-      return Math.floor(this.timeRecord / (60 * 1000));
-    },
-    timeRecordSeconds(): number {
-      return Math.floor(this.timeRecord / 1000);
-    },
-    timeRecordMilliSeconds(): string {
-      const tr = this.timeRecord % 1000;
-      if (tr === 0) {
-        return '';
-      }
-      return `.${tr.toString().padStart(3, '0')}`;
+      return displayedTime(this.timeRecord);
     },
     showModal(): boolean {
       return this.showConfig || this.showInfo || this.showWinModal || this.showImageGallery;

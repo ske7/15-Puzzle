@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onMounted, onUnmounted, computed } from 'vue';
 import { useBaseStore } from '../stores/base';
+import { displayedTime } from '../utils';
 import { useEventBus } from '@vueuse/core';
 const ConfigModal = defineAsyncComponent({
   loader: async () => import('../components/ConfigModal.vue'),
@@ -131,17 +132,20 @@ onUnmounted(() => {
     <div class="tool-items second-row">
       <div class="tool-items records consolas">
         <div>
-          <span>{{ baseStore.marathonMode ? 'Marathon record' : 'Your record' }}:</span>
-          <span v-if="!baseStore.waitForUpdate">
-            <span class="ml-5 italic" :class="{ red: baseStore.newTimeRecord }">
-              {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeMRecord }}
-            </span>s/
-          </span>
+          <p>
+            <span>PB {{ baseStore.marathonMode ? 'marathon ' : ' ' }}time: </span>
+            <span class="italic" :class="{ red: baseStore.newTimeRecord }">{{ baseStore.timeRecord === 0 ? '?' : baseStore.timeMRecord }}s</span>
+            <span> ({{ baseStore.timeRecordMoves }})</span>
+          </p>
+          <p>
+            <span>PB {{ baseStore.marathonMode ? 'marathon ' : ' ' }}moves:  </span>
+            <span class="italic" :class="{ red: baseStore.newMovesRecord }">{{ baseStore.movesRecord || '?' }}</span>
+            <span> ({{ displayedTime(baseStore.movesRecordTime) }}s)</span>
+          </p>
         </div>
-        <span v-if="!baseStore.waitForUpdate" class="italic" :class="{ red: baseStore.newMovesRecord }">
-          {{ baseStore.movesRecord || '?' }}
-        </span>&nbsp;<span v-if="!baseStore.waitForUpdate">moves</span>
       </div>
+    </div>
+    <div class="tool-items third-row">
       <div v-if="!(baseStore.disableCageMode || baseStore.marathonMode || baseStore.proMode)" class="tool-items records consolas">
         <span>
           <span
