@@ -59,7 +59,7 @@ module.exports = {
     'vue/require-typed-ref': 'error',
     'vue/define-props-declaration': ['error', 'type-based'],
     'vue/define-emits-declaration': ['error', 'type-based'],
-    'vue/no-ref-object-destructure': 'error',
+    'vue/no-ref-object-reactivity-loss': 'error',
     'vue/html-button-has-type': 'error',
     'vue/max-len': ['error', {
       code: 110,
