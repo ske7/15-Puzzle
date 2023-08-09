@@ -59,7 +59,7 @@ onMounted(() => {
   window.addEventListener('keydown', (event) => {
     event.preventDefault();
     if (event.code === 'Space' && !baseStore.paused) {
-      eventBus.emit('restart', baseStore.showWinModal && baseStore.proMode ? 'fromWinProMode' : '');
+      eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
       return;
     }
     if (baseStore.isDone || baseStore.paused) {

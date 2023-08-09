@@ -27,7 +27,7 @@ const reset = (): void => {
 };
 const doRestart = (initRestartPath: string): void => {
   if (!baseStore.afterDoneAnimationEnd ||
-     (baseStore.showModal && !['fromConfig', 'fromWinProMode'].includes(initRestartPath))) {
+     (baseStore.showModal && !['fromConfig', 'fromKeyboard'].includes(initRestartPath))) {
     return;
   }
   reset();
