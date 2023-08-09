@@ -31,18 +31,50 @@ const blockTransition = computed(() => {
 const bgColor = computed(() => {
   if (baseStore.proMode) {
     if (baseStore.proPalette) {
-      if ([1, 2, 3, 4].includes(props.mixedOrder)) {
-        return '#ff6767';
-      } else if ([5, 9, 13].includes(props.mixedOrder)) {
-        return '#fff054';
-      } else if ([6, 7, 8].includes(props.mixedOrder)) {
-        return '#7eff64';
-      } else if ([10, 14].includes(props.mixedOrder)) {
-        return '#7effde';
-      } else if ([11, 12].includes(props.mixedOrder)) {
-        return '#8eb3fe';
-      } else if ([15].includes(props.mixedOrder)) {
-        return '#cd88fe';
+      if (baseStore.numLines === 4) {
+        if ([1, 2, 3, 4].includes(props.mixedOrder)) {
+          return '#ff6767';
+        } else if ([5, 9, 13].includes(props.mixedOrder)) {
+          return '#fff054';
+        } else if ([6, 7, 8].includes(props.mixedOrder)) {
+          return '#7eff64';
+        } else if ([10, 14].includes(props.mixedOrder)) {
+          return '#7effde';
+        } else if ([11, 12].includes(props.mixedOrder)) {
+          return '#8eb3fe';
+        } else if ([15].includes(props.mixedOrder)) {
+          return '#cd88fe';
+        }
+      }
+      if (baseStore.numLines === 3) {
+        if ([1, 2, 3].includes(props.mixedOrder)) {
+          return '#ff6767';
+        } else if ([4, 7].includes(props.mixedOrder)) {
+          return '#fff054';
+        } else if ([5, 6].includes(props.mixedOrder)) {
+          return '#7eff64';
+        } else if ([8].includes(props.mixedOrder)) {
+          return '#89dcff';
+        }
+      }
+      if (baseStore.numLines === 5) {
+        if ([1, 2, 3, 4, 5].includes(props.mixedOrder)) {
+          return '#ff6767';
+        } else if ([6, 11, 16, 21].includes(props.mixedOrder)) {
+          return '#ffc74c';
+        } else if ([7, 8, 9, 10].includes(props.mixedOrder)) {
+          return '#fff054';
+        } else if ([12, 17, 22].includes(props.mixedOrder)) {
+          return '#7eff64';
+        } else if ([13, 14, 15].includes(props.mixedOrder)) {
+          return '#7effde';
+        } else if ([18, 23].includes(props.mixedOrder)) {
+          return '#84c8ff';
+        } else if ([19, 20].includes(props.mixedOrder)) {
+          return '#9b95ff';
+        } else if ([24].includes(props.mixedOrder)) {
+          return '#cd88fe';
+        }
       }
     }
     return '#d2d2d2';
@@ -57,9 +89,9 @@ const fontSizeD = computed(() => {
 });
 const fontSizeM = computed(() => {
   if (baseStore.proMode) {
-    return '23px';
+    return '29px';
   }
-  return '19px';
+  return '21px';
 });
 const inPlaceColor = computed(() => {
   if (baseStore.proMode) {

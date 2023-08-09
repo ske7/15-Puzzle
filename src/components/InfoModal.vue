@@ -96,12 +96,12 @@ const getYear = computed(() => {
   font-style: italic;
   font-size: 14px;
 }
-.copyright a {
+a {
   color: var(--link-color);
   text-decoration: underline;
   cursor: pointer;
 }
-.copyright a:hover {
+a:hover {
   text-decoration: underline;
   color: var(--text-color);
 }

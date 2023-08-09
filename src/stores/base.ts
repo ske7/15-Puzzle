@@ -178,7 +178,8 @@ export const useBaseStore = defineStore('base', {
       const timePart = timeRecord.toString().padStart(6, '0');
       const movesPart = moves.toString().padStart(6, '0');
       const xt = btoa(`${headerPart}${timePart}${movesPart}heh7`);
-      localStorage.setItem(marathonMode ? 'timeMRecord' : 'timeRecord', xt);
+      const nLPart = this.numLines === CORE_NUM ? '' : this.numLines.toString();
+      localStorage.setItem(marathonMode ? `timeMRecord${nLPart}` : `timeRecord${nLPart}`, xt);
       if (!onlySetToStorage) {
         this.newTimeRecord = true;
       }
@@ -190,7 +191,8 @@ export const useBaseStore = defineStore('base', {
       const movesPart = movesRecord.toString().padStart(6, '0');
       const timePart = time.toString().padStart(6, '0');
       const xm = btoa(`${headerPart}${movesPart}${timePart}heh9`);
-      localStorage.setItem(marathonMode ? 'movesMRecord' : 'movesRecord', xm);
+      const nLPart = this.numLines === CORE_NUM ? '' : this.numLines.toString();
+      localStorage.setItem(marathonMode ? `movesMRecord${nLPart}` : `movesRecord${nLPart}`, xm);
       if (!onlySetToStorage) {
         this.newMovesRecord = true;
       }
@@ -225,15 +227,21 @@ export const useBaseStore = defineStore('base', {
       return { record: 0, adding: 0 };
     },
     loadTimeRecord(marathonMode: boolean): Record {
+      const nLPart = this.numLines === CORE_NUM ? '' : this.numLines.toString();
       try {
-        return this.loadRecordFromLocalStorage(marathonMode ? 'timeMRecord' : 'timeRecord', 'heh7');
+        return this.loadRecordFromLocalStorage(marathonMode
+          ? `timeMRecord${nLPart}`
+          : `timeRecord${nLPart}`, 'heh7');
       } catch {
         return { record: 0, adding: 0 };
       }
     },
     loadMovesRecord(marathonMode: boolean): Record {
+      const nLPart = this.numLines === CORE_NUM ? '' : this.numLines.toString();
       try {
-        return this.loadRecordFromLocalStorage(marathonMode ? 'movesMRecord' : 'movesRecord', 'heh9');
+        return this.loadRecordFromLocalStorage(marathonMode
+          ? `movesMRecord${nLPart}`
+          : `movesRecord${nLPart}`, 'heh9');
       } catch {
         return { record: 0, adding: 0 };
       }
@@ -242,18 +250,22 @@ export const useBaseStore = defineStore('base', {
       if (localStorage.getItem('recordVer') === null) {
         if (localStorage.getItem('timeRecord') !== null || localStorage.getItem('timeMRecord') !== null) {
           // fix for previous format (first load and resave standard records, then the same for marathon)
-          this.timeRecord = this.loadTimeRecord(false).record;
-          this.movesRecord = this.loadMovesRecord(false).record;
-          this.timeRecordMoves = this.movesRecord;
-          this.movesRecordTime = this.timeRecord;
-          this.setTimeRecord(this.timeRecord, this.movesRecord, false, true);
-          this.setMovesRecord(this.movesRecord, this.timeRecord, false, true);
-          this.timeRecord = this.loadTimeRecord(true).record;
-          this.movesRecord = this.loadMovesRecord(true).record;
-          this.timeRecordMoves = this.movesRecord;
-          this.movesRecordTime = this.timeRecord;
-          this.setTimeRecord(this.timeRecord, this.movesRecord, true, true);
-          this.setMovesRecord(this.movesRecord, this.timeRecord, true, true);
+          if (localStorage.getItem('timeRecord') !== null) {
+            this.timeRecord = this.loadTimeRecord(false).record;
+            this.movesRecord = this.loadMovesRecord(false).record;
+            this.timeRecordMoves = this.movesRecord;
+            this.movesRecordTime = this.timeRecord;
+            this.setTimeRecord(this.timeRecord, this.movesRecord, false, true);
+            this.setMovesRecord(this.movesRecord, this.timeRecord, false, true);
+          }
+          if (localStorage.getItem('timeMRecord') !== null) {
+            this.timeRecord = this.loadTimeRecord(true).record;
+            this.movesRecord = this.loadMovesRecord(true).record;
+            this.timeRecordMoves = this.movesRecord;
+            this.movesRecordTime = this.timeRecord;
+            this.setTimeRecord(this.timeRecord, this.movesRecord, true, true);
+            this.setMovesRecord(this.movesRecord, this.timeRecord, true, true);
+          }
         }
         localStorage.setItem('recordVer', '1');
       }

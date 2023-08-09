@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
+import { type puzzleCores } from '@/stores/const';
+import { CORE_NUM } from '../stores/const';
 
 const baseStore = useBaseStore();
 const emit = defineEmits<{ close: []; }>();
@@ -13,7 +15,8 @@ onClickOutside(configModal, (event) => {
   emit('close');
 });
 const disabledCageMode = computed(() => {
-  return baseStore.disableCageMode || baseStore.marathonMode || baseStore.proMode;
+  return baseStore.disableCageMode || baseStore.marathonMode ||
+  baseStore.proMode || baseStore.numLines !== CORE_NUM;
 });
 
 const setDisableCageMode = (): void => {
@@ -59,6 +62,15 @@ const setMarathonMode = (): void => {
   baseStore.eligibleForCageMode = false;
   eventBus.emit('restart', 'fromConfig');
 };
+const sliderValue = ref<number>(baseStore.numLines);
+
+watch(sliderValue, (newValue) => {
+  if (newValue) {
+    baseStore.numLines = Number(newValue) as puzzleCores;
+    localStorage.setItem('numLines', baseStore.numLines.toString());
+    eventBus.emit('restart', 'fromConfig');
+  }
+});
 </script>
 
 <template>
@@ -68,16 +80,42 @@ const setMarathonMode = (): void => {
         <span>Game config</span>
       </p>
       <div class="options">
+        <div class="slide-container">
+          <label for="core-num">Puzzle Type</label>
+          <input
+            id="core-num"
+            v-model="sliderValue"
+            name="core-num"
+            type="range"
+            min="3"
+            max="5"
+            step="1"
+            list="markers"
+            class="slider"
+          >
+          <datalist id="markers">
+            <option value="3" label="3x3" />
+            <option value="4" label="4x4" />
+            <option value="5" label="5x5" />
+          </datalist>
+          <p class="slider-marks">
+            <span>3x3</span><span>4x4</span><span>5x5</span>
+          </p>
+        </div>
         <div class="option">
           <input
             id="disable-cage-mode"
             type="checkbox"
             name="disable-cage-mode"
-            :disabled="baseStore.marathonMode || baseStore.proMode"
+            :disabled="baseStore.marathonMode || baseStore.proMode || baseStore.numLines !== CORE_NUM"
             :checked="baseStore.disableCageMode"
             @change="setDisableCageMode"
           >
-          <label for="disable-cage-mode" :class="{ 'disabled-label': baseStore.marathonMode || baseStore.proMode }">
+          <label
+            for="disable-cage-mode"
+            :class="{ 'disabled-label': baseStore.marathonMode ||
+              baseStore.proMode || baseStore.numLines !== CORE_NUM }"
+          >
             Disable Cage Mode
           </label>
         </div>
@@ -187,11 +225,11 @@ const setMarathonMode = (): void => {
   color: var(--text-color);
   border-radius: 8px;
   height: auto;
-  width: 280px;
+  width: 290px;
   position: fixed;
   z-index: 2000;
-  top: calc(50% - 220px);
-  left: calc(50% - 140px);
+  top: calc(50% - 235px);
+  left: calc(50% - 145px);
   padding: 20px;
   box-shadow: 0 8px 16px var(--shadow-color);
 }
@@ -239,5 +277,21 @@ label {
   margin-bottom: 5px;
   display: flex;
   justify-content: center;
+}
+.slide-container > label {
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+.slider {
+  width: 100%;
+  cursor: pointer;
+  height: 15px;
+}
+.slider-marks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -5px;
+  margin-bottom: 10px;
 }
 </style>

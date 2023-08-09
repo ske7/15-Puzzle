@@ -3,7 +3,7 @@ import { computed, ref, onMounted, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useEventBus } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
-import { Direction, CAGES_PATH_ARR } from '../stores/const';
+import { Direction, CAGES_PATH_ARR, CORE_NUM } from '../stores/const';
 import Square from './Square.vue';
 import { getArrayKeyByValue, randArrayItem } from '../utils';
 
@@ -12,7 +12,7 @@ const props = defineProps<{ squareSize: number }>();
 const baseStore = useBaseStore();
 baseStore.initStore();
 if (!(baseStore.disableCageMode || baseStore.marathonMode || baseStore.proMode) &&
-location.href.toLowerCase().includes('eligibleforcagemode')) {
+  (baseStore.numLines === CORE_NUM) && location.href.toLowerCase().includes('eligibleforcagemode')) {
   baseStore.eligibleForCageMode = true;
   baseStore.reset();
 }

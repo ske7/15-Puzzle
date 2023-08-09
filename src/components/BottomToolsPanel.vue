@@ -3,6 +3,7 @@ import { ref, defineAsyncComponent, onMounted, onUnmounted, computed } from 'vue
 import { useBaseStore } from '../stores/base';
 import { displayedTime } from '../utils';
 import { useEventBus } from '@vueuse/core';
+import { CORE_NUM } from '@/stores/const';
 const ConfigModal = defineAsyncComponent({
   loader: async () => import('../components/ConfigModal.vue'),
   delay: 150
@@ -150,7 +151,11 @@ onUnmounted(() => {
       </div>
     </div>
     <div class="tool-items third-row">
-      <div v-if="!(baseStore.disableCageMode || baseStore.marathonMode || baseStore.proMode)" class="tool-items records consolas">
+      <div
+        v-if="!(baseStore.disableCageMode || baseStore.marathonMode || baseStore.proMode)
+          && baseStore.numLines === CORE_NUM"
+        class="tool-items records consolas"
+      >
         <span>
           <span
             class="unlocked"

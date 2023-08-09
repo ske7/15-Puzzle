@@ -5,6 +5,7 @@ import { useBaseStore } from './stores/base';
 import Board from './components/Board.vue';
 import TopInfoPanel from './components/TopInfoPanel.vue';
 import BottomToolsPanel from './components/BottomToolsPanel.vue';
+import { CORE_NUM, isPuzzleCore, type puzzleCores } from './stores/const';
 const WinModal = defineAsyncComponent({
   loader: async () => import('./components/WinModal.vue'),
   delay: 150
@@ -14,6 +15,12 @@ const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
 const visibility = useDocumentVisibility();
 document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');
+const numLines = localStorage.getItem('numLines');
+if (numLines === null || isNaN(Number(numLines)) || !isPuzzleCore(Number(numLines))) {
+  baseStore.numLines = CORE_NUM;
+} else {
+  baseStore.numLines = Number(numLines) as puzzleCores;
+}
 
 const isDoneAll = computed(() => {
   return baseStore.isDone;
@@ -31,17 +38,23 @@ const squareSize = computed(() => {
       cageAdd = 22;
     }
   }
+  if (baseStore.numLines === 3) {
+    cageAdd += 20;
+  }
+  if (baseStore.numLines === 5) {
+    cageAdd -= 10;
+  }
   let value = 0;
   if (windowWidth.value <= 370) {
     if (baseStore.cageMode) {
-      value = Math.floor((windowWidth.value - (spaces + 60)) / 4);
+      value = Math.floor((windowWidth.value - (spaces + 60)) / baseStore.numLines);
     } else {
-      value = Math.floor((windowWidth.value - (spaces + 40)) / 4);
+      value = Math.floor((windowWidth.value - (spaces + 40)) / baseStore.numLines);
     }
-    value = Math.floor((windowWidth.value - (spaces + 40)) / 4);
-  } else if (windowWidth.value <= 420) {
-    value = Math.floor((windowWidth.value - (spaces + 60)) / 4);
-  } else if (windowWidth.value <= 820 && windowWidth.value >= 500) {
+    value = Math.floor((windowWidth.value - (spaces + 40)) / baseStore.numLines);
+  } else if (windowWidth.value <= 480) {
+    value = Math.floor((windowWidth.value - (spaces + 60)) / baseStore.numLines);
+  } else if (windowWidth.value <= 820 && windowWidth.value >= 600) {
     value = 100 + cageAdd;
   } else {
     value = 80 + cageAdd;
@@ -89,7 +102,8 @@ watch(isDoneAll, (value) => {
       if (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord) {
         baseStore.setTimeRecord(baseStore.time, baseStore.movesCount, baseStore.marathonMode);
       }
-      if (!baseStore.disableCageMode && !baseStore.proMode && baseStore.time > 0 && baseStore.time < 60000) {
+      if (baseStore.numLines === CORE_NUM && !baseStore.disableCageMode &&
+      !baseStore.proMode && baseStore.time > 0 && baseStore.time < 60000) {
         baseStore.eligibleForCageMode = true;
       }
       if (baseStore.cageMode) {
@@ -136,7 +150,10 @@ watch(isDoneAll, (value) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 20px;
+  justify-content: center;
+  height: 100%;
+  margin-top: -10px;
+  /* padding-top: 20px; */
 }
 @media (min-height: 800px), screen and (max-width: 820px) {
   .wrapper {
