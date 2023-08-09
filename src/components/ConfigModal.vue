@@ -68,7 +68,7 @@ watch(sliderValue, (newValue) => {
   if (newValue) {
     baseStore.numLines = Number(newValue) as puzzleCores;
     localStorage.setItem('numLines', baseStore.numLines.toString());
-    eventBus.emit('restart', 'fromConfig');
+    baseStore.initStore();
   }
 });
 </script>

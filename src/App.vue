@@ -39,7 +39,7 @@ const squareSize = computed(() => {
     }
   }
   if (baseStore.numLines === 3) {
-    cageAdd += 20;
+    cageAdd += 28;
   }
   if (baseStore.numLines === 5) {
     cageAdd -= 10;
@@ -153,7 +153,6 @@ watch(isDoneAll, (value) => {
   justify-content: center;
   height: 100%;
   margin-top: -10px;
-  /* padding-top: 20px; */
 }
 @media (min-height: 800px), screen and (max-width: 820px) {
   .wrapper {
