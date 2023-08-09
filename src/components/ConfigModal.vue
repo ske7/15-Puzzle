@@ -99,7 +99,9 @@ watch(sliderValue, (newValue) => {
             <option value="5" label="5x5" />
           </datalist>
           <p class="slider-marks">
-            <span>3x3</span><span>4x4</span><span>5x5</span>
+            <span @click="sliderValue = 3">3x3</span>
+            <span @click="sliderValue = 4">4x4</span>
+            <span @click="sliderValue = 5">5x5</span>
           </p>
         </div>
         <div class="option">
@@ -293,5 +295,8 @@ label {
   justify-content: space-between;
   margin-top: -5px;
   margin-bottom: 10px;
+}
+.slider-marks span {
+  cursor: pointer;
 }
 </style>
