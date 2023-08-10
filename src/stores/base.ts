@@ -14,6 +14,7 @@ export const useBaseStore = defineStore('base', {
     numLines: CORE_NUM,
     spaceBetween: SPACE_BETWEEN_SQUARES,
     freeElement: 0,
+    freeElementIndex: 0,
     time: 0,
     movesCount: 0,
     afterDoneCount: 0,
@@ -59,6 +60,7 @@ export const useBaseStore = defineStore('base', {
     initStore() {
       this.setSpaceBetween();
       this.freeElement = 0;
+      this.freeElementIndex = 0;
       this.time = 0;
       this.savedTime = 0;
       this.movesCount = 0;
@@ -78,8 +80,8 @@ export const useBaseStore = defineStore('base', {
       while (!solvable) {
         solvable = this.mixAndCheckSolvable();
       }
-      this.freeElement = this.actualOrders[this.mixedOrders.findIndex((x) => x === 0)];
-      this.actualOrders[this.mixedOrders.findIndex((x) => x === 0)] = -1;
+      this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
+      this.freeElement = this.actualOrders[this.freeElementIndex];
     },
     mixAndCheckSolvable() {
       this.mixedOrders = generateAndShuffle(this.arrayLength);
@@ -105,6 +107,10 @@ export const useBaseStore = defineStore('base', {
     },
     reset() {
       this.stopInterval();
+      if (this.proMode || this.showConfig) {
+        this.initStore();
+        return;
+      }
       this.doResetList = true;
     },
     stopInterval() {
@@ -153,8 +159,9 @@ export const useBaseStore = defineStore('base', {
           break;
         default:
       }
-      this.incMoves();
       this.freeElement = prevOrder;
+      this.actualOrders[this.freeElementIndex] = this.freeElement;
+      this.incMoves();
     },
     boardSize(squareSize: number): string {
       return `${this.numLines * squareSize + this.spaceBetween * (this.numLines + 1)}px`;
@@ -304,7 +311,7 @@ export const useBaseStore = defineStore('base', {
     orderedCount(): number {
       let count = 0;
       this.actualOrders.forEach((value, i) => {
-        if (value !== -1 && value + 1 === this.mixedOrders[i]) {
+        if (value + 1 === this.mixedOrders[i]) {
           count += 1;
         }
       });

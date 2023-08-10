@@ -100,7 +100,7 @@ const inPlaceColor = computed(() => {
   return 'var(--square-in-place-color)';
 });
 const brightnessImg = computed(() => {
-  return baseStore.darkMode ? 'brightness(110%)' : 'brightness(105%)';
+  return baseStore.darkMode ? 'brightness(104%)' : 'brightness(101%)';
 });
 
 const actualOrder = computed(() => {
@@ -275,6 +275,7 @@ watch(
 
 <template>
   <div
+    v-show="!baseStore.cageMode || !(props.mixedOrder === 0 && !(baseStore.cageMode && isDoneAll))"
     class="square"
     :class="{
       free: props.mixedOrder === 0 && !(baseStore.cageMode && isDoneAll),
@@ -306,8 +307,8 @@ watch(
       >
         {{ props.mixedOrder }}
       </span>
-      <Transition name="bounce">
-        <span v-if="baseStore.showSquareNum && !baseStore.cageMode">
+      <Transition :name="baseStore.proMode ? '' : 'bounce'">
+        <span v-if="baseStore.showSquareNum && !baseStore.cageMode && props.mixedOrder !== 0">
           {{ props.mixedOrder }}
         </span>
       </Transition>
@@ -396,7 +397,9 @@ watch(
   border: none;
 }
 .free {
-  display: none;
+  background: transparent;
+  box-shadow: none;
+  border: 1px solid var(--background-color);
 }
 .item {
   display: flex;

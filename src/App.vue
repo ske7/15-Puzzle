@@ -76,18 +76,21 @@ watch(visibility, (value) => {
   }
 });
 
+const setRecords = (): void => {
+  if (baseStore.movesRecord === 0 || baseStore.movesCount <= baseStore.movesRecord) {
+    baseStore.setMovesRecord(baseStore.movesCount, baseStore.time, baseStore.marathonMode);
+  }
+  if (baseStore.timeRecord === 0 || baseStore.time <= baseStore.timeRecord) {
+    baseStore.setTimeRecord(baseStore.time, baseStore.movesCount, baseStore.marathonMode);
+  }
+};
 watch(isDoneAll, (value) => {
   if (value) {
     if (baseStore.marathonMode) {
       baseStore.solvedPuzzlesInMarathon += 1;
       if (baseStore.solvedPuzzlesInMarathon === 5) {
         baseStore.stopInterval();
-        if (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord) {
-          baseStore.setMovesRecord(baseStore.movesCount, baseStore.time, baseStore.marathonMode);
-        }
-        if (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord) {
-          baseStore.setTimeRecord(baseStore.time, baseStore.movesCount, baseStore.marathonMode);
-        }
+        setRecords();
         if (!baseStore.disableWinMessage) {
           baseStore.showWinModal = true;
         }
@@ -96,18 +99,12 @@ watch(isDoneAll, (value) => {
       }
     } else {
       baseStore.stopInterval();
-      if (baseStore.movesRecord === 0 || baseStore.movesCount < baseStore.movesRecord) {
-        baseStore.setMovesRecord(baseStore.movesCount, baseStore.time, baseStore.marathonMode);
-      }
-      if (baseStore.timeRecord === 0 || baseStore.time < baseStore.timeRecord) {
-        baseStore.setTimeRecord(baseStore.time, baseStore.movesCount, baseStore.marathonMode);
-      }
+      setRecords();
       if (baseStore.numLines === CORE_NUM && !baseStore.disableCageMode &&
       !baseStore.proMode && baseStore.time > 0 && baseStore.time < 60000) {
         baseStore.eligibleForCageMode = true;
       }
       if (baseStore.cageMode) {
-        baseStore.actualOrders[baseStore.mixedOrders.findIndex((x) => x === 0)] = baseStore.arrayLength - 1;
         baseStore.setUnlockedCages();
       }
       if (!baseStore.disableWinMessage) {
