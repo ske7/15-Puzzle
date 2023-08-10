@@ -83,15 +83,15 @@ const bgColor = computed(() => {
 });
 const fontSizeD = computed(() => {
   if (baseStore.proMode) {
-    return '39px';
+    return '45px';
   }
-  return '21px';
+  return '25px';
 });
 const fontSizeM = computed(() => {
   if (baseStore.proMode) {
-    return '29px';
+    return '33px';
   }
-  return '21px';
+  return '25px';
 });
 const inPlaceColor = computed(() => {
   if (baseStore.proMode) {
