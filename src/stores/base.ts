@@ -175,27 +175,31 @@ export const useBaseStore = defineStore('base', {
       }
     },
     setTimeRecord(timeRecord: number, moves: number, marathonMode: boolean, onlySetToStorage = false) {
+      if (timeRecord === this.timeRecord && moves >= this.timeRecordMoves) {
+        return;
+      }
       this.timeRecord = timeRecord;
       this.timeRecordMoves = moves;
       const headerPart = Math.random().toString().slice(-4);
       const timePart = timeRecord.toString().padStart(6, '0');
       const movesPart = moves.toString().padStart(6, '0');
       const xt = btoa(`${headerPart}${timePart}${movesPart}heh7`);
-      const nLPart = this.numLines === CORE_NUM ? '' : this.numLines.toString();
-      localStorage.setItem(marathonMode ? `timeMRecord${nLPart}` : `timeRecord${nLPart}`, xt);
+      localStorage.setItem(marathonMode ? `timeMRecord${this.nLPart}` : `timeRecord${this.nLPart}`, xt);
       if (!onlySetToStorage) {
         this.newTimeRecord = true;
       }
     },
     setMovesRecord(movesRecord: number, time: number, marathonMode: boolean, onlySetToStorage = false) {
+      if (movesRecord === this.movesRecord && time >= this.movesRecordTime) {
+        return;
+      }
       this.movesRecord = movesRecord;
       this.movesRecordTime = time;
       const headerPart = Math.random().toString().slice(-4);
       const movesPart = movesRecord.toString().padStart(6, '0');
       const timePart = time.toString().padStart(6, '0');
       const xm = btoa(`${headerPart}${movesPart}${timePart}heh9`);
-      const nLPart = this.numLines === CORE_NUM ? '' : this.numLines.toString();
-      localStorage.setItem(marathonMode ? `movesMRecord${nLPart}` : `movesRecord${nLPart}`, xm);
+      localStorage.setItem(marathonMode ? `movesMRecord${this.nLPart}` : `movesRecord${this.nLPart}`, xm);
       if (!onlySetToStorage) {
         this.newMovesRecord = true;
       }
@@ -230,21 +234,19 @@ export const useBaseStore = defineStore('base', {
       return { record: 0, adding: 0 };
     },
     loadTimeRecord(marathonMode: boolean): Record {
-      const nLPart = this.numLines === CORE_NUM ? '' : this.numLines.toString();
       try {
         return this.loadRecordFromLocalStorage(marathonMode
-          ? `timeMRecord${nLPart}`
-          : `timeRecord${nLPart}`, 'heh7');
+          ? `timeMRecord${this.nLPart}`
+          : `timeRecord${this.nLPart}`, 'heh7');
       } catch {
         return { record: 0, adding: 0 };
       }
     },
     loadMovesRecord(marathonMode: boolean): Record {
-      const nLPart = this.numLines === CORE_NUM ? '' : this.numLines.toString();
       try {
         return this.loadRecordFromLocalStorage(marathonMode
-          ? `movesMRecord${nLPart}`
-          : `movesRecord${nLPart}`, 'heh9');
+          ? `movesMRecord${this.nLPart}`
+          : `movesRecord${this.nLPart}`, 'heh9');
       } catch {
         return { record: 0, adding: 0 };
       }
@@ -345,6 +347,9 @@ export const useBaseStore = defineStore('base', {
     },
     freeElementRow(): number {
       return getElementRow(this.freeElement, this.numLines);
+    },
+    nLPart(): string {
+      return this.numLines === CORE_NUM ? '' : this.numLines.toString();
     }
   }
 });
