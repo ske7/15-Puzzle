@@ -1,6 +1,6 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import {
-  generateAndShuffle, generate, isSolvable,
+  generateAndShuffle, generate, isSolvable, isSorted,
   getElementCol, getElementRow, displayedTime
 } from '../utils';
 import {
@@ -83,6 +83,9 @@ export const useBaseStore = defineStore('base', {
     },
     mixAndCheckSolvable() {
       this.mixedOrders = generateAndShuffle(this.arrayLength);
+      if (isSorted(this.mixedOrders.slice(0, -1))) {
+        return false;
+      }
       return isSolvable(this.mixedOrders);
     },
     setSpaceBetween() {

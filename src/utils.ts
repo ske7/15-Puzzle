@@ -87,3 +87,9 @@ export function getMilliSeconds(time: number): string {
 export function displayedTime(time: number): string {
   return `${getSeconds(time)}${getMilliSeconds(time)}`;
 }
+
+export function isSorted(array: readonly number[]): boolean {
+  return array.every((num, idx, arr) => {
+    return (num <= arr[idx + 1]) || (idx === arr.length - 1) ? 1 : 0;
+  });
+}
