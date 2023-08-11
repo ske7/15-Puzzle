@@ -6,7 +6,7 @@ import {
 import {
   CORE_NUM, SPACE_BETWEEN_SQUARES,
   CAGES_PATH_ARR, Direction,
-  type PreloadedImage, type Record
+  type PreloadedImage, type Record, type Position
 } from './const';
 
 export const useBaseStore = defineStore('base', {
@@ -54,7 +54,8 @@ export const useBaseStore = defineStore('base', {
     startTime: 0,
     savedTime: 0,
     proPalette: localStorage.getItem('proPalette') === 'true',
-    darkMode: localStorage.getItem('darkMode') === 'true'
+    darkMode: localStorage.getItem('darkMode') === 'true',
+    boardPos: {} as Position
   }),
   actions: {
     initStore() {

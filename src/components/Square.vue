@@ -122,6 +122,9 @@ const calculatedTop = computed(() => {
   );
 });
 
+const isFreeElement = computed(() => {
+  return props.mixedOrder === 0;
+});
 const isSquareInPlace = computed(() => {
   return actualOrder.value + 1 === props.mixedOrder;
 });
@@ -163,6 +166,47 @@ const moveDirection = computed(() => {
 const cannotMove = computed(() => {
   return isDoneAll.value || baseStore.paused || moveDirection.value === Direction.None;
 });
+
+const moveByTouch = (e: TouchEvent): void => {
+  if (!isFreeElement.value) {
+    return;
+  }
+  const spaceX = baseStore.spaceBetween * (baseStore.freeElementCol + 1);
+  const spaceY = baseStore.spaceBetween * (baseStore.freeElementRow + 1);
+  const posX = calculatedLeft.value + baseStore.boardPos.left - spaceX;
+  const posY = calculatedTop.value + baseStore.boardPos.top - spaceY;
+  if (baseStore.freeElementCol < baseStore.numLines && e.touches[0].clientX > posX + props.squareSize &&
+  e.touches[0].clientY >= baseStore.boardPos.top && e.touches[0].clientY <= baseStore.boardPos.bottom) {
+    baseStore.saveActualOrder(
+      getArrayKeyByValue(baseStore.actualOrders, baseStore.freeElement + 1),
+      Direction.Left
+    );
+    return;
+  }
+  if (baseStore.freeElementCol > 1 && e.touches[0].clientX < posX &&
+    e.touches[0].clientY >= baseStore.boardPos.top && e.touches[0].clientY <= baseStore.boardPos.bottom) {
+    baseStore.saveActualOrder(
+      getArrayKeyByValue(baseStore.actualOrders, baseStore.freeElement - 1),
+      Direction.Right
+    );
+    return;
+  }
+  if (baseStore.freeElementRow < baseStore.numLines && e.touches[0].clientY > posY + props.squareSize &&
+    e.touches[0].clientX >= baseStore.boardPos.left && e.touches[0].clientX <= baseStore.boardPos.right) {
+    baseStore.saveActualOrder(
+      getArrayKeyByValue(baseStore.actualOrders, baseStore.freeElement + baseStore.numLines),
+      Direction.Up
+    );
+    return;
+  }
+  if (baseStore.freeElementRow > 1 && e.touches[0].clientY < posY &&
+    e.touches[0].clientX >= baseStore.boardPos.left && e.touches[0].clientX <= baseStore.boardPos.right) {
+    baseStore.saveActualOrder(
+      getArrayKeyByValue(baseStore.actualOrders, baseStore.freeElement - baseStore.numLines),
+      Direction.Down
+    );
+  }
+};
 
 const isCaptured = ref(false);
 const isMoving = ref(false);
@@ -227,7 +271,7 @@ const isNoBorder = ref(false);
 watch(
   isDoneAll,
   (newValue) => {
-    if (newValue && props.mixedOrder !== 0) {
+    if (newValue && !isFreeElement.value) {
       if (baseStore.proMode) {
         baseStore.afterDoneCount += 1;
         return;
@@ -250,7 +294,7 @@ watch(
 
 const loadedImg = computed(() => {
   let imgNum = props.mixedOrder.toString().padStart(2, '0');
-  if (props.mixedOrder === 0) {
+  if (isFreeElement.value) {
     imgNum = baseStore.arrayLength.toString();
   }
   return `/cages/${baseStore.cagePath}/${imgNum}.jpg`;
@@ -275,10 +319,10 @@ watch(
 
 <template>
   <div
-    v-show="!baseStore.cageMode || !(props.mixedOrder === 0 && !(baseStore.cageMode && isDoneAll))"
+    v-show="!baseStore.cageMode || !(isFreeElement && !(baseStore.cageMode && isDoneAll))"
     class="square"
     :class="{
-      free: props.mixedOrder === 0 && !(baseStore.cageMode && isDoneAll),
+      free: isFreeElement && !(baseStore.cageMode && isDoneAll),
       'in-place': isSquareInPlace && !baseStore.processingReInit &&
         !(baseStore.proMode && baseStore.proPalette),
       captured: isCaptured && !(baseStore.proMode && baseStore.proPalette),
@@ -289,8 +333,8 @@ watch(
     :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px` }"
     @mousedown.left="move"
     @touchstart.prevent="move"
-    @touchmove.prevent
-    @mousemove="moveByMouse"
+    @touchmove.prevent="moveByTouch"
+    @mousemove.prevent="moveByMouse"
   >
     <div class="item" :style="{ cursor: getCursor }">
       <img
@@ -302,13 +346,13 @@ watch(
       >
       <span
         v-if="baseStore.showSquareNum && baseStore.cageMode && baseStore.finishLoadingAllCageImages"
-        v-show="!baseStore.cageHardcoreMode && !isNoBorder && props.mixedOrder !== 0"
+        v-show="!baseStore.cageHardcoreMode && !isNoBorder && !isFreeElement"
         class="item-img-span"
       >
         {{ props.mixedOrder }}
       </span>
       <Transition :name="baseStore.proMode ? '' : 'bounce'">
-        <span v-if="baseStore.showSquareNum && !baseStore.cageMode && props.mixedOrder !== 0">
+        <span v-if="baseStore.showSquareNum && !baseStore.cageMode && !isFreeElement">
           {{ props.mixedOrder }}
         </span>
       </Transition>

@@ -25,6 +25,13 @@ export interface Record {
   adding: number;
 }
 
+export interface Position {
+  left: number,
+  top: number,
+  right: number,
+  bottom: number;
+}
+
 export const CAGES_PATH_ARR = [
   '01-joe',
   '02-primal',

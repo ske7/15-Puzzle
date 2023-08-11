@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted, watch, reactive } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useEventBus } from '@vueuse/core';
+import { useEventBus, useElementBounding } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { Direction, CAGES_PATH_ARR, CORE_NUM } from '../stores/const';
 import Square from './Square.vue';
@@ -20,7 +20,6 @@ const eventBus = useEventBus<string>('event-bus');
 const boardSize = computed(() => {
   return baseStore.boardSize(props.squareSize);
 });
-const container = ref<HTMLElement>();
 const borderRadiusVar = computed(() => {
   if (baseStore.cageMode || baseStore.proMode) {
     return '0px';
@@ -111,6 +110,13 @@ onMounted(() => {
     }
   }, 1000);
 });
+
+const container = ref<HTMLElement>();
+const position = reactive(useElementBounding(container));
+watch(position, value => {
+  baseStore.boardPos = { left: value.left, top: value.top, right: value.right, bottom: value.bottom };
+},
+{ immediate: false, flush: 'post' });
 
 const { doResetList } = storeToRefs(baseStore);
 watch(
