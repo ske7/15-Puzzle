@@ -74,6 +74,7 @@ img[alt] {
   align-items: flex-end;
   position: relative;
   width: 100%;
+  min-height: 29px;
 }
 .bottom-tools-panel {
   display: flex;
@@ -158,6 +159,9 @@ img[alt] {
 }
 .paused {
   opacity: 0.5;
+}
+.bold {
+  font-weight: 600;
 }
 @media screen and (min-width: 600px) {
   .tool-button:hover:not([disabled]) {

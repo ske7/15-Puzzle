@@ -10,6 +10,9 @@ const baseStore = useBaseStore();
       <span>{{ baseStore.marathonMode ? 'Marathon time' : 'Time' }}:</span>
       <span class="ml-5">{{ baseStore.timeStr }}s</span>
     </div>
+    <div v-if="baseStore.isDone" class="consolas">
+      <span class="bold">Solved!</span>
+    </div>
     <div class="tool-items consolas">
       <span>Moves:</span>
       <span class="ml-5">{{ baseStore.movesCount }}</span>
