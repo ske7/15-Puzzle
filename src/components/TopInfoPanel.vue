@@ -7,10 +7,10 @@ const baseStore = useBaseStore();
 <template>
   <div class="top-info-panel">
     <div class="tool-items consolas">
-      <span>{{ baseStore.marathonMode ? 'Marathon time' : 'Time' }}:</span>
+      <span>Time:</span>
       <span class="ml-5">{{ baseStore.timeStr }}s</span>
     </div>
-    <div v-if="baseStore.isDone" class="consolas">
+    <div v-if="baseStore.isDone" class="consolas solved">
       <span class="bold">Solved!</span>
     </div>
     <div class="tool-items consolas">

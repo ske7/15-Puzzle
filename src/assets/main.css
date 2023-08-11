@@ -163,6 +163,10 @@ img[alt] {
 .bold {
   font-weight: 600;
 }
+.solved {
+  position: absolute;
+  left: calc(50% - 30.8px);
+}
 @media screen and (min-width: 600px) {
   .tool-button:hover:not([disabled]) {
     color: var(--btn-text-hover-color);
