@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { Direction } from '../stores/const';
 import { storeToRefs } from 'pinia';
+import { useEventBus } from '@vueuse/core';
 import { getElementCol, getElementRow, getArrayKeyByValue } from '../utils';
 
 const props = defineProps<{
@@ -315,6 +316,20 @@ watch(
   },
   { immediate: true }
 );
+
+const eventBus = useEventBus<string>('event-bus');
+const listener = (event: string, payload: string): void => {
+  if (event === 'restart' && ['fromConfig', 'fromKeyboard'].includes(payload)) {
+    isCaptured.value = false;
+    isNoBorder.value = false;
+  }
+};
+onMounted(() => {
+  eventBus.on(listener);
+});
+onUnmounted(() => {
+  eventBus.off(listener);
+});
 </script>
 
 <template>
