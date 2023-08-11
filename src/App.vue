@@ -12,6 +12,19 @@ const WinModal = defineAsyncComponent({
 });
 
 const baseStore = useBaseStore();
+
+if (location.href.toLowerCase().includes('pro')) {
+  baseStore.proMode = true;
+  baseStore.proPalette = true;
+  localStorage.setItem('proMode', 'true');
+  localStorage.setItem('fasterSliding', 'true');
+  localStorage.setItem('proPalette', 'true');
+}
+if (location.href.toLowerCase().includes('dark')) {
+  baseStore.darkMode = true;
+  localStorage.setItem('darkMode', 'true');
+}
+
 const { width: windowWidth } = useWindowSize();
 const visibility = useDocumentVisibility();
 document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');
