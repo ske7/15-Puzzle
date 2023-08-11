@@ -168,7 +168,7 @@ const cannotMove = computed(() => {
 });
 
 const moveByTouch = (e: TouchEvent): void => {
-  if (!isFreeElement.value) {
+  if (!isFreeElement.value || isDoneAll.value || baseStore.paused) {
     return;
   }
   const spaceX = baseStore.spaceBetween * (baseStore.freeElementCol + 1);
