@@ -6,14 +6,14 @@ const baseStore = useBaseStore();
 
 <template>
   <div class="top-info-panel">
-    <div class="tool-items consolas">
+    <div>
       <span>Time:</span>
       <span class="ml-5">{{ baseStore.timeStr }}s</span>
     </div>
-    <div v-if="baseStore.isDone" class="consolas solved">
+    <div v-if="baseStore.isDone" class="solved">
       <span class="bold">Solved!</span>
     </div>
-    <div class="tool-items consolas">
+    <div>
       <span>Moves:</span>
       <span class="ml-5">{{ baseStore.movesCount }}</span>
     </div>

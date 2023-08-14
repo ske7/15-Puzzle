@@ -50,7 +50,6 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 0;
-  font-weight: normal;
   padding-bottom: 20px;
 }
 body {
@@ -75,6 +74,7 @@ img[alt] {
   position: relative;
   width: 100%;
   min-height: 29px;
+  font-family: 'consolas';
 }
 .bottom-tools-panel {
   display: flex;
@@ -83,20 +83,18 @@ img[alt] {
   position: relative;
   margin-top: 10px;
   width: 100%;
+  font-family: 'consolas';
+  line-height: 27px;
 }
-.tool-items {
+.bottom-tools-panel .first-row {
   display: flex;
-  align-items: baseline;
-}
-.tool-items.first-row {
   margin-bottom: 10px;
   width: 100%;
   justify-content: space-around;
 }
-.tool-items.second-row {
+.bottom-tools-panel .second-row {
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 .tool-button {
   display: flex;
@@ -116,29 +114,14 @@ img[alt] {
   transition: all 0.3s ease;
   -webkit-tap-highlight-color: transparent;
 }
-.records {
-  font-size: 16px;
-}
 .red {
-  color: red !important;
-}
-.consolas span {
-  font-family: 'consolas';
+  color: red;
 }
 .italic {
   font-style: italic;
 }
 .ml-5 {
   margin-left: 5px;
-}
-.mt-10 {
-  margin-top: 10px !important;
-}
-.mb-5 {
-  margin-bottom: 5px;
-}
-.mt-5 {
-  margin-top: 5px;
 }
 .tool-button:disabled {
   cursor: auto;
@@ -174,7 +157,7 @@ img[alt] {
   }
 }
 @media screen and (max-width: 420px) {
-  .tool-items.first-row {
+  .bottom-tools-panel .first-row {
     justify-content: space-between;
   }
   .tool-button {

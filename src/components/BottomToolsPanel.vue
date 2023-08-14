@@ -96,7 +96,7 @@ onUnmounted(() => {
 
 <template>
   <div class="bottom-tools-panel">
-    <div class="tool-items first-row">
+    <div class="first-row">
       <button
         type="button"
         class="tool-button"
@@ -130,51 +130,42 @@ onUnmounted(() => {
         About
       </button>
     </div>
-    <div class="tool-items second-row">
-      <div class="tool-items records consolas">
-        <div>
-          <p>
-            <span>PB {{ baseStore.marathonMode ? 'marathon ' : ' ' }}time: </span>
-            <span class="italic" :class="{ red: baseStore.newTimeRecord }">
-              {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeMRecord }}s
-            </span>
-            <span> ({{ baseStore.timeRecordMoves }})</span>
-          </p>
-          <p>
-            <span>PB {{ baseStore.marathonMode ? 'marathon ' : ' ' }}moves:  </span>
-            <span class="italic" :class="{ red: baseStore.newMovesRecord }">
-              {{ baseStore.movesRecord || '?' }}
-            </span>
-            <span> ({{ displayedTime(baseStore.movesRecordTime) }}s)</span>
-          </p>
-        </div>
-      </div>
+    <div class="second-row">
+      <p>
+        <span>PB {{ baseStore.marathonMode ? 'marathon ' : ' ' }}time: </span>
+        <span class="italic" :class="{ red: baseStore.newTimeRecord }">
+          {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeMRecord }}s
+        </span>
+        <span> ({{ baseStore.timeRecordMoves }})</span>
+      </p>
+      <p>
+        <span>PB {{ baseStore.marathonMode ? 'marathon ' : ' ' }}moves:  </span>
+        <span class="italic" :class="{ red: baseStore.newMovesRecord }">
+          {{ baseStore.movesRecord || '?' }}
+        </span>
+        <span> ({{ displayedTime(baseStore.movesRecordTime) }}s)</span>
+      </p>
     </div>
-    <div class="tool-items third-row">
-      <div
+    <div class="third-row">
+      <p
         v-if="!(baseStore.disableCageMode || baseStore.marathonMode || baseStore.proMode)
           && baseStore.numLines === CORE_NUM"
-        class="tool-items records consolas"
       >
-        <span>
-          <span
-            class="unlocked"
-            :class="{ paused: baseStore.showModal }"
-            @click="showImageGallery"
-          >
-            Completed</span>  <span class="italic">
-            {{ baseStore.unlockedCages.size }}
-          </span> out of {{ baseStore.cagesCount }} "Cages"
-        </span>
-      </div>
-      <div v-if="baseStore.marathonMode" class="tool-items records consolas">
-        <span>
-          Solved
-          <span class="italic">
-            {{ baseStore.solvedPuzzlesInMarathon }}
-          </span> out of 5 puzzles
-        </span>
-      </div>
+        <span
+          class="unlocked"
+          :class="{ paused: baseStore.showModal }"
+          @click="showImageGallery"
+        >
+          Completed</span>  <span class="italic">
+          {{ baseStore.unlockedCages.size }}
+        </span> out of {{ baseStore.cagesCount }} "Cages"
+      </p>
+      <p v-if="baseStore.marathonMode">
+        Solved
+        <span class="italic">
+          {{ baseStore.solvedPuzzlesInMarathon }}
+        </span> out of 5 puzzles
+      </p>
     </div>
   </div>
   <ConfigModal

@@ -90,10 +90,10 @@ onUnmounted(() => {
   color: var(--win-color);
   font-weight: 600;
 }
-.unlock-message {
-  font-size: 16px !important;
-  line-height: 25px !important;
-  color: var(--text-color) !important;
+.finish-message .unlock-message {
+  font-size: 16px;
+  line-height: 25px;
+  color: var(--text-color);
   font-style: italic;
 }
 .unlock-message  span {
@@ -107,5 +107,11 @@ onUnmounted(() => {
 }
 .buttons .tool-button {
   width: 100px;
+}
+.mb-5 {
+  margin-bottom: 5px;
+}
+.mt-5 {
+  margin-top: 5px;
 }
 </style>

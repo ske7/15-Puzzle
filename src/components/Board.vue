@@ -21,9 +21,6 @@ const boardSize = computed(() => {
   return baseStore.boardSize(props.squareSize);
 });
 const borderRadiusVar = computed(() => {
-  if (baseStore.cageMode || baseStore.proMode) {
-    return '0px';
-  }
   return '8px';
 });
 const boxShadow = computed(() => {
@@ -246,13 +243,14 @@ watch(
   text-align: center;
 }
 .cur-auto {
-  cursor: auto !important;
+  cursor: auto;
 }
 .loading-veil {
-  opacity: 0 !important;
+  opacity: 0;
 }
 .complete-cage {
   z-index: 1001;
+  border-radius: v-bind(borderRadiusVar);
 }
 @media screen and (max-width: 601px) {
   .paused-veil .bigger {

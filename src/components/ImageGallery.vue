@@ -345,6 +345,7 @@ h2 {
   width: calc(var(--v-width) - 40px);
   position: relative;
   background-color: #dfdfdf;
+  border-radius: 8px;
 }
 .cage-img {
   height: calc(var(--v-width) - 40px);
@@ -352,6 +353,7 @@ h2 {
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
+  border-radius: 8px;
 }
 .cage-locked-txt {
   display: flex;

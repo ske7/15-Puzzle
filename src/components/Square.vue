@@ -14,12 +14,26 @@ const props = defineProps<{
 
 const baseStore = useBaseStore();
 
+const elementCol = computed(() => {
+  return getElementCol(actualOrder.value, baseStore.numLines);
+});
+const elementRow = computed(() => {
+  return getElementRow(actualOrder.value, baseStore.numLines);
+});
+
 const sizeVar = computed(() => {
   return `${props.squareSize}px`;
 });
 const borderRadiusVar = computed(() => {
   if (baseStore.cageMode && baseStore.finishLoadingAllCageImages || baseStore.proMode) {
-    return '0px';
+    const topLeft = elementCol.value === 1 && elementRow.value === 1 ? 8 : 0;
+    const topRight = elementCol.value === baseStore.numLines && elementRow.value === 1 ? 8 : 0;
+    const bottomRight = elementCol.value === baseStore.numLines &&
+    elementRow.value === baseStore.numLines
+      ? 8
+      : 0;
+    const bottomLeft = elementCol.value === 1 && elementRow.value === baseStore.numLines ? 8 : 0;
+    return `${topLeft}px ${topRight}px ${bottomRight}px ${bottomLeft}px`;
   }
   return '8px';
 });
@@ -80,6 +94,9 @@ const bgColor = computed(() => {
     }
     return '#d2d2d2';
   }
+  if (baseStore.cageMode) {
+    return 'var(--background-color)';
+  }
   return 'var(--square-bg-color)';
 });
 const fontSizeD = computed(() => {
@@ -131,13 +148,6 @@ const isSquareInPlace = computed(() => {
 });
 const isDoneAll = computed(() => {
   return baseStore.isDone;
-});
-
-const elementCol = computed(() => {
-  return getElementCol(actualOrder.value, baseStore.numLines);
-});
-const elementRow = computed(() => {
-  return getElementRow(actualOrder.value, baseStore.numLines);
 });
 
 const canMoveRight = computed(() => {
@@ -429,21 +439,23 @@ onUnmounted(() => {
   height: 100%;
   position: relative;
   filter: v-bind(brightnessImg);
+  border-radius: v-bind(borderRadiusVar);
+  background-color: v-bind(bgColor);
 }
-.item-img-span {
+.item .item-img-span {
   position: absolute;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white !important;
+  color: white;
   text-shadow: 0 3px 3px black;
   opacity: 1;
 }
-.captured {
-  background-color: gold !important;
-}
 .in-place {
   background-color: v-bind(inPlaceColor);
+}
+.captured {
+  background-color: gold;
 }
 .no-border {
   border: 0px;
