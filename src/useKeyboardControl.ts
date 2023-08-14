@@ -1,7 +1,5 @@
 import { onMounted, onBeforeUnmount } from 'vue';
 import { useBaseStore } from './stores/base';
-import { Direction } from './stores/const';
-import { getArrayKeyByValue } from './utils';
 import { useEventBus } from '@vueuse/core';
 
 export const useKeyDown = () => {
@@ -17,42 +15,14 @@ export const useKeyDown = () => {
     if (baseStore.isDone || baseStore.paused) {
       return;
     }
-    let newFreeElement: number | null = null;
-    if (['ArrowRight', 'KeyD', 'KeyL'].includes(event.code)) {
-      newFreeElement = baseStore.freeElement - 1;
-      if (newFreeElement >= 0 && (newFreeElement + 1) % baseStore.numLines !== 0) {
-        baseStore.saveActualOrder(
-          getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
-          Direction.Right
-        );
-      }
-    } else if (['ArrowLeft', 'KeyA', 'KeyJ'].includes(event.code)) {
-      newFreeElement = baseStore.freeElement + 1;
-      if (
-        newFreeElement < baseStore.arrayLength &&
-        (baseStore.freeElement + 1) % baseStore.numLines !== 0
-      ) {
-        baseStore.saveActualOrder(
-          getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
-          Direction.Left
-        );
-      }
+    if (['ArrowLeft', 'KeyA', 'KeyJ'].includes(event.code)) {
+      baseStore.moveLeft();
+    } else if (['ArrowRight', 'KeyD', 'KeyL'].includes(event.code)) {
+      baseStore.moveRight();
     } else if (['ArrowUp', 'KeyW', 'KeyI'].includes(event.code)) {
-      newFreeElement = baseStore.freeElement + baseStore.numLines;
-      if (newFreeElement < baseStore.arrayLength) {
-        baseStore.saveActualOrder(
-          getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
-          Direction.Up
-        );
-      }
+      baseStore.moveUp();
     } else if (['ArrowDown', 'KeyS', 'KeyK'].includes(event.code)) {
-      newFreeElement = baseStore.freeElement - baseStore.numLines;
-      if (newFreeElement >= 0) {
-        baseStore.saveActualOrder(
-          getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
-          Direction.Down
-        );
-      }
+      baseStore.moveDown();
     }
   };
 

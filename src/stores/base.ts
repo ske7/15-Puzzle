@@ -1,7 +1,8 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import {
   generateAndShuffle, generate, isSolvable, isSorted,
-  getElementCol, getElementRow, displayedTime
+  getArrayKeyByValue, getElementCol, getElementRow,
+  displayedTime
 } from '../utils';
 import {
   CORE_NUM, SPACE_BETWEEN_SQUARES,
@@ -135,6 +136,38 @@ export const useBaseStore = defineStore('base', {
       this.paused = !this.paused;
       if (this.paused) {
         this.saveTime();
+      }
+    },
+    moveLeft() {
+      if ((this.freeElement + 1) % this.numLines !== 0) {
+        this.saveActualOrder(
+          getArrayKeyByValue(this.actualOrders, this.freeElement + 1),
+          Direction.Left
+        );
+      }
+    },
+    moveRight() {
+      if (this.freeElement % this.numLines !== 0) {
+        this.saveActualOrder(
+          getArrayKeyByValue(this.actualOrders, this.freeElement - 1),
+          Direction.Right
+        );
+      }
+    },
+    moveUp() {
+      if (this.freeElementRow < this.numLines) {
+        this.saveActualOrder(
+          getArrayKeyByValue(this.actualOrders, this.freeElement + this.numLines),
+          Direction.Up
+        );
+      }
+    },
+    moveDown() {
+      if (this.freeElementRow > 1) {
+        this.saveActualOrder(
+          getArrayKeyByValue(this.actualOrders, this.freeElement - this.numLines),
+          Direction.Down
+        );
       }
     },
     saveActualOrder(order: number, moveDirection: Direction) {

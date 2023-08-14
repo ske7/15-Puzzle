@@ -186,36 +186,24 @@ const moveByTouch = (e: TouchEvent): void => {
   const spaceY = baseStore.spaceBetween * (baseStore.freeElementRow + 1);
   const posX = calculatedLeft.value + baseStore.boardPos.left - spaceX;
   const posY = calculatedTop.value + baseStore.boardPos.top - spaceY;
-  if (baseStore.freeElementCol < baseStore.numLines && e.touches[0].clientX > posX + props.squareSize &&
-  e.touches[0].clientY >= baseStore.boardPos.top && e.touches[0].clientY <= baseStore.boardPos.bottom) {
-    baseStore.saveActualOrder(
-      getArrayKeyByValue(baseStore.actualOrders, baseStore.freeElement + 1),
-      Direction.Left
-    );
+  if (e.touches[0].clientX > posX + props.squareSize &&
+     e.touches[0].clientY >= baseStore.boardPos.top && e.touches[0].clientY <= baseStore.boardPos.bottom) {
+    baseStore.moveLeft();
     return;
   }
-  if (baseStore.freeElementCol > 1 && e.touches[0].clientX < posX &&
+  if (e.touches[0].clientX < posX &&
     e.touches[0].clientY >= baseStore.boardPos.top && e.touches[0].clientY <= baseStore.boardPos.bottom) {
-    baseStore.saveActualOrder(
-      getArrayKeyByValue(baseStore.actualOrders, baseStore.freeElement - 1),
-      Direction.Right
-    );
+    baseStore.moveRight();
     return;
   }
-  if (baseStore.freeElementRow < baseStore.numLines && e.touches[0].clientY > posY + props.squareSize &&
+  if (e.touches[0].clientY > posY + props.squareSize &&
     e.touches[0].clientX >= baseStore.boardPos.left && e.touches[0].clientX <= baseStore.boardPos.right) {
-    baseStore.saveActualOrder(
-      getArrayKeyByValue(baseStore.actualOrders, baseStore.freeElement + baseStore.numLines),
-      Direction.Up
-    );
+    baseStore.moveUp();
     return;
   }
-  if (baseStore.freeElementRow > 1 && e.touches[0].clientY < posY &&
+  if (e.touches[0].clientY < posY &&
     e.touches[0].clientX >= baseStore.boardPos.left && e.touches[0].clientX <= baseStore.boardPos.right) {
-    baseStore.saveActualOrder(
-      getArrayKeyByValue(baseStore.actualOrders, baseStore.freeElement - baseStore.numLines),
-      Direction.Down
-    );
+    baseStore.moveDown();
   }
 };
 
