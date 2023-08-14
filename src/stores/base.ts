@@ -28,7 +28,7 @@ export const useBaseStore = defineStore('base', {
     timeRecordMoves: 0,
     movesRecordTime: 0,
     doneFirstMove: false,
-    showSquareNum: false,
+    showSquareNum: true,
     cageMode: false,
     eligibleForCageMode: false,
     cagePath: '',

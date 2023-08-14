@@ -1,22 +1,26 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, watch, reactive } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useEventBus, useElementBounding } from '@vueuse/core';
+import { useElementBounding } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
-import { Direction, CAGES_PATH_ARR, CORE_NUM } from '../stores/const';
+import { CAGES_PATH_ARR, CORE_NUM } from '../stores/const';
 import Square from './Square.vue';
-import { getArrayKeyByValue, randArrayItem } from '../utils';
+import { randArrayItem } from '../utils';
+import { useKeyDown } from '@/useKeyboardControl';
 
 const props = defineProps<{ squareSize: number }>();
 
 const baseStore = useBaseStore();
 baseStore.initStore();
+
 if (!(baseStore.disableCageMode || baseStore.marathonMode || baseStore.proMode) &&
   (baseStore.numLines === CORE_NUM) && location.href.toLowerCase().includes('eligibleforcagemode')) {
   baseStore.eligibleForCageMode = true;
   baseStore.reset();
 }
-const eventBus = useEventBus<string>('event-bus');
+
+useKeyDown();
+
 const boardSize = computed(() => {
   return baseStore.boardSize(props.squareSize);
 });
@@ -30,76 +34,23 @@ const boxShadow = computed(() => {
   if (baseStore.darkMode) {
     return '0 1px 3px var(--board-shadow-color), 0 3px 6px var(--board-shadow-color)';
   }
-
-  return 'var(--board-shadow-color) 0px 3px 10px';
+  return '0px 3px 10px var(--board-shadow-color)';
 });
+
 const cageCompleteImgLoaded = ref(false);
 const cageCompleteImg = computed(() => {
   return `/cages/${baseStore.cagePath}/complete.jpg`;
 });
-
 const onCageCompleteImgLoaded = (): void => {
   cageCompleteImgLoaded.value = true;
 };
-
 const hideWhenCageShowCageCompleteImg = computed(() => {
   return baseStore.cageMode && baseStore.isDone &&
          baseStore.afterDoneAnimationEnd && cageCompleteImgLoaded;
 });
 
-const isMounted = ref(false);
 onMounted(() => {
-  isMounted.value = true;
   baseStore.loadUnlockedCagesFromLocalStorage();
-  baseStore.showSquareNum = true;
-  window.addEventListener('keydown', (event) => {
-    event.preventDefault();
-    if (event.code === 'Space' && !baseStore.paused) {
-      eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
-      return;
-    }
-    if (baseStore.isDone || baseStore.paused) {
-      return;
-    }
-    let newFreeElement: number | null = null;
-    if (['ArrowRight', 'KeyD', 'KeyL'].includes(event.code)) {
-      newFreeElement = baseStore.freeElement - 1;
-      if (newFreeElement >= 0 && (newFreeElement + 1) % baseStore.numLines !== 0) {
-        baseStore.saveActualOrder(
-          getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
-          Direction.Right
-        );
-      }
-    } else if (['ArrowLeft', 'KeyA', 'KeyJ'].includes(event.code)) {
-      newFreeElement = baseStore.freeElement + 1;
-      if (
-        newFreeElement < baseStore.arrayLength &&
-        (baseStore.freeElement + 1) % baseStore.numLines !== 0
-      ) {
-        baseStore.saveActualOrder(
-          getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
-          Direction.Left
-        );
-      }
-    } else if (['ArrowUp', 'KeyW', 'KeyI'].includes(event.code)) {
-      newFreeElement = baseStore.freeElement + baseStore.numLines;
-      if (newFreeElement < baseStore.arrayLength) {
-        baseStore.saveActualOrder(
-          getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
-          Direction.Up
-        );
-      }
-    } else if (['ArrowDown', 'KeyS', 'KeyK'].includes(event.code)) {
-      newFreeElement = baseStore.freeElement - baseStore.numLines;
-      if (newFreeElement >= 0) {
-        baseStore.saveActualOrder(
-          getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
-          Direction.Down
-        );
-      }
-    }
-  });
-
   setTimeout(() => {
     if (baseStore.unlockedCages.size > 0) {
       const first = [...baseStore.unlockedCages][0];
@@ -185,7 +136,7 @@ watch(
         </p>
       </div>
     </div>
-    <div v-if="isMounted && !hideWhenCageShowCageCompleteImg">
+    <div v-if="!hideWhenCageShowCageCompleteImg">
       <Square
         v-for="(value, index) in baseStore.mixedOrders"
         :key="index"
