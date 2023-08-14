@@ -433,6 +433,7 @@ onUnmounted(() => {
   box-sizing: border-box;
   box-shadow: 0 0 4px inset rgba(0, 0, 0, 0.2);
   -webkit-tap-highlight-color: transparent;
+  z-index: 2;
 }
 .item-img {
   width: 100%;
@@ -470,7 +471,8 @@ onUnmounted(() => {
 .free {
   background: transparent;
   box-shadow: none;
-  border: none;
+  border: 1px solid var(--background-color);
+  z-index: 1;
 }
 .item {
   display: flex;
