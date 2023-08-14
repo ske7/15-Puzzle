@@ -344,7 +344,6 @@ onUnmounted(() => {
 
 <template>
   <div
-    v-show="!baseStore.cageMode || !(isFreeElement && !(baseStore.cageMode && isDoneAll))"
     class="square"
     :class="{
       free: isFreeElement && !(baseStore.cageMode && isDoneAll),
@@ -364,6 +363,7 @@ onUnmounted(() => {
     <div class="item" :style="{ cursor: getCursor }">
       <img
         v-if="baseStore.cageMode"
+        v-show="!baseStore.cageMode || !(isFreeElement && !(baseStore.cageMode && isDoneAll))"
         :src="loadedImg"
         class="item-img"
         draggable="false"
@@ -470,7 +470,7 @@ onUnmounted(() => {
 .free {
   background: transparent;
   box-shadow: none;
-  border: 1px solid var(--background-color);
+  border: none;
 }
 .item {
   display: flex;
