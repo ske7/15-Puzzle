@@ -48,6 +48,8 @@ const setProMode = (): void => {
   baseStore.proMode = !baseStore.proMode;
   localStorage.setItem('proMode', baseStore.proMode.toString());
   localStorage.setItem('fasterSliding', baseStore.proMode.toString());
+  baseStore.eligibleForCageMode = false;
+  baseStore.cageMode = false;
   baseStore.setSpaceBetween();
   eventBus.emit('restart', 'fromConfig');
 };
@@ -60,6 +62,7 @@ const setMarathonMode = (): void => {
   baseStore.marathonMode = !baseStore.marathonMode;
   localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
   baseStore.eligibleForCageMode = false;
+  baseStore.cageMode = false;
   eventBus.emit('restart', 'fromConfig');
 };
 const sliderValue = ref<number>(baseStore.numLines);

@@ -11,7 +11,7 @@ const baseStore = useBaseStore();
       <span class="ml-5">{{ baseStore.timeStr }}s</span>
     </div>
     <div v-if="baseStore.isDone" class="solved">
-      <span class="bold">Solved!</span>
+      <span>Solved!</span>
     </div>
     <div>
       <span>Moves:</span>
@@ -19,3 +19,30 @@ const baseStore = useBaseStore();
     </div>
   </div>
 </template>
+
+<style scoped>
+.top-info-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  position: relative;
+  width: 100%;
+  min-height: 29px;
+  font-family: 'consolas';
+}
+.solved {
+  position: absolute;
+  left: calc(50% - 30.8px);
+}
+.solved span {
+  font-weight: 600;
+}
+.ml-5 {
+  margin-left: 5px;
+}
+@media screen and (max-width: 420px) {
+  .solved {
+    display: none;
+  }
+}
+</style>

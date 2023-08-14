@@ -1,5 +1,5 @@
 import { onMounted, onBeforeUnmount } from 'vue';
-import { useBaseStore } from './stores/base';
+import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
 
 export const useKeyDown = () => {

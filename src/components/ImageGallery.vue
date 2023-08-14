@@ -4,14 +4,14 @@ import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside } from '@vueuse/core';
 import { CAGES_PATH_ARR } from '../stores/const';
+import { getSquareSize } from '../composables/usePrepare';
 
 const emit = defineEmits<{ close: []; }>();
 const baseStore = useBaseStore();
 
-const props = defineProps<{ squareSize: number; }>();
-
+const { squareSize } = getSquareSize();
 const boardSize = computed(() => {
-  return baseStore.boardSize(props.squareSize);
+  return baseStore.boardSize(squareSize.value);
 });
 
 const imageGallery = ref<HTMLElement>();
@@ -315,7 +315,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
   width: var(--v-width);
   position: fixed;
   z-index: 2000;
-  top: 40px;
+  top: 45px;
   left: calc(50% - var(--v-width) / 2);
   padding: 10px;
   box-shadow: 0 8px 16px var(--shadow-color);

@@ -1,28 +1,15 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, watch, reactive } from 'vue';
-import { storeToRefs } from 'pinia';
+import { computed, ref, watch, reactive } from 'vue';
 import { useElementBounding } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
-import { CAGES_PATH_ARR, CORE_NUM } from '../stores/const';
+import { getSquareSize } from '../composables/usePrepare';
 import Square from './Square.vue';
-import { randArrayItem } from '../utils';
-import { useKeyDown } from '@/useKeyboardControl';
-
-const props = defineProps<{ squareSize: number }>();
 
 const baseStore = useBaseStore();
-baseStore.initStore();
 
-if (!(baseStore.disableCageMode || baseStore.marathonMode || baseStore.proMode) &&
-  (baseStore.numLines === CORE_NUM) && location.href.toLowerCase().includes('eligibleforcagemode')) {
-  baseStore.eligibleForCageMode = true;
-  baseStore.reset();
-}
-
-useKeyDown();
-
+const { squareSize } = getSquareSize();
 const boardSize = computed(() => {
-  return baseStore.boardSize(props.squareSize);
+  return baseStore.boardSize(squareSize.value);
 });
 const borderRadiusVar = computed(() => {
   return '8px';
@@ -37,28 +24,6 @@ const boxShadow = computed(() => {
   return '0px 3px 10px var(--board-shadow-color)';
 });
 
-const cageCompleteImgLoaded = ref(false);
-const cageCompleteImg = computed(() => {
-  return `/cages/${baseStore.cagePath}/complete.jpg`;
-});
-const onCageCompleteImgLoaded = (): void => {
-  cageCompleteImgLoaded.value = true;
-};
-const hideWhenCageShowCageCompleteImg = computed(() => {
-  return baseStore.cageMode && baseStore.isDone &&
-         baseStore.afterDoneAnimationEnd && cageCompleteImgLoaded;
-});
-
-onMounted(() => {
-  baseStore.loadUnlockedCagesFromLocalStorage();
-  setTimeout(() => {
-    if (baseStore.unlockedCages.size > 0) {
-      const first = [...baseStore.unlockedCages][0];
-      baseStore.preloadImage(CAGES_PATH_ARR[first]);
-    }
-  }, 1000);
-});
-
 const container = ref<HTMLElement>();
 const position = reactive(useElementBounding(container));
 watch(position, value => {
@@ -66,46 +31,23 @@ watch(position, value => {
 },
 { immediate: false, flush: 'post' });
 
-const { doResetList } = storeToRefs(baseStore);
-watch(
-  doResetList,
-  (value) => {
-    if (value) {
-      baseStore.processingReInit = true;
-      baseStore.showSquareNum = baseStore.proMode || baseStore.showConfig;
-      setTimeout(() => {
-        if (baseStore.cageMode) {
-          baseStore.cageMode = false;
-        }
-        if (baseStore.eligibleForCageMode) {
-          baseStore.cageMode = true;
-          if (baseStore.unlockedCages.size === baseStore.cagesCount) {
-            if (baseStore.shownCages.size === CAGES_PATH_ARR.length) {
-              baseStore.shownCages.clear();
-            }
-            baseStore.cagePath = randArrayItem(CAGES_PATH_ARR, Array.from(baseStore.shownCages));
-            baseStore.shownCages.add(baseStore.cagePath);
-          } else {
-            baseStore.cagePath = randArrayItem(CAGES_PATH_ARR, baseStore.unlockedCagesValues);
-          }
-          baseStore.eligibleForCageMode = false;
-        }
-        baseStore.initStore();
-        cageCompleteImgLoaded.value = false;
-        baseStore.processingReInit = false;
-        baseStore.showSquareNum = true;
-      }, baseStore.proMode || baseStore.showConfig ? 5 : 200);
-    }
-  },
-  { immediate: true, flush: 'post' }
-);
+const cageCompleteImg = computed(() => {
+  return `/cages/${baseStore.cagePath}/complete.jpg`;
+});
+const onCageCompleteImgLoaded = (): void => {
+  baseStore.cageCompleteImgLoaded = true;
+};
+const hideWhenCageShowCageCompleteImg = computed(() => {
+  return baseStore.cageMode && baseStore.isDone &&
+         baseStore.afterDoneAnimationEnd && baseStore.cageCompleteImgLoaded;
+});
 </script>
 
 <template>
   <div ref="container" class="board" @touchmove.prevent>
     <img
       v-if="baseStore.cageMode && baseStore.isDone && cageCompleteImg"
-      v-show="baseStore.afterDoneAnimationEnd && cageCompleteImgLoaded"
+      v-show="baseStore.afterDoneAnimationEnd && baseStore.cageCompleteImgLoaded"
       :src="cageCompleteImg"
       class="complete-cage"
       draggable="false"

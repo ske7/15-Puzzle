@@ -29,11 +29,11 @@ export const useBaseStore = defineStore('base', {
     timeRecordMoves: 0,
     movesRecordTime: 0,
     doneFirstMove: false,
-    showSquareNum: true,
     cageMode: false,
     eligibleForCageMode: false,
     cagePath: '',
     shownCages: new Set<string>(),
+    cageCompleteImgLoaded: false,
     cageImageLoadedCount: 0,
     showInfo: false,
     disableCageMode: localStorage.getItem('disableCageMode') === 'true',
@@ -263,6 +263,7 @@ export const useBaseStore = defineStore('base', {
           const adding = Number(decoded.slice(10, 16));
           return { record, adding };
         } else {
+          // previous old variant
           let record = 0;
           if (recordName.includes('time')) {
             record = Number(decoded.slice(4, 8)) * 1000;

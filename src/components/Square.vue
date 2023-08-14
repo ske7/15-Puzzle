@@ -4,7 +4,7 @@ import { useBaseStore } from '../stores/base';
 import { Direction } from '../stores/const';
 import { storeToRefs } from 'pinia';
 import { useEventBus } from '@vueuse/core';
-import { getElementCol, getElementRow, getArrayKeyByValue } from '../utils';
+import { getElementCol, getElementRow } from '../utils';
 
 const props = defineProps<{
   squareSize: number;
@@ -207,7 +207,6 @@ const moveByTouch = (e: TouchEvent): void => {
   }
 };
 
-const isCaptured = ref(false);
 const isMoving = ref(false);
 const move = (): void => {
   if (cannotMove.value) {
@@ -222,32 +221,28 @@ const move = (): void => {
     diff = diff / baseStore.numLines;
   }
   if (diff > 1) {
-    let newFreeElement = 0;
     for (let i = 0; i < diff; i++) {
       switch (moveDirection.value) {
-        case Direction.Right:
-          newFreeElement = baseStore.freeElement - 1;
-          break;
         case Direction.Left:
-          newFreeElement = baseStore.freeElement + 1;
+          baseStore.moveLeft();
           break;
-        case Direction.Down:
-          newFreeElement = baseStore.freeElement - baseStore.numLines;
+        case Direction.Right:
+          baseStore.moveRight();
           break;
         case Direction.Up:
-          newFreeElement = baseStore.freeElement + baseStore.numLines;
+          baseStore.moveUp();
+          break;
+        case Direction.Down:
+          baseStore.moveDown();
           break;
         default:
       }
-      baseStore.saveActualOrder(getArrayKeyByValue(baseStore.actualOrders, newFreeElement),
-        moveDirection.value);
     }
   } else {
     baseStore.saveActualOrder(props.order, moveDirection.value);
   }
   isMoving.value = false;
 };
-
 const moveByMouse = (): void => {
   if (!baseStore.proMode) {
     return;
@@ -266,6 +261,7 @@ const getCursor = computed(() => {
   }
 });
 
+const isCaptured = ref(false);
 const isNoBorder = ref(false);
 watch(
   isDoneAll,
@@ -298,7 +294,6 @@ const loadedImg = computed(() => {
   }
   return `/cages/${baseStore.cagePath}/${imgNum}.jpg`;
 });
-
 const onImgLoad = (): void => {
   baseStore.cageImageLoadedCount += 1;
 };
@@ -314,7 +309,6 @@ watch(
   },
   { immediate: true }
 );
-
 const eventBus = useEventBus<string>('event-bus');
 const listener = (event: string, payload: string): void => {
   if (event === 'restart' && ['fromConfig', 'fromKeyboard'].includes(payload)) {
@@ -322,6 +316,7 @@ const listener = (event: string, payload: string): void => {
     isNoBorder.value = false;
   }
 };
+
 onMounted(() => {
   eventBus.on(listener);
 });
@@ -334,10 +329,10 @@ onUnmounted(() => {
   <div
     class="square"
     :class="{
-      free: isFreeElement && !(baseStore.cageMode && isDoneAll),
+      'free': isFreeElement && !(baseStore.cageMode && isDoneAll),
       'in-place': isSquareInPlace && !baseStore.processingReInit &&
         !(baseStore.proMode && baseStore.proPalette),
-      captured: isCaptured && !(baseStore.proMode && baseStore.proPalette),
+      'captured': isCaptured && !(baseStore.proMode && baseStore.proPalette),
       'animate': isNoBorder,
       'no-border': isNoBorder ||
         (baseStore.cageMode && baseStore.noBordersInCageMode) || baseStore.proMode
@@ -358,14 +353,14 @@ onUnmounted(() => {
         @load="onImgLoad"
       >
       <span
-        v-if="baseStore.showSquareNum && baseStore.cageMode && baseStore.finishLoadingAllCageImages"
+        v-if="baseStore.cageMode && baseStore.finishLoadingAllCageImages"
         v-show="!baseStore.cageHardcoreMode && !isNoBorder && !isFreeElement"
         class="item-img-span"
       >
         {{ props.mixedOrder }}
       </span>
       <Transition :name="baseStore.proMode ? '' : 'bounce'">
-        <span v-if="baseStore.showSquareNum && !baseStore.cageMode && !isFreeElement">
+        <span v-if="!baseStore.processingReInit && !baseStore.cageMode && !isFreeElement">
           {{ props.mixedOrder }}
         </span>
       </Transition>
