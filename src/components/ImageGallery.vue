@@ -240,7 +240,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
             class="cage-img"
             draggable="false"
             @load="onCageImgLoad"
-            @touchstart="touchstart"
+            @touchstart.prevent="touchstart"
             @touchmove.prevent="touchmove"
             @touchend.prevent="touchend"
           >
