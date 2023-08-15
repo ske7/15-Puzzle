@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, watch, reactive } from 'vue';
-import { useElementBounding } from '@vueuse/core';
+import { useElementBounding, useEventBus } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { getSquareSize } from '../composables/usePrepare';
+import { useCanMove } from '../composables/useCanMove';
 import Square from './Square.vue';
 
 const baseStore = useBaseStore();
@@ -41,10 +42,38 @@ const hideWhenCageShowCageCompleteImg = computed(() => {
   return baseStore.cageMode && baseStore.isDone &&
          baseStore.afterDoneAnimationEnd && baseStore.cageCompleteImgLoaded;
 });
+
+const eventBus = useEventBus<string>('event-bus');
+const touchMove = (e: TouchEvent): void => {
+  let element = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+  if (!element) {
+    return;
+  }
+  let sid = element.getAttribute('sid');
+  while (!sid) {
+    element = element.parentElement;
+    if (element) {
+      sid = element.getAttribute('sid');
+    } else {
+      break;
+    }
+  }
+  if (!sid) {
+    return;
+  }
+  const actualOrderValue = computed(() => {
+    return Number(sid);
+  });
+  const { canMove } = useCanMove(actualOrderValue);
+  if (!canMove.value) {
+    return;
+  }
+  eventBus.emit('touchmove-from-board', e);
+};
 </script>
 
 <template>
-  <div ref="container" class="board" @touchmove.prevent>
+  <div ref="container" class="board" @touchmove.prevent="touchMove">
     <img
       v-if="baseStore.cageMode && baseStore.isDone && cageCompleteImg"
       v-show="baseStore.afterDoneAnimationEnd && baseStore.cageCompleteImgLoaded"

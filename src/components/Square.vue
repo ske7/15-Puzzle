@@ -4,7 +4,7 @@ import { useBaseStore } from '../stores/base';
 import { Direction } from '../stores/const';
 import { storeToRefs } from 'pinia';
 import { useEventBus } from '@vueuse/core';
-import { getElementCol, getElementRow } from '../utils';
+import { useCanMove } from '../composables/useCanMove';
 
 const props = defineProps<{
   squareSize: number;
@@ -14,12 +14,12 @@ const props = defineProps<{
 
 const baseStore = useBaseStore();
 
-const elementCol = computed(() => {
-  return getElementCol(actualOrder.value, baseStore.numLines);
+const actualOrder = computed(() => {
+  return baseStore.actualOrders[props.order];
 });
-const elementRow = computed(() => {
-  return getElementRow(actualOrder.value, baseStore.numLines);
-});
+
+const { elementCol, elementRow, canMoveRight, canMoveLeft, canMoveUp, canMoveDown } =
+  useCanMove(actualOrder);
 
 const sizeVar = computed(() => {
   return `${props.squareSize}px`;
@@ -121,10 +121,6 @@ const brightnessImg = computed(() => {
   return baseStore.darkMode ? 'brightness(104%)' : 'brightness(101%)';
 });
 
-const actualOrder = computed(() => {
-  return baseStore.actualOrders[props.order];
-});
-
 const calculatedLeft = computed(() => {
   return (
     actualOrder.value % baseStore.numLines * baseStore.spaceBetween +
@@ -150,18 +146,6 @@ const isDoneAll = computed(() => {
   return baseStore.isDone;
 });
 
-const canMoveRight = computed(() => {
-  return baseStore.freeElementRow === elementRow.value && baseStore.freeElement > actualOrder.value;
-});
-const canMoveLeft = computed(() => {
-  return baseStore.freeElementRow === elementRow.value && baseStore.freeElement < actualOrder.value;
-});
-const canMoveUp = computed(() => {
-  return baseStore.freeElementCol === elementCol.value && baseStore.freeElement < actualOrder.value;
-});
-const canMoveDown = computed(() => {
-  return baseStore.freeElementCol === elementCol.value && baseStore.freeElement > actualOrder.value;
-});
 const moveDirection = computed(() => {
   if (canMoveRight.value) {
     return Direction.Right;
@@ -310,10 +294,13 @@ watch(
   { immediate: true }
 );
 const eventBus = useEventBus<string>('event-bus');
-const listener = (event: string, payload: string): void => {
-  if (event === 'restart' && ['fromConfig', 'fromKeyboard'].includes(payload)) {
+const listener = (event: string, payload: unknown): void => {
+  if (event === 'restart' && ['fromConfig', 'fromKeyboard'].includes(payload as string)) {
     isCaptured.value = false;
     isNoBorder.value = false;
+  }
+  if (event === 'touchmove-from-board') {
+    moveByTouch(payload as TouchEvent);
   }
 };
 
@@ -327,6 +314,7 @@ onUnmounted(() => {
 
 <template>
   <div
+    :sid="actualOrder"
     class="square"
     :class="{
       'free': isFreeElement && !(baseStore.cageMode && isDoneAll),
@@ -340,7 +328,6 @@ onUnmounted(() => {
     :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px` }"
     @mousedown.left="move"
     @touchstart.prevent="move"
-    @touchmove.prevent="moveByTouch"
     @mousemove.prevent="moveByMouse"
   >
     <div class="item" :style="{ cursor: getCursor }">
