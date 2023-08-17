@@ -126,6 +126,7 @@ const touchMove = (e: TouchEvent): void => {
   display: flex;
   width: v-bind(boardSize);
   height: v-bind(boardSize);
+  min-height: v-bind(boardSize);
   box-shadow: v-bind(boxShadow);
   background-color: var(--background-color);
   border-radius: v-bind(borderRadiusVar);

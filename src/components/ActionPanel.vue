@@ -162,5 +162,9 @@ onUnmounted(() => {
   .action-panel .first-row {
     justify-content: space-between;
   }
+  .tool-button {
+    height: 28px;
+    width: 65px;
+  }
 }
 </style>

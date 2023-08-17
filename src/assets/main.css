@@ -96,10 +96,3 @@ body {
     background-color: var(--btn-bg-hover-color);
   }
 }
-@media screen and (max-width: 420px) {
-  .tool-button {
-    height: 28px;
-    width: 60px;
-    font-size: 15px;
-  }
-}
