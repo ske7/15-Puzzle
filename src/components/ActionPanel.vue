@@ -102,6 +102,7 @@ onUnmounted(() => {
         Restart
       </button>
       <button
+        v-if="!baseStore.proMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || !baseStore.doneFirstMove || baseStore.isDone || baseStore.proMode"
