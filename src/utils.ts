@@ -93,3 +93,10 @@ export function isSorted(array: readonly number[]): boolean {
     return (num <= arr[idx + 1]) || (idx === arr.length - 1) ? 1 : 0;
   });
 }
+
+export function calculateTPS(moves: number, time: number): string {
+  if (time === 0) {
+    return '0';
+  }
+  return (moves / time * 1000).toFixed(3);
+}

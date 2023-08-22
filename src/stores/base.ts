@@ -2,7 +2,7 @@ import { defineStore, acceptHMRUpdate } from 'pinia';
 import {
   generateAndShuffle, generate, isSolvable, isSorted,
   getArrayKeyByValue, getElementCol, getElementRow,
-  displayedTime
+  displayedTime, calculateTPS
 } from '../utils';
 import {
   CORE_NUM, SPACE_BETWEEN_SQUARES,
@@ -56,7 +56,9 @@ export const useBaseStore = defineStore('base', {
     savedTime: 0,
     proPalette: localStorage.getItem('proPalette') === 'true',
     darkMode: localStorage.getItem('darkMode') === 'true',
-    boardPos: {} as Position
+    boardPos: {} as Position,
+    token: localStorage.getItem('token') as (null | undefined | string),
+    userName: null as (null | undefined | string)
   }),
   actions: {
     initStore() {
@@ -392,6 +394,12 @@ export const useBaseStore = defineStore('base', {
     },
     nLPart(): string {
       return this.numLines === CORE_NUM ? '' : this.numLines.toString();
+    },
+    registered(): boolean {
+      return this.token !== null && this.userName !== null;
+    },
+    tps(): string {
+      return calculateTPS(this.movesCount, this.time);
     }
   }
 });

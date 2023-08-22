@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useBaseStore } from '../stores/base';
-import { displayedTime } from '../utils';
+import { displayedTime, calculateTPS } from '../utils';
 import { CORE_NUM } from '@/stores/const';
 import { useEventBus } from '@vueuse/core';
 
@@ -16,7 +16,7 @@ const eventBus = useEventBus<string>('event-bus');
         <span class="italic" :class="{ red: baseStore.newTimeRecord }">
           {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeMRecord }}s
         </span>
-        <span> ({{ baseStore.timeRecordMoves }})</span>
+        <span> (TPS: {{ calculateTPS(baseStore.timeRecordMoves, baseStore.timeRecord) }})</span>
       </p>
       <p>
         <span>PB {{ baseStore.marathonMode ? 'marathon ' : ' ' }}moves:  </span>

@@ -1,6 +1,6 @@
 :root {
   --c-white: #ffffff;
-  --c-black: #181818;
+  --c-black: #121212;
   --c-navy: #000080;
   --c-vivid: gold;
   --c-link: #105d97;
@@ -21,6 +21,7 @@
   --board-shadow-color: rgba(0, 0, 0, 0.3);
   --square-bg-color: beige;
   --square-in-place-color: #e0f5fa;
+  --error-color: #c40000;
 }
 [data-theme='dark'] {
   --background-color: var(--c-black);
@@ -37,6 +38,7 @@
   --board-shadow-color: var(--c-gray);
   --square-bg-color: #e0f5fa;
   --square-in-place-color: beige;
+  --error-color: #ff6b5b;
 }
 *,
 *::before,

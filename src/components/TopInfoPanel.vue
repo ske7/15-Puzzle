@@ -10,8 +10,9 @@ const baseStore = useBaseStore();
       <span>Time:</span>
       <span class="ml-5">{{ baseStore.timeStr }}s</span>
     </div>
-    <div v-if="baseStore.isDone" class="solved">
-      <span>Solved!</span>
+    <div>
+      <span>TPS:</span>
+      <span class="ml-5">{{ baseStore.tps }}</span>
     </div>
     <div>
       <span>Moves:</span>
@@ -30,19 +31,17 @@ const baseStore = useBaseStore();
   min-height: 29px;
   font-family: 'consolas';
 }
-.solved {
-  position: absolute;
-  left: calc(50% - 30.8px);
+@media screen and (max-width: 360px) {
+  .top-info-panel {
+    font-size: 15px;
+  }
 }
-.solved span {
-  font-weight: 600;
+@media screen and (max-width: 340px) {
+  .top-info-panel {
+    font-size: 14px;
+  }
 }
 .ml-5 {
   margin-left: 5px;
-}
-@media screen and (max-width: 420px) {
-  .solved {
-    display: none;
-  }
 }
 </style>
