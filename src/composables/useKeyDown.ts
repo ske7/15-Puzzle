@@ -7,7 +7,9 @@ export const useKeyDown = () => {
   const eventBus = useEventBus<string>('event-bus');
 
   const onKeyDown = (event: KeyboardEvent) => {
-    event.preventDefault();
+    if (!baseStore.showModal) {
+      event.preventDefault();
+    }
     if (event.code === 'Space' && !baseStore.paused) {
       eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
       return;
