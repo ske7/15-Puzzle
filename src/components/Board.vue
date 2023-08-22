@@ -45,6 +45,9 @@ const hideWhenCageShowCageCompleteImg = computed(() => {
 
 const eventBus = useEventBus<string>('event-bus');
 const touchMove = (e: TouchEvent): void => {
+  if (baseStore.isMoving) {
+    return;
+  }
   let element = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
   if (!element) {
     return;

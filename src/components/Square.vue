@@ -163,43 +163,49 @@ const cannotMove = computed(() => {
 });
 
 const moveByTouch = (e: TouchEvent): void => {
+  if (baseStore.isMoving) {
+    return;
+  }
   if (!isFreeElement.value || isDoneAll.value || baseStore.paused) {
     return;
   }
-  const spaceX = baseStore.spaceBetween * (baseStore.freeElementCol + 1);
-  const spaceY = baseStore.spaceBetween * (baseStore.freeElementRow + 1);
-  const posX = calculatedLeft.value + baseStore.boardPos.left - spaceX;
-  const posY = calculatedTop.value + baseStore.boardPos.top - spaceY;
+  baseStore.isMoving = true;
+  const posX = calculatedLeft.value + baseStore.boardPos.left;
+  const posY = calculatedTop.value + baseStore.boardPos.top;
   if (e.touches[0].clientX > posX + props.squareSize &&
      e.touches[0].clientY >= baseStore.boardPos.top && e.touches[0].clientY <= baseStore.boardPos.bottom) {
     baseStore.moveLeft();
+    baseStore.isMoving = false;
     return;
   }
   if (e.touches[0].clientX < posX &&
     e.touches[0].clientY >= baseStore.boardPos.top && e.touches[0].clientY <= baseStore.boardPos.bottom) {
     baseStore.moveRight();
+    baseStore.isMoving = false;
     return;
   }
   if (e.touches[0].clientY > posY + props.squareSize &&
     e.touches[0].clientX >= baseStore.boardPos.left && e.touches[0].clientX <= baseStore.boardPos.right) {
     baseStore.moveUp();
+    baseStore.isMoving = false;
     return;
   }
   if (e.touches[0].clientY < posY &&
     e.touches[0].clientX >= baseStore.boardPos.left && e.touches[0].clientX <= baseStore.boardPos.right) {
     baseStore.moveDown();
+    baseStore.isMoving = false;
   }
+  baseStore.isMoving = false;
 };
 
-const isMoving = ref(false);
 const move = (): void => {
+  if (baseStore.isMoving) {
+    return;
+  }
   if (cannotMove.value) {
     return;
   }
-  if (isMoving.value) {
-    return;
-  }
-  isMoving.value = true;
+  baseStore.isMoving = true;
   let diff = Math.abs(baseStore.freeElement - actualOrder.value);
   if ([Direction.Up, Direction.Down].includes(moveDirection.value)) {
     diff = diff / baseStore.numLines;
@@ -225,7 +231,7 @@ const move = (): void => {
   } else {
     baseStore.saveActualOrder(props.order, moveDirection.value);
   }
-  isMoving.value = false;
+  baseStore.isMoving = false;
 };
 const moveByMouse = (): void => {
   if (!baseStore.proMode) {

@@ -58,7 +58,8 @@ export const useBaseStore = defineStore('base', {
     darkMode: localStorage.getItem('darkMode') === 'true',
     boardPos: {} as Position,
     token: localStorage.getItem('token') as (null | undefined | string),
-    userName: null as (null | undefined | string)
+    userName: null as (null | undefined | string),
+    isMoving: false
   }),
   actions: {
     initStore() {
