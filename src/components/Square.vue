@@ -38,61 +38,58 @@ const borderRadiusVar = computed(() => {
   return '8px';
 });
 const blockTransition = computed(() => {
-  if (baseStore.proMode) {
+  if (baseStore.proMode || baseStore.hoverOnControl) {
     return 'none';
   }
   return 'all 0.2s ease 0s';
 });
 const bgColor = computed(() => {
   if (baseStore.proMode) {
-    if (baseStore.proPalette) {
-      if (baseStore.numLines === 4) {
-        if ([1, 2, 3, 4].includes(props.mixedOrder)) {
-          return '#ff6767';
-        } else if ([5, 9, 13].includes(props.mixedOrder)) {
-          return '#fff054';
-        } else if ([6, 7, 8].includes(props.mixedOrder)) {
-          return '#7eff64';
-        } else if ([10, 14].includes(props.mixedOrder)) {
-          return '#7effde';
-        } else if ([11, 12].includes(props.mixedOrder)) {
-          return '#8eb3fe';
-        } else if ([15].includes(props.mixedOrder)) {
-          return '#cd88fe';
-        }
-      }
-      if (baseStore.numLines === 3) {
-        if ([1, 2, 3].includes(props.mixedOrder)) {
-          return '#ff6767';
-        } else if ([4, 7].includes(props.mixedOrder)) {
-          return '#fff054';
-        } else if ([5, 6].includes(props.mixedOrder)) {
-          return '#7eff64';
-        } else if ([8].includes(props.mixedOrder)) {
-          return '#89dcff';
-        }
-      }
-      if (baseStore.numLines === 5) {
-        if ([1, 2, 3, 4, 5].includes(props.mixedOrder)) {
-          return '#ff6767';
-        } else if ([6, 11, 16, 21].includes(props.mixedOrder)) {
-          return '#ffc74c';
-        } else if ([7, 8, 9, 10].includes(props.mixedOrder)) {
-          return '#fff054';
-        } else if ([12, 17, 22].includes(props.mixedOrder)) {
-          return '#7eff64';
-        } else if ([13, 14, 15].includes(props.mixedOrder)) {
-          return '#7effde';
-        } else if ([18, 23].includes(props.mixedOrder)) {
-          return '#84c8ff';
-        } else if ([19, 20].includes(props.mixedOrder)) {
-          return '#9b95ff';
-        } else if ([24].includes(props.mixedOrder)) {
-          return '#cd88fe';
-        }
+    if (baseStore.numLines === 4) {
+      if ([1, 2, 3, 4].includes(props.mixedOrder)) {
+        return '#ff6767';
+      } else if ([5, 9, 13].includes(props.mixedOrder)) {
+        return '#fff054';
+      } else if ([6, 7, 8].includes(props.mixedOrder)) {
+        return '#7eff64';
+      } else if ([10, 14].includes(props.mixedOrder)) {
+        return '#7effde';
+      } else if ([11, 12].includes(props.mixedOrder)) {
+        return '#8eb3fe';
+      } else if ([15].includes(props.mixedOrder)) {
+        return '#cd88fe';
       }
     }
-    return '#d2d2d2';
+    if (baseStore.numLines === 3) {
+      if ([1, 2, 3].includes(props.mixedOrder)) {
+        return '#ff6767';
+      } else if ([4, 7].includes(props.mixedOrder)) {
+        return '#fff054';
+      } else if ([5, 6].includes(props.mixedOrder)) {
+        return '#7eff64';
+      } else if ([8].includes(props.mixedOrder)) {
+        return '#89dcff';
+      }
+    }
+    if (baseStore.numLines === 5) {
+      if ([1, 2, 3, 4, 5].includes(props.mixedOrder)) {
+        return '#ff6767';
+      } else if ([6, 11, 16, 21].includes(props.mixedOrder)) {
+        return '#ffc74c';
+      } else if ([7, 8, 9, 10].includes(props.mixedOrder)) {
+        return '#fff054';
+      } else if ([12, 17, 22].includes(props.mixedOrder)) {
+        return '#7eff64';
+      } else if ([13, 14, 15].includes(props.mixedOrder)) {
+        return '#7effde';
+      } else if ([18, 23].includes(props.mixedOrder)) {
+        return '#84c8ff';
+      } else if ([19, 20].includes(props.mixedOrder)) {
+        return '#9b95ff';
+      } else if ([24].includes(props.mixedOrder)) {
+        return '#cd88fe';
+      }
+    }
   }
   if (baseStore.cageMode) {
     return 'var(--background-color)';
@@ -234,14 +231,14 @@ const move = (control: ControlType): void => {
   baseStore.isMoving = false;
 };
 const moveByMouse = (): void => {
-  if (!baseStore.proMode) {
+  if (!baseStore.hoverOnControl) {
     return;
   }
   move(ControlType.Mouse);
 };
 
 const getCursor = computed(() => {
-  if (baseStore.proMode) {
+  if (baseStore.proMode || baseStore.hoverOnControl) {
     return;
   }
   if (cannotMove.value) {
@@ -324,9 +321,8 @@ onUnmounted(() => {
     class="square"
     :class="{
       'free': isFreeElement && !(baseStore.cageMode && isDoneAll),
-      'in-place': isSquareInPlace && !baseStore.processingReInit &&
-        !(baseStore.proMode && baseStore.proPalette),
-      'captured': isCaptured && !(baseStore.proMode && baseStore.proPalette),
+      'in-place': isSquareInPlace && !baseStore.processingReInit && !baseStore.proMode,
+      'captured': isCaptured && !baseStore.proMode,
       'animate': isNoBorder,
       'no-border': isNoBorder ||
         (baseStore.cageMode && baseStore.noBordersInCageMode) || baseStore.proMode

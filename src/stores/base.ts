@@ -54,7 +54,6 @@ export const useBaseStore = defineStore('base', {
     solvedPuzzlesInMarathon: 0,
     startTime: 0,
     savedTime: 0,
-    proPalette: localStorage.getItem('proPalette') === 'true',
     darkMode: localStorage.getItem('darkMode') === 'true',
     boardPos: {} as Position,
     token: localStorage.getItem('token') as (null | undefined | string),
@@ -65,7 +64,9 @@ export const useBaseStore = defineStore('base', {
     isFetching: false,
     showRegModal: false,
     showUserAccount: false,
-    showLeaderBoard: false
+    showLeaderBoard: false,
+    hoverOnControl: localStorage.getItem('hoverOnControl') === 'true' ||
+      localStorage.getItem('proMode') === 'true'
   }),
   actions: {
     initStore() {
@@ -105,10 +106,7 @@ export const useBaseStore = defineStore('base', {
       if (this.cageMode) {
         this.spaceBetween = 0;
       } else if (this.proMode) {
-        this.spaceBetween = 2;
-        if (this.proPalette) {
-          this.spaceBetween = 0;
-        }
+        this.spaceBetween = 0;
       } else {
         this.spaceBetween = SPACE_BETWEEN_SQUARES;
       }

@@ -10,9 +10,9 @@ export const usePrepare = () => {
 
   if (location.href.toLowerCase().includes('pro')) {
     baseStore.proMode = true;
-    baseStore.proPalette = true;
     localStorage.setItem('proMode', 'true');
-    localStorage.setItem('proPalette', 'true');
+    baseStore.hoverOnControl = true;
+    localStorage.setItem('hoveOnControl', 'true');
   }
   if (location.href.toLowerCase().includes('dark')) {
     baseStore.darkMode = true;
@@ -87,10 +87,7 @@ export const getSquareSize = () => {
       cageAdd = 10;
     }
     if (baseStore.proMode) {
-      cageAdd = 20;
-      if (baseStore.proPalette) {
-        cageAdd = 22;
-      }
+      cageAdd = 22;
     }
     if (baseStore.numLines === 3) {
       cageAdd += 28;

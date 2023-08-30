@@ -45,18 +45,19 @@ const setDisableWinMessage = (): void => {
   baseStore.disableWinMessage = !baseStore.disableWinMessage;
   localStorage.setItem('disableWinMessage', baseStore.disableWinMessage.toString());
 };
+const setHoverOnControl = (): void => {
+  baseStore.hoverOnControl = !baseStore.hoverOnControl;
+  localStorage.setItem('hoverOnControl', baseStore.hoverOnControl.toString());
+};
 const setProMode = (): void => {
   baseStore.proMode = !baseStore.proMode;
   localStorage.setItem('proMode', baseStore.proMode.toString());
+  baseStore.hoverOnControl = true;
+  localStorage.setItem('hoveOnControl', 'true');
   baseStore.eligibleForCageMode = false;
   baseStore.cageMode = false;
   baseStore.setSpaceBetween();
   eventBus.emit('restart', 'fromConfig');
-};
-const setProPalette = (): void => {
-  baseStore.proPalette = !baseStore.proPalette;
-  localStorage.setItem('proPalette', baseStore.proPalette.toString());
-  baseStore.setSpaceBetween();
 };
 const setMarathonMode = (): void => {
   baseStore.marathonMode = !baseStore.marathonMode;
@@ -153,6 +154,19 @@ watch(puzzleSize, (newValue) => {
         </div>
         <div class="option">
           <input
+            id="hover-on"
+            type="checkbox"
+            name="hover-on"
+            :disabled="baseStore.proMode"
+            :checked="baseStore.hoverOnControl"
+            @change="setHoverOnControl"
+          >
+          <label for="hover-on" :class="{ 'disabled-label': baseStore.proMode }">
+            Hover On Control
+          </label>
+        </div>
+        <div class="option">
+          <input
             id="pro-mode"
             type="checkbox"
             name="pro-mode"
@@ -161,19 +175,6 @@ watch(puzzleSize, (newValue) => {
           >
           <label for="pro-mode">
             Pro Mode (speed sliding)
-          </label>
-        </div>
-        <div class="option">
-          <input
-            id="pro-palette"
-            type="checkbox"
-            name="pro-palette"
-            :disabled="!baseStore.proMode"
-            :checked="baseStore.proPalette"
-            @change="setProPalette"
-          >
-          <label for="pro-palette" :class="{ 'disabled-label': !baseStore.proMode }">
-            Pro Palette
           </label>
         </div>
         <div class="option">
