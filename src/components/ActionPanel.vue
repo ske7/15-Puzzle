@@ -150,7 +150,7 @@ onUnmounted(() => {
   position: relative;
   margin-top: 10px;
   width: 100%;
-  font-family: 'consolas';
+  font-family: 'consolas', sans-serif;
   line-height: 27px;
 }
 .action-panel .first-row {

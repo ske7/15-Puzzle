@@ -4,6 +4,7 @@ import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
 import { type puzzleCores } from '@/stores/const';
 import { CORE_NUM } from '../stores/const';
+import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 
 const baseStore = useBaseStore();
 const emit = defineEmits<{ close: []; }>();
@@ -47,7 +48,6 @@ const setDisableWinMessage = (): void => {
 const setProMode = (): void => {
   baseStore.proMode = !baseStore.proMode;
   localStorage.setItem('proMode', baseStore.proMode.toString());
-  localStorage.setItem('fasterSliding', baseStore.proMode.toString());
   baseStore.eligibleForCageMode = false;
   baseStore.cageMode = false;
   baseStore.setSpaceBetween();
@@ -65,9 +65,9 @@ const setMarathonMode = (): void => {
   baseStore.cageMode = false;
   eventBus.emit('restart', 'fromConfig');
 };
-const sliderValue = ref<number>(baseStore.numLines);
+const puzzleSize = ref<number>(baseStore.numLines);
 
-watch(sliderValue, (newValue) => {
+watch(puzzleSize, (newValue) => {
   if (newValue) {
     baseStore.numLines = Number(newValue) as puzzleCores;
     localStorage.setItem('numLines', baseStore.numLines.toString());
@@ -83,30 +83,7 @@ watch(sliderValue, (newValue) => {
         <span>Game config</span>
       </p>
       <div class="options">
-        <div class="slide-container">
-          <label for="core-num">Puzzle Type</label>
-          <input
-            id="core-num"
-            v-model="sliderValue"
-            name="core-num"
-            type="range"
-            min="3"
-            max="5"
-            step="1"
-            list="markers"
-            class="slider"
-          >
-          <datalist id="markers">
-            <option value="3" label="3x3" />
-            <option value="4" label="4x4" />
-            <option value="5" label="5x5" />
-          </datalist>
-          <p class="slider-marks">
-            <span @click="sliderValue = 3">3x3</span>
-            <span @click="sliderValue = 4">4x4</span>
-            <span @click="sliderValue = 5">5x5</span>
-          </p>
-        </div>
+        <PuzzleSizeSlider v-model="puzzleSize" />
         <div class="option">
           <input
             id="disable-cage-mode"
@@ -240,7 +217,7 @@ watch(sliderValue, (newValue) => {
 }
 .info-header {
   text-align: center;
-  margin-bottom: 5px;
+  margin-bottom: 0px;
   margin-top: 5px;
 }
 .info-header span {
@@ -249,16 +226,17 @@ watch(sliderValue, (newValue) => {
 }
 .options {
   margin: 0 auto;
-  margin-top: 5px;
+  margin-top: 0px;
 }
 .option {
   display: flex;
   justify-content: left;
   align-items: normal;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 input[type=checkbox] {
+  height: 16px;
   margin-top: 1px;
 }
 label {
@@ -282,24 +260,5 @@ label {
   margin-bottom: 5px;
   display: flex;
   justify-content: center;
-}
-.slide-container > label {
-  justify-content: center;
-  margin-top: 10px;
-  margin-bottom: 5px;
-}
-.slider {
-  width: 100%;
-  cursor: pointer;
-  height: 15px;
-}
-.slider-marks {
-  display: flex;
-  justify-content: space-between;
-  margin-top: -5px;
-  margin-bottom: 10px;
-}
-.slider-marks span {
-  cursor: pointer;
 }
 </style>

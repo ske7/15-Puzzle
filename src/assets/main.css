@@ -98,3 +98,27 @@ body {
     background-color: var(--btn-bg-hover-color);
   }
 }
+.fade-enter-active {
+  transition: opacity 0.5s ease-in;
+}
+.fade-leave-active {
+  transition: opacity 0.2s ease-out;
+}
+.fade-enter-from {
+  opacity: 0.7;
+}
+.fade-leave-to {
+  opacity: 0.7;
+}
+.fade2-enter-active {
+  transition: opacity 0.5s ease-in;
+}
+.fade2-leave-active {
+  transition: opacity 0.5s ease-out;
+}
+.fade2-enter-from {
+  opacity: 0.5;
+}
+.fade2-leave-to {
+  opacity: 0.5;
+}

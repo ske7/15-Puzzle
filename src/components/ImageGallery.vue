@@ -3,7 +3,7 @@ import { ref, computed, watch, reactive, nextTick, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside } from '@vueuse/core';
-import { CAGES_PATH_ARR } from '../stores/const';
+import { CAGES_PATH_ARR, LoadImageMode } from '../stores/const';
 import { getSquareSize } from '../composables/usePrepare';
 
 const emit = defineEmits<{ close: []; }>();
@@ -66,25 +66,21 @@ const checkIsLocked = (): void => {
   }
 };
 checkIsLocked();
-const enum LoadMode {
-  next = 1,
-  prev = -1
-}
-const loadImage = async (mode: LoadMode) => {
+const loadImage = async (mode: LoadImageMode) => {
   if (!loaded.value && !isLocked.value) {
     return;
   }
   if (baseStore.showOnlyUnlockedItems && baseStore.unlockedCages.size === 1) {
     return;
   }
-  if (mode === LoadMode.next) {
+  if (mode === LoadImageMode.next) {
     if (currentIndex.value === maxIndex.value) {
       currentIndex.value = 0;
     } else {
       currentIndex.value += 1;
     }
   }
-  if (mode === LoadMode.prev) {
+  if (mode === LoadImageMode.prev) {
     if (currentIndex.value === 0) {
       currentIndex.value = maxIndex.value;
     } else {
@@ -99,10 +95,10 @@ const loadImage = async (mode: LoadMode) => {
   }
 };
 const loadNext = async () => {
-  await loadImage(LoadMode.next);
+  await loadImage(LoadImageMode.next);
 };
 const loadPrev = async () => {
-  await loadImage(LoadMode.prev);
+  await loadImage(LoadImageMode.prev);
 };
 
 const interval = ref(0);
@@ -289,19 +285,6 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
 * {
   --v-width: 440px;
 }
-.fade-enter-active {
-  transition: opacity 0.5s ease-in;
-}
-.fade-leave-active {
-  transition: opacity 0.2s ease-out;
-}
-
-.fade-enter-from {
-  opacity: 0.7;
-}
-.fade-leave-to {
-  opacity: 0.7;
-}
 .image-gallery {
   display: flex;
   justify-content: start;
@@ -405,8 +388,6 @@ h2 {
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
-}
-.arrow-button {
   scale: 0.7;
 }
 @media screen and (min-width: 820px) {

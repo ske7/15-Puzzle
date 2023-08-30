@@ -15,6 +15,17 @@ export const enum Direction {
   Left = 4
 }
 
+export const enum ControlType {
+  Mouse = 0,
+  Touch = 1,
+  Keyboard = 2
+}
+
+export const enum LoadImageMode {
+  next = 1,
+  prev = -1
+}
+
 export interface PreloadedImage {
   url?: string,
   item: string;
@@ -30,6 +41,64 @@ export interface Position {
   top: number,
   right: number,
   bottom: number;
+}
+
+export interface UserData {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+}
+
+export interface InvalidFields {
+  name: boolean;
+  email: boolean;
+  password: boolean;
+}
+
+export interface GameData {
+  time: number;
+  moves: number;
+  puzzle_size: number;
+  puzzle_type: string;
+  control_type: string;
+}
+
+export interface UserRecord {
+  id: number;
+  name?: string;
+  record_type: string;
+  puzzle_type: string;
+  puzzle_size: number;
+  time: number;
+  moves: number;
+  tps: string;
+  created_at: string;
+  control_type: string;
+}
+
+export interface UserStats {
+  user_data: {
+    created_at: string;
+    last_game_at: string;
+    num_finished_games: number;
+    play_time: number;
+    id: number;
+  },
+  user_records: UserRecord[];
+}
+
+export interface ErrResponse {
+  status: string;
+  error?: string;
+}
+
+export interface Response {
+  status: string;
+  name?: string;
+  token?: string;
+  stats?: UserStats;
+  records?: UserRecord[];
 }
 
 export const CAGES_PATH_ARR = [

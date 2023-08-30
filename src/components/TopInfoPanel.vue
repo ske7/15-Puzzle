@@ -29,7 +29,7 @@ const baseStore = useBaseStore();
   position: relative;
   width: 100%;
   min-height: 29px;
-  font-family: 'consolas';
+  font-family: 'consolas', sans-serif;
 }
 @media screen and (max-width: 360px) {
   .top-info-panel {

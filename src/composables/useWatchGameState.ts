@@ -1,9 +1,10 @@
-import { computed, watch } from 'vue';
+import { computed, watch, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useDocumentVisibility } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
-import { CORE_NUM, CAGES_PATH_ARR } from '../stores/const';
+import { CORE_NUM, CAGES_PATH_ARR, type GameData } from '../stores/const';
 import { randArrayItem } from '../utils';
+import { usePostFetchAPI } from '../composables/useFetchAPI';
 
 export const useWatchGameState = () => {
   const baseStore = useBaseStore();
@@ -16,15 +17,48 @@ export const useWatchGameState = () => {
     }
   });
 
+  const errorMsg = ref('');
+  const isFetching = ref(false);
+  const postGame = (game: GameData): void => {
+    errorMsg.value = '';
+    if (isFetching.value) {
+      return;
+    }
+    isFetching.value = true;
+
+    usePostFetchAPI('game', JSON.stringify({ game }) as BodyInit, baseStore.token as (string | undefined))
+      .then(() => {
+        isFetching.value = false;
+      })
+      .catch(error => {
+        errorMsg.value = error as string;
+        if (String(errorMsg.value).toLowerCase().includes('networkerror')) {
+          baseStore.isNetworkError = true;
+        }
+        isFetching.value = false;
+      });
+  };
+
   const isDoneAll = computed(() => {
     return baseStore.isDone;
   });
-  const setRecords = (): void => {
+  const setRecords = (puzzleType: string): void => {
     if (baseStore.movesRecord === 0 || baseStore.movesCount <= baseStore.movesRecord) {
-      baseStore.setMovesRecord(baseStore.movesCount, baseStore.time, baseStore.marathonMode);
+      baseStore.setMovesRecord(baseStore.movesCount, baseStore.time,
+        baseStore.numLines, baseStore.marathonMode);
     }
     if (baseStore.timeRecord === 0 || baseStore.time <= baseStore.timeRecord) {
-      baseStore.setTimeRecord(baseStore.time, baseStore.movesCount, baseStore.marathonMode);
+      baseStore.setTimeRecord(baseStore.time, baseStore.movesCount,
+        baseStore.numLines, baseStore.marathonMode);
+    }
+    if (baseStore.token) {
+      postGame({
+        time: baseStore.time,
+        moves: baseStore.movesCount,
+        puzzle_size: baseStore.numLines,
+        puzzle_type: puzzleType,
+        control_type: baseStore.getControlTypeStr
+      });
     }
   };
   watch(isDoneAll, (value) => {
@@ -33,7 +67,7 @@ export const useWatchGameState = () => {
         baseStore.solvedPuzzlesInMarathon += 1;
         if (baseStore.solvedPuzzlesInMarathon === 5) {
           baseStore.stopInterval();
-          setRecords();
+          setRecords(baseStore.cageMode ? 'cage_marathon' : 'marathon');
           if (!baseStore.disableWinMessage) {
             baseStore.showWinModal = true;
           }
@@ -42,7 +76,7 @@ export const useWatchGameState = () => {
         }
       } else {
         baseStore.stopInterval();
-        setRecords();
+        setRecords(baseStore.cageMode ? 'cage_standard' : 'standard');
         if (baseStore.numLines === CORE_NUM && !baseStore.disableCageMode &&
           !baseStore.proMode && baseStore.time > 0 && baseStore.time < 60000) {
           baseStore.eligibleForCageMode = true;

@@ -14,7 +14,6 @@ const WinModal = defineAsyncComponent({
 });
 
 const baseStore = useBaseStore();
-
 usePrepare();
 useWatchGameState();
 
@@ -59,7 +58,7 @@ const cageImgSize = computed(() => {
   align-items: center;
   justify-content: center;
   height: 100%;
-  margin-top: -10px;
+  margin-top: -20px;
 }
 @media (min-height: 800px), screen and (max-width: 820px) {
   .wrapper {

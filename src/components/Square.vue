@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { useBaseStore } from '../stores/base';
-import { Direction } from '../stores/const';
+import { Direction, ControlType } from '../stores/const';
 import { storeToRefs } from 'pinia';
 import { useEventBus } from '@vueuse/core';
 import { useCanMove } from '../composables/useCanMove';
@@ -174,31 +174,31 @@ const moveByTouch = (e: TouchEvent): void => {
   const posY = calculatedTop.value + baseStore.boardPos.top;
   if (e.touches[0].clientX > posX + props.squareSize &&
      e.touches[0].clientY >= baseStore.boardPos.top && e.touches[0].clientY <= baseStore.boardPos.bottom) {
-    baseStore.moveLeft();
+    baseStore.moveLeft(ControlType.Touch);
     baseStore.isMoving = false;
     return;
   }
   if (e.touches[0].clientX < posX &&
     e.touches[0].clientY >= baseStore.boardPos.top && e.touches[0].clientY <= baseStore.boardPos.bottom) {
-    baseStore.moveRight();
+    baseStore.moveRight(ControlType.Touch);
     baseStore.isMoving = false;
     return;
   }
   if (e.touches[0].clientY > posY + props.squareSize &&
     e.touches[0].clientX >= baseStore.boardPos.left && e.touches[0].clientX <= baseStore.boardPos.right) {
-    baseStore.moveUp();
+    baseStore.moveUp(ControlType.Touch);
     baseStore.isMoving = false;
     return;
   }
   if (e.touches[0].clientY < posY &&
     e.touches[0].clientX >= baseStore.boardPos.left && e.touches[0].clientX <= baseStore.boardPos.right) {
-    baseStore.moveDown();
+    baseStore.moveDown(ControlType.Touch);
     baseStore.isMoving = false;
   }
   baseStore.isMoving = false;
 };
 
-const move = (): void => {
+const move = (control: ControlType): void => {
   if (baseStore.isMoving) {
     return;
   }
@@ -214,22 +214,22 @@ const move = (): void => {
     for (let i = 0; i < diff; i++) {
       switch (moveDirection.value) {
         case Direction.Left:
-          baseStore.moveLeft();
+          baseStore.moveLeft(control);
           break;
         case Direction.Right:
-          baseStore.moveRight();
+          baseStore.moveRight(control);
           break;
         case Direction.Up:
-          baseStore.moveUp();
+          baseStore.moveUp(control);
           break;
         case Direction.Down:
-          baseStore.moveDown();
+          baseStore.moveDown(control);
           break;
         default:
       }
     }
   } else {
-    baseStore.saveActualOrder(props.order, moveDirection.value);
+    baseStore.saveActualOrder(props.order, moveDirection.value, control);
   }
   baseStore.isMoving = false;
 };
@@ -237,7 +237,7 @@ const moveByMouse = (): void => {
   if (!baseStore.proMode) {
     return;
   }
-  move();
+  move(ControlType.Mouse);
 };
 
 const getCursor = computed(() => {
@@ -332,8 +332,8 @@ onUnmounted(() => {
         (baseStore.cageMode && baseStore.noBordersInCageMode) || baseStore.proMode
     }"
     :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px` }"
-    @mousedown.left="move"
-    @touchstart.prevent="move"
+    @mousedown.left="move(ControlType.Mouse)"
+    @touchstart.prevent="move(ControlType.Touch)"
     @mousemove.prevent="moveByMouse"
   >
     <div class="item" :style="{ cursor: getCursor }">
@@ -435,14 +435,11 @@ onUnmounted(() => {
   background-color: gold;
 }
 .no-border {
-  border: 0px;
+  border: none;
   box-shadow: none;
 }
 .animate {
   animation: bounce-in2 0.2s ease;
-}
-.no-border {
-  border: none;
 }
 .free {
   background: transparent;
@@ -460,7 +457,7 @@ onUnmounted(() => {
   font-size: v-bind(fontSizeD);
   font-weight: 600;
   color: #0a0a23;
-  font-family: 'consolas';
+  font-family: 'consolas', sans-serif;
 }
 @media screen and (max-width: 401px) {
   .item span {

@@ -1,6 +1,7 @@
 import { onMounted, onBeforeUnmount } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
+import { ControlType } from '../stores/const';
 
 export const useKeyDown = () => {
   const baseStore = useBaseStore();
@@ -18,13 +19,13 @@ export const useKeyDown = () => {
       return;
     }
     if (['ArrowLeft', 'KeyA', 'KeyJ'].includes(event.code)) {
-      baseStore.moveLeft();
+      baseStore.moveLeft(ControlType.Keyboard);
     } else if (['ArrowRight', 'KeyD', 'KeyL'].includes(event.code)) {
-      baseStore.moveRight();
+      baseStore.moveRight(ControlType.Keyboard);
     } else if (['ArrowUp', 'KeyW', 'KeyI'].includes(event.code)) {
-      baseStore.moveUp();
+      baseStore.moveUp(ControlType.Keyboard);
     } else if (['ArrowDown', 'KeyS', 'KeyK'].includes(event.code)) {
-      baseStore.moveDown();
+      baseStore.moveDown(ControlType.Keyboard);
     }
   };
 

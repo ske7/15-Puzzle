@@ -1,8 +1,9 @@
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useKeyDown } from '../composables/useKeyDown';
 import { CORE_NUM, CAGES_PATH_ARR, isPuzzleCore, type puzzleCores } from '../stores/const';
+import { useGetFetchAPI } from '../composables/useFetchAPI';
 
 export const usePrepare = () => {
   const baseStore = useBaseStore();
@@ -11,7 +12,6 @@ export const usePrepare = () => {
     baseStore.proMode = true;
     baseStore.proPalette = true;
     localStorage.setItem('proMode', 'true');
-    localStorage.setItem('fasterSliding', 'true');
     localStorage.setItem('proPalette', 'true');
   }
   if (location.href.toLowerCase().includes('dark')) {
@@ -24,6 +24,35 @@ export const usePrepare = () => {
     baseStore.reset();
   }
 
+  const errorMsg = ref('');
+  const fetch = (endpoint: string, withToken = true): void => {
+    errorMsg.value = '';
+    if (baseStore.isFetching) {
+      return;
+    }
+    baseStore.isFetching = true;
+    useGetFetchAPI(endpoint, baseStore.token as (string | undefined))
+      .then(res => {
+        baseStore.isFetching = false;
+        if (withToken) {
+          baseStore.token = res.token;
+          localStorage.setItem('token', String(baseStore.token));
+          baseStore.userName = res.name;
+        }
+      })
+      .catch(error => {
+        errorMsg.value = error as string;
+        if (String(errorMsg.value).toLowerCase().includes('networkerror')) {
+          baseStore.isNetworkError = true;
+        }
+        baseStore.isFetching = false;
+      });
+  };
+  if (baseStore.token) {
+    fetch('get_current_user', true);
+  } else {
+    fetch('version', false);
+  }
   useKeyDown();
 
   document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');

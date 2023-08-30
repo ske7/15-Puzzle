@@ -6,7 +6,7 @@ import {
 } from '../utils';
 import {
   CORE_NUM, SPACE_BETWEEN_SQUARES,
-  CAGES_PATH_ARR, Direction,
+  CAGES_PATH_ARR, Direction, ControlType,
   type PreloadedImage, type Record, type Position
 } from './const';
 
@@ -49,7 +49,7 @@ export const useBaseStore = defineStore('base', {
     showOnlyUnlockedItems: localStorage.getItem('showOnlyUnlockedItems') === 'true',
     preloadedImages: [] as PreloadedImage[],
     noBordersInCageMode: localStorage.getItem('noBordersInCageMode') === 'true',
-    proMode: localStorage.getItem('fasterSliding') === 'true' || localStorage.getItem('proMode') === 'true',
+    proMode: localStorage.getItem('proMode') === 'true',
     marathonMode: localStorage.getItem('marathonMode') === 'true',
     solvedPuzzlesInMarathon: 0,
     startTime: 0,
@@ -59,7 +59,13 @@ export const useBaseStore = defineStore('base', {
     boardPos: {} as Position,
     token: localStorage.getItem('token') as (null | undefined | string),
     userName: null as (null | undefined | string),
-    isMoving: false
+    isMoving: false,
+    moveDoneBy: ControlType.Mouse,
+    isNetworkError: false,
+    isFetching: false,
+    showRegModal: false,
+    showUserAccount: false,
+    showLeaderBoard: false
   }),
   actions: {
     initStore() {
@@ -141,39 +147,43 @@ export const useBaseStore = defineStore('base', {
         this.saveTime();
       }
     },
-    moveLeft() {
+    moveLeft(control: ControlType) {
       if ((this.freeElement + 1) % this.numLines !== 0) {
         this.saveActualOrder(
           getArrayKeyByValue(this.actualOrders, this.freeElement + 1),
-          Direction.Left
+          Direction.Left,
+          control
         );
       }
     },
-    moveRight() {
+    moveRight(control: ControlType) {
       if (this.freeElement % this.numLines !== 0) {
         this.saveActualOrder(
           getArrayKeyByValue(this.actualOrders, this.freeElement - 1),
-          Direction.Right
+          Direction.Right,
+          control
         );
       }
     },
-    moveUp() {
+    moveUp(control: ControlType) {
       if (this.freeElementRow < this.numLines) {
         this.saveActualOrder(
           getArrayKeyByValue(this.actualOrders, this.freeElement + this.numLines),
-          Direction.Up
+          Direction.Up,
+          control
         );
       }
     },
-    moveDown() {
+    moveDown(control: ControlType) {
       if (this.freeElementRow > 1) {
         this.saveActualOrder(
           getArrayKeyByValue(this.actualOrders, this.freeElement - this.numLines),
-          Direction.Down
+          Direction.Down,
+          control
         );
       }
     },
-    saveActualOrder(order: number, moveDirection: Direction) {
+    saveActualOrder(order: number, moveDirection: Direction, control: ControlType) {
       if (!this.doneFirstMove) {
         this.doneFirstMove = true;
       }
@@ -199,6 +209,7 @@ export const useBaseStore = defineStore('base', {
       this.freeElement = prevOrder;
       this.actualOrders[this.freeElementIndex] = this.freeElement;
       this.incMoves();
+      this.moveDoneBy = control;
     },
     boardSize(squareSize: number): string {
       return `${this.numLines * squareSize + this.spaceBetween * (this.numLines + 1)}px`;
@@ -218,46 +229,54 @@ export const useBaseStore = defineStore('base', {
         }
       }
     },
-    setTimeRecord(timeRecord: number, moves: number, marathonMode: boolean, onlySetToStorage = false) {
+    getnLPart(puzzleSize: number): string {
+      return puzzleSize === CORE_NUM ? '' : puzzleSize.toString();
+    },
+    setTimeRecord(timeRecord: number, moves: number, puzzleSize: number,
+      marathonMode: boolean, onlySetToStorage = false) {
       if (timeRecord === this.timeRecord && moves >= this.timeRecordMoves) {
         return;
       }
+      const nLPart = this.getnLPart(puzzleSize);
       this.timeRecord = timeRecord;
       this.timeRecordMoves = moves;
       const headerPart = Math.random().toString().slice(-4);
       const timePart = timeRecord.toString().padStart(6, '0');
       const movesPart = moves.toString().padStart(6, '0');
       const xt = btoa(`${headerPart}${timePart}${movesPart}heh7`);
-      localStorage.setItem(marathonMode ? `timeMRecord${this.nLPart}` : `timeRecord${this.nLPart}`, xt);
+      localStorage.setItem(marathonMode ? `timeMRecord${nLPart}` : `timeRecord${nLPart}`, xt);
       if (!onlySetToStorage) {
         this.newTimeRecord = true;
       }
     },
-    setMovesRecord(movesRecord: number, time: number, marathonMode: boolean, onlySetToStorage = false) {
+    setMovesRecord(movesRecord: number, time: number, puzzleSize: number,
+      marathonMode: boolean, onlySetToStorage = false) {
       if (movesRecord === this.movesRecord && time >= this.movesRecordTime) {
         return;
       }
+      const nLPart = this.getnLPart(puzzleSize);
       this.movesRecord = movesRecord;
       this.movesRecordTime = time;
       const headerPart = Math.random().toString().slice(-4);
       const movesPart = movesRecord.toString().padStart(6, '0');
       const timePart = time.toString().padStart(6, '0');
       const xm = btoa(`${headerPart}${movesPart}${timePart}heh9`);
-      localStorage.setItem(marathonMode ? `movesMRecord${this.nLPart}` : `movesRecord${this.nLPart}`, xm);
+      localStorage.setItem(marathonMode ? `movesMRecord${nLPart}` : `movesRecord${nLPart}`, xm);
       if (!onlySetToStorage) {
         this.newMovesRecord = true;
       }
     },
-    loadRecordFromLocalStorage(recordName: string, codeWord: string): Record {
+    loadRecordFromLocalStorage(recordName: string, puzzleSize: number,
+      marathonMode: boolean, codeWord: string): Record {
       const lsItem = localStorage.getItem(recordName);
       if (lsItem !== null) {
         const decoded = atob(lsItem);
         const lastPart = decoded.slice(-4);
         if (lastPart !== codeWord && lastPart.replace('y', 'h') !== codeWord.replace('y', 'h')) {
           if (recordName.includes('time')) {
-            this.setTimeRecord(0, 0, false, true);
+            this.setTimeRecord(0, 0, puzzleSize, marathonMode, true);
           } else {
-            this.setMovesRecord(0, 0, false, true);
+            this.setMovesRecord(0, 0, puzzleSize, marathonMode, true);
           }
           return { record: 0, adding: 0 };
         }
@@ -278,20 +297,22 @@ export const useBaseStore = defineStore('base', {
       }
       return { record: 0, adding: 0 };
     },
-    loadTimeRecord(marathonMode: boolean): Record {
+    loadTimeRecord(marathonMode: boolean, puzzleSize: number): Record {
+      const nLPart = this.getnLPart(puzzleSize);
       try {
         return this.loadRecordFromLocalStorage(marathonMode
-          ? `timeMRecord${this.nLPart}`
-          : `timeRecord${this.nLPart}`, 'heh7');
+          ? `timeMRecord${nLPart}`
+          : `timeRecord${nLPart}`, puzzleSize, marathonMode, 'heh7');
       } catch {
         return { record: 0, adding: 0 };
       }
     },
-    loadMovesRecord(marathonMode: boolean): Record {
+    loadMovesRecord(marathonMode: boolean, puzzleSize: number): Record {
+      const nLPart = this.getnLPart(puzzleSize);
       try {
         return this.loadRecordFromLocalStorage(marathonMode
-          ? `movesMRecord${this.nLPart}`
-          : `movesRecord${this.nLPart}`, 'heh9');
+          ? `movesMRecord${nLPart}`
+          : `movesRecord${nLPart}`, puzzleSize, marathonMode, 'heh9');
       } catch {
         return { record: 0, adding: 0 };
       }
@@ -301,28 +322,29 @@ export const useBaseStore = defineStore('base', {
         if (localStorage.getItem('timeRecord') !== null || localStorage.getItem('timeMRecord') !== null) {
           // fix for previous format (first load and resave standard records, then the same for marathon)
           if (localStorage.getItem('timeRecord') !== null) {
-            this.timeRecord = this.loadTimeRecord(false).record;
-            this.movesRecord = this.loadMovesRecord(false).record;
+            this.timeRecord = this.loadTimeRecord(false, this.numLines).record;
+            this.movesRecord = this.loadMovesRecord(false, this.numLines).record;
             this.timeRecordMoves = this.movesRecord;
             this.movesRecordTime = this.timeRecord;
-            this.setTimeRecord(this.timeRecord, this.movesRecord, false, true);
-            this.setMovesRecord(this.movesRecord, this.timeRecord, false, true);
+            this.setTimeRecord(this.timeRecord, this.movesRecord, this.numLines, false, true);
+            this.setMovesRecord(this.movesRecord, this.timeRecord, this.numLines, false, true);
           }
           if (localStorage.getItem('timeMRecord') !== null) {
-            this.timeRecord = this.loadTimeRecord(true).record;
-            this.movesRecord = this.loadMovesRecord(true).record;
+            this.timeRecord = this.loadTimeRecord(true, this.numLines).record;
+            this.movesRecord = this.loadMovesRecord(true, this.numLines).record;
             this.timeRecordMoves = this.movesRecord;
             this.movesRecordTime = this.timeRecord;
-            this.setTimeRecord(this.timeRecord, this.movesRecord, true, true);
-            this.setMovesRecord(this.movesRecord, this.timeRecord, true, true);
+            this.setTimeRecord(this.timeRecord, this.movesRecord, this.numLines, true, true);
+            this.setMovesRecord(this.movesRecord, this.timeRecord, this.numLines, true, true);
           }
         }
         localStorage.setItem('recordVer', '1');
       }
-      const { record, adding } = this.loadTimeRecord(this.marathonMode);
+      const { record, adding } = this.loadTimeRecord(this.marathonMode, this.numLines);
       this.timeRecord = record;
       this.timeRecordMoves = adding;
-      const { record: recordM, adding: addingM } = this.loadMovesRecord(this.marathonMode);
+      const { record: recordM, adding: addingM } =
+        this.loadMovesRecord(this.marathonMode, this.numLines);
       this.movesRecord = recordM;
       this.movesRecordTime = addingM;
     },
@@ -374,7 +396,9 @@ export const useBaseStore = defineStore('base', {
       return displayedTime(this.time);
     },
     showModal(): boolean {
-      return this.showConfig || this.showInfo || this.showWinModal || this.showImageGallery;
+      return this.showConfig || this.showInfo || this.showWinModal ||
+        this.showImageGallery || this.showRegModal || this.showUserAccount ||
+        this.showLeaderBoard;
     },
     cageImgIndex(): number {
       return CAGES_PATH_ARR.indexOf(this.cagePath.toString());
@@ -393,14 +417,28 @@ export const useBaseStore = defineStore('base', {
     freeElementRow(): number {
       return getElementRow(this.freeElement, this.numLines);
     },
-    nLPart(): string {
-      return this.numLines === CORE_NUM ? '' : this.numLines.toString();
-    },
     registered(): boolean {
       return this.token !== null && this.userName !== null;
     },
     tps(): string {
       return calculateTPS(this.movesCount, this.time);
+    },
+    getControlTypeStr(): string {
+      let controlType = 'mouse';
+      switch (this.moveDoneBy) {
+        case ControlType.Mouse:
+          controlType = 'mouse';
+          break;
+        case ControlType.Touch:
+          controlType = 'touch';
+          break;
+        case ControlType.Keyboard:
+          controlType = 'keyboard';
+          break;
+        default:
+          controlType = 'mouse';
+      }
+      return controlType;
     }
   }
 });
