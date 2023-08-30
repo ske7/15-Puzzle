@@ -65,8 +65,8 @@ const slicedName = (name?: string): string => {
   if (!name) {
     return '';
   }
-  if (name.length > 10) {
-    return `${name.slice(0, 10)}...`;
+  if (name.length > 9) {
+    return `${name.slice(0, 9)}...`;
   }
   return name;
 };
@@ -88,7 +88,7 @@ const slicedName = (name?: string): string => {
               <th class="w-25">
                 #
               </th>
-              <th class="w-120">
+              <th class="w-125">
                 Name
               </th>
               <th v-if="bestType==='time'" class="min-width">
@@ -218,8 +218,8 @@ const slicedName = (name?: string): string => {
 .w-25 {
   width: 25px;
 }
-.w-120 {
-  width: 120px;
+.w-125 {
+  width: 125px;
 }
 .puzzle-size-slider-container {
   max-width: 250px;
