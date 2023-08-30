@@ -29,3 +29,4 @@ coverage
 /.vscode/extensions.json
 todo.txt
 .env
+.env.production
