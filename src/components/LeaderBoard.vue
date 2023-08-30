@@ -241,7 +241,7 @@ const filteredRecords = computed(() => {
     top: calc(50% - 244px);
   }
   .table-container {
-    min-height: 150px;
+    min-height: 156px;
   }
   .items-table tbody {
     max-height: 117px;
