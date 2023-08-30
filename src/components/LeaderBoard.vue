@@ -66,16 +66,6 @@ const filteredRecords = computed(() => {
     }
   });
 });
-
-const slicedName = (name?: string): string => {
-  if (!name) {
-    return '';
-  }
-  if (name.length > 9) {
-    return `${name.slice(0, 9)}...`;
-  }
-  return name;
-};
 </script>
 
 <template>
@@ -114,8 +104,8 @@ const slicedName = (name?: string): string => {
               <td class="w-25">
                 {{ index + 1 }}
               </td>
-              <td class="w-125">
-                {{ slicedName(item.name) }}
+              <td class="w-125 t-overflow">
+                {{ item.name }}
               </td>
               <td v-if="bestType === 'time'" class="min-width">
                 {{ item.time / 1000 }}
@@ -150,11 +140,11 @@ const slicedName = (name?: string): string => {
   color: var(--text-color);
   border-radius: 8px;
   height: auto;
-  min-height: 608px;
+  min-height: 620px;
   width: var(--modal-width);
   position: fixed;
   z-index: 2000;
-  top: calc(50% - 304px);
+  top: calc(50% - 310px);
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
   box-shadow: 0 8px 16px var(--shadow-color);
@@ -178,7 +168,7 @@ const slicedName = (name?: string): string => {
   width: 100px;
 }
 .table-container {
-  min-height: 274px;
+  min-height: 284px;
 }
 .items-table {
   max-width: 100%;
@@ -227,6 +217,10 @@ const slicedName = (name?: string): string => {
 .w-125 {
   width: 125px;
 }
+.t-overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .puzzle-size-slider-container {
   max-width: 250px;
 }
@@ -250,7 +244,7 @@ const slicedName = (name?: string): string => {
     min-height: 150px;
   }
   .items-table tbody {
-    max-height: 116px;
+    max-height: 117px;
     overflow-y: auto;
   }
 }
