@@ -108,7 +108,7 @@ const slicedName = (name?: string): string => {
               <td class="w-25">
                 {{ index + 1 }}
               </td>
-              <td class="w-120">
+              <td class="w-125">
                 {{ slicedName(item.name) }}
               </td>
               <td v-if="bestType === 'time'" class="min-width">
