@@ -65,8 +65,8 @@ const slicedName = (name?: string): string => {
   if (!name) {
     return '';
   }
-  if (name.length > 9) {
-    return `${name.slice(0, 9)}...`;
+  if (name.length > 10) {
+    return `${name.slice(0, 10)}...`;
   }
   return name;
 };
@@ -153,14 +153,6 @@ const slicedName = (name?: string): string => {
   padding: 20px;
   box-shadow: 0 8px 16px var(--shadow-color);
 }
-@media screen and (max-width: 420px) {
-  .leaderboard {
-    --modal-width: 340px;
-  }
-  .items-table thead tbody {
-    font-size: 15px;
-  }
-}
 .header {
   text-align: center;
   margin-bottom: 5px;
@@ -199,8 +191,9 @@ const slicedName = (name?: string): string => {
   background-color: gold;
 }
 .items-table thead th {
-  padding: 3px 3px 3px 5px;
+  padding: 5px;
   color: black;
+  border: 1px solid var(--table-border-color);
 }
 .table-container table thead, table tbody tr {
   display: table;
@@ -216,6 +209,8 @@ const slicedName = (name?: string): string => {
 }
 .items-table td {
   padding: 3px 3px 3px 5px;
+  border: 1px solid var(--table-border-color);
+  border-top: 0px;
 }
 .min-width {
   min-width: 67px;
@@ -228,5 +223,29 @@ const slicedName = (name?: string): string => {
 }
 .puzzle-size-slider-container {
   max-width: 250px;
+}
+@media screen and (max-width: 420px) {
+  .leaderboard {
+    --modal-width: 340px;
+  }
+  .items-table thead {
+    font-size: 15px;
+  }
+  .items-table tbody {
+    font-size: 15px;
+  }
+}
+@media screen and (max-height: 620px) {
+  .leaderboard {
+    min-height: 488px;
+    top: calc(50% - 244px);
+  }
+  .table-container {
+    min-height: 150px;
+  }
+  .items-table tbody {
+    max-height: 116px;
+    overflow-y: auto;
+  }
 }
 </style>

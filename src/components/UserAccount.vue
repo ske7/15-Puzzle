@@ -43,6 +43,9 @@ fetch('current_user_stats');
 const formatDate = (date: string): string => {
   return useDateFormat(date, 'MMM D, YYYY').value;
 };
+const formatDate2 = (date: string): string => {
+  return useDateFormat(date, 'DD/MM/YY').value;
+};
 const formatPlayTime = computed(() => {
   let playTime = userData.value?.user_data.play_time;
   if (!playTime) {
@@ -71,7 +74,7 @@ const filteredRecords = computed(() => {
   <Teleport to="body">
     <div v-if="!baseStore.isFetching && userData" ref="userAccount" class="user-account">
       <p class="header">
-        <span>Your stats and personal best records</span>
+        <span>Your stats and personal records</span>
       </p>
       <div v-if="!baseStore.isFetching && userData">
         <p><strong>Name:</strong> {{ baseStore.userName }}</p>
@@ -86,23 +89,27 @@ const filteredRecords = computed(() => {
           <thead>
             <tr>
               <th>Best</th>
-              <th class="min-width">
-                Time
+              <th class="w-80">
+                Value
               </th>
-              <th>Moves</th>
               <th>TPS</th>
-              <th>By</th>
+              <th>Date</th>
+              <th class="w-25">
+                By
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(item) in filteredRecords" :key="item.id">
               <td>{{ item.record_type }}</td>
-              <td class="min-width">
-                {{ item.time / 1000 }}
+              <td class="w-80">
+                {{ item.record_type === 'time' ? (item.time / 1000) : item.moves }}
               </td>
-              <td>{{ item.moves }}</td>
               <td>{{ item.tps }}</td>
-              <td>{{ item.control_type.slice(0, 1) }}</td>
+              <td>{{ formatDate2(item.created_at) }}</td>
+              <td class="w-25">
+                {{ item.control_type.slice(0, 1) }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -120,28 +127,19 @@ const filteredRecords = computed(() => {
 .user-account {
   --modal-width: 360px;
   display: flex;
-  justify-content: center;
   flex-direction: column;
   background-color: var(--background-modal-color);
   color: var(--text-color);
   border-radius: 8px;
   height: auto;
-  min-height: 550px;
+  min-height: 500px;
   width: var(--modal-width);
   position: fixed;
   z-index: 2000;
-  top: calc(50% - 275px);
+  top: calc(50% - 250px);
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
   box-shadow: 0 8px 16px var(--shadow-color);
-}
-@media screen and (max-width: 420px) {
-  .user-account {
-    --modal-width: 340px;
-  }
-  .items-table thead tbody {
-    font-size: 15px;
-  }
 }
 .user-account strong {
   font-weight: 600;
@@ -165,7 +163,7 @@ const filteredRecords = computed(() => {
   width: 100px;
 }
 .table-container {
-  min-height: 110px;
+  min-height: 105px;
 }
 .items-table {
   max-width: 100%;
@@ -174,8 +172,9 @@ const filteredRecords = computed(() => {
   background-color: transparent;
   border-collapse: collapse;
   border-spacing: 0;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   font-family: 'consolas', sans-serif;
+  line-height: 1.1;
 }
 .items-table thead {
   font-size: 16px;
@@ -185,6 +184,8 @@ const filteredRecords = computed(() => {
 .items-table thead th {
   padding: 5px;
   color: black;
+  min-width: 55px;
+  border: 1px solid var(--table-border-color);
 }
 .items-table tbody {
   font-size: 16px;
@@ -192,11 +193,30 @@ const filteredRecords = computed(() => {
 }
 .items-table td {
   padding: 5px 0 5px 5px;
+  min-width: 55px;
+  border: 1px solid var(--table-border-color);
+  border-top: 0px;
 }
-.min-width {
-  min-width: 67px;
+.items-table .w-25 {
+  min-width: 25px;
+  width: 25px;
+}
+.items-table .w-80 {
+  min-width: 80px;
+  width: 80px;
 }
 .puzzle-size-slider-container {
   max-width: 250px;
+}
+@media screen and (max-width: 420px) {
+  .user-account {
+    --modal-width: 340px;
+  }
+  .items-table thead {
+    font-size: 15px;
+  }
+  .items-table tbody {
+    font-size: 15px;
+  }
 }
 </style>
