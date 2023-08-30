@@ -54,8 +54,14 @@ const filteredRecords = computed(() => {
            value.record_type === bestType.value;
   }).sort((a, b) => {
     if (bestType.value === 'time') {
+      if (a.time === b.time) {
+        return Number(b.tps) - Number(a.tps);
+      }
       return a.time - b.time;
     } else {
+      if (a.moves === b.moves) {
+        return Number(b.tps) - Number(a.tps);
+      }
       return a.moves - b.moves;
     }
   });
@@ -172,7 +178,7 @@ const slicedName = (name?: string): string => {
   width: 100px;
 }
 .table-container {
-  min-height: 270px;
+  min-height: 274px;
 }
 .items-table {
   max-width: 100%;
@@ -204,7 +210,7 @@ const slicedName = (name?: string): string => {
   font-size: 16px;
   text-align: left;
   display: block;
-  max-height: 236px;
+  max-height: 244px;
   overflow-y: auto;
 }
 .items-table td {
