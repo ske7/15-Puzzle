@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from 'vue';
+import { ref, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { CORE_NUM } from '@/stores/const';
 import { useEventBus } from '@vueuse/core';
 const RegModal = defineAsyncComponent({
-  loader: async () => await import('../components/RegModal.vue'),
+  loader: async () => await import('../components/RegModal.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 const UserAccount = defineAsyncComponent({
-  loader: async () => await import('../components/UserAccount.vue'),
+  loader: async () => await import('../components/UserAccount.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 const LeaderBoard = defineAsyncComponent({
-  loader: async () => await import('../components/LeaderBoard.vue'),
+  loader: async () => await import('../components/LeaderBoard.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 

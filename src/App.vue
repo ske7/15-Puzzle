@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from 'vue';
+import { computed, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from './stores/base';
 import { usePrepare } from './composables/usePrepare';
@@ -9,7 +9,7 @@ import TopInfoPanel from './components/TopInfoPanel.vue';
 import BottomInfoPanel from './components/BottomInfoPanel.vue';
 import ActionPanel from './components/ActionPanel.vue';
 const WinModal = defineAsyncComponent({
-  loader: async () => await import('./components/WinModal.vue'),
+  loader: async () => await import('./components/WinModal.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 

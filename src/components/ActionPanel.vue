@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onMounted, onUnmounted, computed } from 'vue';
+import { ref, defineAsyncComponent, onMounted, onUnmounted, computed, type AsyncComponentLoader } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
 const ConfigModal = defineAsyncComponent({
-  loader: async () => await import('../components/ConfigModal.vue'),
+  loader: async () => await import('../components/ConfigModal.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 const InfoModal = defineAsyncComponent({
-  loader: async () => await import('../components/InfoModal.vue'),
+  loader: async () => await import('../components/InfoModal.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 const ImageGallery = defineAsyncComponent({
-  loader: async () => await import('../components/ImageGallery.vue'),
+  loader: async () => await import('../components/ImageGallery.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 
