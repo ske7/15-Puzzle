@@ -7,7 +7,7 @@ import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
 import { type UserRecord } from '../stores/const';
 
-const emit = defineEmits<{ close: []; }>();
+const emit = defineEmits<{ close: [] }>();
 
 const leaderBoard = ref<HTMLElement>();
 onClickOutside(leaderBoard, (event) => {
@@ -45,7 +45,7 @@ const puzzleMode = ref<string>(baseStore.marathonMode ? 'marathon' : 'standard')
 const bestType = ref<string>('time');
 
 const filteredRecords = computed(() => {
-  if (!userRecords.value || userRecords.value.length === 0) {
+  if ((userRecords.value == null) || userRecords.value.length === 0) {
     return [];
   }
   return userRecords.value.filter((value) => {

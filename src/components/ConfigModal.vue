@@ -7,7 +7,7 @@ import { CORE_NUM } from '../stores/const';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 
 const baseStore = useBaseStore();
-const emit = defineEmits<{ close: []; }>();
+const emit = defineEmits<{ close: [] }>();
 const eventBus = useEventBus<string>('event-bus');
 
 const configModal = ref<HTMLElement>();
@@ -76,7 +76,7 @@ const setMarathonMode = (): void => {
 const puzzleSize = ref<number>(baseStore.numLines);
 
 watch(puzzleSize, (newValue) => {
-  if (newValue) {
+  if (newValue !== 0) {
     baseStore.numLines = Number(newValue) as puzzleCores;
     localStorage.setItem('numLines', baseStore.numLines.toString());
     eventBus.emit('restart', 'fromConfig');
@@ -91,7 +91,7 @@ watch(puzzleSize, (newValue) => {
         <span>Game config</span>
       </p>
       <div class="options">
-        <PuzzleSizeSlider v-model="puzzleSize" />
+        <PuzzleSizeSlider v-model="puzzleSize" :disabled="baseStore.enableCageMode" />
         <div class="option">
           <input
             id="enable-cage-mode"

@@ -10,7 +10,7 @@ const api = async (endpoint: string, method: string, body?: BodyInit, token?: st
     'Content-Type': 'application/json',
     Accept: 'application/json'
   };
-  if (token) {
+  if (token != null) {
     headers = {
       ...headers, Authorization: `Bearer ${token}`
     };
@@ -33,10 +33,11 @@ const api = async (endpoint: string, method: string, body?: BodyInit, token?: st
   return await (response.json() as Promise<Response>);
 };
 
-export const usePostFetchAPI = (endpoint: string, body?: BodyInit, token?: string) => {
-  return api(endpoint, 'POST', body, token);
+export const usePostFetchAPI = async (endpoint: string, body?: BodyInit,
+  token?: string): Promise<Response> => {
+  return await api(endpoint, 'POST', body, token);
 };
 
-export const useGetFetchAPI = (endpoint: string, token?: string) => {
-  return api(endpoint, 'GET', undefined, token);
+export const useGetFetchAPI = async (endpoint: string, token?: string): Promise<Response> => {
+  return await api(endpoint, 'GET', undefined, token);
 };

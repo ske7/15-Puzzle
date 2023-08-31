@@ -5,7 +5,7 @@ import { useBaseStore } from '../stores/base';
 import { type GameData } from '../stores/const';
 import { usePostFetchAPI } from '../composables/useFetchAPI';
 
-export const useWatchGameState = () => {
+export const useWatchGameState = (): void => {
   const baseStore = useBaseStore();
 
   const visibility = useDocumentVisibility();
@@ -50,7 +50,7 @@ export const useWatchGameState = () => {
       baseStore.setTimeRecord(baseStore.time, baseStore.movesCount,
         baseStore.numLines, baseStore.marathonMode);
     }
-    if (baseStore.token) {
+    if (baseStore.token != null) {
       postGame({
         time: baseStore.time,
         moves: baseStore.movesCount,

@@ -1,6 +1,6 @@
 export function shuffle(array: readonly number[]): number[] {
   const length = array.length;
-  if (!length) {
+  if (length === 0) {
     return [];
   }
   let index = -1;

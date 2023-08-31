@@ -1,11 +1,11 @@
-import { onMounted, computed, ref } from 'vue';
+import { onMounted, computed, ref, type ComputedRef } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useKeyDown } from '../composables/useKeyDown';
 import { CORE_NUM, CAGES_PATH_ARR, isPuzzleCore, type puzzleCores } from '../stores/const';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
-export const usePrepare = () => {
+export const usePrepare = (): void => {
   const baseStore = useBaseStore();
 
   if (location.href.toLowerCase().includes('pro')) {
@@ -48,7 +48,7 @@ export const usePrepare = () => {
         baseStore.isFetching = false;
       });
   };
-  if (baseStore.token) {
+  if (baseStore.token != null) {
     fetch('get_current_user', true);
   } else {
     fetch('version', false);
@@ -79,7 +79,7 @@ export const usePrepare = () => {
   });
 };
 
-export const getSquareSize = () => {
+export const getSquareSize = (): Record<string, ComputedRef<number>> => {
   const baseStore = useBaseStore();
 
   const { width: windowWidth } = useWindowSize();

@@ -2,7 +2,7 @@ import { computed, type ComputedRef } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { getElementCol, getElementRow } from '../utils';
 
-export const useCanMove = (refValue: ComputedRef<number>) => {
+export const useCanMove = (refValue: ComputedRef<number>): Record<string, ComputedRef<boolean | number>> => {
   const baseStore = useBaseStore();
 
   const elementCol = computed(() => {

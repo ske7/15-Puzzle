@@ -3,15 +3,15 @@ import { ref, defineAsyncComponent, onMounted, onUnmounted, computed } from 'vue
 import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
 const ConfigModal = defineAsyncComponent({
-  loader: async () => import('../components/ConfigModal.vue'),
+  loader: async () => await import('../components/ConfigModal.vue'),
   delay: 150
 });
 const InfoModal = defineAsyncComponent({
-  loader: async () => import('../components/InfoModal.vue'),
+  loader: async () => await import('../components/InfoModal.vue'),
   delay: 150
 });
 const ImageGallery = defineAsyncComponent({
-  loader: async () => import('../components/ImageGallery.vue'),
+  loader: async () => await import('../components/ImageGallery.vue'),
   delay: 150
 });
 

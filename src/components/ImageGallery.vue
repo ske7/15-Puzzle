@@ -6,7 +6,7 @@ import { onClickOutside } from '@vueuse/core';
 import { CAGES_PATH_ARR, LoadImageMode } from '../stores/const';
 import { getSquareSize } from '../composables/usePrepare';
 
-const emit = defineEmits<{ close: []; }>();
+const emit = defineEmits<{ close: [] }>();
 const baseStore = useBaseStore();
 
 const { squareSize } = getSquareSize();
@@ -66,7 +66,7 @@ const checkIsLocked = (): void => {
   }
 };
 checkIsLocked();
-const loadImage = async (mode: LoadImageMode) => {
+const loadImage = async (mode: LoadImageMode): Promise<void> => {
   if (!loaded.value && !isLocked.value) {
     return;
   }
@@ -94,10 +94,10 @@ const loadImage = async (mode: LoadImageMode) => {
     showImg.value = true;
   }
 };
-const loadNext = async () => {
+const loadNext = async (): Promise<void> => {
   await loadImage(LoadImageMode.next);
 };
-const loadPrev = async () => {
+const loadPrev = async (): Promise<void> => {
   await loadImage(LoadImageMode.prev);
 };
 
@@ -110,7 +110,7 @@ watch(loaded, (newValue, oldValue) => {
       time.value += 1;
     }, 100);
   }
-  if (newValue && !oldValue) {
+  if (newValue && !(oldValue ?? false)) {
     clearInterval(interval.value);
   }
 },
@@ -118,17 +118,17 @@ watch(loaded, (newValue, oldValue) => {
 
 const tolerance = ref(30);
 const gesture = reactive({ x: [] as number[] });
-const touchstart = (e: TouchEvent) => {
+const touchstart = (e: TouchEvent): void => {
   for (const t of e.touches) {
     gesture.x.push(t.clientX);
   }
 };
-const touchmove = (e: TouchEvent) => {
+const touchmove = (e: TouchEvent): void => {
   for (const t of e.touches) {
     gesture.x.push(t.clientX);
   }
 };
-const touchend = async () => {
+const touchend = async (): Promise<void> => {
   const xTravel = gesture.x[gesture.x.length - 1] - gesture.x[0];
   gesture.x = [];
   if (xTravel < -tolerance.value) {
@@ -146,7 +146,7 @@ const disabledShowOnlyUnlockedItems = computed(() => {
 
 const oldCurrentIndex = ref(0);
 const wasLocked = ref(false);
-const setShowOnlyUnlockedItems = () => {
+const setShowOnlyUnlockedItems = (): void => {
   wasLocked.value = false;
   if (baseStore.showOnlyUnlockedItems) {
     oldCurrentIndex.value = getRealIndex.value;
@@ -174,7 +174,7 @@ watch(showOnlyUnlockedItems, async (newValue, oldValue) => {
   }
 });
 
-const wheel = async (event: WheelEvent) => {
+const wheel = async (event: WheelEvent): Promise<void> => {
   const delta = Math.sign(event.deltaY);
   if (delta === -1) {
     await loadNext();

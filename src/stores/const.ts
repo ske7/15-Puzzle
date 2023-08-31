@@ -27,7 +27,7 @@ export const enum LoadImageMode {
 }
 
 export interface PreloadedImage {
-  url?: string,
+  url?: string;
   item: string;
 }
 
@@ -37,9 +37,9 @@ export interface Record {
 }
 
 export interface Position {
-  left: number,
-  top: number,
-  right: number,
+  left: number;
+  top: number;
+  right: number;
   bottom: number;
 }
 
@@ -84,7 +84,7 @@ export interface UserStats {
     num_finished_games: number;
     play_time: number;
     id: number;
-  },
+  };
   user_records: UserRecord[];
 }
 

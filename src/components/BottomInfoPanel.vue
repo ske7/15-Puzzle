@@ -4,15 +4,15 @@ import { useBaseStore } from '../stores/base';
 import { CORE_NUM } from '@/stores/const';
 import { useEventBus } from '@vueuse/core';
 const RegModal = defineAsyncComponent({
-  loader: async () => import('../components/RegModal.vue'),
+  loader: async () => await import('../components/RegModal.vue'),
   delay: 150
 });
 const UserAccount = defineAsyncComponent({
-  loader: async () => import('../components/UserAccount.vue'),
+  loader: async () => await import('../components/UserAccount.vue'),
   delay: 150
 });
 const LeaderBoard = defineAsyncComponent({
-  loader: async () => import('../components/LeaderBoard.vue'),
+  loader: async () => await import('../components/LeaderBoard.vue'),
   delay: 150
 });
 
@@ -21,7 +21,7 @@ const eventBus = useEventBus<string>('event-bus');
 const formType = ref<string>('');
 
 const wasPausedBeforeOpenModal = ref(false);
-const doShowRegModal = (type: string) => {
+const doShowRegModal = (type: string): void => {
   wasPausedBeforeOpenModal.value = baseStore.paused;
   if (!baseStore.paused && !baseStore.isDone) {
     baseStore.invertPaused();
@@ -29,14 +29,14 @@ const doShowRegModal = (type: string) => {
   baseStore.showRegModal = true;
   formType.value = type;
 };
-const doShowUserAccount = () => {
+const doShowUserAccount = (): void => {
   wasPausedBeforeOpenModal.value = baseStore.paused;
   if (!baseStore.paused && !baseStore.isDone) {
     baseStore.invertPaused();
   }
   baseStore.showUserAccount = true;
 };
-const doShowLeaderBoard = () => {
+const doShowLeaderBoard = (): void => {
   wasPausedBeforeOpenModal.value = baseStore.paused;
   if (!baseStore.paused && !baseStore.isDone) {
     baseStore.invertPaused();

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{ modelValue: string; choices: string[]; header: string }>();
-const emit = defineEmits<{ 'update:modelValue': [string]; }>();
+const emit = defineEmits<{ 'update:modelValue': [string] }>();
 
 const setValue = (value: string): void => {
   emit('update:modelValue', value);

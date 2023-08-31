@@ -3,11 +3,11 @@ import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
 import { ControlType } from '../stores/const';
 
-export const useKeyDown = () => {
+export const useKeyDown = (): void => {
   const baseStore = useBaseStore();
   const eventBus = useEventBus<string>('event-bus');
 
-  const onKeyDown = (event: KeyboardEvent) => {
+  const onKeyDown = (event: KeyboardEvent): void => {
     if (!baseStore.showModal) {
       event.preventDefault();
     }

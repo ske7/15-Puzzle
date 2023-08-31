@@ -9,7 +9,7 @@ import TopInfoPanel from './components/TopInfoPanel.vue';
 import BottomInfoPanel from './components/BottomInfoPanel.vue';
 import ActionPanel from './components/ActionPanel.vue';
 const WinModal = defineAsyncComponent({
-  loader: async () => import('./components/WinModal.vue'),
+  loader: async () => await import('./components/WinModal.vue'),
   delay: 150
 });
 

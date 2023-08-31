@@ -144,13 +144,13 @@ const isDoneAll = computed(() => {
 });
 
 const moveDirection = computed(() => {
-  if (canMoveRight.value) {
+  if (canMoveRight.value as boolean) {
     return Direction.Right;
-  } else if (canMoveLeft.value) {
+  } else if (canMoveLeft.value as boolean) {
     return Direction.Left;
-  } else if (canMoveUp.value) {
+  } else if (canMoveUp.value as boolean) {
     return Direction.Up;
-  } else if (canMoveDown.value) {
+  } else if (canMoveDown.value as boolean) {
     return Direction.Down;
   }
   return Direction.None;

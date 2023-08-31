@@ -7,7 +7,7 @@ import { type UserStats } from '../stores/const';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
 
-const emit = defineEmits<{ close: []; }>();
+const emit = defineEmits<{ close: [] }>();
 
 const userAccount = ref<HTMLElement>();
 onClickOutside(userAccount, (event) => {
@@ -48,7 +48,7 @@ const formatDate2 = (date: string): string => {
 };
 const formatPlayTime = computed(() => {
   let playTime = userData.value?.user_data.play_time;
-  if (!playTime) {
+  if (playTime == null) {
     return '0';
   }
   const hour = Math.floor(playTime / (1000 * 60 * 60)).toFixed(0);

@@ -1,6 +1,9 @@
 <script setup lang="ts">
-const props = defineProps<{ modelValue: number; }>();
-const emit = defineEmits<{ 'update:modelValue': [number]; }>();
+const props = withDefaults(defineProps<{ modelValue: number; disabled: boolean }>(), {
+  disabled: false
+});
+
+const emit = defineEmits<{ 'update:modelValue': [number] }>();
 
 const setValue = (value: number): void => {
   emit('update:modelValue', value);
@@ -24,6 +27,7 @@ const setInputValue = (event: Event): void => {
       step="1"
       list="markers"
       class="slider"
+      :disabled="props.disabled"
       @input="setInputValue($event)"
     >
     <datalist id="markers">

@@ -56,26 +56,26 @@ const touchMove = (e: TouchEvent): void => {
     return;
   }
   let element = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-  if (!element) {
+  if (element === null) {
     return;
   }
   let sid = element.getAttribute('sid');
-  while (!sid) {
+  while (sid === null) {
     element = element.parentElement;
-    if (element) {
+    if (element !== null) {
       sid = element.getAttribute('sid');
     } else {
       break;
     }
   }
-  if (!sid) {
+  if (sid === null) {
     return;
   }
   const actualOrderValue = computed(() => {
     return Number(sid);
   });
   const { canMove } = useCanMove(actualOrderValue);
-  if (!canMove.value) {
+  if (!(canMove.value as boolean)) {
     return;
   }
   eventBus.emit('touchmove-from-board', e);

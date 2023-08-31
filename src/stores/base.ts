@@ -54,7 +54,7 @@ export const useBaseStore = defineStore('base', {
     startTime: 0,
     savedTime: 0,
     darkMode: localStorage.getItem('darkMode') === 'true',
-    boardPos: {} as Position,
+    boardPos: {} as unknown as Position,
     token: localStorage.getItem('token') as (null | undefined | string),
     userName: null as (null | undefined | string),
     isMoving: false,
@@ -212,7 +212,7 @@ export const useBaseStore = defineStore('base', {
       return `${this.numLines * squareSize + this.spaceBetween * (this.numLines + 1)}px`;
     },
     setUnlockedCages() {
-      if (this.cagePath) {
+      if (this.cagePath !== '') {
         this.unlockedCages.add(this.cageImgIndex);
         localStorage.setItem('_xcu', btoa(this.unlockedCagesSortedArr.join(',')));
       }
@@ -452,6 +452,6 @@ export const useBaseStore = defineStore('base', {
   }
 });
 
-if (import.meta.hot) {
+if (import.meta.hot != null) {
   import.meta.hot.accept(acceptHMRUpdate(useBaseStore, import.meta.hot));
 }

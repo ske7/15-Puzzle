@@ -14,7 +14,7 @@ module.exports = {
   },
   plugins: ['@typescript-eslint'],
   extends: [
-    'standard',
+    'standard-with-typescript',
     'eslint:recommended',
     'plugin:@typescript-eslint/strict-type-checked',
     'plugin:@typescript-eslint/stylistic-type-checked',
@@ -36,7 +36,19 @@ module.exports = {
     '@typescript-eslint/no-magic-numbers': 'off',
     '@typescript-eslint/space-before-function-paren': 'off',
     quotes: ['warn', 'single'],
-    semi: ['warn', 'always', { omitLastInOneLineBlock: true }],
+    '@typescript-eslint/semi': ['warn', 'always',
+      { omitLastInOneLineBlock: true, omitLastInOneLineClassBody: false }],
+    '@typescript-eslint/member-delimiter-style': ['error', {
+      multiline: {
+        delimiter: 'semi',
+        requireLast: true
+      },
+      singleline: {
+        delimiter: 'semi',
+        requireLast: false
+      },
+      multilineDetection: 'brackets'
+    }],
     'comma-dangle': ['error', 'never'],
     indent: ['error', 2, { SwitchCase: 1 }],
     'space-before-function-paren': 'off',
@@ -81,7 +93,8 @@ module.exports = {
     {
       files: ['*.vue'],
       rules: {
-        '@typescript-eslint/no-unsafe-assignment': 'off'
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-return': 'off'
       }
     }
   ]

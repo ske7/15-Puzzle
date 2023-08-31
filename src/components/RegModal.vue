@@ -8,7 +8,7 @@ import {
 } from '../stores/const';
 
 const props = defineProps<{ formType: string }>();
-const emit = defineEmits<{ close: []; }>();
+const emit = defineEmits<{ close: [] }>();
 const baseStore = useBaseStore();
 const regModal = ref<HTMLElement>();
 onClickOutside(regModal, (event) => {
@@ -45,46 +45,46 @@ const fillRecordGames = (): void => {
       control_type: recordControlType
     });
   };
-  if (localStorage.getItem('timeRecord')) {
+  if (localStorage.getItem('timeRecord') != null) {
     loadAndPush(4, false);
   }
-  if (localStorage.getItem('timeRecord3')) {
+  if (localStorage.getItem('timeRecord3') != null) {
     loadAndPush(3, false);
   }
-  if (localStorage.getItem('timeRecord5')) {
+  if (localStorage.getItem('timeRecord5') != null) {
     loadAndPush(5, false);
   }
-  if (localStorage.getItem('timeMRecord')) {
+  if (localStorage.getItem('timeMRecord') != null) {
     loadAndPush(4, true);
   }
-  if (localStorage.getItem('timeMRecord3')) {
+  if (localStorage.getItem('timeMRecord3') != null) {
     loadAndPush(3, true);
   }
-  if (localStorage.getItem('timeMRecord5')) {
+  if (localStorage.getItem('timeMRecord5') != null) {
     loadAndPush(5, true);
   }
-  if (localStorage.getItem('movesRecord')) {
+  if (localStorage.getItem('movesRecord') != null) {
     loadAndPush(4, false, true);
   }
-  if (localStorage.getItem('movesRecord3')) {
+  if (localStorage.getItem('movesRecord3') != null) {
     loadAndPush(3, false, true);
   }
-  if (localStorage.getItem('movesRecord5')) {
+  if (localStorage.getItem('movesRecord5') != null) {
     loadAndPush(5, false, true);
   }
-  if (localStorage.getItem('movesMRecord')) {
+  if (localStorage.getItem('movesMRecord') != null) {
     loadAndPush(4, true, true);
   }
-  if (localStorage.getItem('movesMRecord3')) {
+  if (localStorage.getItem('movesMRecord3') != null) {
     loadAndPush(3, true, true);
   }
-  if (localStorage.getItem('movesMRecord5')) {
+  if (localStorage.getItem('movesMRecord5') != null) {
     loadAndPush(5, true, true);
   }
 };
 
 const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
-  if (!stats || stats.user_records.length === 0) {
+  if ((stats == null) || stats.user_records.length === 0) {
     return;
   }
   const updateLocalRecord = (puzzleSize: number, puzzleType: string): void => {
@@ -114,7 +114,7 @@ const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
   updateLocalRecord(5, 'marathon');
 };
 
-const user: UserData = reactive({} as UserData);
+const user: UserData = reactive({} as unknown as UserData);
 const errorMsg = ref<string[]>([]);
 const isFetching = ref(false);
 const fetch = (endpoint: string): void => {
@@ -145,7 +145,7 @@ const fetch = (endpoint: string): void => {
     });
 };
 
-const doSubmit = () => {
+const doSubmit = (): void => {
   if (isRegisterForm.value) {
     user.password_confirmation = user.password;
     fetch('register');
@@ -158,7 +158,7 @@ const invalidFields = reactive({
   name: false,
   email: false,
   password: false
-} as InvalidFields);
+} as unknown as InvalidFields);
 const resetInvalidFields = (): void => {
   invalidFields.email = false;
   invalidFields.name = false;

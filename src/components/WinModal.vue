@@ -3,7 +3,7 @@ import { ref, onUnmounted } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
 
-const emit = defineEmits<{ close: []; }>();
+const emit = defineEmits<{ close: [] }>();
 const winModal = ref<HTMLElement>();
 onClickOutside(winModal, (event) => {
   event.stopPropagation();
