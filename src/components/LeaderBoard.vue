@@ -94,7 +94,7 @@ const filteredRecords = computed(() => {
                 Moves
               </th>
               <th>TPS</th>
-              <th class="w-25">
+              <th class="w-28">
                 By
               </th>
             </tr>
@@ -114,7 +114,7 @@ const filteredRecords = computed(() => {
                 {{ item.moves }}
               </td>
               <td>{{ item.tps }}</td>
-              <td class="w-25">
+              <td class="w-28">
                 {{ item.control_type.slice(0, 1) }}
               </td>
             </tr>
@@ -204,7 +204,7 @@ const filteredRecords = computed(() => {
   overflow-y: auto;
 }
 .items-table td {
-  padding: 3px 3px 3px 5px;
+  padding: 3px 5px 3px 5px;
   border: 1px solid var(--table-border-color);
   border-top: 0px;
 }
@@ -213,6 +213,9 @@ const filteredRecords = computed(() => {
 }
 .w-25 {
   width: 25px;
+}
+.w-28 {
+  width: 28px;
 }
 .w-125 {
   width: 125px;

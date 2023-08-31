@@ -2,7 +2,7 @@ import { defineStore, acceptHMRUpdate } from 'pinia';
 import {
   generateAndShuffle, generate, isSolvable, isSorted,
   getArrayKeyByValue, getElementCol, getElementRow,
-  displayedTime, calculateTPS
+  displayedTime, calculateTPS, randArrayItem
 } from '../utils';
 import {
   CORE_NUM, SPACE_BETWEEN_SQUARES,
@@ -30,13 +30,12 @@ export const useBaseStore = defineStore('base', {
     movesRecordTime: 0,
     doneFirstMove: false,
     cageMode: false,
-    eligibleForCageMode: false,
     cagePath: '',
     shownCages: new Set<string>(),
     cageCompleteImgLoaded: false,
     cageImageLoadedCount: 0,
     showInfo: false,
-    disableCageMode: localStorage.getItem('disableCageMode') === 'true',
+    enableCageMode: localStorage.getItem('enableCageMode') === 'true',
     cageHardcoreMode: localStorage.getItem('cageHardcoreMode') === 'true',
     unlockedCages: new Set<number>(),
     showWinModal: false,
@@ -225,6 +224,18 @@ export const useBaseStore = defineStore('base', {
         for (const item of arr) {
           this.unlockedCages.add(Number(item));
         }
+      }
+    },
+    doPrepareCageMode() {
+      this.cageMode = true;
+      if (this.unlockedCages.size === this.cagesCount) {
+        if (this.shownCages.size === CAGES_PATH_ARR.length) {
+          this.shownCages.clear();
+        }
+        this.cagePath = randArrayItem(CAGES_PATH_ARR, Array.from(this.shownCages));
+        this.shownCages.add(this.cagePath);
+      } else {
+        this.cagePath = randArrayItem(CAGES_PATH_ARR, this.unlockedCagesValues);
       }
     },
     getnLPart(puzzleSize: number): string {

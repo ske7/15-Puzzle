@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, reactive } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useElementBounding, useEventBus } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { getSquareSize } from '../composables/usePrepare';
@@ -41,6 +42,12 @@ const onCageCompleteImgLoaded = (): void => {
 const hideWhenCageShowCageCompleteImg = computed(() => {
   return baseStore.cageMode && baseStore.isDone &&
          baseStore.afterDoneAnimationEnd && baseStore.cageCompleteImgLoaded;
+});
+const { finishLoadingAllCageImages } = storeToRefs(baseStore);
+watch(finishLoadingAllCageImages, value => {
+  if (value) {
+    baseStore.paused = false;
+  }
 });
 
 const eventBus = useEventBus<string>('event-bus');
@@ -101,7 +108,10 @@ const touchMove = (e: TouchEvent): void => {
           <span class="smaller">Please wait a moment</span>
         </p>
       </div>
-      <div v-if="baseStore.paused && !baseStore.showModal">
+      <div
+        v-if="baseStore.paused && !baseStore.showModal &&
+          !(baseStore.cageMode && !baseStore.finishLoadingAllCageImages)"
+      >
         <p>
           <span class="bigger">Paused</span>
         </p>

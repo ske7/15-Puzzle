@@ -2,8 +2,7 @@ import { computed, watch, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useDocumentVisibility } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
-import { CORE_NUM, CAGES_PATH_ARR, type GameData } from '../stores/const';
-import { randArrayItem } from '../utils';
+import { type GameData } from '../stores/const';
 import { usePostFetchAPI } from '../composables/useFetchAPI';
 
 export const useWatchGameState = () => {
@@ -77,10 +76,6 @@ export const useWatchGameState = () => {
       } else {
         baseStore.stopInterval();
         setRecords(baseStore.cageMode ? 'cage_standard' : 'standard');
-        if (baseStore.numLines === CORE_NUM && !baseStore.disableCageMode &&
-          !baseStore.proMode && baseStore.time > 0 && baseStore.time < 60000) {
-          baseStore.eligibleForCageMode = true;
-        }
         if (baseStore.cageMode) {
           baseStore.setUnlockedCages();
         }
@@ -96,21 +91,8 @@ export const useWatchGameState = () => {
     if (value) {
       baseStore.processingReInit = true;
       setTimeout(() => {
-        if (baseStore.cageMode) {
-          baseStore.cageMode = false;
-        }
-        if (baseStore.eligibleForCageMode) {
-          baseStore.cageMode = true;
-          if (baseStore.unlockedCages.size === baseStore.cagesCount) {
-            if (baseStore.shownCages.size === CAGES_PATH_ARR.length) {
-              baseStore.shownCages.clear();
-            }
-            baseStore.cagePath = randArrayItem(CAGES_PATH_ARR, Array.from(baseStore.shownCages));
-            baseStore.shownCages.add(baseStore.cagePath);
-          } else {
-            baseStore.cagePath = randArrayItem(CAGES_PATH_ARR, baseStore.unlockedCagesValues);
-          }
-          baseStore.eligibleForCageMode = false;
+        if (baseStore.enableCageMode) {
+          baseStore.doPrepareCageMode();
         }
         baseStore.initStore();
         baseStore.cageCompleteImgLoaded = false;

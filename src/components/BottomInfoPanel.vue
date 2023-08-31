@@ -79,8 +79,8 @@ const closeLeaderBoard = (): void => {
     </div>
     <div class="info-row">
       <p
-        v-if="!(baseStore.disableCageMode || baseStore.marathonMode || baseStore.proMode)
-          && baseStore.numLines === CORE_NUM"
+        v-if="baseStore.enableCageMode &&
+          !(baseStore.marathonMode || baseStore.proMode) && baseStore.numLines === CORE_NUM"
       >
         <span
           class="link-item"

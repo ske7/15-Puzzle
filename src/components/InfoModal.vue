@@ -23,10 +23,10 @@ const getYear = computed(() => {
   <Teleport to="body">
     <div ref="infoModal" class="info-modal">
       <p class="info-header">
-        <span>Game instructions</span>
+        <span>About the game</span>
       </p>
       <p class="instruction">
-        <span>Move blocks until they are in regular order. You can play and beat your records of time and moves. Unlock "Cage mode" by solving the puzzle in less than 60 seconds. There are lots of funny Cage images - complete puzzles in "Cage mode" and try to reach them all. Look under "Config" and try advanced modes: Pro and Marathon. For more information about the game, see <a target="_blank" href="https://github.com/ske7/15-Puzzle">here</a>.</span>
+        <span>Move blocks until they are in regular order. You can play and beat online records of time and moves. Can you be among the best world players? Try "Cage Mode" and unlock all funny images by solving the puzzles. Look under "Config" and try advanced modes: Pro (speed sliding) and Marathon. See more information about the game <a target="_blank" href="https://github.com/ske7/15-Puzzle">here</a>.</span>
       </p>
       <div class="buttons">
         <button type="button" class="tool-button" @click="emit('close')">
@@ -44,7 +44,7 @@ const getYear = computed(() => {
 
 <style scoped>
 .info-modal {
-  --modal-width: 360px;
+  --modal-width: 340px;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -81,7 +81,7 @@ const getYear = computed(() => {
   line-height: 1.4;
 }
 .buttons {
-  margin-top: 15px;
+  margin-top: 20px;
   margin-bottom: 5px;
   display: flex;
   justify-content: center;
@@ -115,11 +115,8 @@ a:hover {
     width: calc(100% - 30px);
     margin: 0 auto;
     left: 15px;
-    top: calc(50% - 210px);
+    top: calc(50% - 220px);
     min-height: 320px;
-  }
-  .instruction  {
-    font-size: 15px;
   }
 }
 </style>

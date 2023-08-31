@@ -16,15 +16,20 @@ onClickOutside(configModal, (event) => {
   emit('close');
 });
 const disabledCageMode = computed(() => {
-  return baseStore.disableCageMode || baseStore.marathonMode ||
+  return !baseStore.enableCageMode || baseStore.marathonMode ||
   baseStore.proMode || baseStore.numLines !== CORE_NUM;
 });
 
-const setDisableCageMode = (): void => {
-  baseStore.disableCageMode = !baseStore.disableCageMode;
-  localStorage.setItem('disableCageMode', baseStore.disableCageMode.toString());
-  if (baseStore.cageMode || baseStore.eligibleForCageMode) {
-    baseStore.eligibleForCageMode = false;
+const setEnableCageMode = (): void => {
+  baseStore.enableCageMode = !baseStore.enableCageMode;
+  localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
+  if (baseStore.enableCageMode) {
+    baseStore.loadUnlockedCagesFromLocalStorage();
+    baseStore.cageMode = true;
+    baseStore.doPrepareCageMode();
+    eventBus.emit('restart', 'fromConfig');
+  } else {
+    baseStore.cageMode = false;
     eventBus.emit('restart', 'fromConfig');
   }
 };
@@ -53,8 +58,9 @@ const setProMode = (): void => {
   baseStore.proMode = !baseStore.proMode;
   localStorage.setItem('proMode', baseStore.proMode.toString());
   baseStore.hoverOnControl = true;
-  localStorage.setItem('hoveOnControl', 'true');
-  baseStore.eligibleForCageMode = false;
+  localStorage.setItem('hoverOnControl', 'true');
+  baseStore.enableCageMode = false;
+  localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
   baseStore.cageMode = false;
   baseStore.setSpaceBetween();
   eventBus.emit('restart', 'fromConfig');
@@ -62,7 +68,8 @@ const setProMode = (): void => {
 const setMarathonMode = (): void => {
   baseStore.marathonMode = !baseStore.marathonMode;
   localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
-  baseStore.eligibleForCageMode = false;
+  baseStore.enableCageMode = false;
+  localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
   baseStore.cageMode = false;
   eventBus.emit('restart', 'fromConfig');
 };
@@ -87,19 +94,19 @@ watch(puzzleSize, (newValue) => {
         <PuzzleSizeSlider v-model="puzzleSize" />
         <div class="option">
           <input
-            id="disable-cage-mode"
+            id="enable-cage-mode"
             type="checkbox"
-            name="disable-cage-mode"
+            name="enable-cage-mode"
             :disabled="baseStore.marathonMode || baseStore.proMode || baseStore.numLines !== CORE_NUM"
-            :checked="baseStore.disableCageMode"
-            @change="setDisableCageMode"
+            :checked="baseStore.enableCageMode"
+            @change="setEnableCageMode"
           >
           <label
-            for="disable-cage-mode"
+            for="enable-cage-mode"
             :class="{ 'disabled-label': baseStore.marathonMode ||
               baseStore.proMode || baseStore.numLines !== CORE_NUM }"
           >
-            Disable Cage Mode
+            Cage Mode
           </label>
         </div>
         <div class="option">
@@ -112,7 +119,7 @@ watch(puzzleSize, (newValue) => {
             @change="setCageHardcoreMode"
           >
           <label for="hardcore" :class="{ 'disabled-label': disabledCageMode }">
-            Cage Hardcore Mode
+            No Numbers In Cage Mode
           </label>
         </div>
         <div class="option">
@@ -245,6 +252,9 @@ label {
   align-items: center;
   line-height: 1;
   font-size: 16px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 .disabled-label {
   opacity: 0.3;

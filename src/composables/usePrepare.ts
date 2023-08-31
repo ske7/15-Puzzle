@@ -12,16 +12,16 @@ export const usePrepare = () => {
     baseStore.proMode = true;
     localStorage.setItem('proMode', 'true');
     baseStore.hoverOnControl = true;
-    localStorage.setItem('hoveOnControl', 'true');
+    localStorage.setItem('hoverOnControl', 'true');
   }
   if (location.href.toLowerCase().includes('dark')) {
     baseStore.darkMode = true;
     localStorage.setItem('darkMode', 'true');
   }
-  if (!(baseStore.disableCageMode || baseStore.marathonMode || baseStore.proMode) &&
-    (baseStore.numLines === CORE_NUM) && location.href.toLowerCase().includes('eligibleforcagemode')) {
-    baseStore.eligibleForCageMode = true;
-    baseStore.reset();
+  if (location.href.toLowerCase().includes('cage') &&
+    !(baseStore.marathonMode || baseStore.proMode) && (baseStore.numLines === CORE_NUM)) {
+    baseStore.enableCageMode = true;
+    localStorage.setItem('enableCageMode', 'true');
   }
 
   const errorMsg = ref('');
@@ -64,8 +64,12 @@ export const usePrepare = () => {
   }
 
   onMounted(() => {
+    if (baseStore.enableCageMode) {
+      baseStore.loadUnlockedCagesFromLocalStorage();
+      baseStore.doPrepareCageMode();
+    }
     baseStore.initStore();
-    baseStore.loadUnlockedCagesFromLocalStorage();
+
     setTimeout(() => {
       if (baseStore.unlockedCages.size > 0) {
         const first = [...baseStore.unlockedCages][0];
