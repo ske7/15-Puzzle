@@ -100,7 +100,7 @@ const filteredRecords = computed(() => {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in filteredRecords.slice(0, 20)" :key="item.id">
+            <tr v-for="(item, index) in filteredRecords.slice(0, 50)" :key="item.id">
               <td class="w-25">
                 {{ index + 1 }}
               </td>

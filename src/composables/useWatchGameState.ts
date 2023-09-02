@@ -66,7 +66,7 @@ export const useWatchGameState = (): void => {
         baseStore.solvedPuzzlesInMarathon += 1;
         if (baseStore.solvedPuzzlesInMarathon === 5) {
           baseStore.stopInterval();
-          setRecords(baseStore.cageMode ? 'cage_marathon' : 'marathon');
+          setRecords('marathon');
           if (!baseStore.disableWinMessage) {
             baseStore.showWinModal = true;
           }
