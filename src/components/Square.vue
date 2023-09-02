@@ -230,8 +230,11 @@ const move = (control: ControlType): void => {
   }
   baseStore.isMoving = false;
 };
-const moveByMouse = (): void => {
+const moveByMouse = (event: MouseEvent): void => {
   if (!baseStore.hoverOnControl) {
+    return;
+  }
+  if (event.ctrlKey) {
     return;
   }
   move(ControlType.Mouse);
