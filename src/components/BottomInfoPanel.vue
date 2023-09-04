@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
+import { ref, computed, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { CORE_NUM } from '@/stores/const';
 import { useEventBus } from '@vueuse/core';
@@ -22,6 +22,9 @@ const formType = ref<string>('');
 
 const wasPausedBeforeOpenModal = ref(false);
 const doShowRegModal = (type: string): void => {
+  if (cannotClick.value) {
+    return;
+  }
   wasPausedBeforeOpenModal.value = baseStore.paused;
   if (!baseStore.paused && !baseStore.isDone) {
     baseStore.invertPaused();
@@ -30,6 +33,9 @@ const doShowRegModal = (type: string): void => {
   formType.value = type;
 };
 const doShowUserAccount = (): void => {
+  if (cannotClick.value) {
+    return;
+  }
   wasPausedBeforeOpenModal.value = baseStore.paused;
   if (!baseStore.paused && !baseStore.isDone) {
     baseStore.invertPaused();
@@ -37,6 +43,9 @@ const doShowUserAccount = (): void => {
   baseStore.showUserAccount = true;
 };
 const doShowLeaderBoard = (): void => {
+  if (cannotClick.value) {
+    return;
+  }
   wasPausedBeforeOpenModal.value = baseStore.paused;
   if (!baseStore.paused && !baseStore.isDone) {
     baseStore.invertPaused();
@@ -61,6 +70,18 @@ const closeLeaderBoard = (): void => {
     baseStore.invertPaused();
   }
 };
+const doShowImageGallery = (): void => {
+  if (cannotClick.value) {
+    return;
+  }
+  eventBus.emit('show-image-gallery');
+};
+const disableDuringMarathon = computed(() => {
+  return baseStore.marathonMode && baseStore.doneFirstMove && !baseStore.isDone;
+});
+const cannotClick = computed(() => {
+  return baseStore.showModal || disableDuringMarathon.value;
+});
 </script>
 
 <template>
@@ -84,8 +105,8 @@ const closeLeaderBoard = (): void => {
       >
         <span
           class="link-item"
-          :class="{ paused: baseStore.showModal }"
-          @click="eventBus.emit('show-image-gallery')"
+          :class="{ paused: cannotClick }"
+          @click="doShowImageGallery"
         >
           Completed</span>  <span class="italic">
           {{ baseStore.unlockedCages.size }}
@@ -98,23 +119,23 @@ const closeLeaderBoard = (): void => {
         </span> out of 5 puzzles
       </p>
     </div>
-    <div class="reg-wrapper">
+    <div class="reg-wrapper" :class="{ paused: cannotClick }">
       <p v-if="baseStore.isNetworkError" class="no-connect">
         Local mode (no server connection)
       </p>
       <div v-if="!baseStore.isNetworkError">
         <Transition name="fade2">
           <div v-if="!baseStore.isFetching" class="registered-block">
-            <span class="link-item" :class="{ paused: baseStore.showModal }" @click="doShowLeaderBoard">Leaderboard</span>
+            <span class="link-item" :class="{ paused: cannotClick }" @click="doShowLeaderBoard">Leaderboard</span>
             <span> | </span>
             <span v-if="!baseStore.registered">
-              <span class="link-item" :class="{ paused: baseStore.showModal }" @click="doShowRegModal('register')">Register</span>  or
-              <span class="link-item" :class="{ paused: baseStore.showModal }" @click="doShowRegModal('login')">login</span>
+              <span class="link-item" :class="{ paused: cannotClick }" @click="doShowRegModal('register')">Register</span>  or
+              <span class="link-item" :class="{ paused: cannotClick }" @click="doShowRegModal('login')">login</span>
             </span>
             <span
               v-if="baseStore.registered"
               class="link-item"
-              :class="{ paused: baseStore.showModal }"
+              :class="{ paused: cannotClick }"
               @click="doShowUserAccount"
             >Your stats</span>
           </div>
@@ -148,6 +169,9 @@ const closeLeaderBoard = (): void => {
   color: var(--text-color);
   cursor: pointer;
 }
+.link-item.paused {
+  opacity: 0.5;
+}
 .red {
   color: red;
 }
@@ -162,6 +186,9 @@ const closeLeaderBoard = (): void => {
   min-height: 27px;
   text-align: center;
 }
+/* .reg-wrapper.paused {
+  opacity: 0.5;
+} */
 @media screen and (max-width: 420px) {
   .reg-wrapper {
     max-width: 300px;

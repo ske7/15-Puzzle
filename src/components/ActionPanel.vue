@@ -82,6 +82,10 @@ const disableButton = computed(() => {
         (baseStore.cageMode && !baseStore.finishLoadingAllCageImages);
 });
 
+const disableDuringMarathon = computed(() => {
+  return baseStore.marathonMode && baseStore.doneFirstMove && !baseStore.isDone;
+});
+
 onMounted(() => {
   eventBus.on(listener);
 });
@@ -105,7 +109,8 @@ onUnmounted(() => {
         v-if="!baseStore.proMode"
         type="button"
         class="tool-button"
-        :disabled="disableButton || !baseStore.doneFirstMove || baseStore.isDone || baseStore.proMode"
+        :disabled="disableButton || disableDuringMarathon || !baseStore.doneFirstMove ||
+          baseStore.isDone || baseStore.proMode"
         @click="baseStore.invertPaused"
       >
         {{ baseStore.paused && !baseStore.showModal ? 'Resume' : 'Pause' }}
@@ -113,7 +118,7 @@ onUnmounted(() => {
       <button
         type="button"
         class="tool-button"
-        :disabled="disableButton || baseStore.paused"
+        :disabled="disableButton || disableDuringMarathon || baseStore.paused"
         @click="showConfigModal"
       >
         Config
@@ -121,7 +126,7 @@ onUnmounted(() => {
       <button
         type="button"
         class="tool-button"
-        :disabled="disableButton"
+        :disabled="disableButton || disableDuringMarathon"
         @click="showAboutModal"
       >
         About

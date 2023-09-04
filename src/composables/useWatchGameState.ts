@@ -1,20 +1,11 @@
 import { computed, watch, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useDocumentVisibility } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { type GameData } from '../stores/const';
 import { usePostFetchAPI } from '../composables/useFetchAPI';
 
 export const useWatchGameState = (): void => {
   const baseStore = useBaseStore();
-
-  const visibility = useDocumentVisibility();
-  watch(visibility, (value) => {
-    if (!baseStore.proMode && value === 'hidden' && baseStore.time > 0 && !baseStore.isDone) {
-      baseStore.paused = true;
-      baseStore.saveTime();
-    }
-  });
 
   const errorMsg = ref('');
   const isFetching = ref(false);
