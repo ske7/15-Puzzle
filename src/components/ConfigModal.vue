@@ -2,9 +2,10 @@
 import { ref, computed, watch } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
-import { type puzzleCores } from '@/stores/const';
+import { type puzzleCores, type AverageStats } from '@/stores/const';
 import { CORE_NUM } from '../stores/const';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
+import { useGetFetchAPI } from '../composables/useFetchAPI';
 
 const baseStore = useBaseStore();
 const emit = defineEmits<{ close: [] }>();
@@ -50,6 +51,10 @@ const setDisableWinMessage = (): void => {
   baseStore.disableWinMessage = !baseStore.disableWinMessage;
   localStorage.setItem('disableWinMessage', baseStore.disableWinMessage.toString());
 };
+const setHideAverages = (): void => {
+  baseStore.hideCurrentAverages = !baseStore.hideCurrentAverages;
+  localStorage.setItem('hideCurrentAverages', baseStore.hideCurrentAverages.toString());
+};
 const setHoverOnControl = (): void => {
   baseStore.hoverOnControl = !baseStore.hoverOnControl;
   localStorage.setItem('hoverOnControl', baseStore.hoverOnControl.toString());
@@ -79,6 +84,12 @@ watch(puzzleSize, (newValue) => {
   if (newValue !== 0) {
     baseStore.numLines = Number(newValue) as puzzleCores;
     localStorage.setItem('numLines', baseStore.numLines.toString());
+    if (!baseStore.cageMode && !baseStore.marathonMode && baseStore.token !== null) {
+      void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}`, baseStore.token)
+        .then((res) => {
+          baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
+        });
+    }
     eventBus.emit('restart', 'fromConfig');
   }
 });
@@ -157,6 +168,19 @@ watch(puzzleSize, (newValue) => {
           >
           <label for="disable-win-message">
             Disable Win Message
+          </label>
+        </div>
+        <div class="option">
+          <input
+            id="hide-averages"
+            type="checkbox"
+            name="hide-averages"
+            :disabled="!baseStore.proMode || baseStore.marathonMode"
+            :checked="baseStore.hideCurrentAverages"
+            @change="setHideAverages"
+          >
+          <label for="hide-averages" :class="{ 'disabled-label': !baseStore.proMode || baseStore.marathonMode }">
+            Hide Averages
           </label>
         </div>
         <div class="option">

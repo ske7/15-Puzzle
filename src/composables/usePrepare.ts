@@ -1,8 +1,8 @@
-import { onMounted, computed, ref, type ComputedRef } from 'vue';
+import { onMounted, computed, type ComputedRef } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useKeyDown } from '../composables/useKeyDown';
-import { CORE_NUM, CAGES_PATH_ARR, isPuzzleCore, type puzzleCores } from '../stores/const';
+import { CORE_NUM, CAGES_PATH_ARR, isPuzzleCore, type puzzleCores, type AverageStats } from '../stores/const';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
 export const usePrepare = (): void => {
@@ -24,35 +24,26 @@ export const usePrepare = (): void => {
     localStorage.setItem('enableCageMode', 'true');
   }
 
-  const errorMsg = ref('');
-  const fetch = (endpoint: string, withToken = true): void => {
-    errorMsg.value = '';
-    if (baseStore.isFetching) {
-      return;
-    }
-    baseStore.isFetching = true;
-    useGetFetchAPI(endpoint, baseStore.token as (string | undefined))
-      .then(res => {
-        baseStore.isFetching = false;
-        if (withToken) {
-          baseStore.token = res.token;
-          localStorage.setItem('token', String(baseStore.token));
-          baseStore.userName = res.name;
+  if (baseStore.token != null) {
+    useGetFetchAPI('get_current_user', baseStore.token)
+      .then((res) => {
+        baseStore.token = res.token;
+        localStorage.setItem('token', String(baseStore.token));
+        baseStore.userName = res.name;
+        if (!baseStore.cageMode && !baseStore.marathonMode) {
+          void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}`, baseStore.token)
+            .then((res) => {
+              baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
+            });
         }
       })
       .catch(error => {
-        errorMsg.value = error as string;
-        if (String(errorMsg.value).toLowerCase().includes('networkerror')) {
-          baseStore.isNetworkError = true;
-        }
-        baseStore.isFetching = false;
+        console.log(error as string);
       });
-  };
-  if (baseStore.token != null) {
-    fetch('get_current_user', true);
   } else {
-    fetch('version', false);
+    void useGetFetchAPI('version');
   }
+
   useKeyDown();
 
   document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');

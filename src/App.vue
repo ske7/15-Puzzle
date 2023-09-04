@@ -8,6 +8,7 @@ import Board from './components/Board.vue';
 import TopInfoPanel from './components/TopInfoPanel.vue';
 import BottomInfoPanel from './components/BottomInfoPanel.vue';
 import ActionPanel from './components/ActionPanel.vue';
+import AveragesPanel from './components/AveragesPanel.vue';
 const WinModal = defineAsyncComponent({
   loader: async () => await import('./components/WinModal.vue') as unknown as AsyncComponentLoader,
   delay: 150
@@ -38,6 +39,7 @@ const cageImgSize = computed(() => {
         draggable="false"
       >
     </div>
+    <AveragesPanel />
     <TopInfoPanel />
     <Board />
     <ActionPanel />
@@ -67,6 +69,11 @@ const cageImgSize = computed(() => {
     justify-content: center;
     height: 100%;
     margin-top: -10%;
+  }
+}
+@media (max-height: 720px) {
+  .wrapper {
+    margin-top: 0px;
   }
 }
 .header {

@@ -15,22 +15,29 @@ const api = async (endpoint: string, method: string, body?: BodyInit, token?: st
       ...headers, Authorization: `Bearer ${token}`
     };
   }
-  const response = await fetch(`${baseUrl}/${endpoint}`, {
-    method,
-    headers,
-    body
-  });
-  baseStore.isNetworkError = false;
-  if (!response.ok) {
-    if (response.status === 401 || response.status === 404) {
-      baseStore.token = null;
-      localStorage.removeItem('token');
-      baseStore.userName = null;
+  try {
+    const response = await fetch(`${baseUrl}/${endpoint}`, {
+      method,
+      headers,
+      body
+    });
+    baseStore.isNetworkError = false;
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 404) {
+        baseStore.token = null;
+        localStorage.removeItem('token');
+        baseStore.userName = null;
+      }
+      const res = await response.json() as Promise<ErrResponse>;
+      throw new Error(`${(await res).error ?? response.statusText}`);
     }
-    const res = await response.json() as Promise<ErrResponse>;
-    throw new Error(`${(await res).error ?? response.statusText}`);
+    return await (response.json() as Promise<Response>);
+  } catch (err) {
+    if (String(err).toLowerCase().includes('networkerror')) {
+      baseStore.isNetworkError = true;
+    }
+    throw new Error(err as string);
   }
-  return await (response.json() as Promise<Response>);
 };
 
 export const usePostFetchAPI = async (endpoint: string, body?: BodyInit,

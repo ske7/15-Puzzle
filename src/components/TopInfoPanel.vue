@@ -11,12 +11,12 @@ const baseStore = useBaseStore();
       <span class="ml-5">{{ baseStore.timeStr }}s</span>
     </div>
     <div>
-      <span>TPS:</span>
-      <span class="ml-5">{{ baseStore.tps }}</span>
-    </div>
-    <div>
       <span>Moves:</span>
       <span class="ml-5">{{ baseStore.movesCount }}</span>
+    </div>
+    <div>
+      <span>TPS:</span>
+      <span class="ml-5">{{ baseStore.tps }}</span>
     </div>
   </div>
 </template>

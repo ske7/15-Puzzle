@@ -186,9 +186,6 @@ const cannotClick = computed(() => {
   min-height: 27px;
   text-align: center;
 }
-/* .reg-wrapper.paused {
-  opacity: 0.5;
-} */
 @media screen and (max-width: 420px) {
   .reg-wrapper {
     max-width: 300px;

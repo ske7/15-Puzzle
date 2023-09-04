@@ -7,7 +7,8 @@ import {
 import {
   CORE_NUM, SPACE_BETWEEN_SQUARES,
   CAGES_PATH_ARR, Direction, ControlType,
-  type PreloadedImage, type Record, type Position
+  type PreloadedImage, type Record, type Position,
+  type AverageData, type AverageStats
 } from './const';
 
 export const useBaseStore = defineStore('base', {
@@ -65,7 +66,9 @@ export const useBaseStore = defineStore('base', {
     showUserAccount: false,
     showLeaderBoard: false,
     hoverOnControl: localStorage.getItem('hoverOnControl') === 'true' ||
-      localStorage.getItem('proMode') === 'true'
+      localStorage.getItem('proMode') === 'true',
+    currentAverages: [] as AverageData[],
+    hideCurrentAverages: localStorage.getItem('hideCurrentAverages') === 'true'
   }),
   actions: {
     initStore() {
@@ -368,6 +371,37 @@ export const useBaseStore = defineStore('base', {
       img.src = url;
       const pi: PreloadedImage = { url, item };
       this.preloadedImages.push(pi);
+    },
+    setCurrentAverages(stats?: AverageStats): void {
+      this.currentAverages = [];
+      this.currentAverages.push({
+        code: 5,
+        puzzle_size: this.numLines,
+        time: stats?.ao5t,
+        moves: stats?.ao5m,
+        tps: stats?.ao5tps
+      });
+      this.currentAverages.push({
+        code: 12,
+        puzzle_size: this.numLines,
+        time: stats?.ao12t,
+        moves: stats?.ao12m,
+        tps: stats?.ao12tps
+      });
+      this.currentAverages.push({
+        code: 50,
+        puzzle_size: this.numLines,
+        time: stats?.ao50t,
+        moves: stats?.ao50m,
+        tps: stats?.ao50tps
+      });
+      this.currentAverages.push({
+        code: 100,
+        puzzle_size: this.numLines,
+        time: stats?.ao100t,
+        moves: stats?.ao100m,
+        tps: stats?.ao100tps
+      });
     }
   },
   getters: {
@@ -427,7 +461,7 @@ export const useBaseStore = defineStore('base', {
       return getElementRow(this.freeElement, this.numLines);
     },
     registered(): boolean {
-      return this.token !== null && this.userName !== null;
+      return this.token !== null;
     },
     tps(): string {
       return calculateTPS(this.movesCount, this.time);

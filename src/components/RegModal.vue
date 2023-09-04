@@ -137,9 +137,6 @@ const fetch = (endpoint: string): void => {
       emit('close');
     })
     .catch(error => {
-      if (String(error).toLowerCase().includes('network error')) {
-        baseStore.isNetworkError = true;
-      }
       errorMsg.value.push(error as string);
       isFetching.value = false;
     });
@@ -171,7 +168,7 @@ const checkFields = (): boolean => {
       invalidFields.name = true;
     }
     if (!(/^[a-z-_0-9]+$/gi).test(user.name)) {
-      errorMsg.value.push('Allowed characters for username: letters, numbers, underscores(_) and hyphens(-)');
+      errorMsg.value.push('Allowed characters for username: letters (a-z), numbers, underscores(_) and hyphens(-)');
       invalidFields.name = true;
     }
   }

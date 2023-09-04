@@ -88,6 +88,21 @@ export interface UserStats {
   user_records: UserRecord[];
 }
 
+export interface AverageStats {
+  ao5t: string;
+  ao5m: string;
+  ao5tps: string;
+  ao12t: string;
+  ao12m: string;
+  ao12tps: string;
+  ao50t: string;
+  ao50m: string;
+  ao50tps: string;
+  ao100t: string;
+  ao100m: string;
+  ao100tps: string;
+}
+
 export interface ErrResponse {
   status: string;
   error?: string;
@@ -99,6 +114,14 @@ export interface Response {
   token?: string;
   stats?: UserStats;
   records?: UserRecord[];
+}
+
+export interface AverageData {
+  code: number;
+  puzzle_size: number;
+  time?: string;
+  moves?: string;
+  tps?: string;
 }
 
 export const CAGES_PATH_ARR = [

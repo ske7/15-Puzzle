@@ -1,7 +1,7 @@
 import { computed, watch, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
-import { type GameData } from '../stores/const';
+import { type GameData, type AverageStats } from '../stores/const';
 import { usePostFetchAPI } from '../composables/useFetchAPI';
 
 export const useWatchGameState = (): void => {
@@ -15,16 +15,15 @@ export const useWatchGameState = (): void => {
       return;
     }
     isFetching.value = true;
-
     usePostFetchAPI('game', JSON.stringify({ game }) as BodyInit, baseStore.token as (string | undefined))
-      .then(() => {
+      .then((res) => {
+        if (!baseStore.marathonMode && !baseStore.cageMode) {
+          baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
+        }
         isFetching.value = false;
       })
       .catch(error => {
         errorMsg.value = error as string;
-        if (String(errorMsg.value).toLowerCase().includes('networkerror')) {
-          baseStore.isNetworkError = true;
-        }
         isFetching.value = false;
       });
   };
