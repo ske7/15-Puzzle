@@ -8,7 +8,7 @@ const positionTop = computed(() => {
   return `${baseStore.boardPos.top + 100}px`;
 });
 const positionLeft = computed(() => {
-  return `${baseStore.boardPos.left - 250}px`;
+  return `${baseStore.boardPos.left - 270}px`;
 });
 </script>
 
@@ -58,7 +58,7 @@ const positionLeft = computed(() => {
   top: v-bind(positionTop);
   left: v-bind(positionLeft);
   flex-direction: column;
-  font-size: 15px;
+  font-size: 16px;
   font-family: 'consolas', sans-serif;
 }
 .avg-row {
@@ -69,7 +69,7 @@ const positionLeft = computed(() => {
 }
 .avg-row span:first-child {
   text-align: right;
-  width: 50px;
+  width: 60px;
   padding-right: 10px;
   font-weight: 600;
 }
@@ -81,26 +81,26 @@ const positionLeft = computed(() => {
     top: auto !important;
     left: auto !important;
     padding: 5px 0;
-    font-size: 14px;
-    line-height: 1.4;
+    font-size: 15px;
+    line-height: 1.5;
     border: 1px solid #ccc;
     border-radius: 8px;
   }
   .avg-row span {
     width: 70px;
   }
-  .avg-row span:first-child {
-    width: 70px;
-  }
   .hide-on-mobile {
     display: none;
   }
 }
-@media screen and (max-height: 650px) {
+@media screen and (max-height: 650px) and (max-width: 950px) {
   .avg-wrapper {
     font-size: 14px;
     line-height: 1.3;
     margin-top: -5px;
+  }
+  .avg-row span {
+    width: 65px;
   }
 }
 </style>
