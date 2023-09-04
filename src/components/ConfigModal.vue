@@ -87,7 +87,7 @@ watch(puzzleSize, (newValue) => {
     if (!baseStore.cageMode && !baseStore.marathonMode && baseStore.token !== null) {
       void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}`, baseStore.token)
         .then((res) => {
-          baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
+          baseStore.setCurrentAverages(res.stats as unknown as AverageStats, true);
         });
     }
     eventBus.emit('restart', 'fromConfig');

@@ -68,6 +68,7 @@ export const useBaseStore = defineStore('base', {
     hoverOnControl: localStorage.getItem('hoverOnControl') === 'true' ||
       localStorage.getItem('proMode') === 'true',
     currentAverages: [] as AverageData[],
+    prevAverages: [] as AverageData[],
     hideCurrentAverages: localStorage.getItem('hideCurrentAverages') === 'true'
   }),
   actions: {
@@ -372,7 +373,12 @@ export const useBaseStore = defineStore('base', {
       const pi: PreloadedImage = { url, item };
       this.preloadedImages.push(pi);
     },
-    setCurrentAverages(stats?: AverageStats): void {
+    setCurrentAverages(stats?: AverageStats, clearPrev = false): void {
+      if (clearPrev) {
+        this.prevAverages = [];
+      } else {
+        this.prevAverages = this.currentAverages;
+      }
       this.currentAverages = [];
       this.currentAverages.push({
         code: 5,
