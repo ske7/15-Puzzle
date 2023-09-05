@@ -8,7 +8,7 @@ const positionTop = computed(() => {
   return `${baseStore.boardPos.top + 100}px`;
 });
 const positionLeft = computed(() => {
-  return `${baseStore.boardPos.left - 300}px`;
+  return `${baseStore.boardPos.left - 290}px`;
 });
 const checkUpTime = (arrayID: number): boolean => {
   if (baseStore.prevAverages.length === 0 || baseStore.currentAverages.length === 0) {
@@ -96,13 +96,13 @@ const checkDownTPS = (arrayID: number): boolean => {
       <span>{{ baseStore.currentAverages[1].moves || 'tbd' }}<span v-if="checkUpMoves(1)" class="red">↑</span><span v-if="checkDownMoves(1)" class="green">↓</span></span>
       <span>{{ baseStore.currentAverages[1].tps || 'tbd' }}<span v-if="checkUpTPS(1)" class="green">↑</span><span v-if="checkDownTPS(1)" class="red">↓</span></span>
     </div>
-    <div class="avg-row hide-on-mobile">
+    <div class="avg-row">
       <span>ao50</span>
       <span>{{ baseStore.currentAverages[2].time || 'tbd' }}<span v-if="checkDownTime(2)" class="green">↓</span><span v-if="checkUpTime(2)" class="red">↑</span></span>
       <span>{{ baseStore.currentAverages[2].moves || 'tbd' }}<span v-if="checkUpMoves(2)" class="red">↑</span><span v-if="checkDownMoves(2)" class="green">↓</span></span>
       <span>{{ baseStore.currentAverages[2].tps || 'tbd' }}<span v-if="checkUpTPS(2)" class="green">↑</span><span v-if="checkDownTPS(2)" class="red">↓</span></span>
     </div>
-    <div class="avg-row hide-on-mobile">
+    <div class="avg-row">
       <span>ao100</span>
       <span>{{ baseStore.currentAverages[3].time || 'tbd' }}<span v-if="checkDownTime(3)" class="green">↓</span><span v-if="checkUpTime(3)" class="red">↑</span></span>
       <span>{{ baseStore.currentAverages[3].moves || 'tbd' }}<span v-if="checkUpMoves(3)" class="red">↑</span><span v-if="checkDownMoves(3)" class="green">↓</span></span>
@@ -146,12 +146,11 @@ const checkDownTPS = (arrayID: number): boolean => {
     line-height: 1.5;
     border: 1px solid #ccc;
     border-radius: 8px;
+    max-height: 80px;
+    overflow-y: auto;
   }
   .avg-row span {
     width: 70px;
-  }
-  .hide-on-mobile {
-    display: none;
   }
 }
 @media screen and (max-height: 650px) and (max-width: 950px) {
@@ -159,6 +158,7 @@ const checkDownTPS = (arrayID: number): boolean => {
     font-size: 14px;
     line-height: 1.3;
     margin-top: -5px;
+    max-height: 65px;
   }
   .avg-row span {
     width: 65px;
