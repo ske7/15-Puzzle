@@ -143,7 +143,7 @@ const averagesRecords = computed(() => {
         <table class="items-table">
           <thead>
             <tr>
-              <th>Best</th>
+              <th>Best Avg</th>
               <th>Time</th>
               <th>Moves</th>
               <th>TPS</th>
@@ -227,7 +227,7 @@ const averagesRecords = computed(() => {
   background-color: gold;
 }
 .items-table thead th {
-  padding: 5px;
+  padding: 5px 3px 5px 5px;
   color: black;
   min-width: 55px;
   border: 1px solid var(--table-border-color);
