@@ -87,6 +87,7 @@ const updateCurrentAverages = (): void => {
       baseStore.token)
       .then((res) => {
         baseStore.setCurrentAverages(res.stats as unknown as AverageStats, true);
+        baseStore.setWasAvgRecords([]);
       });
   }
 };
