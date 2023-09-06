@@ -3,19 +3,19 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import preload from 'vite-plugin-preload';
-import VitePluginInjectPreload from 'vite-plugin-inject-preload';
+import UnpluginInjectPreload from 'unplugin-inject-preload/vite';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
     preload(),
-    VitePluginInjectPreload({
+    UnpluginInjectPreload({
       files: [
         {
-          match: /[a-z-0-9]*.(css)$/i
+          outputMatch: /[a-z-0-9]*.(css)$/i
         }
-      ]
+      ],
+      injectTo: 'head'
     })
   ],
   resolve: {
