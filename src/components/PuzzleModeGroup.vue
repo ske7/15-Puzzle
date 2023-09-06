@@ -16,6 +16,7 @@ const capitalize = (str: string): string => {
     <div class="puzzle-mode-group">
       <label :for="choices[0]">
         <input
+          :id="choices[0]"
           :checked="props.modelValue === choices[0]"
           type="radio"
           :value="choices[0]"
@@ -28,6 +29,7 @@ const capitalize = (str: string): string => {
       </label>
       <label :for="choices[1]">
         <input
+          :id="choices[1]"
           :checked="props.modelValue === choices[1]"
           type="radio"
           :value="choices[1]"
