@@ -68,6 +68,23 @@ const filteredRecords = computed(() => {
     return value.puzzle_size === Number(puzzleSize.value) && value.puzzle_type === puzzleMode.value;
   });
 });
+const bestRecords = computed(() => {
+  return filteredRecords.value?.filter((value) => {
+    return ['time', 'moves'].includes(value.record_type);
+  });
+});
+const averagesRecords = computed(() => {
+  return filteredRecords.value?.filter((value) => {
+    return ['ao5', 'ao12', 'ao50', 'ao100'].includes(value.record_type);
+  })
+    .sort((a, b) => {
+      const avgTypeOrder = ['ao5', 'ao12', 'ao50', 'ao100'];
+      const getTypeIndex = (record_type: string): number => {
+        return avgTypeOrder.indexOf(record_type);
+      };
+      return (getTypeIndex(a.record_type) - getTypeIndex(b.record_type));
+    });
+});
 </script>
 
 <template>
@@ -88,28 +105,56 @@ const filteredRecords = computed(() => {
         <table class="items-table">
           <thead>
             <tr>
-              <th>Best</th>
-              <th class="w-80">
+              <th class="w-65">
+                Best
+              </th>
+              <th class="w-75">
                 Value
               </th>
-              <th>TPS</th>
+              <th class="w-65">
+                TPS
+              </th>
               <th>Date</th>
-              <th class="w-25">
+              <th class="w-28">
                 By
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item) in filteredRecords" :key="item.id">
-              <td>{{ item.record_type }}</td>
-              <td class="w-80">
+            <tr v-for="(item) in bestRecords" :key="item.id">
+              <td class="w-65">
+                {{ item.record_type }}
+              </td>
+              <td class="w-75">
                 {{ item.record_type === 'time' ? (item.time / 1000) : item.moves }}
               </td>
-              <td>{{ item.tps }}</td>
+              <td class="w-65">
+                {{ item.tps }}
+              </td>
               <td>{{ formatDate2(item.created_at) }}</td>
-              <td class="w-25">
+              <td class="w-28">
                 {{ item.control_type.slice(0, 1) }}
               </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-container">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Best</th>
+              <th>Time</th>
+              <th>Moves</th>
+              <th>TPS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item) in averagesRecords" :key="item.id">
+              <td>{{ item.record_type }}</td>
+              <td>{{ item.avg_time }}</td>
+              <td>{{ item.avg_moves }}</td>
+              <td>{{ item.avg_tps }}</td>
             </tr>
           </tbody>
         </table>
@@ -136,7 +181,7 @@ const filteredRecords = computed(() => {
   width: var(--modal-width);
   position: fixed;
   z-index: 2000;
-  top: calc(50% - 250px);
+  top: 40px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
   box-shadow: 0 8px 16px var(--shadow-color);
@@ -163,7 +208,7 @@ const filteredRecords = computed(() => {
   width: 100px;
 }
 .table-container {
-  min-height: 105px;
+  min-height: 58px;
 }
 .items-table {
   max-width: 100%;
@@ -187,9 +232,15 @@ const filteredRecords = computed(() => {
   min-width: 55px;
   border: 1px solid var(--table-border-color);
 }
+.table-container table thead, table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
 .items-table tbody {
   font-size: 16px;
   text-align: left;
+  display: block;
 }
 .items-table td {
   padding: 5px 0 5px 5px;
@@ -197,13 +248,17 @@ const filteredRecords = computed(() => {
   border: 1px solid var(--table-border-color);
   border-top: 0px;
 }
-.items-table .w-25 {
-  min-width: 25px;
-  width: 25px;
+.items-table .w-28 {
+  min-width: 28px;
+  width: 28px;
 }
-.items-table .w-80 {
-  min-width: 80px;
-  width: 80px;
+.items-table .w-75 {
+  min-width: 75px;
+  width: 75px;
+}
+.items-table .w-65 {
+  min-width: 65px;
+  width: 65px;
 }
 .puzzle-size-slider-container {
   max-width: 250px;
@@ -217,6 +272,23 @@ const filteredRecords = computed(() => {
   }
   .items-table tbody {
     font-size: 15px;
+  }
+  .items-table .w-65 {
+    min-width: 63px;
+    width: 63px;
+  }
+  .items-table .w-75 {
+    min-width: 65px;
+    width: 65px;
+  }
+}
+@media screen and (max-height: 650px) and (max-width: 950px) {
+  .user-account {
+    top: 0px;
+  }
+  .items-table tbody {
+    max-height: 55px;
+    overflow-y: auto;
   }
 }
 </style>

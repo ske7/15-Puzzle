@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
 import { type puzzleCores, type AverageStats } from '@/stores/const';
@@ -78,20 +79,29 @@ const setMarathonMode = (): void => {
   baseStore.cageMode = false;
   eventBus.emit('restart', 'fromConfig');
 };
-const puzzleSize = ref<number>(baseStore.numLines);
 
+const updateCurrentAverages = (): void => {
+  if (baseStore.proMode && baseStore.token !== null) {
+    const puzzleType = baseStore.marathonMode ? 'marathon' : 'standard';
+    void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}&puzzle_type=${puzzleType}`,
+      baseStore.token)
+      .then((res) => {
+        baseStore.setCurrentAverages(res.stats as unknown as AverageStats, true);
+      });
+  }
+};
+const puzzleSize = ref<number>(baseStore.numLines);
 watch(puzzleSize, (newValue) => {
   if (newValue !== 0) {
     baseStore.numLines = Number(newValue) as puzzleCores;
     localStorage.setItem('numLines', baseStore.numLines.toString());
-    if (!baseStore.cageMode && !baseStore.marathonMode && baseStore.token !== null) {
-      void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}`, baseStore.token)
-        .then((res) => {
-          baseStore.setCurrentAverages(res.stats as unknown as AverageStats, true);
-        });
-    }
+    updateCurrentAverages();
     eventBus.emit('restart', 'fromConfig');
   }
+});
+const { marathonMode } = storeToRefs(baseStore);
+watch(marathonMode, () => {
+  updateCurrentAverages();
 });
 </script>
 
@@ -175,11 +185,11 @@ watch(puzzleSize, (newValue) => {
             id="hide-averages"
             type="checkbox"
             name="hide-averages"
-            :disabled="!baseStore.proMode || baseStore.marathonMode"
+            :disabled="!baseStore.proMode || !baseStore.registered || baseStore.isNetworkError"
             :checked="baseStore.hideCurrentAverages"
             @change="setHideAverages"
           >
-          <label for="hide-averages" :class="{ 'disabled-label': !baseStore.proMode || baseStore.marathonMode }">
+          <label for="hide-averages" :class="{ 'disabled-label': !baseStore.proMode || !baseStore.registered || baseStore.isNetworkError }">
             Hide Averages
           </label>
         </div>

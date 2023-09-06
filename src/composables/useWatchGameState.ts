@@ -1,7 +1,7 @@
 import { computed, watch, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
-import { type GameData, type AverageStats } from '../stores/const';
+import { type GameData, type AverageStats, type WasAvgRecord } from '../stores/const';
 import { usePostFetchAPI } from '../composables/useFetchAPI';
 
 export const useWatchGameState = (): void => {
@@ -17,8 +17,9 @@ export const useWatchGameState = (): void => {
     isFetching.value = true;
     usePostFetchAPI('game', JSON.stringify({ game }) as BodyInit, baseStore.token as (string | undefined))
       .then((res) => {
-        if (!baseStore.marathonMode && !baseStore.cageMode) {
+        if (baseStore.proMode) {
           baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
+          baseStore.setWasAvgRecords(res.was_avg_records as unknown as WasAvgRecord[]);
         }
         isFetching.value = false;
       })

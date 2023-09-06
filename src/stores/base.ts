@@ -1,15 +1,15 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import {
+  CORE_NUM, SPACE_BETWEEN_SQUARES,
+  CAGES_PATH_ARR, Direction, ControlType,
+  type PreloadedImage, type Record, type Position,
+  type AverageData, type AverageStats, type WasAvgRecord
+} from './const';
+import {
   generateAndShuffle, generate, isSolvable, isSorted,
   getArrayKeyByValue, getElementCol, getElementRow,
   displayedTime, calculateTPS, randArrayItem
 } from '../utils';
-import {
-  CORE_NUM, SPACE_BETWEEN_SQUARES,
-  CAGES_PATH_ARR, Direction, ControlType,
-  type PreloadedImage, type Record, type Position,
-  type AverageData, type AverageStats
-} from './const';
 
 export const useBaseStore = defineStore('base', {
   state: () => ({
@@ -69,7 +69,8 @@ export const useBaseStore = defineStore('base', {
       localStorage.getItem('proMode') === 'true',
     currentAverages: [] as AverageData[],
     prevAverages: [] as AverageData[],
-    hideCurrentAverages: localStorage.getItem('hideCurrentAverages') === 'true'
+    hideCurrentAverages: localStorage.getItem('hideCurrentAverages') === 'true',
+    wasAvgRecords: [] as WasAvgRecord[]
   }),
   actions: {
     initStore() {
@@ -408,6 +409,9 @@ export const useBaseStore = defineStore('base', {
         moves: stats?.ao100m,
         tps: stats?.ao100tps
       });
+    },
+    setWasAvgRecords(wasAvgRecords: WasAvgRecord[]): void {
+      this.wasAvgRecords = wasAvgRecords;
     }
   },
   getters: {

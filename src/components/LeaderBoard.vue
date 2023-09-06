@@ -66,6 +66,17 @@ const filteredRecords = computed(() => {
     }
   });
 });
+let scrollbarWidth = 17;
+const tbody = document.getElementById('records-tbody');
+if (tbody !== null) {
+  scrollbarWidth = tbody.offsetWidth - tbody.clientWidth;
+}
+const scrollWidth = computed(() => {
+  if (filteredRecords.value.length > 10) {
+    return `${scrollbarWidth}px`;
+  }
+  return '0px';
+});
 </script>
 
 <template>
@@ -81,10 +92,10 @@ const filteredRecords = computed(() => {
         <table class="items-table">
           <thead>
             <tr>
-              <th class="w-25">
+              <th class="w-28">
                 #
               </th>
-              <th class="w-125">
+              <th class="w-120">
                 Name
               </th>
               <th v-if="bestType==='time'" class="min-width">
@@ -99,12 +110,12 @@ const filteredRecords = computed(() => {
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="records-tbody">
             <tr v-for="(item, index) in filteredRecords.slice(0, 50)" :key="item.id">
-              <td class="w-25">
+              <td class="w-28">
                 {{ index + 1 }}
               </td>
-              <td class="w-125 t-overflow">
+              <td class="w-120 t-overflow">
                 {{ item.name }}
               </td>
               <td v-if="bestType === 'time'" class="min-width">
@@ -196,12 +207,18 @@ const filteredRecords = computed(() => {
   width: 100%;
   table-layout: fixed;
 }
+.table-container .items-table thead tr {
+  width: calc(100% - v-bind(scrollWidth));
+  display: table;
+  table-layout: fixed;
+}
 .items-table tbody {
   font-size: 16px;
   text-align: left;
   display: block;
   max-height: 244px;
   overflow-y: auto;
+  scrollbar-width: auto;
 }
 .items-table td {
   padding: 3px 5px 3px 5px;
@@ -211,14 +228,11 @@ const filteredRecords = computed(() => {
 .min-width {
   min-width: 67px;
 }
-.w-25 {
-  width: 25px;
-}
 .w-28 {
   width: 28px;
 }
-.w-125 {
-  width: 125px;
+.w-120 {
+  width: 120px;
 }
 .t-overflow {
   overflow: hidden;
@@ -226,6 +240,14 @@ const filteredRecords = computed(() => {
 }
 .puzzle-size-slider-container {
   max-width: 250px;
+}
+@media screen and (max-width: 840px) {
+  .table-container .items-table thead tr {
+    width: 100%;
+  }
+  .table-container .items-table tbody {
+    max-height: 244px;
+  }
 }
 @media screen and (max-width: 420px) {
   .leaderboard {
@@ -237,6 +259,9 @@ const filteredRecords = computed(() => {
   .items-table tbody {
     font-size: 15px;
   }
+  .table-container .items-table tbody {
+    max-height: 233px;
+  }
 }
 @media screen and (max-height: 620px) {
   .leaderboard {
@@ -244,9 +269,9 @@ const filteredRecords = computed(() => {
     top: calc(50% - 244px);
   }
   .table-container {
-    min-height: 156px;
+    min-height: 100px;
   }
-  .items-table tbody {
+  .table-container .items-table tbody {
     max-height: 117px;
     overflow-y: auto;
   }

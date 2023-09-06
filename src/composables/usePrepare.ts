@@ -30,8 +30,10 @@ export const usePrepare = (): void => {
         baseStore.token = res.token;
         localStorage.setItem('token', String(baseStore.token));
         baseStore.userName = res.name;
-        if (!baseStore.cageMode && !baseStore.marathonMode) {
-          void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}`, baseStore.token)
+        if (baseStore.proMode) {
+          const puzzleType = baseStore.marathonMode ? 'marathon' : 'standard';
+          void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}&puzzle_type=${puzzleType}`,
+            baseStore.token)
             .then((res) => {
               baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
             });

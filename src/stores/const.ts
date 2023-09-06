@@ -75,6 +75,9 @@ export interface UserRecord {
   tps: string;
   created_at: string;
   control_type: string;
+  avg_time?: string;
+  avg_moves?: string;
+  avg_tps?: string;
 }
 
 export interface UserStats {
@@ -103,6 +106,13 @@ export interface AverageStats {
   ao100tps: string;
 }
 
+export interface WasAvgRecord {
+  type: string;
+  record_time: boolean;
+  record_moves: boolean;
+  record_tps: boolean;
+}
+
 export interface ErrResponse {
   status: string;
   error?: string;
@@ -114,6 +124,7 @@ export interface Response {
   token?: string;
   stats?: UserStats;
   records?: UserRecord[];
+  was_avg_records: WasAvgRecord[];
 }
 
 export interface AverageData {
