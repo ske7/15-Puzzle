@@ -238,7 +238,7 @@ const tbodyHeightMobile = computed(() => {
               <td v-if="bestAverage === 'TPS'" class="min-width">
                 {{ item.avg_tps }}
               </td>
-              <td class="w-40">
+              <td v-if="bestAverage !== 'TPS'" class="w-40">
                 {{ item.pro_record ? 'Ge!' : '' }}
               </td>
             </tr>
