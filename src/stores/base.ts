@@ -410,8 +410,12 @@ export const useBaseStore = defineStore('base', {
         tps: stats?.ao100tps
       });
     },
-    setWasAvgRecords(wasAvgRecords: WasAvgRecord[]): void {
-      this.wasAvgRecords = wasAvgRecords;
+    setWasAvgRecords(wasAvgRecords?: WasAvgRecord[]): void {
+      if (wasAvgRecords == null) {
+        this.wasAvgRecords = [];
+      } else {
+        this.wasAvgRecords = wasAvgRecords;
+      }
     }
   },
   getters: {

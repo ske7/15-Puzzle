@@ -42,6 +42,7 @@ const doShowUserAccount = (): void => {
   }
   baseStore.showUserAccount = true;
 };
+const showDefaultLeaderBoard = ref(false);
 const doShowLeaderBoard = (): void => {
   if (cannotClick.value) {
     return;
@@ -50,6 +51,7 @@ const doShowLeaderBoard = (): void => {
   if (!baseStore.paused && !baseStore.isDone) {
     baseStore.invertPaused();
   }
+  showDefaultLeaderBoard.value = true;
   baseStore.showLeaderBoard = true;
 };
 const closeRegModal = (): void => {
@@ -65,6 +67,7 @@ const closeUserAccount = (): void => {
   }
 };
 const closeLeaderBoard = (): void => {
+  showDefaultLeaderBoard.value = false;
   baseStore.showLeaderBoard = false;
   if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
     baseStore.invertPaused();
@@ -144,7 +147,11 @@ const cannotClick = computed(() => {
     </div>
     <RegModal v-if="baseStore.showRegModal" :form-type="formType" @close="closeRegModal" />
     <UserAccount v-if="baseStore.showUserAccount" @close="closeUserAccount" />
-    <LeaderBoard v-if="baseStore.showLeaderBoard" @close="closeLeaderBoard" />
+    <LeaderBoard
+      v-if="baseStore.showLeaderBoard && showDefaultLeaderBoard"
+      :form-type="'default'"
+      @close="closeLeaderBoard"
+    />
   </div>
 </template>
 

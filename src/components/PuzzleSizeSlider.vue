@@ -68,4 +68,12 @@ const setInputValue = (event: Event): void => {
 .slider-marks span {
   cursor: pointer;
 }
+@media screen and (max-width: 350px) {
+  .puzzle-size-slider-container > label {
+    margin-top: 5px;
+  }
+  .slider-marks {
+    margin-bottom: 3px
+  }
+}
 </style>

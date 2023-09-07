@@ -124,7 +124,7 @@ export interface Response {
   token?: string;
   stats?: UserStats;
   records?: UserRecord[];
-  was_avg_records: WasAvgRecord[];
+  was_avg_records?: WasAvgRecord[];
 }
 
 export interface AverageData {

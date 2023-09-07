@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
 import { useBaseStore } from '../stores/base';
+const LeaderBoard = defineAsyncComponent({
+  loader: async () => await import('../components/LeaderBoard.vue') as unknown as AsyncComponentLoader,
+  delay: 150
+});
 
 const baseStore = useBaseStore();
 
@@ -83,6 +87,32 @@ const checkIfWasRecord = (type: string, field: string): boolean => {
   }
   return false;
 };
+const disableDuringMarathon = computed(() => {
+  return baseStore.marathonMode && baseStore.doneFirstMove && !baseStore.isDone;
+});
+const cannotClick = computed(() => {
+  return baseStore.showModal || disableDuringMarathon.value;
+});
+const showAveragesLeaderBoard = ref(false);
+const wasPausedBeforeOpenModal = ref(false);
+const doShowLeaderBoard = (): void => {
+  if (cannotClick.value) {
+    return;
+  }
+  wasPausedBeforeOpenModal.value = baseStore.paused;
+  if (!baseStore.paused && !baseStore.isDone) {
+    baseStore.invertPaused();
+  }
+  showAveragesLeaderBoard.value = true;
+  baseStore.showLeaderBoard = true;
+};
+const closeLeaderBoard = (): void => {
+  showAveragesLeaderBoard.value = false;
+  baseStore.showLeaderBoard = false;
+  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
+    baseStore.invertPaused();
+  }
+};
 </script>
 
 <template>
@@ -91,7 +121,7 @@ const checkIfWasRecord = (type: string, field: string): boolean => {
     class="avg-wrapper"
   >
     <div class="avg-row top-row">
-      <span />
+      <span><span class="best-averages-mobile link-item" :class="{ paused: cannotClick }" @click="doShowLeaderBoard">Best</span></span>
       <span>Time</span>
       <span>Moves</span>
       <span>TPS</span>
@@ -168,6 +198,14 @@ const checkIfWasRecord = (type: string, field: string): boolean => {
         <span v-if="checkDownTPS(3)" class="red">↓</span>
       </span>
     </div>
+    <p class="best-averages">
+      <span class="link-item" :class="{ paused: cannotClick }" @click="doShowLeaderBoard">Best Averages</span>
+    </p>
+    <LeaderBoard
+      v-if="baseStore.showLeaderBoard && showAveragesLeaderBoard"
+      :form-type="'averages'"
+      @close="closeLeaderBoard"
+    />
   </div>
 </template>
 
@@ -193,6 +231,31 @@ const checkIfWasRecord = (type: string, field: string): boolean => {
   padding-right: 20px;
   font-weight: 600;
 }
+.green {
+  color: green;
+}
+.red {
+  color: red;
+}
+.best-averages {
+  display: flex;
+  justify-content: center;
+}
+.best-averages-mobile {
+  display: none;
+}
+.link-item {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+.link-item:hover:not(.paused) {
+  text-decoration: underline;
+  color: var(--text-color);
+  cursor: pointer;
+}
+.link-item.paused {
+  opacity: 0.5;
+}
 @media screen and (max-width: 950px) {
   .avg-wrapper {
     width: 100%;
@@ -209,13 +272,23 @@ const checkIfWasRecord = (type: string, field: string): boolean => {
     overflow-y: auto;
   }
   .avg-row span {
-    width: 75px;
+    width: 70px;
   }
   .avg-row .avg-type {
     text-align: right;
-    width: 75px;
-    padding-right: 10px;
+    width: 70px;
+    padding-right: 20px;
     font-weight: 600;
+  }
+  .best-averages {
+    display: none;
+  }
+  .best-averages-mobile {
+    display: block;
+    text-align: center;
+  }
+  .best-averages-mobile .link-item {
+    font-size: 14px;
   }
 }
 @media screen and (max-height: 650px) and (max-width: 950px) {
@@ -223,16 +296,10 @@ const checkIfWasRecord = (type: string, field: string): boolean => {
     font-size: 14px;
     line-height: 1.3;
     margin-top: -5px;
-    max-height: 65px;
+    max-height: 64px;
   }
   .avg-row span, .avg-row .avg-type {
     width: 70px;
   }
-}
-.green {
-  color: green;
-}
-.red {
-  color: red;
 }
 </style>

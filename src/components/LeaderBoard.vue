@@ -7,6 +7,7 @@ import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
 import { type UserRecord } from '../stores/const';
 
+const props = defineProps<{ formType: string }>();
 const emit = defineEmits<{ close: [] }>();
 
 const leaderBoard = ref<HTMLElement>();
@@ -16,6 +17,10 @@ onClickOutside(leaderBoard, (event) => {
 });
 
 const baseStore = useBaseStore();
+
+const isDefault = computed(() => {
+  return props.formType === 'default';
+});
 
 const errorMsg = ref('');
 const userRecords = ref<UserRecord[]>();
@@ -38,11 +43,12 @@ const fetch = (endpoint: string): void => {
       baseStore.isFetching = false;
     });
 };
-fetch('stats');
+fetch(props.formType === 'default' ? 'stats' : 'stats?avg=1');
 
 const puzzleSize = ref<number>(baseStore.numLines);
 const puzzleMode = ref<string>(baseStore.marathonMode ? 'marathon' : 'standard');
-const bestType = ref<string>('time');
+const bestType = ref<string>(props.formType === 'default' ? 'time' : 'ao5');
+const bestAverage = ref<string>('time');
 
 const filteredRecords = computed(() => {
   if ((userRecords.value == null) || userRecords.value.length === 0) {
@@ -53,16 +59,27 @@ const filteredRecords = computed(() => {
            value.puzzle_type === puzzleMode.value &&
            value.record_type === bestType.value;
   }).sort((a, b) => {
-    if (bestType.value === 'time') {
-      if (a.time === b.time) {
-        return Number(b.tps) - Number(a.tps);
+    if (isDefault.value) {
+      if (bestType.value === 'time') {
+        if (a.time === b.time) {
+          return Number(b.tps) - Number(a.tps);
+        }
+        return a.time - b.time;
+      } else {
+        if (a.moves === b.moves) {
+          return Number(b.tps) - Number(a.tps);
+        }
+        return a.moves - b.moves;
       }
-      return a.time - b.time;
     } else {
-      if (a.moves === b.moves) {
-        return Number(b.tps) - Number(a.tps);
+      if (bestAverage.value === 'time') {
+        return Number(a.avg_time) - Number(b.avg_time);
+      } else if (bestAverage.value === 'moves') {
+        return Number(a.avg_moves) - Number(b.avg_moves);
+      } else if (bestAverage.value === 'TPS') {
+        return Number(b.avg_tps) - Number(a.avg_tps);
       }
-      return a.moves - b.moves;
+      return Number(a.avg_time) - Number(b.avg_time);
     }
   });
 });
@@ -77,19 +94,67 @@ const scrollWidth = computed(() => {
   }
   return '0px';
 });
+const factorChoices = computed(() => {
+  if (isDefault.value) {
+    return ['time', 'moves'];
+  }
+  return ['ao5', 'ao12', 'ao50', 'ao100'];
+});
+const minHeight = computed(() => {
+  if (isDefault.value) {
+    return '620px';
+  }
+  return '498px';
+});
+const tbodyHeight = computed(() => {
+  if (isDefault.value) {
+    return '244px';
+  }
+  return '122px';
+});
+const tableContainerHeight = computed(() => {
+  if (isDefault.value) {
+    return '284px';
+  }
+  return '162px';
+});
+const tbodyHeightMobile = computed(() => {
+  if (isDefault.value) {
+    return '233px';
+  }
+  return '116.5px';
+});
 </script>
 
 <template>
   <Teleport to="body">
     <div v-if="!baseStore.isFetching" ref="leaderBoard" class="leaderboard">
       <p class="header">
-        <span>Leaderboard</span>
+        <span>
+          {{ isDefault ? 'Leaderboard' : 'Best Averages' }}
+        </span>
       </p>
       <PuzzleSizeSlider v-model="puzzleSize" />
-      <PuzzleModeGroup v-model="puzzleMode" :choices="['standard', 'marathon']" :header="'Puzzle Mode'" />
-      <PuzzleModeGroup v-model="bestType" :choices="['time', 'moves']" :header="'Best Factor'" />
+      <PuzzleModeGroup
+        v-model="puzzleMode"
+        :choices="['standard', 'marathon']"
+        :header="'Puzzle Mode'"
+      />
+      <PuzzleModeGroup
+        v-model="bestType"
+        :choices="factorChoices"
+        :header="isDefault ? 'Best Factor' : 'Average Type'"
+        :capitalize="isDefault"
+        :gap="isDefault ? 25 : 15"
+      />
+      <PuzzleModeGroup
+        v-if="!isDefault"
+        v-model="bestAverage"
+        :choices="['time', 'moves', 'TPS']"
+        :header="'Best Factor'"
+      />
       <div class="table-container">
-        <table class="items-table">
+        <table v-if="isDefault" class="items-table">
           <thead>
             <tr>
               <th class="w-28">
@@ -131,6 +196,46 @@ const scrollWidth = computed(() => {
             </tr>
           </tbody>
         </table>
+        <table v-if="!isDefault" class="items-table">
+          <thead>
+            <tr>
+              <th class="w-28">
+                #
+              </th>
+              <th class="w-150">
+                Name
+              </th>
+              <th v-if="bestAverage === 'time'" class="min-width">
+                Time
+              </th>
+              <th v-if="bestAverage === 'moves'" class="min-width">
+                Moves
+              </th>
+              <th v-if="bestAverage === 'TPS'" class="min-width">
+                TPS
+              </th>
+            </tr>
+          </thead>
+          <tbody id="records-tbody">
+            <tr v-for="(item, index) in filteredRecords.slice(0, 50)" :key="item.id">
+              <td class="w-28">
+                {{ index + 1 }}
+              </td>
+              <td class="w-150 t-overflow">
+                {{ item.name }}
+              </td>
+              <td v-if="bestAverage === 'time'" class="min-width">
+                {{ item.avg_time }}
+              </td>
+              <td v-if="bestAverage === 'moves'" class="min-width">
+                {{ item.avg_moves }}
+              </td>
+              <td v-if="bestAverage === 'TPS'" class="min-width">
+                {{ item.avg_tps }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
       <div class="buttons">
         <button type="button" class="tool-button" @click="emit('close')">
@@ -151,7 +256,7 @@ const scrollWidth = computed(() => {
   color: var(--text-color);
   border-radius: 8px;
   height: auto;
-  min-height: 620px;
+  min-height: v-bind(minHeight);
   width: var(--modal-width);
   position: fixed;
   z-index: 2000;
@@ -179,7 +284,7 @@ const scrollWidth = computed(() => {
   width: 100px;
 }
 .table-container {
-  min-height: 284px;
+  min-height: v-bind(tableContainerHeight);
 }
 .items-table {
   max-width: 100%;
@@ -216,7 +321,7 @@ const scrollWidth = computed(() => {
   font-size: 16px;
   text-align: left;
   display: block;
-  max-height: 244px;
+  max-height: v-bind(tbodyHeight);
   overflow-y: auto;
   scrollbar-width: auto;
 }
@@ -234,6 +339,9 @@ const scrollWidth = computed(() => {
 .w-120 {
   width: 120px;
 }
+.w-150 {
+  width: 150px;
+}
 .t-overflow {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -241,12 +349,15 @@ const scrollWidth = computed(() => {
 .puzzle-size-slider-container {
   max-width: 250px;
 }
+.puzzle-mode-container {
+  max-width: 350px;
+}
 @media screen and (max-width: 840px) {
   .table-container .items-table thead tr {
     width: 100%;
   }
   .table-container .items-table tbody {
-    max-height: 244px;
+    max-height: v-bind(tbodyHeight);
   }
 }
 @media screen and (max-width: 420px) {
@@ -260,7 +371,7 @@ const scrollWidth = computed(() => {
     font-size: 15px;
   }
   .table-container .items-table tbody {
-    max-height: 233px;
+    max-height: v-bind(tbodyHeightMobile);
   }
 }
 @media screen and (max-height: 620px) {
@@ -272,7 +383,7 @@ const scrollWidth = computed(() => {
     min-height: 100px;
   }
   .table-container .items-table tbody {
-    max-height: 117px;
+    max-height: 116.5px;
     overflow-y: auto;
   }
 }

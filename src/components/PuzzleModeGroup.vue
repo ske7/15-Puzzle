@@ -1,43 +1,48 @@
 <script setup lang="ts">
-const props = defineProps<{ modelValue: string; choices: string[]; header: string }>();
+import { computed } from 'vue';
+
+const props = withDefaults(defineProps<{
+  modelValue: string;
+  choices: string[];
+  header: string;
+  capitalize?: boolean;
+  gap?: number;
+}>(),
+{
+  capitalize: true,
+  gap: 25
+});
 const emit = defineEmits<{ 'update:modelValue': [string] }>();
 
 const setValue = (value: string): void => {
   emit('update:modelValue', value);
 };
-const capitalize = (str: string): string => {
+const doCapitalize = (str: string): string => {
+  if (!props.capitalize) {
+    return str;
+  }
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
+const gapValue = computed(() => {
+  return `${props.gap}px`;
+});
 </script>
 
 <template>
   <div class="puzzle-mode-container">
     <p>{{ header }}</p>
     <div class="puzzle-mode-group">
-      <label :for="choices[0]">
+      <label v-for="(item, index) in choices" :key="index" :for="item">
         <input
-          :id="choices[0]"
-          :checked="props.modelValue === choices[0]"
+          :id="item"
+          :checked="props.modelValue === item"
           type="radio"
-          :value="choices[0]"
-          :name="choices[0]"
-          @change="setValue(choices[0])"
+          :value="item"
+          :name="item"
+          @change="setValue(item)"
         >
-        <span @click="setValue(choices[0])">
-          {{ capitalize(choices[0]) }}
-        </span>
-      </label>
-      <label :for="choices[1]">
-        <input
-          :id="choices[1]"
-          :checked="props.modelValue === choices[1]"
-          type="radio"
-          :value="choices[1]"
-          :name="choices[1]"
-          @change="setValue(choices[1])"
-        >
-        <span @click="setValue(choices[1])">
-          {{ capitalize(choices[1]) }}
+        <span @click="setValue(item)">
+          {{ doCapitalize(item) }}
         </span>
       </label>
     </div>
@@ -56,10 +61,14 @@ const capitalize = (str: string): string => {
 .puzzle-mode-group {
   display: flex;
   justify-content: center;
-  gap: 25px;
+  gap: v-bind(gapValue);
   margin-bottom: 5px;
 }
 .puzzle-mode-group input {
   margin-right: 5px;
+  cursor: pointer;
+}
+.puzzle-mode-group span {
+  cursor: pointer;
 }
 </style>

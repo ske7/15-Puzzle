@@ -91,9 +91,9 @@ const averagesRecords = computed(() => {
   <Teleport to="body">
     <div v-if="!baseStore.isFetching && userData" ref="userAccount" class="user-account">
       <p class="header">
-        <span>Your stats and personal records</span>
+        <span>Your personal records</span>
       </p>
-      <div v-if="!baseStore.isFetching && userData">
+      <div v-if="!baseStore.isFetching && userData" class="user-info">
         <p><strong>Name:</strong> {{ baseStore.userName }}</p>
         <p><strong>Registration date:</strong> {{ formatDate(userData.user_data.created_at) }}</p>
         <p><strong>Num games:</strong> {{ userData?.user_data.num_finished_games || 0 }}</p>
@@ -241,6 +241,7 @@ const averagesRecords = computed(() => {
   font-size: 16px;
   text-align: left;
   display: block;
+  min-height: 57px;
 }
 .items-table td {
   padding: 5px 0 5px 5px;
@@ -288,7 +289,17 @@ const averagesRecords = computed(() => {
   }
   .items-table tbody {
     max-height: 55px;
+    min-height: 55px;
     overflow-y: auto;
+  }
+}
+@media screen and (max-width: 350px) {
+  .user-account {
+    padding: 10px 20px;
+  }
+  .user-info p {
+    line-height: 1.5;
+    font-size: 15px;
   }
 }
 </style>
