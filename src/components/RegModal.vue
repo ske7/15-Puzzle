@@ -42,7 +42,8 @@ const fillRecordGames = (): void => {
       moves,
       puzzle_size: size,
       puzzle_type: isMarathon ? 'marathon' : 'standard',
-      control_type: recordControlType
+      control_type: recordControlType,
+      pro_game: false
     });
   };
   if (localStorage.getItem('timeRecord') != null) {
