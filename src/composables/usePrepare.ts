@@ -32,7 +32,9 @@ export const usePrepare = (): void => {
         baseStore.userName = res.name;
         if (baseStore.proMode) {
           const puzzleType = baseStore.marathonMode ? 'marathon' : 'standard';
-          void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}&puzzle_type=${puzzleType}`,
+          const resetAvg = baseStore.resetAvg ? '1' : '0';
+          // eslint-disable-next-line vue/max-len
+          void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}&puzzle_type=${puzzleType}&reset_avg=${resetAvg}`,
             baseStore.token)
             .then((res) => {
               baseStore.setCurrentAverages(res.stats as unknown as AverageStats);

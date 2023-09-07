@@ -62,6 +62,7 @@ export interface GameData {
   puzzle_size: number;
   puzzle_type: string;
   control_type: string;
+  pro_game: boolean;
 }
 
 export interface UserRecord {
@@ -78,6 +79,7 @@ export interface UserRecord {
   avg_time?: string;
   avg_moves?: string;
   avg_tps?: string;
+  pro_record?: boolean;
 }
 
 export interface UserStats {

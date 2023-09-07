@@ -53,7 +53,8 @@ export const useWatchGameState = (): void => {
         moves: baseStore.movesCount,
         puzzle_size: baseStore.numLines,
         puzzle_type: puzzleType,
-        control_type: baseStore.getControlTypeStr
+        control_type: baseStore.getControlTypeStr,
+        pro_game: baseStore.proMode && baseStore.resetAvg
       });
     }
   };

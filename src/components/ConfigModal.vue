@@ -56,6 +56,13 @@ const setHideAverages = (): void => {
   baseStore.hideCurrentAverages = !baseStore.hideCurrentAverages;
   localStorage.setItem('hideCurrentAverages', baseStore.hideCurrentAverages.toString());
 };
+const setResetAverages = (): void => {
+  baseStore.resetAvg = !baseStore.resetAvg;
+  localStorage.setItem('resetAvg', baseStore.resetAvg.toString());
+  if (baseStore.resetAvg) {
+    eventBus.emit('restart', 'fromConfig');
+  }
+};
 const setHoverOnControl = (): void => {
   baseStore.hoverOnControl = !baseStore.hoverOnControl;
   localStorage.setItem('hoverOnControl', baseStore.hoverOnControl.toString());
@@ -192,6 +199,19 @@ watch(marathonMode, () => {
           >
           <label for="hide-averages" :class="{ 'disabled-label': !baseStore.proMode || !baseStore.registered || baseStore.isNetworkError }">
             Hide Averages
+          </label>
+        </div>
+        <div class="option">
+          <input
+            id="reset-averages"
+            type="checkbox"
+            name="reset-averages"
+            :disabled="!baseStore.proMode || !baseStore.registered || baseStore.isNetworkError"
+            :checked="baseStore.resetAvg"
+            @change="setResetAverages"
+          >
+          <label for="reset-averages" :class="{ 'disabled-label': !baseStore.proMode || !baseStore.registered || baseStore.isNetworkError }">
+            Reset Averages (pro standard)
           </label>
         </div>
         <div class="option">

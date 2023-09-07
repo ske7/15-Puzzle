@@ -89,7 +89,7 @@ if (tbody !== null) {
   scrollbarWidth = tbody.offsetWidth - tbody.clientWidth;
 }
 const scrollWidth = computed(() => {
-  if (filteredRecords.value.length > 10) {
+  if (filteredRecords.value.length > (isDefault.value ? 10 : 5)) {
     return `${scrollbarWidth}px`;
   }
   return '0px';
@@ -189,7 +189,9 @@ const tbodyHeightMobile = computed(() => {
               <td v-if="bestType === 'moves'" class="min-width">
                 {{ item.moves }}
               </td>
-              <td>{{ item.tps }}</td>
+              <td class="min-width">
+                {{ item.tps }}
+              </td>
               <td class="w-28">
                 {{ item.control_type.slice(0, 1) }}
               </td>
@@ -202,7 +204,7 @@ const tbodyHeightMobile = computed(() => {
               <th class="w-28">
                 #
               </th>
-              <th class="w-150">
+              <th class="w-120">
                 Name
               </th>
               <th v-if="bestAverage === 'time'" class="min-width">
@@ -214,6 +216,9 @@ const tbodyHeightMobile = computed(() => {
               <th v-if="bestAverage === 'TPS'" class="min-width">
                 TPS
               </th>
+              <th class="w-40">
+                Pro
+              </th>
             </tr>
           </thead>
           <tbody id="records-tbody">
@@ -221,7 +226,7 @@ const tbodyHeightMobile = computed(() => {
               <td class="w-28">
                 {{ index + 1 }}
               </td>
-              <td class="w-150 t-overflow">
+              <td class="w-120 t-overflow">
                 {{ item.name }}
               </td>
               <td v-if="bestAverage === 'time'" class="min-width">
@@ -232,6 +237,9 @@ const tbodyHeightMobile = computed(() => {
               </td>
               <td v-if="bestAverage === 'TPS'" class="min-width">
                 {{ item.avg_tps }}
+              </td>
+              <td class="w-40">
+                {{ item.pro_record ? 'Ge!' : '' }}
               </td>
             </tr>
           </tbody>
@@ -339,8 +347,8 @@ const tbodyHeightMobile = computed(() => {
 .w-120 {
   width: 120px;
 }
-.w-150 {
-  width: 150px;
+.w-40 {
+  width: 40px;
 }
 .t-overflow {
   overflow: hidden;
