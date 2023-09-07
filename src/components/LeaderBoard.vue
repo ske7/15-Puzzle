@@ -204,7 +204,7 @@ const tbodyHeightMobile = computed(() => {
               <th class="w-28">
                 #
               </th>
-              <th class="w-120">
+              <th class="w-150">
                 Name
               </th>
               <th v-if="bestAverage === 'time'" class="min-width">
@@ -216,7 +216,7 @@ const tbodyHeightMobile = computed(() => {
               <th v-if="bestAverage === 'TPS'" class="min-width">
                 TPS
               </th>
-              <th class="w-40">
+              <th v-if="bestAverage !== 'TPS'" class="w-40">
                 Pro
               </th>
             </tr>
@@ -226,7 +226,7 @@ const tbodyHeightMobile = computed(() => {
               <td class="w-28">
                 {{ index + 1 }}
               </td>
-              <td class="w-120 t-overflow">
+              <td class="w-150 t-overflow">
                 {{ item.name }}
               </td>
               <td v-if="bestAverage === 'time'" class="min-width">
@@ -346,6 +346,9 @@ const tbodyHeightMobile = computed(() => {
 }
 .w-120 {
   width: 120px;
+}
+.w-150 {
+  width: 150px;
 }
 .w-40 {
   width: 40px;
