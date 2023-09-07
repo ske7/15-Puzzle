@@ -33,17 +33,21 @@ export const useWatchGameState = (): void => {
     return baseStore.isDone;
   });
   const setRecords = (puzzleType: string): void => {
+    let time = 0;
+    if (baseStore.time === 0) {
+      time = 1;
+    }
     if (baseStore.movesRecord === 0 || baseStore.movesCount <= baseStore.movesRecord) {
-      baseStore.setMovesRecord(baseStore.movesCount, baseStore.time,
+      baseStore.setMovesRecord(baseStore.movesCount, time,
         baseStore.numLines, baseStore.marathonMode);
     }
-    if (baseStore.timeRecord === 0 || baseStore.time <= baseStore.timeRecord) {
-      baseStore.setTimeRecord(baseStore.time, baseStore.movesCount,
+    if (baseStore.timeRecord === 0 || time <= baseStore.timeRecord) {
+      baseStore.setTimeRecord(time, baseStore.movesCount,
         baseStore.numLines, baseStore.marathonMode);
     }
     if (baseStore.token != null) {
       postGame({
-        time: baseStore.time,
+        time,
         moves: baseStore.movesCount,
         puzzle_size: baseStore.numLines,
         puzzle_type: puzzleType,
