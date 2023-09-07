@@ -383,7 +383,7 @@ const tbodyHeightMobile = computed(() => {
     min-height: 156.4px;
   }
   .table-container .items-table tbody {
-    max-height: 116.5px;
+    max-height: 117px;
     overflow-y: auto;
   }
 }

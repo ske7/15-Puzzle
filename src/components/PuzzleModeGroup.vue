@@ -82,4 +82,11 @@ input[type="radio"] {
   -webkit-transform: scale(1.2);
   transform: scale(1.2);
 }
+@media screen and (max-width: 840px) {
+  input[type="radio"] {
+   -ms-transform: scale(1.1);
+   -webkit-transform: scale(1.1);
+   transform: scale(1.1);
+  }
+}
 </style>
