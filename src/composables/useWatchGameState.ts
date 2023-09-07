@@ -36,6 +36,8 @@ export const useWatchGameState = (): void => {
     let time = 0;
     if (baseStore.time === 0) {
       time = 1;
+    } else {
+      time = baseStore.time;
     }
     if (baseStore.movesRecord === 0 || baseStore.movesCount <= baseStore.movesRecord) {
       baseStore.setMovesRecord(baseStore.movesCount, time,
