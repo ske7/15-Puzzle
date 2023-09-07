@@ -377,10 +377,10 @@ const tbodyHeightMobile = computed(() => {
 @media screen and (max-height: 620px) {
   .leaderboard {
     min-height: 488px;
-    top: calc(50% - 244px);
+    top: 10px;
   }
   .table-container {
-    min-height: 100px;
+    min-height: 156.4px;
   }
   .table-container .items-table tbody {
     max-height: 116.5px;

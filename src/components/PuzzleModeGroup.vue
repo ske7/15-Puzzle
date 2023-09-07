@@ -67,8 +67,19 @@ const gapValue = computed(() => {
 .puzzle-mode-group input {
   margin-right: 5px;
   cursor: pointer;
+  margin-top: 3px;
 }
 .puzzle-mode-group span {
   cursor: pointer;
+}
+.puzzle-mode-group label {
+  display: flex;
+  align-items: center;
+  line-height: 1.5;
+}
+input[type="radio"] {
+  -ms-transform: scale(1.2);
+  -webkit-transform: scale(1.2);
+  transform: scale(1.2);
 }
 </style>
