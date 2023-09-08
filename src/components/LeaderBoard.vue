@@ -124,6 +124,20 @@ const tbodyHeightMobile = computed(() => {
   }
   return '116.5px';
 });
+const getProStatus = (item: UserRecord): string => {
+  if (item.pro_record ?? false) {
+    if ((item.pro_avg_time ?? false) && bestAverage.value === 'time') {
+      return 'Ge!';
+    }
+    if ((item.pro_avg_moves ?? false) && bestAverage.value === 'moves') {
+      return 'Ge!';
+    }
+    if ((item.pro_avg_tps ?? false) && bestAverage.value === 'TPS') {
+      return 'Ge!';
+    }
+  }
+  return '';
+};
 </script>
 
 <template>
@@ -216,7 +230,7 @@ const tbodyHeightMobile = computed(() => {
               <th v-if="bestAverage === 'TPS'" class="min-width">
                 TPS
               </th>
-              <th v-if="bestAverage !== 'TPS'" class="w-40">
+              <th class="w-40">
                 Pro
               </th>
             </tr>
@@ -238,8 +252,8 @@ const tbodyHeightMobile = computed(() => {
               <td v-if="bestAverage === 'TPS'" class="min-width">
                 {{ item.avg_tps }}
               </td>
-              <td v-if="bestAverage !== 'TPS'" class="w-40">
-                {{ item.pro_record ? 'Ge!' : '' }}
+              <td class="w-40">
+                {{ getProStatus(item) }}
               </td>
             </tr>
           </tbody>

@@ -80,6 +80,9 @@ export interface UserRecord {
   avg_moves?: string;
   avg_tps?: string;
   pro_record?: boolean;
+  pro_avg_time?: boolean;
+  pro_avg_moves?: boolean;
+  pro_avg_tps?: boolean;
 }
 
 export interface UserStats {
