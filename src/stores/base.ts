@@ -10,7 +10,6 @@ import {
   getArrayKeyByValue, getElementCol, getElementRow,
   displayedTime, calculateTPS, randArrayItem
 } from '../utils';
-import { usePostFetchAPI } from '../composables/useFetchAPI';
 
 export const useBaseStore = defineStore('base', {
   state: () => ({
@@ -72,7 +71,7 @@ export const useBaseStore = defineStore('base', {
     prevAverages: [] as AverageData[],
     hideCurrentAverages: localStorage.getItem('hideCurrentAverages') === 'true',
     wasAvgRecords: [] as WasAvgRecord[],
-    resetAvg: localStorage.getItem('resetAvg') === 'true'
+    consecutiveSolves: 0
   }),
   actions: {
     initStore() {
@@ -118,19 +117,11 @@ export const useBaseStore = defineStore('base', {
       }
     },
     incMoves() {
-      this.movesCount++;
+      this.movesCount += 1;
     },
     reset() {
-      if (!this.isDone && this.proMode && this.resetAvg) {
-        const puzzleType = this.marathonMode ? 'marathon' : (this.cageMode ? 'cage_standard' : 'standard');
-        usePostFetchAPI('reset_user_averages', JSON.stringify({ puzzle_size: String(this.numLines), puzzle_type: puzzleType }) as BodyInit, this.token as (string | undefined))
-          .then(() => {
-            this.setCurrentAverages(undefined, true);
-            this.setWasAvgRecords([]);
-          })
-          .catch(error => {
-            console.log(error as string);
-          });
+      if (!this.isDone && this.proMode) {
+        this.resetConsecutiveSolves();
       }
       this.stopInterval();
       if (this.proMode || this.showConfig) {
@@ -429,6 +420,12 @@ export const useBaseStore = defineStore('base', {
       } else {
         this.wasAvgRecords = wasAvgRecords;
       }
+    },
+    incConsecutiveSolves(): void {
+      this.consecutiveSolves += 1;
+    },
+    resetConsecutiveSolves(): void {
+      this.consecutiveSolves = 0;
     }
   },
   getters: {

@@ -32,9 +32,7 @@ export const usePrepare = (): void => {
         baseStore.userName = res.name;
         if (baseStore.proMode) {
           const puzzleType = baseStore.marathonMode ? 'marathon' : 'standard';
-          const resetAvg = baseStore.resetAvg ? '1' : '0';
-          // eslint-disable-next-line vue/max-len
-          void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}&puzzle_type=${puzzleType}&reset_avg=${resetAvg}`,
+          void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}&puzzle_type=${puzzleType}`,
             baseStore.token)
             .then((res) => {
               baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
@@ -64,6 +62,7 @@ export const usePrepare = (): void => {
       baseStore.doPrepareCageMode();
     }
     baseStore.initStore();
+    baseStore.resetConsecutiveSolves();
 
     setTimeout(() => {
       if (baseStore.unlockedCages.size > 0) {

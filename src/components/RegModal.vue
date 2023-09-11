@@ -43,7 +43,7 @@ const fillRecordGames = (): void => {
       puzzle_size: size,
       puzzle_type: isMarathon ? 'marathon' : 'standard',
       control_type: recordControlType,
-      pro_game: false
+      consecutive_solves: 0
     });
   };
   if (localStorage.getItem('timeRecord') != null) {

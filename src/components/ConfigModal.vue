@@ -56,13 +56,6 @@ const setHideAverages = (): void => {
   baseStore.hideCurrentAverages = !baseStore.hideCurrentAverages;
   localStorage.setItem('hideCurrentAverages', baseStore.hideCurrentAverages.toString());
 };
-const setResetAverages = (): void => {
-  baseStore.resetAvg = !baseStore.resetAvg;
-  localStorage.setItem('resetAvg', baseStore.resetAvg.toString());
-  if (baseStore.resetAvg) {
-    eventBus.emit('restart', 'fromConfig');
-  }
-};
 const setHoverOnControl = (): void => {
   baseStore.hoverOnControl = !baseStore.hoverOnControl;
   localStorage.setItem('hoverOnControl', baseStore.hoverOnControl.toString());
@@ -76,6 +69,7 @@ const setProMode = (): void => {
   localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
   baseStore.cageMode = false;
   baseStore.setSpaceBetween();
+  baseStore.resetConsecutiveSolves();
   eventBus.emit('restart', 'fromConfig');
 };
 const setMarathonMode = (): void => {
@@ -84,6 +78,7 @@ const setMarathonMode = (): void => {
   baseStore.enableCageMode = false;
   localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
   baseStore.cageMode = false;
+  baseStore.resetConsecutiveSolves();
   eventBus.emit('restart', 'fromConfig');
 };
 
@@ -104,6 +99,7 @@ watch(puzzleSize, (newValue) => {
     baseStore.numLines = Number(newValue) as puzzleCores;
     localStorage.setItem('numLines', baseStore.numLines.toString());
     updateCurrentAverages();
+    baseStore.resetConsecutiveSolves();
     eventBus.emit('restart', 'fromConfig');
   }
 });
@@ -199,19 +195,6 @@ watch(marathonMode, () => {
           >
           <label for="hide-averages" :class="{ 'disabled-label': !baseStore.proMode || !baseStore.registered || baseStore.isNetworkError }">
             Hide Averages
-          </label>
-        </div>
-        <div class="option">
-          <input
-            id="reset-averages"
-            type="checkbox"
-            name="reset-averages"
-            :disabled="!baseStore.proMode || !baseStore.registered || baseStore.isNetworkError"
-            :checked="baseStore.resetAvg"
-            @change="setResetAverages"
-          >
-          <label for="reset-averages" :class="{ 'disabled-label': !baseStore.proMode || !baseStore.registered || baseStore.isNetworkError }">
-            Reset Averages (pro standard)
           </label>
         </div>
         <div class="option">

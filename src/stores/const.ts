@@ -62,7 +62,7 @@ export interface GameData {
   puzzle_size: number;
   puzzle_type: string;
   control_type: string;
-  pro_game: boolean;
+  consecutive_solves: number;
 }
 
 export interface UserRecord {

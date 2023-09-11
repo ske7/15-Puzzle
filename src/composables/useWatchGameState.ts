@@ -54,7 +54,7 @@ export const useWatchGameState = (): void => {
         puzzle_size: baseStore.numLines,
         puzzle_type: puzzleType,
         control_type: baseStore.getControlTypeStr,
-        pro_game: baseStore.proMode && baseStore.resetAvg
+        consecutive_solves: baseStore.consecutiveSolves
       });
     }
   };
@@ -64,6 +64,7 @@ export const useWatchGameState = (): void => {
         baseStore.solvedPuzzlesInMarathon += 1;
         if (baseStore.solvedPuzzlesInMarathon === 5) {
           baseStore.stopInterval();
+          baseStore.incConsecutiveSolves();
           setRecords('marathon');
           if (!baseStore.disableWinMessage) {
             baseStore.showWinModal = true;
@@ -73,6 +74,7 @@ export const useWatchGameState = (): void => {
         }
       } else {
         baseStore.stopInterval();
+        baseStore.incConsecutiveSolves();
         setRecords(baseStore.cageMode ? 'cage_standard' : 'standard');
         if (baseStore.cageMode) {
           baseStore.setUnlockedCages();
