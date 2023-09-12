@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onMounted, onUnmounted, computed, type AsyncComponentLoader } from 'vue';
 import { useBaseStore } from '../stores/base';
-import { useEventBus } from '@vueuse/core';
+import { useEventBus, useWindowSize } from '@vueuse/core';
 const ConfigModal = defineAsyncComponent({
   loader: async () => await import('../components/ConfigModal.vue') as unknown as AsyncComponentLoader,
   delay: 150
@@ -16,6 +16,7 @@ const ImageGallery = defineAsyncComponent({
 });
 
 const baseStore = useBaseStore();
+const { width: windowWidth } = useWindowSize();
 
 const wasPausedBeforeOpenModal = ref(false);
 
@@ -96,7 +97,7 @@ onUnmounted(() => {
 
 <template>
   <div class="action-panel">
-    <div class="first-row">
+    <div v-if="windowWidth >= 820" class="first-row">
       <button
         type="button"
         class="tool-button"
@@ -122,6 +123,32 @@ onUnmounted(() => {
         @click="showConfigModal"
       >
         Config
+      </button>
+      <button
+        type="button"
+        class="tool-button"
+        :disabled="disableButton || disableDuringMarathon"
+        @click="showAboutModal"
+      >
+        About
+      </button>
+    </div>
+    <div v-if="windowWidth < 820" class="first-row">
+      <button
+        type="button"
+        class="tool-button"
+        :disabled="disableButton || disableDuringMarathon || baseStore.paused"
+        @click="showConfigModal"
+      >
+        Config
+      </button>
+      <button
+        type="button"
+        class="tool-button mobile"
+        :disabled="disableButton || baseStore.paused"
+        @click="doRestart('fromMain')"
+      >
+        Restart
       </button>
       <button
         type="button"
@@ -160,17 +187,25 @@ onUnmounted(() => {
 }
 .action-panel .first-row {
   display: flex;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   width: 100%;
   justify-content: space-around;
 }
+@media screen and (max-width: 820px) {
+.action-panel .first-row {
+  justify-content: space-around;
+  align-items: center;
+}
+}
 @media screen and (max-width: 420px) {
-  .action-panel .first-row {
-    justify-content: space-between;
-  }
   .tool-button {
     height: 28px;
-    width: 65px;
+    width: 62px;
   }
+}
+.tool-button.mobile {
+  height: 32px;
+  width: 140px;
+  font-size: 19px;
 }
 </style>

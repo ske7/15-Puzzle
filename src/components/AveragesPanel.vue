@@ -310,7 +310,7 @@ const closeLeaderBoard = (): void => {
 .consecutive-solves {
   text-align: center;
 }
-@media screen and (max-width: 950px) {
+@media screen and (max-width: 1050px) {
   .avg-wrapper {
     width: 100%;
     align-items: center;
@@ -347,7 +347,7 @@ const closeLeaderBoard = (): void => {
     font-size: 14px;
   }
 }
-@media screen and (max-height: 650px) and (max-width: 950px) {
+@media screen and (max-height: 650px) and (max-width: 1050px) {
   .avg-wrapper {
     font-size: 14px;
     line-height: 1.3;

@@ -21,7 +21,7 @@ useWatchGameState();
 const { width: windowWidth } = useWindowSize();
 const cageImgSize = computed(() => {
   if (windowWidth.value <= 420) {
-    return 36;
+    return 32;
   }
   return 48;
 });
@@ -106,12 +106,12 @@ const cageImgSize = computed(() => {
     margin-top: 20px;
   }
   .header h1 {
-    font-size: 31px;
-    line-height: 36px;
+    font-size: 27px;
+    line-height: 32px;
   }
   .header img {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
   }
 }
 </style>
