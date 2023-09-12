@@ -43,7 +43,10 @@ fetch('current_user_stats');
 const formatDate = (date: string): string => {
   return useDateFormat(date, 'MMM D, YYYY').value;
 };
-const formatDate2 = (date: string): string => {
+const formatDate2 = (date?: string): string => {
+  if (date == null) {
+    return '';
+  }
   return useDateFormat(date, 'DD/MM/YY').value;
 };
 const formatPlayTime = computed(() => {
@@ -133,7 +136,7 @@ const averagesRecords = computed(() => {
               </td>
               <td>{{ formatDate2(item.created_at) }}</td>
               <td class="w-28">
-                {{ item.control_type.slice(0, 1) }}
+                {{ item.control_type?.slice(0, 1) }}
               </td>
             </tr>
           </tbody>
@@ -152,9 +155,15 @@ const averagesRecords = computed(() => {
           <tbody>
             <tr v-for="(item) in averagesRecords" :key="item.id">
               <td>{{ item.record_type }}</td>
-              <td>{{ item.avg_time }}</td>
-              <td>{{ item.avg_moves }}</td>
-              <td>{{ item.avg_tps }}</td>
+              <td :class="{ 'purple': item.pro_avg_time }">
+                {{ item.avg_time }}
+              </td>
+              <td :class="{ 'purple': item.pro_avg_moves }">
+                {{ item.avg_moves }}
+              </td>
+              <td :class="{ 'purple': item.pro_avg_tps }">
+                {{ item.avg_tps }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -170,7 +179,7 @@ const averagesRecords = computed(() => {
 
 <style scoped>
 .user-account {
-  --modal-width: 360px;
+  --modal-width: 390px;
   display: flex;
   flex-direction: column;
   background-color: var(--background-modal-color);
@@ -263,6 +272,9 @@ const averagesRecords = computed(() => {
 }
 .puzzle-size-slider-container {
   max-width: 250px;
+}
+.purple {
+  color: var(--violet);
 }
 @media screen and (max-width: 420px) {
   .user-account {

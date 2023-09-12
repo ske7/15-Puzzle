@@ -74,8 +74,8 @@ export interface UserRecord {
   time: number;
   moves: number;
   tps: string;
-  created_at: string;
-  control_type: string;
+  created_at?: string;
+  control_type?: string;
   avg_time?: string;
   avg_moves?: string;
   avg_tps?: string;
@@ -83,6 +83,9 @@ export interface UserRecord {
   pro_avg_time?: boolean;
   pro_avg_moves?: boolean;
   pro_avg_tps?: boolean;
+  pro_time_value?: string;
+  pro_moves_value?: string;
+  pro_tps_value?: string;
 }
 
 export interface UserStats {
@@ -116,6 +119,9 @@ export interface WasAvgRecord {
   record_time: boolean;
   record_moves: boolean;
   record_tps: boolean;
+  pro_avg_time?: boolean;
+  pro_avg_moves?: boolean;
+  pro_avg_tps?: boolean;
 }
 
 export interface ErrResponse {

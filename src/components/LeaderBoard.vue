@@ -127,13 +127,13 @@ const tbodyHeightMobile = computed(() => {
 const getProStatus = (item: UserRecord): string => {
   if (item.pro_record ?? false) {
     if ((item.pro_avg_time ?? false) && bestAverage.value === 'time') {
-      return 'Ge!';
+      return item.pro_time_value ?? 'Ge!';
     }
     if ((item.pro_avg_moves ?? false) && bestAverage.value === 'moves') {
-      return 'Ge!';
+      return item.pro_moves_value ?? 'Ge!';
     }
     if ((item.pro_avg_tps ?? false) && bestAverage.value === 'TPS') {
-      return 'Ge!';
+      return item.pro_tps_value ?? 'Ge!';
     }
   }
   return '';
@@ -207,7 +207,7 @@ const getProStatus = (item: UserRecord): string => {
                 {{ item.tps }}
               </td>
               <td class="w-28">
-                {{ item.control_type.slice(0, 1) }}
+                {{ item.control_type?.slice(0, 1) }}
               </td>
             </tr>
           </tbody>
@@ -230,7 +230,7 @@ const getProStatus = (item: UserRecord): string => {
               <th v-if="bestAverage === 'TPS'" class="min-width">
                 TPS
               </th>
-              <th class="w-40">
+              <th>
                 Pro
               </th>
             </tr>
@@ -252,7 +252,7 @@ const getProStatus = (item: UserRecord): string => {
               <td v-if="bestAverage === 'TPS'" class="min-width">
                 {{ item.avg_tps }}
               </td>
-              <td class="w-40">
+              <td>
                 {{ getProStatus(item) }}
               </td>
             </tr>
@@ -270,7 +270,7 @@ const getProStatus = (item: UserRecord): string => {
 
 <style scoped>
 .leaderboard {
-  --modal-width: 360px;
+  --modal-width: 380px;
   display: flex;
   justify-content: center;
   flex-direction: column;

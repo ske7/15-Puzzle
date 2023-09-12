@@ -198,6 +198,12 @@ const cannotClick = computed(() => {
     max-width: 300px;
   }
 }
+@media screen and (max-height: 650px) and (max-width: 420px) {
+  .records-row {
+    line-height: 1.3;
+    margin-top: -5px;
+  }
+}
 .no-connect {
   opacity: 0.8;
   font-size: 12px;

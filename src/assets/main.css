@@ -23,6 +23,7 @@
   --square-in-place-color: #e0f5fa;
   --error-color: #c40000;
   --table-border-color: #ccc;
+  --violet: blueviolet;
 }
 [data-theme='dark'] {
   --background-color: var(--c-black);
@@ -41,6 +42,7 @@
   --square-in-place-color: beige;
   --error-color: #ff6b5b;
   --table-border-color: var(--c-white);
+  --violet: violet;
 }
 *,
 *::before,
