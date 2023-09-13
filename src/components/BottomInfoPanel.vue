@@ -85,6 +85,15 @@ const disableDuringMarathon = computed(() => {
 const cannotClick = computed(() => {
   return baseStore.showModal || disableDuringMarathon.value;
 });
+
+const resetToken = ref<string | null>(null);
+const email = ref<string | null>(null);
+if (location.href.toLowerCase().includes('reset_password&token=') && !baseStore.registered) {
+  const searchParams = new URLSearchParams(location.search);
+  resetToken.value = searchParams.get('token');
+  email.value = searchParams.get('email');
+  doShowRegModal('set-password');
+}
 </script>
 
 <template>
@@ -145,7 +154,13 @@ const cannotClick = computed(() => {
         </Transition>
       </div>
     </div>
-    <RegModal v-if="baseStore.showRegModal" :form-type="formType" @close="closeRegModal" />
+    <RegModal
+      v-if="baseStore.showRegModal"
+      :form-type="formType"
+      :reset-token="resetToken"
+      :email="email"
+      @close="closeRegModal"
+    />
     <UserAccount v-if="baseStore.showUserAccount" @close="closeUserAccount" />
     <LeaderBoard
       v-if="baseStore.showLeaderBoard && showDefaultLeaderBoard"

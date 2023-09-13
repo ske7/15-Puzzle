@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useWindowSize } from '@vueuse/core';
 import { usePostFetchAPI } from '../composables/useFetchAPI';
@@ -7,7 +7,7 @@ import {
   type GameData, type Record, type UserData, type UserStats, type InvalidFields
 } from '../stores/const';
 
-const props = defineProps<{ formType: string }>();
+const props = defineProps<{ formType: string; resetToken?: string; email?: string }>();
 const emit = defineEmits<{ close: [] }>();
 const baseStore = useBaseStore();
 const regModal = ref<HTMLElement>();
@@ -15,8 +15,11 @@ onClickOutside(regModal, (event) => {
   event.stopPropagation();
 });
 
-const isRegisterForm = computed(() => {
+const registerForm = computed(() => {
   return props.formType === 'register';
+});
+const setPasswordForm = computed(() => {
+  return props.formType === 'set-password';
 });
 
 const { width: windowWidth } = useWindowSize();
@@ -114,6 +117,8 @@ const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
   updateLocalRecord(5, 'standard');
   updateLocalRecord(5, 'marathon');
 };
+const resetPasswordMode = ref<boolean>(false);
+const sentResetEmail = ref<boolean>(false);
 
 const user: UserData = reactive({} as unknown as UserData);
 const errorMsg = ref<string[]>([]);
@@ -128,23 +133,39 @@ const fetch = (endpoint: string): void => {
   }
   fillRecordGames();
   isFetching.value = true;
-  usePostFetchAPI(endpoint, JSON.stringify({ user, games: recordGames.value }) as BodyInit)
-    .then(res => {
-      baseStore.token = res.token;
-      localStorage.setItem('token', String(baseStore.token));
-      baseStore.userName = res.name;
-      syncUserRecordsAfterLogin(res.stats);
-      isFetching.value = false;
-      emit('close');
-    })
-    .catch(error => {
-      errorMsg.value.push(error as string);
-      isFetching.value = false;
-    });
+  if (resetPasswordMode.value) {
+    usePostFetchAPI(endpoint, JSON.stringify({ email: user.email }) as BodyInit)
+      .then(_res => {
+        sentResetEmail.value = true;
+        isFetching.value = false;
+      })
+      .catch(error => {
+        errorMsg.value.push(error as string);
+        isFetching.value = false;
+      });
+  } else {
+    usePostFetchAPI(endpoint, JSON.stringify({ user, games: recordGames.value }) as BodyInit)
+      .then(res => {
+        baseStore.token = res.token;
+        localStorage.setItem('token', String(baseStore.token));
+        baseStore.userName = res.name;
+        syncUserRecordsAfterLogin(res.stats);
+        isFetching.value = false;
+        emit('close');
+      })
+      .catch(error => {
+        errorMsg.value.push(error as string);
+        isFetching.value = false;
+      });
+  }
 };
 
 const doSubmit = (): void => {
-  if (isRegisterForm.value) {
+  if (setPasswordForm.value) {
+    fetch('set_password');
+  } else if (resetPasswordMode.value) {
+    fetch('reset_password');
+  } else if (registerForm.value) {
     user.password_confirmation = user.password;
     fetch('register');
   } else {
@@ -164,7 +185,7 @@ const resetInvalidFields = (): void => {
 };
 const checkFields = (): boolean => {
   resetInvalidFields();
-  if (isRegisterForm.value) {
+  if (registerForm.value) {
     if (user.name.trim() === '') {
       invalidFields.name = true;
     }
@@ -176,15 +197,17 @@ const checkFields = (): boolean => {
   if (user.email.trim() === '') {
     invalidFields.email = true;
   }
-  if (user.password.trim() === '') {
-    invalidFields.password = true;
-  }
-  if (!(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g).test(user.email)) {
-    errorMsg.value.push('Invalid email address');
-    invalidFields.email = true;
-  }
-  if (user.password.trim().length < 6) {
-    invalidFields.password = true;
+  if (!resetPasswordMode.value) {
+    if (user.password.trim() === '') {
+      invalidFields.password = true;
+    }
+    if (!(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g).test(user.email)) {
+      errorMsg.value.push('Invalid email address');
+      invalidFields.email = true;
+    }
+    if (user.password.trim().length < 6) {
+      invalidFields.password = true;
+    }
   }
   if (invalidFields.name || invalidFields.email || invalidFields.password) {
     return false;
@@ -192,6 +215,33 @@ const checkFields = (): boolean => {
   resetInvalidFields();
   return true;
 };
+const doSetResetPasswordMode = (): void => {
+  errorMsg.value = [];
+  resetPasswordMode.value = true;
+};
+const headerText = computed(() => {
+  if (setPasswordForm.value) {
+    return 'Set new password';
+  } else if (resetPasswordMode.value) {
+    return 'Reset you password';
+  } else {
+    return registerForm.value ? 'Register your account' : 'Login into your account';
+  }
+});
+const submitButtonText = computed(() => {
+  if (setPasswordForm.value) {
+    return 'Submit';
+  } else if (resetPasswordMode.value) {
+    return 'Reset';
+  } else {
+    return registerForm.value ? 'Register' : 'Login';
+  }
+});
+onMounted(() => {
+  if (setPasswordForm.value) {
+    user.email = props.email ?? '';
+  }
+});
 </script>
 
 <template>
@@ -200,11 +250,26 @@ const checkFields = (): boolean => {
     class="reg-modal"
   >
     <p class="header">
-      <span>{{ isRegisterForm ? 'Register your account' : 'Login into your account' }}</span>
+      <span>{{ headerText }}</span>
     </p>
-    <form @submit.prevent="doSubmit">
+    <div v-if="sentResetEmail">
+      <p class="after-sent-email">
+        Email sent with password reset instructions
+      </p>
+      <div class="buttons">
+        <button
+          type="button"
+          class="tool-button"
+          :disabled="isFetching"
+          @click="emit('close')"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+    <form v-if="!sentResetEmail" @submit.prevent="doSubmit">
       <fieldset :disabled="isFetching" class="fields">
-        <label v-if="isRegisterForm" for="username">
+        <label v-if="registerForm" for="username">
           <span>Username</span>
           <input
             id="username"
@@ -231,7 +296,7 @@ const checkFields = (): boolean => {
             @focus="invalidFields.email = false"
           >
         </label>
-        <label for="password">
+        <label v-if="!resetPasswordMode" for="password">
           <span>Password</span>
           <input
             id="password"
@@ -258,8 +323,12 @@ const checkFields = (): boolean => {
         </p>
       </div>
       <div class="buttons">
-        <button type="submit" class="tool-button" :disabled="isFetching">
-          {{ isRegisterForm ? 'Register' : 'Login' }}
+        <button
+          type="submit"
+          class="tool-button"
+          :disabled="isFetching"
+        >
+          {{ submitButtonText }}
         </button>
         <button
           type="button"
@@ -270,6 +339,9 @@ const checkFields = (): boolean => {
           Cancel
         </button>
       </div>
+      <p v-if="!registerForm && !setPasswordForm && !resetPasswordMode" class="forgot-password">
+        <a @click="doSetResetPasswordMode">Forgot you password?</a>
+      </p>
     </form>
   </div>
 </template>
@@ -315,7 +387,7 @@ const checkFields = (): boolean => {
   border: none;
 }
 label {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -335,7 +407,7 @@ label input {
 }
 .buttons {
   margin-top: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   display: flex;
   justify-content: center;
   gap: 20px;
@@ -358,5 +430,26 @@ label input {
   margin-top: -5px;
   margin-bottom: 15px;
   font-size: 14px;
+}
+.forgot-password {
+  display: flex;
+  justify-content: center;
+  margin-top: -10px;
+  font-size: 14px;
+}
+a {
+  color: var(--link-color);
+  text-decoration: underline;
+  cursor: pointer;
+}
+a:hover {
+  text-decoration: underline;
+  color: var(--text-color);
+}
+.after-sent-email {
+  display: flex;
+  justify-content: center;
+  margin-top: -15px;
+  margin-bottom: 15px;
 }
 </style>
