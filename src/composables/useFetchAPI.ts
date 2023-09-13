@@ -6,6 +6,7 @@ const baseUrl: string = import.meta.env.VITE_BASE_API_URL;
 const api = async (endpoint: string, method: string, body?: BodyInit, token?: string): Promise<Response> => {
   const baseStore = useBaseStore();
 
+  let error = null;
   let headers: HeadersInit = {
     'Content-Type': 'application/json',
     Accept: 'application/json'
@@ -29,14 +30,18 @@ const api = async (endpoint: string, method: string, body?: BodyInit, token?: st
         baseStore.userName = null;
       }
       const res = await response.json() as Promise<ErrResponse>;
-      throw new Error(`${(await res).error ?? response.statusText}`);
+      error = Error(`${(await res).error ?? response.statusText}`);
     }
     return await (response.json() as Promise<Response>);
   } catch (err) {
     if (String(err).toLowerCase().includes('networkerror')) {
       baseStore.isNetworkError = true;
     }
-    throw new Error(err as string);
+    if (error == null) {
+      throw new Error(err as string);
+    } else {
+      throw error;
+    }
   }
 };
 
