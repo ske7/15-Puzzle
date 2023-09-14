@@ -102,7 +102,7 @@ const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
       record = baseStore.loadTimeRecord(marathonMode, puzzleSize);
       if (record.record === 0 || filtered[0].time < record.record ||
         filtered[0].time === record.record && filtered[0].moves < record.adding) {
-        baseStore.setTimeRecord(filtered[0].time, filtered[0].moves, puzzleSize, marathonMode);
+        baseStore.setTimeRecord(filtered[0].time, filtered[0].moves, puzzleSize, marathonMode, true);
       }
     }
     filtered = stats.user_records.filter(item => {
@@ -112,7 +112,7 @@ const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
       record = baseStore.loadMovesRecord(marathonMode, puzzleSize);
       if (record.record === 0 || filtered[0].moves < record.record ||
         filtered[0].moves === record.record && filtered[0].time < record.adding) {
-        baseStore.setMovesRecord(filtered[0].moves, filtered[0].time, puzzleSize, marathonMode);
+        baseStore.setMovesRecord(filtered[0].moves, filtered[0].time, puzzleSize, marathonMode, true);
       }
     }
   };
