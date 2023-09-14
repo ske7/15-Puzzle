@@ -95,6 +95,7 @@ const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
     const filtered = stats.user_records.filter(item => {
       return item.puzzle_size === puzzleSize && item.puzzle_type === puzzleType;
     });
+    // todo fix
     const marathonMode = puzzleType === 'marathon';
     let record: Record = { record: 0, adding: 0 };
     if (filtered.length !== 0) {
@@ -144,12 +145,15 @@ const fetch = (endpoint: string): void => {
         isFetching.value = false;
       });
   } else {
-    usePostFetchAPI(endpoint, JSON.stringify({ user, games: recordGames.value }) as BodyInit)
+    usePostFetchAPI(endpoint, JSON.stringify(
+      { user, games: recordGames.value, reset_token: props.resetToken }
+    ) as BodyInit)
       .then(res => {
         baseStore.token = res.token;
         localStorage.setItem('token', String(baseStore.token));
         baseStore.userName = res.name;
         syncUserRecordsAfterLogin(res.stats);
+        // todo set averages after login
         isFetching.value = false;
         emit('close');
       })
