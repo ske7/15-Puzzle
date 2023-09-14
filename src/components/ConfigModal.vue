@@ -70,6 +70,7 @@ const setProMode = (): void => {
   baseStore.cageMode = false;
   baseStore.setSpaceBetween();
   baseStore.resetConsecutiveSolves();
+  baseStore.loadAverages();
   eventBus.emit('restart', 'fromConfig');
 };
 const setMarathonMode = (): void => {
@@ -83,7 +84,7 @@ const setMarathonMode = (): void => {
 };
 
 const updateCurrentAverages = (): void => {
-  if (baseStore.proMode && baseStore.token !== null) {
+  if (baseStore.proMode && baseStore.token != null) {
     const puzzleType = baseStore.marathonMode ? 'marathon' : 'standard';
     void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}&puzzle_type=${puzzleType}`,
       baseStore.token)

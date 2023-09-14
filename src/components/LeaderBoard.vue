@@ -30,7 +30,7 @@ const fetch = (endpoint: string): void => {
     return;
   }
   baseStore.isFetching = true;
-  useGetFetchAPI(endpoint, baseStore.token as (string | undefined))
+  useGetFetchAPI(endpoint, baseStore.token)
     .then(res => {
       baseStore.isFetching = false;
       userRecords.value = res.records;

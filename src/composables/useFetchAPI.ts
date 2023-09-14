@@ -25,7 +25,7 @@ const api = async (endpoint: string, method: string, body?: BodyInit, token?: st
     baseStore.isNetworkError = false;
     if (!response.ok) {
       if (response.status === 401 || response.status === 404) {
-        baseStore.token = null;
+        baseStore.token = undefined;
         localStorage.removeItem('token');
         baseStore.userName = null;
       }

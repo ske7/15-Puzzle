@@ -10,6 +10,7 @@ import {
   getArrayKeyByValue, getElementCol, getElementRow,
   displayedTime, calculateTPS, randArrayItem
 } from '../utils';
+import { useGetFetchAPI } from '../composables/useFetchAPI';
 
 export const useBaseStore = defineStore('base', {
   state: () => ({
@@ -56,7 +57,7 @@ export const useBaseStore = defineStore('base', {
     savedTime: 0,
     darkMode: localStorage.getItem('darkMode') === 'true',
     boardPos: {} as unknown as Position,
-    token: localStorage.getItem('token') as (null | undefined | string),
+    token: localStorage.getItem('token') as (string | undefined),
     userName: null as (null | undefined | string),
     isMoving: false,
     moveDoneBy: ControlType.Mouse,
@@ -426,6 +427,16 @@ export const useBaseStore = defineStore('base', {
     },
     resetConsecutiveSolves(): void {
       this.consecutiveSolves = 0;
+    },
+    loadAverages(): void {
+      if (this.proMode) {
+        const puzzleType = this.marathonMode ? 'marathon' : 'standard';
+        void useGetFetchAPI(`user_averages?puzzle_size=${this.numLines}&puzzle_type=${puzzleType}`,
+          this.token)
+          .then((res) => {
+            this.setCurrentAverages(res.stats as unknown as AverageStats);
+          });
+      }
     }
   },
   getters: {
@@ -485,7 +496,7 @@ export const useBaseStore = defineStore('base', {
       return getElementRow(this.freeElement, this.numLines);
     },
     registered(): boolean {
-      return this.token !== null;
+      return this.token != null;
     },
     tps(): string {
       return calculateTPS(this.movesCount, this.time);

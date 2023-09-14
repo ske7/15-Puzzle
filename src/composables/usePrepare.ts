@@ -2,7 +2,7 @@ import { onMounted, computed, type ComputedRef } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useKeyDown } from '../composables/useKeyDown';
-import { CORE_NUM, CAGES_PATH_ARR, isPuzzleCore, type puzzleCores, type AverageStats } from '../stores/const';
+import { CORE_NUM, CAGES_PATH_ARR, isPuzzleCore, type puzzleCores } from '../stores/const';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
 export const usePrepare = (): void => {
@@ -30,14 +30,7 @@ export const usePrepare = (): void => {
         baseStore.token = res.token;
         localStorage.setItem('token', String(baseStore.token));
         baseStore.userName = res.name;
-        if (baseStore.proMode) {
-          const puzzleType = baseStore.marathonMode ? 'marathon' : 'standard';
-          void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}&puzzle_type=${puzzleType}`,
-            baseStore.token)
-            .then((res) => {
-              baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
-            });
-        }
+        baseStore.loadAverages();
       })
       .catch(error => {
         console.log(error as string);

@@ -4,7 +4,8 @@ import { useBaseStore } from '../stores/base';
 import { onClickOutside, useWindowSize } from '@vueuse/core';
 import { usePostFetchAPI } from '../composables/useFetchAPI';
 import {
-  type GameData, type Record, type UserData, type UserStats, type InvalidFields
+  type GameData, type Record, type UserData,
+  type UserStats, type InvalidFields
 } from '../stores/const';
 
 const props = defineProps<{ formType: string; resetToken?: string; email?: string }>();
@@ -92,22 +93,26 @@ const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
     return;
   }
   const updateLocalRecord = (puzzleSize: number, puzzleType: string): void => {
-    const filtered = stats.user_records.filter(item => {
-      return item.puzzle_size === puzzleSize && item.puzzle_type === puzzleType;
-    });
-    // todo fix
     const marathonMode = puzzleType === 'marathon';
     let record: Record = { record: 0, adding: 0 };
+    let filtered = stats.user_records.filter(item => {
+      return item.puzzle_size === puzzleSize && item.puzzle_type === puzzleType && item.record_type === 'time';
+    });
     if (filtered.length !== 0) {
       record = baseStore.loadTimeRecord(marathonMode, puzzleSize);
-      if (filtered[0].time < record.record ||
+      if (record.record === 0 || filtered[0].time < record.record ||
         filtered[0].time === record.record && filtered[0].moves < record.adding) {
         baseStore.setTimeRecord(filtered[0].time, filtered[0].moves, puzzleSize, marathonMode);
       }
+    }
+    filtered = stats.user_records.filter(item => {
+      return item.puzzle_size === puzzleSize && item.puzzle_type === puzzleType && item.record_type === 'moves';
+    });
+    if (filtered.length !== 0) {
       record = baseStore.loadMovesRecord(marathonMode, puzzleSize);
-      if (filtered[1].moves < record.record ||
-        filtered[1].moves === record.record && filtered[1].time < record.adding) {
-        baseStore.setMovesRecord(filtered[1].moves, filtered[1].time, puzzleSize, marathonMode);
+      if (record.record === 0 || filtered[0].moves < record.record ||
+        filtered[0].moves === record.record && filtered[0].time < record.adding) {
+        baseStore.setMovesRecord(filtered[0].moves, filtered[0].time, puzzleSize, marathonMode);
       }
     }
   };
@@ -117,6 +122,7 @@ const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
   updateLocalRecord(4, 'marathon');
   updateLocalRecord(5, 'standard');
   updateLocalRecord(5, 'marathon');
+  baseStore.setRecords();
 };
 const resetPasswordMode = ref<boolean>(false);
 const sentResetEmail = ref<boolean>(false);
@@ -153,7 +159,7 @@ const fetch = (endpoint: string): void => {
         localStorage.setItem('token', String(baseStore.token));
         baseStore.userName = res.name;
         syncUserRecordsAfterLogin(res.stats);
-        // todo set averages after login
+        baseStore.loadAverages();
         isFetching.value = false;
         emit('close');
       })

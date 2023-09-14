@@ -15,7 +15,7 @@ export const useWatchGameState = (): void => {
       return;
     }
     isFetching.value = true;
-    usePostFetchAPI('game', JSON.stringify({ game }) as BodyInit, baseStore.token as (string | undefined))
+    usePostFetchAPI('game', JSON.stringify({ game }) as BodyInit, baseStore.token)
       .then((res) => {
         if (baseStore.proMode) {
           baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
