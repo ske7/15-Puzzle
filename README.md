@@ -9,12 +9,12 @@
 https://15puzzle.uk \
 https://15puzzle.uk?pro (speed sliding)
 
-![Cage mode](public/mode2.jpg)
+![Pro mode](public/mode3.png)
 
-## Game instructions
+## Game introduction
 
 The 15 Puzzle is a classic sliding game. The rule is simple: move blocks until they are in regular order.
-You can play online and beat records of time and moves. Also, dedicated fans can discover additional modes of the game.
+You can play and beat online records of time and moves. Also, dedicated fans can discover additional modes of the game.
 
 ## Features
 
@@ -27,7 +27,7 @@ You can play online and beat records of time and moves. Also, dedicated fans can
 7. You can configure the game: turn off Cage mode to perfect your records in the traditional game; play in hardcore Cage mode without numbers on blocks; disable Win message if it doesn't suit your game experience. Change control mode or set dark screen mode and others.
 8. "15 puzzle online" works perfectly on every modern desktop browser, android and iOS platforms, small-size mobiles, and tablets. You are free to choose where and how you prefer to play.
 
-![Pro mode](public/mode3.png)
+![Cage mode](public/mode2.jpg)
 
 ## Additional info
 
