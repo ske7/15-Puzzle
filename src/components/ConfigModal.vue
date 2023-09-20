@@ -3,10 +3,9 @@ import { ref, computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
-import { type puzzleCores, type AverageStats } from '@/stores/const';
+import { type puzzleCores } from '@/stores/const';
 import { CORE_NUM } from '../stores/const';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
-import { useGetFetchAPI } from '../composables/useFetchAPI';
 
 const baseStore = useBaseStore();
 const emit = defineEmits<{ close: [] }>();
@@ -82,31 +81,16 @@ const setMarathonMode = (): void => {
   baseStore.resetConsecutiveSolves();
   eventBus.emit('restart', 'fromConfig');
 };
-
-const updateCurrentAverages = (): void => {
-  if (baseStore.proMode && baseStore.token != null) {
-    const puzzleType = baseStore.marathonMode ? 'marathon' : 'standard';
-    void useGetFetchAPI(`user_averages?puzzle_size=${baseStore.numLines}&puzzle_type=${puzzleType}`,
-      baseStore.token)
-      .then((res) => {
-        baseStore.setCurrentAverages(res.stats as unknown as AverageStats, true);
-        baseStore.setWasAvgRecords([]);
-      });
-  }
-};
 const puzzleSize = ref<number>(baseStore.numLines);
 watch(puzzleSize, (newValue) => {
   if (newValue !== 0) {
     baseStore.numLines = Number(newValue) as puzzleCores;
-    localStorage.setItem('numLines', baseStore.numLines.toString());
-    updateCurrentAverages();
-    baseStore.resetConsecutiveSolves();
-    eventBus.emit('restart', 'fromConfig');
+    baseStore.initAfterNewPuzzleSize();
   }
 });
 const { marathonMode } = storeToRefs(baseStore);
 watch(marathonMode, () => {
-  updateCurrentAverages();
+  baseStore.updateCurrentAverages();
 });
 </script>
 

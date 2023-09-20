@@ -4,7 +4,7 @@ export const CORE_NUM: puzzleCores = 4;
 
 export const SPACE_BETWEEN_SQUARES = 8;
 
-const cores = [3, 4, 5] as number[];
+export const cores = [3, 4, 5] as number[];
 export const isPuzzleCore = (x: number): x is puzzleCores => cores.includes(x);
 
 export const enum Direction {

@@ -25,7 +25,7 @@ const doRestart = (initRestartPath: string): void => {
      (baseStore.showModal && !['fromConfig', 'fromKeyboard'].includes(initRestartPath))) {
     return;
   }
-  baseStore.reset();
+  baseStore.reset(initRestartPath === 'fromConfig');
 };
 const showAboutModal = (): void => {
   wasPausedBeforeOpenModal.value = baseStore.paused;

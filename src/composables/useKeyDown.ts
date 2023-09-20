@@ -1,7 +1,7 @@
 import { onMounted, onBeforeUnmount } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
-import { ControlType } from '../stores/const';
+import { ControlType, cores } from '../stores/const';
 
 export const useKeyDown = (): void => {
   const baseStore = useBaseStore();
@@ -15,6 +15,25 @@ export const useKeyDown = (): void => {
       eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
       return;
     }
+    if (!baseStore.showModal && !baseStore.cageMode) {
+      if (event.code === 'PageUp') {
+        if (baseStore.numLines === cores.slice(-1)[0]) {
+          return;
+        }
+        baseStore.numLines += 1;
+        baseStore.initAfterNewPuzzleSize();
+        return;
+      }
+      if (event.code === 'PageDown') {
+        if (baseStore.numLines === cores[0]) {
+          return;
+        }
+        baseStore.numLines -= 1;
+        baseStore.initAfterNewPuzzleSize();
+        return;
+      }
+    }
+
     if (baseStore.isDone || baseStore.paused) {
       return;
     }

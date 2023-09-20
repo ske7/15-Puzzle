@@ -32,7 +32,7 @@ You can play and beat online records of time and moves. Also, dedicated fans can
 ## Additional info
 
 Every next game begins with the "Restart" button (space key): press it after solving a puzzle or if you want to reset the current game state.
-Rolling averages (ao5, ao12, etc.) are important indicators for pro players. If you are among them, you understand their meaning.
+You can press "PageUp"/"PageDown" for increasing/decreasing puzzle size. Rolling averages (ao5, ao12, etc.) are important indicators for pro players. If you are among them, you understand their meaning.
 
 ## Acknowledgments
 

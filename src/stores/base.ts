@@ -1,4 +1,5 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
+import { useEventBus } from '@vueuse/core';
 import {
   CORE_NUM, SPACE_BETWEEN_SQUARES,
   CAGES_PATH_ARR, Direction, ControlType,
@@ -120,12 +121,12 @@ export const useBaseStore = defineStore('base', {
     incMoves() {
       this.movesCount += 1;
     },
-    reset() {
+    reset(configMode: boolean) {
       if (!this.isDone && this.proMode) {
         this.resetConsecutiveSolves();
       }
       this.stopInterval();
-      if (this.proMode || this.showConfig) {
+      if (this.proMode || this.showConfig || configMode) {
         this.initStore();
         return;
       }
@@ -437,6 +438,24 @@ export const useBaseStore = defineStore('base', {
             this.setCurrentAverages(res.stats as unknown as AverageStats);
           });
       }
+    },
+    updateCurrentAverages() {
+      if (this.proMode && this.token != null) {
+        const puzzleType = this.marathonMode ? 'marathon' : 'standard';
+        void useGetFetchAPI(`user_averages?puzzle_size=${this.numLines}&puzzle_type=${puzzleType}`,
+          this.token)
+          .then((res) => {
+            this.setCurrentAverages(res.stats as unknown as AverageStats, true);
+            this.setWasAvgRecords([]);
+          });
+      }
+    },
+    initAfterNewPuzzleSize() {
+      const eventBus = useEventBus<string>('event-bus');
+      localStorage.setItem('numLines', this.numLines.toString());
+      this.updateCurrentAverages();
+      this.resetConsecutiveSolves();
+      eventBus.emit('restart', 'fromConfig');
     }
   },
   getters: {
