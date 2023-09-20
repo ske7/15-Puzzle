@@ -137,7 +137,7 @@ export const useBaseStore = defineStore('base', {
     },
     restartInterval() {
       this.startTime = Date.now();
-      this.interval = setInterval(() => {
+      this.interval = window.setInterval(() => {
         this.time = Date.now() - this.startTime + this.savedTime;
       }, 5);
     },
