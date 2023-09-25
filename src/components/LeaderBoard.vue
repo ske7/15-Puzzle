@@ -73,10 +73,19 @@ const filteredRecords = computed(() => {
       }
     } else {
       if (bestAverage.value === 'time') {
+        if (Number(a.avg_time) === Number(b.avg_time)) {
+          return Number(a.pro_time_value) - Number(b.pro_time_value);
+        }
         return Number(a.avg_time) - Number(b.avg_time);
       } else if (bestAverage.value === 'moves') {
+        if (Number(a.avg_moves) === Number(b.avg_moves)) {
+          return Number(a.pro_moves_value) - Number(b.pro_moves_value);
+        }
         return Number(a.avg_moves) - Number(b.avg_moves);
       } else if (bestAverage.value === 'TPS') {
+        if (Number(a.avg_tps) === Number(b.avg_tps)) {
+          return Number(b.pro_tps_value) - Number(a.pro_tps_value);
+        }
         return Number(b.avg_tps) - Number(a.avg_tps);
       }
       return Number(a.avg_time) - Number(b.avg_time);
@@ -127,13 +136,13 @@ const tbodyHeightMobile = computed(() => {
 const getProStatus = (item: UserRecord): string => {
   if (item.pro_record ?? false) {
     if ((item.pro_avg_time ?? false) && bestAverage.value === 'time') {
-      return item.pro_time_value ?? 'Yes!';
+      return item.pro_time_value ?? '';
     }
     if ((item.pro_avg_moves ?? false) && bestAverage.value === 'moves') {
-      return item.pro_moves_value ?? 'Yes!';
+      return item.pro_moves_value ?? '';
     }
     if ((item.pro_avg_tps ?? false) && bestAverage.value === 'TPS') {
-      return item.pro_tps_value ?? 'Yes!';
+      return item.pro_tps_value ?? '';
     }
   }
   return '';
