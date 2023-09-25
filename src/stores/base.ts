@@ -73,7 +73,8 @@ export const useBaseStore = defineStore('base', {
     prevAverages: [] as AverageData[],
     hideCurrentAverages: localStorage.getItem('hideCurrentAverages') === 'true',
     wasAvgRecords: [] as WasAvgRecord[],
-    consecutiveSolves: 0
+    consecutiveSolves: 0,
+    sortAveragesByProValues: localStorage.getItem('sortAveragesByProValues') === 'true'
   }),
   actions: {
     initStore() {

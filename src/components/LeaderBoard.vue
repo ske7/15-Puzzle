@@ -50,6 +50,25 @@ const puzzleMode = ref<string>(baseStore.marathonMode ? 'marathon' : 'standard')
 const bestType = ref<string>(props.formType === 'default' ? 'time' : 'ao5');
 const bestAverage = ref<string>('time');
 
+const infNumber = (n: undefined | string, isDesc = false): number => {
+  if (n == null) {
+    return isDesc ? -Infinity : Infinity;
+  }
+  return Number(n);
+};
+const compare = (x: undefined | number, y: undefined | number): number => {
+  if (x == null) {
+    return 1;
+  }
+  if (y == null) {
+    return -1;
+  }
+  if (x === y) {
+    return 0;
+  } else {
+    return x > y ? -1 : 1;
+  }
+};
 const filteredRecords = computed(() => {
   if ((userRecords.value == null) || userRecords.value.length === 0) {
     return [];
@@ -58,6 +77,7 @@ const filteredRecords = computed(() => {
     return value.puzzle_size === Number(puzzleSize.value) &&
            value.puzzle_type === puzzleMode.value &&
            value.record_type === bestType.value;
+  // eslint-disable-next-line max-statements
   }).sort((a, b) => {
     if (isDefault.value) {
       if (bestType.value === 'time') {
@@ -73,20 +93,47 @@ const filteredRecords = computed(() => {
       }
     } else {
       if (bestAverage.value === 'time') {
-        if (Number(a.avg_time) === Number(b.avg_time)) {
-          return Number(a.pro_time_value) - Number(b.pro_time_value);
+        if (baseStore.sortAveragesByProValues) {
+          const diff = compare(infNumber(b.pro_time_value), infNumber(a.pro_time_value));
+          if (diff !== 0) {
+            return diff;
+          }
+          return compare(infNumber(b.avg_time), infNumber(a.avg_time));
+        } else {
+          const diff = compare(infNumber(b.avg_time), infNumber(a.avg_time));
+          if (diff !== 0) {
+            return diff;
+          }
+          return compare(infNumber(b.pro_time_value), infNumber(a.pro_time_value));
         }
-        return Number(a.avg_time) - Number(b.avg_time);
       } else if (bestAverage.value === 'moves') {
-        if (Number(a.avg_moves) === Number(b.avg_moves)) {
-          return Number(a.pro_moves_value) - Number(b.pro_moves_value);
+        if (baseStore.sortAveragesByProValues) {
+          const diff = compare(infNumber(b.pro_moves_value), infNumber(a.pro_moves_value));
+          if (diff !== 0) {
+            return diff;
+          }
+          return compare(infNumber(b.avg_moves), infNumber(a.avg_moves));
+        } else {
+          const diff = compare(infNumber(b.avg_moves), infNumber(a.avg_moves));
+          if (diff !== 0) {
+            return diff;
+          }
+          return compare(infNumber(b.pro_moves_value), infNumber(a.pro_moves_value));
         }
-        return Number(a.avg_moves) - Number(b.avg_moves);
       } else if (bestAverage.value === 'TPS') {
-        if (Number(a.avg_tps) === Number(b.avg_tps)) {
-          return Number(b.pro_tps_value) - Number(a.pro_tps_value);
+        if (baseStore.sortAveragesByProValues) {
+          const diff = compare(infNumber(a.pro_tps_value, true), infNumber(b.pro_tps_value, true));
+          if (diff !== 0) {
+            return diff;
+          }
+          return compare(infNumber(a.avg_tps, true), infNumber(b.avg_tps, true));
+        } else {
+          const diff = compare(infNumber(a.avg_tps, true), infNumber(b.avg_tps, true));
+          if (diff !== 0) {
+            return diff;
+          }
+          return compare(infNumber(a.pro_tps_value, true), infNumber(b.pro_tps_value, true));
         }
-        return Number(b.avg_tps) - Number(a.avg_tps);
       }
       return Number(a.avg_time) - Number(b.avg_time);
     }
@@ -146,6 +193,10 @@ const getProStatus = (item: UserRecord): string => {
     }
   }
   return '';
+};
+const doProSort = (): void => {
+  baseStore.sortAveragesByProValues = !baseStore.sortAveragesByProValues;
+  localStorage.setItem('sortAveragesByProValues', baseStore.sortAveragesByProValues.toString());
 };
 </script>
 
@@ -241,6 +292,9 @@ const getProStatus = (item: UserRecord): string => {
               </th>
               <th>
                 Pro
+                <span class="pro-sort" @click="doProSort">
+                  {{ baseStore.sortAveragesByProValues ? '↓' : '↕' }}
+                </span>
               </th>
             </tr>
           </thead>
@@ -385,6 +439,17 @@ const getProStatus = (item: UserRecord): string => {
 }
 .puzzle-mode-container {
   max-width: 350px;
+}
+.pro-sort {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--c-black)
+}
+.pro-sort:hover {
+  opacity: 0.7;
+}
+.pro-sort:active {
+  opacity: 0.7;
 }
 @media screen and (max-width: 840px) {
   .table-container .items-table thead tr {
