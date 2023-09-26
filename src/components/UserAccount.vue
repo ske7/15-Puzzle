@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { onClickOutside, useDateFormat } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
-import { type UserStats } from '../stores/const';
+import { type UserStats } from '@/types';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
 

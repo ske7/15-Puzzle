@@ -1,7 +1,7 @@
 import { onMounted, onBeforeUnmount } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
-import { ControlType, cores } from '../stores/const';
+import { ControlType, cores } from '@/const';
 
 export const useKeyDown = (): void => {
   const baseStore = useBaseStore();

@@ -2,7 +2,8 @@ import { onMounted, computed, type ComputedRef } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useKeyDown } from '../composables/useKeyDown';
-import { CORE_NUM, CAGES_PATH_ARR, isPuzzleCore, type puzzleCores } from '../stores/const';
+import { CORE_NUM, CAGES_PATH_ARR, isPuzzleCore } from '@/const';
+import { type puzzleCores } from '@/types';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
 export const usePrepare = (): void => {

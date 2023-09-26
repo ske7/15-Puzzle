@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
 import { useBaseStore } from '../stores/base';
-import { CORE_NUM } from '@/stores/const';
+import { CORE_NUM } from '@/const';
 import { useEventBus } from '@vueuse/core';
 const RegModal = defineAsyncComponent({
   loader: async () => await import('../components/RegModal.vue') as unknown as AsyncComponentLoader,

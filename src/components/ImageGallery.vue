@@ -3,7 +3,7 @@ import { ref, computed, watch, reactive, nextTick, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside } from '@vueuse/core';
-import { CAGES_PATH_ARR, LoadImageMode } from '../stores/const';
+import { CAGES_PATH_ARR, LoadImageMode } from '@/const';
 import { getSquareSize } from '../composables/usePrepare';
 
 const emit = defineEmits<{ close: [] }>();

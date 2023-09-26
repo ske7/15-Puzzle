@@ -5,7 +5,7 @@ import { useBaseStore } from '../stores/base';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
-import { type UserRecord } from '../stores/const';
+import { type UserRecord } from '@/types';
 
 const props = defineProps<{ formType: string }>();
 const emit = defineEmits<{ close: [] }>();

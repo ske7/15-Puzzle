@@ -3,8 +3,8 @@ import { ref, computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
-import { type puzzleCores } from '@/stores/const';
-import { CORE_NUM } from '../stores/const';
+import { type puzzleCores } from '@/types';
+import { CORE_NUM } from '@/const';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 
 const baseStore = useBaseStore();

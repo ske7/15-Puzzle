@@ -6,7 +6,7 @@ import { usePostFetchAPI } from '../composables/useFetchAPI';
 import {
   type GameData, type Record, type UserData,
   type UserStats, type InvalidFields
-} from '../stores/const';
+} from '@/types';
 
 const props = defineProps<{ formType: string; resetToken?: string; email?: string }>();
 const emit = defineEmits<{ close: [] }>();

@@ -1,7 +1,7 @@
 import { computed, watch, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
-import { type GameData, type AverageStats, type WasAvgRecord } from '../stores/const';
+import { type GameData, type AverageStats, type WasAvgRecord } from '@/types';
 import { usePostFetchAPI } from '../composables/useFetchAPI';
 
 export const useWatchGameState = (): void => {

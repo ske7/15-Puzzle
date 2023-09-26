@@ -2,10 +2,12 @@ import { defineStore, acceptHMRUpdate } from 'pinia';
 import { useEventBus } from '@vueuse/core';
 import {
   CORE_NUM, SPACE_BETWEEN_SQUARES,
-  CAGES_PATH_ARR, Direction, ControlType,
+  CAGES_PATH_ARR, Direction, ControlType
+} from '@/const';
+import {
   type PreloadedImage, type Record, type Position,
   type AverageData, type AverageStats, type WasAvgRecord
-} from './const';
+} from '@/types';
 import {
   generateAndShuffle, generate, isSolvable, isSorted,
   getArrayKeyByValue, getElementCol, getElementRow,

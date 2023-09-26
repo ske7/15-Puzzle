@@ -1,4 +1,4 @@
-import { type ErrResponse, type Response } from '../stores/const';
+import { type ErrResponse, type Response } from '@/types';
 import { useBaseStore } from '../stores/base';
 
 const baseUrl: string = import.meta.env.VITE_BASE_API_URL;

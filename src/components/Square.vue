@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { useBaseStore } from '../stores/base';
-import { Direction, ControlType } from '../stores/const';
+import { Direction, ControlType } from '@/const';
 import { storeToRefs } from 'pinia';
 import { useEventBus } from '@vueuse/core';
 import { useCanMove } from '../composables/useCanMove';
