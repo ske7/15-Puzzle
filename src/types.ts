@@ -37,6 +37,8 @@ export interface GameData {
   puzzle_type: string;
   control_type: string;
   consecutive_solves: number;
+  scramble?: string;
+  solve_path?: string;
 }
 
 export interface UserRecord {

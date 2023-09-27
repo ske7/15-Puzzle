@@ -2,7 +2,7 @@ import { defineStore, acceptHMRUpdate } from 'pinia';
 import { useEventBus } from '@vueuse/core';
 import {
   CORE_NUM, SPACE_BETWEEN_SQUARES,
-  CAGES_PATH_ARR, Direction, ControlType
+  CAGES_PATH_ARR, Direction, ControlType, DirectionMap
 } from '@/const';
 import {
   type PreloadedImage, type Record, type Position,
@@ -76,7 +76,8 @@ export const useBaseStore = defineStore('base', {
     hideCurrentAverages: localStorage.getItem('hideCurrentAverages') === 'true',
     wasAvgRecords: [] as WasAvgRecord[],
     consecutiveSolves: 0,
-    sortAveragesByProValues: localStorage.getItem('sortAveragesByProValues') === 'true'
+    sortAveragesByProValues: localStorage.getItem('sortAveragesByProValues') === 'true',
+    solvePath: [] as string[]
   }),
   actions: {
     initStore() {
@@ -91,6 +92,7 @@ export const useBaseStore = defineStore('base', {
       this.newTimeRecord = false;
       this.setRecords();
       this.afterDoneCount = 0;
+      this.solvePath = [];
       this.renewPuzzle();
       this.doResetList = false;
       this.doneFirstMove = false;
@@ -221,6 +223,7 @@ export const useBaseStore = defineStore('base', {
       this.actualOrders[this.freeElementIndex] = this.freeElement;
       this.incMoves();
       this.moveDoneBy = control;
+      this.solvePath.push(DirectionMap.get(moveDirection) ?? '');
     },
     boardSize(squareSize: number): string {
       return `${this.numLines * squareSize + this.spaceBetween * (this.numLines + 1)}px`;

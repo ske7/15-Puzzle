@@ -16,6 +16,13 @@ export const enum Direction {
   Left = 4
 }
 
+export const DirectionMap = new Map<Direction, string>([
+  [Direction.Up, 'U'],
+  [Direction.Right, 'R'],
+  [Direction.Down, 'D'],
+  [Direction.Left, 'L']
+]);
+
 export const enum ControlType {
   Mouse = 0,
   Touch = 1,

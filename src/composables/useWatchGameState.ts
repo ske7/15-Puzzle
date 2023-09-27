@@ -48,13 +48,21 @@ export const useWatchGameState = (): void => {
         baseStore.numLines, baseStore.marathonMode);
     }
     if (baseStore.token != null) {
+      let scramble;
+      let solvePath;
+      if (!baseStore.marathonMode) {
+        scramble = baseStore.mixedOrders.join(',');
+        solvePath = baseStore.solvePath.join('');
+      }
       postGame({
         time,
         moves: baseStore.movesCount,
         puzzle_size: baseStore.numLines,
         puzzle_type: puzzleType,
         control_type: baseStore.getControlTypeStr,
-        consecutive_solves: baseStore.consecutiveSolves
+        consecutive_solves: baseStore.consecutiveSolves,
+        scramble,
+        solve_path: solvePath
       });
     }
   };
