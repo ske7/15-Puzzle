@@ -5,10 +5,10 @@ import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 import { type GameData } from '@/types';
+import { baseUrl } from '@/const';
 import { shortenSolutionStr, convertScramble } from '@/utils';
 import CopyButton from './CopyButton.vue';
 
-const baseUrl: string = import.meta.env.VITE_BASE_URL;
 const emit = defineEmits<{ close: [] }>();
 
 const gamesTable = ref<HTMLElement>();
@@ -69,6 +69,7 @@ watch(puzzleSize, (newValue) => {
       </span>
     </p>
     <PuzzleSizeSlider v-model="puzzleSize" />
+    <hr class="nice-hr">
     <div v-if="fetched" class="table-wrapper">
       <div class="flex-table table-header">
         <div class="flex-row w-70">
@@ -208,6 +209,14 @@ watch(puzzleSize, (newValue) => {
 }
 .puzzle-size-slider-container {
   max-width: 250px;
+}
+.nice-hr {
+  max-width: 50%;
+  margin: 5px auto 10px auto;
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--table-border-color);
+  height: 0px;
 }
 .table-wrapper {
   display: block;

@@ -2,12 +2,14 @@ import { onMounted, computed, type ComputedRef } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useKeyDown } from '../composables/useKeyDown';
-import { CORE_NUM, CAGES_PATH_ARR, isPuzzleCore } from '@/const';
+import { CORE_NUM, CAGES_PATH_ARR, cores } from '@/const';
 import { type puzzleCores, type RepGame } from '@/types';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
 // eslint-disable-next-line max-statements
 export const usePrepare = (): void => {
+  const isPuzzleCore = (x: number): x is puzzleCores => cores.includes(x);
+
   const baseStore = useBaseStore();
 
   if (location.href.toLowerCase().includes('pro')) {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useBaseStore } from '../stores/base';
 import { displayedTime } from '@/utils';
+import { baseUrl } from '@/const';
 
 const baseStore = useBaseStore();
 </script>
@@ -9,7 +10,10 @@ const baseStore = useBaseStore();
   <div class="top-info-panel">
     <div class="factor-wrapper">
       <span>Time:</span>
-      <span class="ml-5">{{ baseStore.timeStr }}s</span>
+      <a v-if="baseStore.lastGameID" :href="`${baseUrl}?game_id=${baseStore.lastGameID}`" class="ml-5 link-item">
+        {{ baseStore.timeStr }}s
+      </a>
+      <span v-else class="ml-5">{{ baseStore.timeStr }}s</span>
       <span v-if="baseStore.replayMode" class="replay-value">
         {{ displayedTime(baseStore.repGame.time) }}s
       </span>

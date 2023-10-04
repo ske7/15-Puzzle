@@ -132,6 +132,7 @@ export interface Response {
   records?: UserRecord[];
   game_records?: GameData[];
   was_avg_records?: WasAvgRecord[];
+  game_id?: number;
 }
 
 export interface AverageData {

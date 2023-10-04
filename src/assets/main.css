@@ -96,6 +96,15 @@ body {
   color: var(--btn-text-hover-color);
   background-color: var(--btn-bg-hover-color);
 }
+.link-item {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+.link-item:hover:not(.paused) {
+  text-decoration: underline;
+  color: var(--text-color);
+  cursor: pointer;
+}
 @media screen and (min-width: 600px) {
   .tool-button:hover:not([disabled]) {
     color: var(--btn-text-hover-color);

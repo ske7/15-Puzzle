@@ -83,7 +83,8 @@ export const useBaseStore = defineStore('base', {
     repGame: null as unknown as RepGame,
     puzzleLoaded: false,
     inReplay: false,
-    replaySpeed: 0
+    replaySpeed: 0,
+    lastGameID: 0
   }),
   actions: {
     initStore() {
@@ -99,6 +100,7 @@ export const useBaseStore = defineStore('base', {
       this.setRecords();
       this.afterDoneCount = 0;
       this.solvePath = [];
+      this.lastGameID = 0;
       this.renewPuzzle();
       this.doResetList = false;
       this.doneFirstMove = false;
