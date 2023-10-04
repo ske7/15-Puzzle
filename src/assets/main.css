@@ -68,7 +68,7 @@ body {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0;
-  padding-bottom: 20px;
+  padding-bottom: 5px;
 }
 .tool-button {
   display: flex;

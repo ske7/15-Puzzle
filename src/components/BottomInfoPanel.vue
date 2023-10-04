@@ -3,6 +3,11 @@ import { ref, computed, defineAsyncComponent, type AsyncComponentLoader } from '
 import { useBaseStore } from '../stores/base';
 import { CORE_NUM } from '@/const';
 import { useEventBus } from '@vueuse/core';
+import { convertScramble } from '@/utils';
+const CopyButton = defineAsyncComponent({
+  loader: async () => await import('../components/CopyButton.vue') as unknown as AsyncComponentLoader,
+  delay: 150
+});
 const RegModal = defineAsyncComponent({
   loader: async () => await import('../components/RegModal.vue') as unknown as AsyncComponentLoader,
   delay: 150
@@ -94,11 +99,18 @@ if (location.href.toLowerCase().includes('reset_password&token=') && !baseStore.
   email.value = searchParams.get('email');
   doShowRegModal('set-password');
 }
+
+const getMinHeight = computed(() => {
+  if (baseStore.replayMode) {
+    return '63px';
+  }
+  return '0px';
+});
 </script>
 
 <template>
   <div class="bottom-info-panel">
-    <div class="records-row">
+    <div v-if="!baseStore.replayMode" class="records-row">
       <p>
         <span>PB time / moves: </span>
         <span class="italic" :class="{ red: baseStore.newTimeRecord }">
@@ -110,7 +122,28 @@ if (location.href.toLowerCase().includes('reset_password&token=') && !baseStore.
         </span>
       </p>
     </div>
-    <div class="info-row">
+    <div class="info-row" :style="{ 'min-height': getMinHeight }">
+      <div v-if="baseStore.replayMode" class="copy-button-wrapper">
+        <span>{{ convertScramble(baseStore.repGame.scramble) }}</span>
+        <CopyButton
+          :item-to-copy="String(baseStore.repGame.scramble)"
+          :is-solve-path="false"
+        />
+      </div>
+      <div v-if="baseStore.replayMode" class="copy-button-wrapper">
+        <span>{{ baseStore.repGame.solve_path }}</span>
+        <CopyButton
+          :item-to-copy="String(baseStore.repGame.solve_path)"
+          :is-solve-path="true"
+        />
+      </div>
+      <div v-if="baseStore.replayMode && baseStore.solvePath.length > 0" class="copy-button-wrapper">
+        <span>{{ baseStore.solvePath.join('') }}</span>
+        <CopyButton
+          :item-to-copy="String(baseStore.solvePath.join(''))"
+          :is-solve-path="true"
+        />
+      </div>
       <p
         v-if="baseStore.enableCageMode &&
           !(baseStore.marathonMode || baseStore.proMode) && baseStore.numLines === CORE_NUM"
@@ -131,7 +164,7 @@ if (location.href.toLowerCase().includes('reset_password&token=') && !baseStore.
         </span> out of 5 puzzles
       </p>
     </div>
-    <div class="reg-wrapper" :class="{ paused: cannotClick }">
+    <div v-if="!baseStore.replayMode" class="reg-wrapper" :class="{ paused: cannotClick }">
       <p v-if="baseStore.isNetworkError" class="no-connect">
         Local mode (no server connection)
       </p>
@@ -178,6 +211,25 @@ if (location.href.toLowerCase().includes('reset_password&token=') && !baseStore.
   position: relative;
   width: 100%;
   line-height: 27px;
+}
+.copy-button-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-direction: row;
+  line-height: 1;
+}
+.copy-button-wrapper .copy-button {
+  margin-top: -3px;
+}
+.copy-button-wrapper span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+  font-size: 12px;
+  padding: 0px;
+  display: block;
+  white-space: nowrap;
 }
 .records-row, .info-row, .reg-wrapper {
   font-family: 'consolas', sans-serif;

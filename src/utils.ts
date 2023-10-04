@@ -100,3 +100,74 @@ export function calculateTPS(moves: number, time: number): string {
   }
   return (moves / time * 1000).toFixed(3);
 }
+
+export function shortenSolutionStr(str?: string): string {
+  if (str == null) {
+    return '';
+  }
+  if (str.length === 0) {
+    return str;
+  }
+  let result = '';
+  let currentChar = str[0];
+  let charCount = 1;
+  for (let i = 1; i < str.length; i++) {
+    if (str[i] === currentChar) {
+      charCount++;
+    } else {
+      result += currentChar;
+      if (charCount > 1) {
+        result += charCount;
+      }
+      currentChar = str[i];
+      charCount = 1;
+    }
+  }
+  result += currentChar;
+  if (charCount > 1) {
+    result += charCount;
+  }
+  return result;
+}
+
+export function expandSolutionStr(str: string): string {
+  let result = '';
+  let count = 1;
+  for (let i = 0; i < str.length; i++) {
+    const currentChar = str[i];
+    const nextChar = str[i + 1];
+    const nn = parseInt(nextChar, 10);
+    if (!isNaN(nn)) {
+      count = nn;
+      i++;
+    }
+    result += currentChar.repeat(count);
+    count = 1;
+  }
+  return result;
+}
+
+export function convertScramble(str?: string): string {
+  if (str == null) {
+    return '';
+  }
+  const arr = str.split(',');
+  const len = arr.length;
+  const size = Math.sqrt(len);
+  let result = '';
+  for (let i = 0; i < len; i++) {
+    result += arr[i];
+    if (i !== len - 1) {
+      if ((i + 1) % size === 0) {
+        result += '/';
+      } else {
+        result += ' ';
+      }
+    }
+  }
+  return result;
+}
+
+export async function sleep(delay: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, delay));
+}

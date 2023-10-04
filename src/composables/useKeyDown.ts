@@ -15,7 +15,7 @@ export const useKeyDown = (): void => {
       eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
       return;
     }
-    if (!baseStore.showModal && !baseStore.cageMode) {
+    if (!baseStore.showModal && !baseStore.cageMode && !baseStore.replayMode) {
       if (event.code === 'PageUp') {
         if (baseStore.numLines === cores.slice(-1)[0]) {
           return;
@@ -34,7 +34,7 @@ export const useKeyDown = (): void => {
       }
     }
 
-    if (baseStore.isDone || baseStore.paused) {
+    if (baseStore.isDone || baseStore.paused || baseStore.inReplay) {
       return;
     }
     if (['ArrowLeft', 'KeyA', 'KeyJ'].includes(event.code)) {

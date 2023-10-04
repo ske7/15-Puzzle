@@ -1,16 +1,23 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
 import { onClickOutside, useDateFormat } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 import { type UserStats } from '@/types';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
+const GamesTable = defineAsyncComponent({
+  loader: async () => await import('../components/GamesTable.vue') as unknown as AsyncComponentLoader,
+  delay: 150
+});
 
 const emit = defineEmits<{ close: [] }>();
 
 const userAccount = ref<HTMLElement>();
 onClickOutside(userAccount, (event) => {
+  if (showGamesTable.value) {
+    return;
+  }
   event.stopPropagation();
   emit('close');
 });
@@ -88,6 +95,10 @@ const averagesRecords = computed(() => {
       return (getTypeIndex(a.record_type) - getTypeIndex(b.record_type));
     });
 });
+const showGamesTable = ref(false);
+const closeGamesTable = (): void => {
+  showGamesTable.value = false;
+};
 </script>
 
 <template>
@@ -99,7 +110,10 @@ const averagesRecords = computed(() => {
       <div v-if="!baseStore.isFetching && userData" class="user-info">
         <p><strong>Name:</strong> {{ baseStore.userName }}</p>
         <p><strong>Registration date:</strong> {{ formatDate(userData.user_data.created_at) }}</p>
-        <p><strong>Num games:</strong> {{ userData?.user_data.num_finished_games || 0 }}</p>
+        <p>
+          <strong>Num games:</strong> {{ userData?.user_data.num_finished_games || 0 }}
+          <span class="last-games" @click="showGamesTable=true">(last 100 games)</span>
+        </p>
         <p><strong>Play time:</strong> {{ formatPlayTime }}</p>
       </div>
       <PuzzleSizeSlider v-model="puzzleSize" />
@@ -175,6 +189,7 @@ const averagesRecords = computed(() => {
       </div>
     </div>
   </Teleport>
+  <GamesTable v-if="showGamesTable" @close="closeGamesTable" />
 </template>
 
 <style scoped>
@@ -275,6 +290,15 @@ const averagesRecords = computed(() => {
 }
 .purple {
   color: var(--violet);
+}
+.last-games {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+.last-games:hover {
+  text-decoration: underline;
+  color: var(--text-color);
+  cursor: pointer;
 }
 @media screen and (max-width: 420px) {
   .user-account {

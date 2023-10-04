@@ -6,7 +6,8 @@ import {
 } from '@/const';
 import {
   type PreloadedImage, type Record, type Position,
-  type AverageData, type AverageStats, type WasAvgRecord
+  type AverageData, type AverageStats, type WasAvgRecord,
+  type RepGame
 } from '@/types';
 import {
   generateAndShuffle, generate, isSolvable, isSorted,
@@ -77,7 +78,12 @@ export const useBaseStore = defineStore('base', {
     wasAvgRecords: [] as WasAvgRecord[],
     consecutiveSolves: 0,
     sortAveragesByProValues: localStorage.getItem('sortAveragesByProValues') === 'true',
-    solvePath: [] as string[]
+    solvePath: [] as string[],
+    replayMode: false,
+    repGame: null as unknown as RepGame,
+    puzzleLoaded: false,
+    inReplay: false,
+    replaySpeed: 0
   }),
   actions: {
     initStore() {
@@ -108,7 +114,11 @@ export const useBaseStore = defineStore('base', {
       this.freeElement = this.actualOrders[this.freeElementIndex];
     },
     mixAndCheckSolvable() {
-      this.mixedOrders = generateAndShuffle(this.arrayLength);
+      if (this.replayMode) {
+        this.mixedOrders = this.repGame.scramble.split(',').map(x => +x);
+      } else {
+        this.mixedOrders = generateAndShuffle(this.arrayLength);
+      }
       if (isSorted(this.mixedOrders.slice(0, -1))) {
         return false;
       }

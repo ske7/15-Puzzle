@@ -38,6 +38,9 @@ const borderRadiusVar = computed(() => {
   return '8px';
 });
 const blockTransition = computed(() => {
+  if (baseStore.inReplay) {
+    return `all ${baseStore.replaySpeed / 1000}s ease 0s`;
+  }
   if (baseStore.proMode || baseStore.hoverOnControl) {
     return 'none';
   }
@@ -160,7 +163,7 @@ const cannotMove = computed(() => {
 });
 
 const moveByTouch = (e: TouchEvent): void => {
-  if (baseStore.isMoving) {
+  if (baseStore.isMoving || baseStore.inReplay) {
     return;
   }
   if (!isFreeElement.value || isDoneAll.value || baseStore.paused) {
@@ -196,7 +199,7 @@ const moveByTouch = (e: TouchEvent): void => {
 };
 
 const move = (control: ControlType): void => {
-  if (baseStore.isMoving) {
+  if (baseStore.isMoving || baseStore.inReplay) {
     return;
   }
   if (cannotMove.value) {
@@ -231,7 +234,7 @@ const move = (control: ControlType): void => {
   baseStore.isMoving = false;
 };
 const moveByMouse = (event: MouseEvent): void => {
-  if (!baseStore.hoverOnControl) {
+  if (!baseStore.hoverOnControl || baseStore.inReplay) {
     return;
   }
   if (event.ctrlKey) {

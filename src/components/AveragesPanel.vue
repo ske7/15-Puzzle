@@ -130,7 +130,8 @@ const closeLeaderBoard = (): void => {
 
 <template>
   <div
-    v-if="baseStore.currentAverages.length > 0 && !baseStore.hideCurrentAverages && baseStore.proMode"
+    v-if="!baseStore.replayMode &&
+      baseStore.currentAverages.length > 0 && !baseStore.hideCurrentAverages && baseStore.proMode"
     class="avg-wrapper"
   >
     <div class="avg-row top-row">

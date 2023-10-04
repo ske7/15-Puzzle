@@ -39,6 +39,9 @@ export const useWatchGameState = (): void => {
     } else {
       time = baseStore.time;
     }
+    if (baseStore.replayMode) {
+      return;
+    }
     if (baseStore.movesRecord === 0 || baseStore.movesCount <= baseStore.movesRecord) {
       baseStore.setMovesRecord(baseStore.movesCount, time,
         baseStore.numLines, baseStore.marathonMode);
@@ -82,13 +85,15 @@ export const useWatchGameState = (): void => {
         }
       } else {
         baseStore.stopInterval();
-        baseStore.incConsecutiveSolves();
-        setRecords(baseStore.cageMode ? 'cage_standard' : 'standard');
-        if (baseStore.cageMode) {
-          baseStore.setUnlockedCages();
-        }
-        if (!baseStore.disableWinMessage) {
-          baseStore.showWinModal = true;
+        if (!baseStore.replayMode) {
+          baseStore.incConsecutiveSolves();
+          setRecords(baseStore.cageMode ? 'cage_standard' : 'standard');
+          if (baseStore.cageMode) {
+            baseStore.setUnlockedCages();
+          }
+          if (!baseStore.disableWinMessage) {
+            baseStore.showWinModal = true;
+          }
         }
       }
     }

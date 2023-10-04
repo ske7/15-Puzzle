@@ -33,14 +33,31 @@ export interface InvalidFields {
 export interface GameData {
   time: number;
   moves: number;
-  puzzle_size: number;
-  puzzle_type: string;
+  puzzle_size?: number;
+  puzzle_type?: string;
   control_type: string;
   consecutive_solves: number;
   scramble?: string;
   solve_path?: string;
+  id?: number;
+  tps?: string;
+  created_at?: string;
 }
 
+export interface RepGame {
+  id: number;
+  time: number;
+  moves: number;
+  puzzle_size: number;
+  control_type: string;
+  consecutive_solves: number;
+  scramble: string;
+  solve_path: string;
+  user_id: number;
+  name: string;
+  tps: string;
+  created_at: string;
+}
 export interface UserRecord {
   id: number;
   name?: string;
@@ -62,6 +79,8 @@ export interface UserRecord {
   pro_time_value?: string;
   pro_moves_value?: string;
   pro_tps_value?: string;
+  game_id?: number;
+  scramble?: string;
 }
 
 export interface UserStats {
@@ -111,6 +130,7 @@ export interface Response {
   token?: string;
   stats?: UserStats;
   records?: UserRecord[];
+  game_records?: GameData[];
   was_avg_records?: WasAvgRecord[];
 }
 

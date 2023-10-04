@@ -3,9 +3,10 @@ import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useKeyDown } from '../composables/useKeyDown';
 import { CORE_NUM, CAGES_PATH_ARR, isPuzzleCore } from '@/const';
-import { type puzzleCores } from '@/types';
+import { type puzzleCores, type RepGame } from '@/types';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
+// eslint-disable-next-line max-statements
 export const usePrepare = (): void => {
   const baseStore = useBaseStore();
 
@@ -24,14 +25,45 @@ export const usePrepare = (): void => {
     baseStore.enableCageMode = true;
     localStorage.setItem('enableCageMode', 'true');
   }
-
+  let gameId = 0;
+  if (location.href.toLowerCase().includes('game_id')) {
+    const searchParams = new URLSearchParams(location.search);
+    const gameIdParam = Number(searchParams.get('game_id'));
+    if (!isNaN(gameIdParam)) {
+      gameId = gameIdParam;
+    }
+  } else {
+    const numLines = localStorage.getItem('numLines');
+    if (numLines === null || isNaN(Number(numLines)) || !isPuzzleCore(Number(numLines))) {
+      baseStore.numLines = CORE_NUM;
+    } else {
+      baseStore.numLines = Number(numLines) as puzzleCores;
+    }
+  }
+  if (gameId !== 0) {
+    useGetFetchAPI(`game?game_id=${gameId}`, baseStore.token)
+      .then((res) => {
+        if (res.stats != null) {
+          baseStore.replayMode = true;
+          baseStore.repGame = res.stats as unknown as RepGame;
+          baseStore.numLines = baseStore.repGame.puzzle_size as puzzleCores;
+          baseStore.initStore();
+          baseStore.puzzleLoaded = true;
+        }
+      })
+      .catch(error => {
+        console.log(error as string);
+      });
+  }
   if (baseStore.token != null) {
     useGetFetchAPI('get_current_user', baseStore.token)
       .then((res) => {
         baseStore.token = res.token;
         localStorage.setItem('token', String(baseStore.token));
         baseStore.userName = res.name;
-        baseStore.loadAverages();
+        if (gameId === 0) {
+          baseStore.loadAverages();
+        }
       })
       .catch(error => {
         console.log(error as string);
@@ -43,19 +75,16 @@ export const usePrepare = (): void => {
   useKeyDown();
 
   document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');
-  const numLines = localStorage.getItem('numLines');
-  if (numLines === null || isNaN(Number(numLines)) || !isPuzzleCore(Number(numLines))) {
-    baseStore.numLines = CORE_NUM;
-  } else {
-    baseStore.numLines = Number(numLines) as puzzleCores;
-  }
 
   onMounted(() => {
     if (baseStore.enableCageMode) {
       baseStore.loadUnlockedCagesFromLocalStorage();
       baseStore.doPrepareCageMode();
     }
-    baseStore.initStore();
+    if (gameId === 0) {
+      baseStore.initStore();
+      baseStore.puzzleLoaded = true;
+    }
     baseStore.resetConsecutiveSolves();
 
     setTimeout(() => {

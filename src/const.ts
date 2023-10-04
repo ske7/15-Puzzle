@@ -29,6 +29,12 @@ export const enum ControlType {
   Keyboard = 2
 }
 
+export const ControlTypeReverseMap = new Map<string, ControlType>([
+  ['m', ControlType.Mouse],
+  ['t', ControlType.Touch],
+  ['k', ControlType.Keyboard]
+]);
+
 export const enum LoadImageMode {
   next = 1,
   prev = -1

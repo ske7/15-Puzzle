@@ -7,6 +7,7 @@ import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
 import { type UserRecord } from '@/types';
 
+const baseUrl: string = import.meta.env.VITE_BASE_URL;
 const props = defineProps<{ formType: string }>();
 const emit = defineEmits<{ close: [] }>();
 
@@ -250,7 +251,7 @@ const doProSort = (): void => {
             </tr>
           </thead>
           <tbody id="records-tbody">
-            <tr v-for="(item, index) in filteredRecords.slice(0, 50)" :key="item.id">
+            <tr v-for="(item, index) in filteredRecords.slice(0, 100)" :key="item.id">
               <td class="w-28">
                 {{ index + 1 }}
               </td>
@@ -258,10 +259,20 @@ const doProSort = (): void => {
                 {{ item.name }}
               </td>
               <td v-if="bestType === 'time'" class="min-width">
-                {{ item.time / 1000 }}
+                <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.game_id}`" class="link-item">
+                  {{ item.time / 1000 }}
+                </a>
+                <span v-else>
+                  {{ item.time / 1000 }}
+                </span>
               </td>
               <td v-if="bestType === 'moves'" class="min-width">
-                {{ item.moves }}
+                <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.game_id}`" class="link-item">
+                  {{ item.moves }}
+                </a>
+                <span v-else>
+                  {{ item.moves }}
+                </span>
               </td>
               <td class="min-width">
                 {{ item.tps }}
@@ -450,6 +461,15 @@ const doProSort = (): void => {
 }
 .pro-sort:active {
   opacity: 0.7;
+}
+.link-item {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+.link-item:hover:not(.paused) {
+  text-decoration: underline;
+  color: var(--text-color);
+  cursor: pointer;
 }
 @media screen and (max-width: 840px) {
   .table-container .items-table thead tr {

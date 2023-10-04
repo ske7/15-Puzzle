@@ -28,7 +28,7 @@ const cageImgSize = computed(() => {
 </script>
 
 <template>
-  <div class="wrapper">
+  <div v-if="baseStore.puzzleLoaded" class="wrapper">
     <div class="header">
       <h1>15 Puzzle Online</h1>
       <img
@@ -45,7 +45,7 @@ const cageImgSize = computed(() => {
     <ActionPanel />
     <BottomInfoPanel />
     <WinModal
-      v-if="baseStore.isDone &&
+      v-if="baseStore.isDone && !baseStore.replayMode &&
         (baseStore.afterDoneAnimationEnd || baseStore.proMode) &&
         baseStore.showWinModal"
       @close="baseStore.showWinModal = false"

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onMounted, onUnmounted, computed, type AsyncComponentLoader } from 'vue';
+import { ControlTypeReverseMap } from '@/const';
+import { sleep } from '@/utils';
 import { useBaseStore } from '../stores/base';
 import { useEventBus, useWindowSize } from '@vueuse/core';
 const ConfigModal = defineAsyncComponent({
@@ -25,6 +27,7 @@ const doRestart = (initRestartPath: string): void => {
      (baseStore.showModal && !['fromConfig', 'fromKeyboard'].includes(initRestartPath))) {
     return;
   }
+  baseStore.inReplay = false;
   baseStore.reset(initRestartPath === 'fromConfig');
 };
 const showAboutModal = (): void => {
@@ -65,6 +68,37 @@ const closeImageGallery = (): void => {
   if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
     baseStore.invertPaused();
   }
+};
+const doReplay = async(): Promise<void> => {
+  doRestart('fromMain');
+  baseStore.inReplay = true;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const control = ControlTypeReverseMap.get(baseStore.repGame.control_type[0])!;
+  const moveTime = Math.round(baseStore.repGame.time / (baseStore.repGame.moves));
+  baseStore.replaySpeed = moveTime;
+  for (const move of baseStore.repGame.solve_path) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (!baseStore.inReplay) {
+      break;
+    }
+    switch (move) {
+      case 'R':
+        baseStore.moveRight(control);
+        break;
+      case 'L':
+        baseStore.moveLeft(control);
+        break;
+      case 'D':
+        baseStore.moveDown(control);
+        break;
+      case 'U':
+        baseStore.moveUp(control);
+        break;
+      default:
+    }
+    await sleep(moveTime);
+  }
+  baseStore.inReplay = false;
 };
 
 const eventBus = useEventBus<string>('event-bus');
@@ -117,6 +151,7 @@ onUnmounted(() => {
         {{ baseStore.paused && !baseStore.showModal ? 'Resume' : 'Pause' }}
       </button>
       <button
+        v-if="!baseStore.replayMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || disableDuringMarathon || baseStore.paused"
@@ -125,9 +160,18 @@ onUnmounted(() => {
         Config
       </button>
       <button
+        v-if="baseStore.replayMode"
         type="button"
         class="tool-button"
-        :disabled="disableButton || disableDuringMarathon"
+        :disabled="baseStore.inReplay"
+        @click="doReplay"
+      >
+        Replay
+      </button>
+      <button
+        type="button"
+        class="tool-button"
+        :disabled="disableButton || disableDuringMarathon || baseStore.inReplay"
         @click="showAboutModal"
       >
         About
