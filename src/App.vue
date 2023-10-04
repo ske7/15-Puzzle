@@ -80,8 +80,8 @@ const cageImgSize = computed(() => {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  margin-top: 20px;
-  margin-bottom: 15px;
+  margin-top: 10px;
+  margin-bottom: 10px;
   width: 100%;
 }
 .header h1 {
@@ -103,11 +103,11 @@ const cageImgSize = computed(() => {
 }
 @media screen and (max-width: 420px) {
   .header {
-    margin-top: 20px;
+    margin-top: 10px;
   }
   .header h1 {
     font-size: 27px;
-    line-height: 32px;
+    line-height: 27px;
   }
   .header img {
     width: 32px;

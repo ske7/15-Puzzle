@@ -8,29 +8,28 @@ const baseStore = useBaseStore();
 
 <template>
   <div class="top-info-panel">
-    <div class="factor-wrapper">
-      <span>Time:</span>
-      <a v-if="baseStore.lastGameID" :href="`${baseUrl}?game_id=${baseStore.lastGameID}`" class="ml-5 link-item">
-        {{ baseStore.timeStr }}s
-      </a>
-      <span v-else class="ml-5">{{ baseStore.timeStr }}s</span>
-      <span v-if="baseStore.replayMode" class="replay-value">
-        {{ displayedTime(baseStore.repGame.time) }}s
-      </span>
+    <div v-if="baseStore.replayMode" class="replay-row-info">
+      <p>Solved by <span>{{ baseStore.repGame.name }}</span></p>
+      <p>
+        <span>{{ displayedTime(baseStore.repGame.time) }}s | {{ baseStore.repGame.moves }} | {{ baseStore.repGame.tps }}</span>
+      </p>
     </div>
-    <div class="factor-wrapper">
-      <span>Moves:</span>
-      <span class="ml-5">{{ baseStore.movesCount }}</span>
-      <span v-if="baseStore.replayMode" class="replay-value">
-        {{ baseStore.repGame.moves }}
-      </span>
-    </div>
-    <div class="factor-wrapper">
-      <span>TPS:</span>
-      <span class="ml-5">{{ baseStore.tps }}</span>
-      <span v-if="baseStore.replayMode" class="replay-value">
-        {{ baseStore.repGame.tps }}
-      </span>
+    <div class="info-wrapper">
+      <div class="factor-wrapper">
+        <span>Time:</span>
+        <a v-if="baseStore.lastGameID" :href="`${baseUrl}?game_id=${baseStore.lastGameID}`" class="ml-5 link-item">
+          {{ baseStore.timeStr }}s
+        </a>
+        <span v-else class="ml-5">{{ baseStore.timeStr }}s</span>
+      </div>
+      <div class="factor-wrapper">
+        <span>Moves:</span>
+        <span class="ml-5">{{ baseStore.movesCount }}</span>
+      </div>
+      <div class="factor-wrapper">
+        <span>TPS:</span>
+        <span class="ml-5">{{ baseStore.tps }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -38,23 +37,33 @@ const baseStore = useBaseStore();
 <style scoped>
 .top-info-panel {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  font-family: 'consolas', sans-serif;
+}
+.info-wrapper {
+  display: flex;
   justify-content: space-between;
   align-items: flex-end;
   position: relative;
   width: 100%;
   min-height: 29px;
-  font-family: 'consolas', sans-serif;
+}
+.replay-row-info  {
+  text-align: center;
+  font-size: 14px;
+  max-width: 320px;
+  line-height: 1.2;
+  margin-top: -5px;
+}
+.replay-row-info span {
+  font-size: 14px;
+  color: var(--link-color);
+  font-weight: 600;
 }
 .factor-wrapper {
   position: relative;
-}
-.replay-value {
-  position: absolute;
-  top: -15px;
-  left: 0px;
-  font-size: 14px;
-  color: var(--link-color);
-
 }
 @media screen and (max-width: 360px) {
   .top-info-panel {

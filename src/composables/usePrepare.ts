@@ -2,7 +2,7 @@ import { onMounted, computed, type ComputedRef } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useKeyDown } from '../composables/useKeyDown';
-import { CORE_NUM, CAGES_PATH_ARR, cores } from '@/const';
+import { CORE_NUM, CAGES_PATH_ARR, cores, baseUrl } from '@/const';
 import { type puzzleCores, type RepGame } from '@/types';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
@@ -57,6 +57,8 @@ export const usePrepare = (): void => {
           baseStore.numLines = baseStore.repGame.puzzle_size as puzzleCores;
           baseStore.initStore();
           baseStore.puzzleLoaded = true;
+        } else {
+          location.href = baseUrl;
         }
       })
       .catch(error => {
@@ -94,7 +96,6 @@ export const usePrepare = (): void => {
       baseStore.puzzleLoaded = true;
     }
     baseStore.resetConsecutiveSolves();
-
     setTimeout(() => {
       if (baseStore.unlockedCages.size > 0) {
         const first = [...baseStore.unlockedCages][0];
@@ -119,10 +120,10 @@ export const getSquareSize = (): Record<string, ComputedRef<number>> => {
       cageAdd = 22;
     }
     if (baseStore.numLines === 3) {
-      cageAdd += 28;
+      cageAdd += 34.1;
     }
     if (baseStore.numLines === 5) {
-      cageAdd -= 10;
+      cageAdd -= 20.5;
     }
     let value = 0;
     if (windowWidth.value <= 370) {
