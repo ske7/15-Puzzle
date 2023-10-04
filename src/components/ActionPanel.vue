@@ -28,8 +28,9 @@ const doRestart = (initRestartPath: string): void => {
      (baseStore.showModal && !['fromConfig', 'fromKeyboard'].includes(initRestartPath))) {
     return;
   }
-  baseStore.inReplay = false;
   savedStep.value = 0;
+  stopWalk.value = false;
+  baseStore.inReplay = false;
   baseStore.reset(initRestartPath === 'fromConfig');
 };
 const showAboutModal = (): void => {
@@ -75,6 +76,7 @@ const stopWalk = ref(false);
 const doReplay = async(walkTime?: number, walkMode = false): Promise<void> => {
   if (!walkMode) {
     doRestart('fromMain');
+    savedStep.value = 0;
   }
   baseStore.inReplay = true;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -115,7 +117,7 @@ const doReplay = async(walkTime?: number, walkMode = false): Promise<void> => {
   baseStore.inReplay = false;
 };
 const doWalk = async (): Promise<void> => {
-  if (baseStore.isDone) {
+  if (baseStore.isDone || (stopWalk.value && (baseStore.solvePath.join('') !== baseStore.repGame.solve_path.slice(0, savedStep.value)))) {
     savedStep.value = 0;
     stopWalk.value = false;
     doRestart('fromMain');
