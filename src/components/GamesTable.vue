@@ -211,8 +211,8 @@ watch(puzzleSize, (newValue) => {
   max-width: 250px;
 }
 .nice-hr {
-  max-width: 50%;
-  margin: 5px auto 10px auto;
+  max-width: 95%;
+  margin: 4px auto 4px auto;
   width: 100%;
   border: none;
   border-top: 1px solid var(--table-border-color);
@@ -293,6 +293,9 @@ watch(puzzleSize, (newValue) => {
   cursor: pointer;
 }
 @media screen and (max-width: 1000px) {
+  .nice-hr {
+    display: none;
+  }
   .table-wrapper {
     display: flex;
     flex-direction: column;
