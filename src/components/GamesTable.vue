@@ -119,7 +119,9 @@ watch(puzzleSize, (newValue) => {
         </div>
         <div class="items">
           <div class="flex-row w-70">
-            <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.id}`">{{ item.id }}</a>
+            <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.id}`" class="link-item">
+              {{ item.id }}
+            </a>
             <span v-else>{{ item.id }}</span>
           </div>
           <div class="flex-row w-95">
@@ -136,7 +138,10 @@ watch(puzzleSize, (newValue) => {
           </div>
           <div class="flex-row smaller-font">
             <div class="copy-button-wrapper">
-              <span>{{ convertScramble(item.scramble) }}</span>
+              <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.id}`" class="link-item smaller-font">
+                {{ convertScramble(item.scramble) }}
+              </a>
+              <span v-else>{{ convertScramble(item.scramble) }}</span>
               <CopyButton
                 v-if="item.scramble"
                 :item-to-copy="String(item.scramble)"
@@ -173,11 +178,11 @@ watch(puzzleSize, (newValue) => {
   background-color: var(--background-modal-color);
   color: var(--text-color);
   border-radius: 8px;
-  height: auto;
+  height: 100vh;
   width: var(--modal-width);
   position: fixed;
   z-index: 2005;
-  top: 40px;
+  top: 0px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
   box-shadow: 0 8px 16px var(--shadow-color);
@@ -209,7 +214,6 @@ watch(puzzleSize, (newValue) => {
   margin: 5px auto;
   width: 100%;
   max-width: 95%;
-  max-height: 418px;
   overflow: auto;
 }
 .table-header-mobile {
@@ -266,6 +270,18 @@ watch(puzzleSize, (newValue) => {
   align-items: center;
   gap: 5px;
   flex-direction: column;
+  line-height: 1.2;
+}
+.link-item {
+  color: var(--link-color);
+  text-decoration: underline;
+  font-size: 14px;
+  font-weight: 600;
+}
+.link-item:hover:not(.paused) {
+  text-decoration: underline;
+  color: var(--text-color);
+  cursor: pointer;
 }
 @media screen and (max-width: 1000px) {
   .table-wrapper {
@@ -321,8 +337,9 @@ watch(puzzleSize, (newValue) => {
   .flex-row span {
     max-width: 180px;
     min-width: 180px;
+    font-weight: 600;
   }
-  .smaller-font span {
+  .smaller-font span, .smaller-font .link-item {
     font-size: 12px;
   }
 }

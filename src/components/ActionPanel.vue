@@ -207,7 +207,7 @@ onUnmounted(() => {
       <button
         type="button"
         class="tool-button"
-        :disabled="disableButton || disableDuringMarathon"
+        :disabled="disableButton || disableDuringMarathon || baseStore.inReplay"
         @click="showAboutModal"
       >
         About
