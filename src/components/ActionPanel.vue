@@ -22,12 +22,14 @@ const { width: windowWidth } = useWindowSize();
 
 const wasPausedBeforeOpenModal = ref(false);
 
+const savedStep = ref(0);
 const doRestart = (initRestartPath: string): void => {
   if (!baseStore.afterDoneAnimationEnd ||
      (baseStore.showModal && !['fromConfig', 'fromKeyboard'].includes(initRestartPath))) {
     return;
   }
   baseStore.inReplay = false;
+  savedStep.value = 0;
   baseStore.reset(initRestartPath === 'fromConfig');
 };
 const showAboutModal = (): void => {
@@ -69,16 +71,28 @@ const closeImageGallery = (): void => {
     baseStore.invertPaused();
   }
 };
-const doReplay = async(): Promise<void> => {
-  doRestart('fromMain');
+const stopWalk = ref(false);
+const doReplay = async(walkTime?: number, walkMode = false): Promise<void> => {
+  if (!walkMode) {
+    doRestart('fromMain');
+  }
   baseStore.inReplay = true;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const control = ControlTypeReverseMap.get(baseStore.repGame.control_type[0])!;
-  const moveTime = Math.round(baseStore.repGame.time / (baseStore.repGame.moves));
+  let moveTime = walkTime;
+  if (moveTime == null) {
+    moveTime = Math.round(baseStore.repGame.time / (baseStore.repGame.moves));
+  }
   baseStore.replaySpeed = moveTime;
-  for (const move of baseStore.repGame.solve_path) {
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of
+  for (let i = savedStep.value; i < baseStore.repGame.solve_path.length; i++) {
+    const move = baseStore.repGame.solve_path[i];
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!baseStore.inReplay) {
+      if (stopWalk.value) {
+        baseStore.saveTime();
+        savedStep.value = i;
+      }
       break;
     }
     switch (move) {
@@ -99,6 +113,22 @@ const doReplay = async(): Promise<void> => {
     await sleep(moveTime);
   }
   baseStore.inReplay = false;
+};
+const doWalk = async (): Promise<void> => {
+  if (baseStore.isDone) {
+    savedStep.value = 0;
+    stopWalk.value = false;
+    doRestart('fromMain');
+    await doReplay(300, true);
+    return;
+  }
+  if (baseStore.inReplay) {
+    baseStore.inReplay = false;
+    stopWalk.value = true;
+  } else {
+    stopWalk.value = false;
+    await doReplay(200, true);
+  }
 };
 
 const eventBus = useEventBus<string>('event-bus');
@@ -163,8 +193,16 @@ onUnmounted(() => {
         v-if="baseStore.replayMode"
         type="button"
         class="tool-button"
+        @click="doWalk"
+      >
+        {{ baseStore.inReplay ? 'Stop' : 'Walk' }}
+      </button>
+      <button
+        v-if="baseStore.replayMode"
+        type="button"
+        class="tool-button"
         :disabled="baseStore.inReplay"
-        @click="doReplay"
+        @click="doReplay()"
       >
         Replay
       </button>
@@ -182,8 +220,25 @@ onUnmounted(() => {
         v-if="baseStore.replayMode"
         type="button"
         class="tool-button"
+        :disabled="disableButton || baseStore.paused"
+        @click="doRestart('fromMain')"
+      >
+        Restart
+      </button>
+      <button
+        v-if="baseStore.replayMode"
+        type="button"
+        class="tool-button"
+        @click="doWalk"
+      >
+        {{ baseStore.inReplay ? 'Stop' : 'Walk' }}
+      </button>
+      <button
+        v-if="baseStore.replayMode"
+        type="button"
+        class="tool-button"
         :disabled="baseStore.inReplay"
-        @click="doReplay"
+        @click="doReplay()"
       >
         Replay
       </button>
@@ -197,6 +252,7 @@ onUnmounted(() => {
         Config
       </button>
       <button
+        v-if="!baseStore.replayMode"
         type="button"
         class="tool-button mobile"
         :disabled="disableButton || baseStore.paused"
