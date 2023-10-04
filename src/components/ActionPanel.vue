@@ -179,6 +179,16 @@ onUnmounted(() => {
     </div>
     <div v-if="windowWidth < 820" class="first-row">
       <button
+        v-if="baseStore.replayMode"
+        type="button"
+        class="tool-button"
+        :disabled="baseStore.inReplay"
+        @click="doReplay"
+      >
+        Replay
+      </button>
+      <button
+        v-if="!baseStore.replayMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || disableDuringMarathon || baseStore.paused"

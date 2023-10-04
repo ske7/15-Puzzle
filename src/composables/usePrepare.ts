@@ -44,6 +44,12 @@ export const usePrepare = (): void => {
     useGetFetchAPI(`game?game_id=${gameId}`, baseStore.token)
       .then((res) => {
         if (res.stats != null) {
+          if (!baseStore.proMode) {
+            baseStore.proMode = true;
+            localStorage.setItem('proMode', 'true');
+            baseStore.hoverOnControl = true;
+            localStorage.setItem('hoverOnControl', 'true');
+          }
           baseStore.replayMode = true;
           baseStore.repGame = res.stats as unknown as RepGame;
           baseStore.numLines = baseStore.repGame.puzzle_size as puzzleCores;
