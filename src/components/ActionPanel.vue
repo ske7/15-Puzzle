@@ -117,7 +117,14 @@ const doReplay = async(walkTime?: number, walkMode = false): Promise<void> => {
   baseStore.inReplay = false;
 };
 const doWalk = async (): Promise<void> => {
-  if (baseStore.isDone || (stopWalk.value && (baseStore.solvePath.join('') !== baseStore.repGame.solve_path.slice(0, savedStep.value)))) {
+  const solveLen = baseStore.solvePath.length;
+  if (solveLen > 0 && baseStore.solvePath.join('') === baseStore.repGame.solve_path) {
+    doRestart('fromMain');
+    return;
+  }
+  if (baseStore.isDone ||
+  (baseStore.solvePath.join('') !== baseStore.repGame.solve_path.slice(0, solveLen)) ||
+  (stopWalk.value && (baseStore.solvePath.join('') !== baseStore.repGame.solve_path.slice(0, savedStep.value)))) {
     savedStep.value = 0;
     stopWalk.value = false;
     doRestart('fromMain');
