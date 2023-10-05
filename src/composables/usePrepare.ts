@@ -120,10 +120,10 @@ export const getSquareSize = (): Record<string, ComputedRef<number>> => {
       cageAdd = 22;
     }
     if (baseStore.numLines === 3) {
-      cageAdd += 34.1;
+      cageAdd += 34;
     }
     if (baseStore.numLines === 5) {
-      cageAdd -= 20.5;
+      cageAdd -= 20.4;
     }
     let value = 0;
     if (windowWidth.value <= 370) {
