@@ -120,6 +120,8 @@ const doWalk = async (): Promise<void> => {
   const solveLen = baseStore.solvePath.length;
   if (solveLen > 0 && baseStore.solvePath.join('') === baseStore.repGame.solve_path) {
     doRestart('fromMain');
+    await sleep(200);
+    await doReplay(200, true);
     return;
   }
   if (baseStore.isDone ||
@@ -128,7 +130,7 @@ const doWalk = async (): Promise<void> => {
     savedStep.value = 0;
     stopWalk.value = false;
     doRestart('fromMain');
-    await doReplay(300, true);
+    await doReplay(200, true);
     return;
   }
   if (baseStore.inReplay) {
