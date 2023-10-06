@@ -83,11 +83,17 @@ const filteredRecords = computed(() => {
     if (isDefault.value) {
       if (bestType.value === 'time') {
         if (a.time === b.time) {
+          if (Number(b.tps) === Number(a.tps)) {
+            return Number(a.game_id) - Number(b.game_id);
+          }
           return Number(b.tps) - Number(a.tps);
         }
         return a.time - b.time;
       } else {
         if (a.moves === b.moves) {
+          if (Number(b.tps) === Number(a.tps)) {
+            return Number(a.game_id) - Number(b.game_id);
+          }
           return Number(b.tps) - Number(a.tps);
         }
         return a.moves - b.moves;
