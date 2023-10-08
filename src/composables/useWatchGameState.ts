@@ -74,7 +74,7 @@ export const useWatchGameState = (): void => {
   };
   watch(isDoneAll, (value) => {
     if (value) {
-      if (baseStore.marathonMode) {
+      if (baseStore.marathonMode && !baseStore.replayMode) {
         baseStore.solvedPuzzlesInMarathon += 1;
         if (baseStore.solvedPuzzlesInMarathon === 5) {
           baseStore.stopInterval();

@@ -157,7 +157,7 @@ const getMinHeight = computed(() => {
           {{ baseStore.unlockedCages.size }}
         </span> out of {{ baseStore.cagesCount }} "Cages"
       </p>
-      <p v-if="baseStore.marathonMode">
+      <p v-if="baseStore.marathonMode && !baseStore.replayMode">
         Solved
         <span class="italic">
           {{ baseStore.solvedPuzzlesInMarathon }}
