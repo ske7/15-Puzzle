@@ -15,6 +15,8 @@ export const usePrepare = (): void => {
   if (location.href.toLowerCase().includes('pro')) {
     baseStore.proMode = true;
     localStorage.setItem('proMode', 'true');
+    baseStore.enableCageMode = false;
+    localStorage.setItem('enableCageMode', 'false');
     baseStore.hoverOnControl = true;
     localStorage.setItem('hoverOnControl', 'true');
   }
@@ -22,8 +24,13 @@ export const usePrepare = (): void => {
     baseStore.darkMode = true;
     localStorage.setItem('darkMode', 'true');
   }
-  if (location.href.toLowerCase().includes('cage') &&
-    !(baseStore.marathonMode || baseStore.proMode) && (baseStore.numLines === CORE_NUM)) {
+  if (location.href.toLowerCase().includes('cage')) {
+    baseStore.marathonMode = false;
+    localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
+    baseStore.proMode = false;
+    localStorage.setItem('proMode', baseStore.proMode.toString());
+    baseStore.numLines = CORE_NUM;
+    baseStore.initAfterNewPuzzleSize();
     baseStore.enableCageMode = true;
     localStorage.setItem('enableCageMode', 'true');
   }
@@ -118,12 +125,20 @@ export const getSquareSize = (): Record<string, ComputedRef<number>> => {
     }
     if (baseStore.proMode) {
       cageAdd = 22;
-    }
-    if (baseStore.numLines === 3) {
-      cageAdd += 34;
-    }
-    if (baseStore.numLines === 5) {
-      cageAdd -= 20.4;
+      if (baseStore.numLines === 3) {
+        cageAdd += 34;
+      }
+      if (baseStore.numLines === 5) {
+        cageAdd -= 20.4;
+      }
+    } else {
+      cageAdd = 12;
+      if (baseStore.numLines === 3) {
+        cageAdd += 33.33333;
+      }
+      if (baseStore.numLines === 5) {
+        cageAdd -= 20;
+      }
     }
     let value = 0;
     if (windowWidth.value <= 370) {
