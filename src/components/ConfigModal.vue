@@ -16,14 +16,19 @@ onClickOutside(configModal, (event) => {
   event.stopPropagation();
   emit('close');
 });
+const puzzleSize = ref<number>(baseStore.numLines);
 const disabledCageMode = computed(() => {
   return !baseStore.enableCageMode || baseStore.marathonMode ||
   baseStore.proMode || baseStore.numLines !== CORE_NUM;
 });
-
 const setEnableCageMode = (): void => {
   baseStore.enableCageMode = !baseStore.enableCageMode;
   localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
+  baseStore.marathonMode = false;
+  localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
+  baseStore.proMode = false;
+  localStorage.setItem('proMode', baseStore.proMode.toString());
+  puzzleSize.value = CORE_NUM;
   if (baseStore.enableCageMode) {
     baseStore.loadUnlockedCagesFromLocalStorage();
     baseStore.cageMode = true;
@@ -81,9 +86,14 @@ const setMarathonMode = (): void => {
   baseStore.resetConsecutiveSolves();
   eventBus.emit('restart', 'fromConfig');
 };
-const puzzleSize = ref<number>(baseStore.numLines);
 watch(puzzleSize, (newValue) => {
   if (newValue !== 0) {
+    if (newValue !== CORE_NUM) {
+      baseStore.enableCageMode = false;
+      localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
+      baseStore.cageMode = false;
+      baseStore.resetConsecutiveSolves();
+    }
     baseStore.numLines = Number(newValue) as puzzleCores;
     baseStore.initAfterNewPuzzleSize();
   }
@@ -101,21 +111,16 @@ watch(marathonMode, () => {
         <span>Game config</span>
       </p>
       <div class="options">
-        <PuzzleSizeSlider v-model="puzzleSize" :disabled="baseStore.enableCageMode" />
+        <PuzzleSizeSlider v-model="puzzleSize" />
         <div class="option">
           <input
             id="enable-cage-mode"
             type="checkbox"
             name="enable-cage-mode"
-            :disabled="baseStore.marathonMode || baseStore.proMode || baseStore.numLines !== CORE_NUM"
             :checked="baseStore.enableCageMode"
             @change="setEnableCageMode"
           >
-          <label
-            for="enable-cage-mode"
-            :class="{ 'disabled-label': baseStore.marathonMode ||
-              baseStore.proMode || baseStore.numLines !== CORE_NUM }"
-          >
+          <label for="enable-cage-mode">
             Cage Mode
           </label>
         </div>
