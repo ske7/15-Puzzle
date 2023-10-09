@@ -48,9 +48,9 @@ export const usePrepare = (): void => {
         if (res.stats != null) {
           if (!baseStore.proMode) {
             baseStore.proMode = true;
-            localStorage.setItem('proMode', 'true');
             baseStore.hoverOnControl = true;
-            localStorage.setItem('hoverOnControl', 'true');
+            baseStore.enableCageMode = false;
+            baseStore.cageMode = false;
           }
           baseStore.replayMode = true;
           baseStore.repGame = res.stats as unknown as RepGame;
@@ -87,21 +87,21 @@ export const usePrepare = (): void => {
   document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');
 
   onMounted(() => {
-    if (baseStore.enableCageMode) {
-      baseStore.loadUnlockedCagesFromLocalStorage();
-      baseStore.doPrepareCageMode();
-    }
     if (gameId === 0) {
-      baseStore.initStore();
-      baseStore.puzzleLoaded = true;
-    }
-    baseStore.resetConsecutiveSolves();
-    setTimeout(() => {
-      if (baseStore.unlockedCages.size > 0) {
-        const first = [...baseStore.unlockedCages][0];
-        baseStore.preloadImage(CAGES_PATH_ARR[first]);
+      if (baseStore.enableCageMode) {
+        baseStore.loadUnlockedCagesFromLocalStorage();
+        baseStore.doPrepareCageMode();
       }
-    }, 1000);
+      baseStore.initStore();
+      baseStore.resetConsecutiveSolves();
+      baseStore.puzzleLoaded = true;
+      setTimeout(() => {
+        if (baseStore.unlockedCages.size > 0) {
+          const first = [...baseStore.unlockedCages][0];
+          baseStore.preloadImage(CAGES_PATH_ARR[first]);
+        }
+      }, 1000);
+    }
   });
 };
 
