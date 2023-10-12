@@ -156,7 +156,7 @@ const doWalk = (): void => {
       <div v-if="baseStore.playgroundMode">
         Best speed: <span :class="{ 'red bold': baseStore.newPlaygroundTimeRecord }">{{ displayedTime(baseStore.playgroundBestTime) }}s | {{ baseStore.playgroundBestTimeMoves }} | {{ calculateTPS(baseStore.playgroundBestTimeMoves, baseStore.playgroundBestTime) }}</span>
       </div>
-      <div v-if="baseStore.playgroundMode">
+      <div v-if="baseStore.playgroundMode" class="best-solution">
         Best solution: <span :class="{ 'red bold': baseStore.newPlaygroundMovesRecord}">{{ baseStore.playgroundBestMoves }}</span>
         <CopyButton
           v-if="baseStore.playgroundSolvePath.length > 0"
@@ -302,6 +302,13 @@ const doWalk = (): void => {
   margin-bottom: 5px;
   min-height: 27px;
   text-align: center;
+}
+.best-solution {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
 }
 @media screen and (max-width: 420px) {
   .reg-wrapper {
