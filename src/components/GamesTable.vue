@@ -280,6 +280,13 @@ watch(puzzleSize, (newValue) => {
   gap: 5px;
   flex-direction: column;
   line-height: 1.2;
+  margin-bottom: -5px;
+  font-size: 14px;
+}
+.copy-button-wrapper :deep(.copy-button) {
+  display: flex;
+  --vd-font-size: 13px;
+  --vh-font-size: 14px;
 }
 .link-item {
   color: var(--link-color);

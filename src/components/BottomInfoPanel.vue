@@ -2,8 +2,9 @@
 import { ref, computed, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { CORE_NUM } from '@/const';
+import { type RepGame } from '@/types';
 import { useEventBus } from '@vueuse/core';
-import { convertScramble } from '@/utils';
+import { convertScramble, calculateTPS, displayedTime, shortenSolutionStr } from '@/utils';
 const CopyButton = defineAsyncComponent({
   loader: async () => await import('../components/CopyButton.vue') as unknown as AsyncComponentLoader,
   delay: 150
@@ -106,11 +107,19 @@ const getMinHeight = computed(() => {
   }
   return '0px';
 });
+const doWalk = (): void => {
+  baseStore.repGame = {} as unknown as RepGame;
+  baseStore.repGame.solve_path = baseStore.playgroundSolvePath.join('');
+  baseStore.repGame.moves = baseStore.playgroundBestMoves;
+  baseStore.repGame.time = baseStore.playgroundBestTime;
+  baseStore.repGame.control_type = 'mouse';
+  eventBus.emit('walk');
+};
 </script>
 
 <template>
   <div class="bottom-info-panel">
-    <div v-if="!baseStore.replayMode" class="records-row">
+    <div v-if="!(baseStore.replayMode || baseStore.playgroundMode)" class="records-row">
       <p>
         <span>PB time / moves: </span>
         <span class="italic" :class="{ red: baseStore.newTimeRecord }">
@@ -144,6 +153,25 @@ const getMinHeight = computed(() => {
           :is-solve-path="true"
         />
       </div>
+      <div v-if="baseStore.playgroundMode">
+        Best speed: <span :class="{ 'red bold': baseStore.newPlaygroundTimeRecord }">{{ displayedTime(baseStore.playgroundBestTime) }}s | {{ baseStore.playgroundBestTimeMoves }} | {{ calculateTPS(baseStore.playgroundBestTimeMoves, baseStore.playgroundBestTime) }}</span>
+      </div>
+      <div v-if="baseStore.playgroundMode">
+        Best solution: <span :class="{ 'red bold': baseStore.newPlaygroundMovesRecord}">{{ baseStore.playgroundBestMoves }}</span>
+        <CopyButton
+          v-if="baseStore.playgroundSolvePath.length > 0"
+          :item-to-copy="shortenSolutionStr(String(baseStore.playgroundSolvePath.join('')))"
+          :is-solve-path="true"
+        />
+        <button
+          v-if="baseStore.playgroundSolvePath.length > 0"
+          type="button"
+          class="tool-button walk-button"
+          @click="doWalk"
+        >
+          {{ baseStore.inReplay ? 'Stop' : 'Walk' }}
+        </button>
+      </div>
       <p
         v-if="baseStore.enableCageMode &&
           !(baseStore.marathonMode || baseStore.proMode) && baseStore.numLines === CORE_NUM"
@@ -157,14 +185,14 @@ const getMinHeight = computed(() => {
           {{ baseStore.unlockedCages.size }}
         </span> out of {{ baseStore.cagesCount }} "Cages"
       </p>
-      <p v-if="baseStore.marathonMode && !baseStore.replayMode">
+      <p v-if="baseStore.marathonMode && !(baseStore.replayMode || baseStore.playgroundMode)">
         Solved
         <span class="italic">
           {{ baseStore.solvedPuzzlesInMarathon }}
         </span> out of 5 puzzles
       </p>
     </div>
-    <div v-if="!baseStore.replayMode" class="reg-wrapper" :class="{ paused: cannotClick }">
+    <div v-if="!(baseStore.replayMode || baseStore.playgroundMode)" class="reg-wrapper" :class="{ paused: cannotClick }">
       <p v-if="baseStore.isNetworkError" class="no-connect">
         Local mode (no server connection)
       </p>
@@ -219,6 +247,11 @@ const getMinHeight = computed(() => {
   flex-direction: row;
   line-height: 1;
 }
+.copy-button-wrapper :deep(.copy-button) {
+  display: inline;
+  --vd-font-size: 13px;
+  --vh-font-size: 14px;
+}
 .copy-button-wrapper .copy-button {
   margin-top: -3px;
 }
@@ -249,8 +282,18 @@ const getMinHeight = computed(() => {
 .red {
   color: red;
 }
+.bold {
+  font-weight: 600;
+}
 .italic {
   font-style: italic;
+}
+.walk-button {
+  display: inline;
+  font-size: 14px;
+  height: 24px;
+  width: 52px;
+  margin-left: 5px;
 }
 .reg-wrapper {
   display: flex;
@@ -263,6 +306,9 @@ const getMinHeight = computed(() => {
 @media screen and (max-width: 420px) {
   .reg-wrapper {
     max-width: 300px;
+  }
+  .info-row {
+    font-size: 14px;
   }
 }
 @media screen and (max-height: 650px) and (max-width: 420px) {

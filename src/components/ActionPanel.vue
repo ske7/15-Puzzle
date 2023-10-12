@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onMounted, onUnmounted, computed, type AsyncComponentLoader } from 'vue';
 import { ControlTypeReverseMap } from '@/const';
+import { type puzzleCores } from '@/types';
 import { sleep } from '@/utils';
 import { useBaseStore } from '../stores/base';
 import { useEventBus, useWindowSize } from '@vueuse/core';
@@ -14,6 +15,10 @@ const InfoModal = defineAsyncComponent({
 });
 const ImageGallery = defineAsyncComponent({
   loader: async () => await import('../components/ImageGallery.vue') as unknown as AsyncComponentLoader,
+  delay: 150
+});
+const AddScramble = defineAsyncComponent({
+  loader: async () => await import('../components/AddScramble.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 
@@ -143,14 +148,24 @@ const doWalk = async (): Promise<void> => {
     await doReplay(200, true);
   }
 };
+const doRenew = (): void => {
+  baseStore.savedOrders = [];
+  doRestart('fromMain');
+};
+const addScramble = (): void => {
+  baseStore.showAddScramble = true;
+};
 
 const eventBus = useEventBus<string>('event-bus');
-const listener = (event: string, payload: string): void => {
+const listener = async (event: string, payload: string): Promise<void> => {
   if (event === 'restart') {
     doRestart(payload);
   }
   if (event === 'show-image-gallery') {
     showImageGallery();
+  }
+  if (event === 'walk') {
+    await doWalk();
   }
 };
 
@@ -164,10 +179,22 @@ const disableDuringMarathon = computed(() => {
   return baseStore.marathonMode && baseStore.doneFirstMove && !baseStore.isDone;
 });
 
+const setScramble = (scramble: number[]): void => {
+  baseStore.numLines = Math.sqrt(scramble.length) as puzzleCores;
+  baseStore.savedOrders = scramble;
+  baseStore.renewPuzzle();
+  baseStore.showAddScramble = false;
+};
+const closeAddScramble = (): void => {
+  baseStore.showAddScramble = false;
+};
+
 onMounted(() => {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   eventBus.on(listener);
 });
 onUnmounted(() => {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   eventBus.off(listener);
 });
 </script>
@@ -184,6 +211,24 @@ onUnmounted(() => {
         Restart
       </button>
       <button
+        v-if="baseStore.playgroundMode"
+        type="button"
+        class="tool-button"
+        :disabled="disableButton"
+        @click="doRenew"
+      >
+        Renew
+      </button>
+      <button
+        v-if="baseStore.playgroundMode"
+        type="button"
+        class="tool-button"
+        :disabled="disableButton || baseStore.inReplay"
+        @click="addScramble"
+      >
+        Add
+      </button>
+      <button
         v-if="!baseStore.proMode"
         type="button"
         class="tool-button"
@@ -194,7 +239,7 @@ onUnmounted(() => {
         {{ baseStore.paused && !baseStore.showModal ? 'Resume' : 'Pause' }}
       </button>
       <button
-        v-if="!baseStore.replayMode"
+        v-if="!(baseStore.replayMode || baseStore.playgroundMode)"
         type="button"
         class="tool-button"
         :disabled="disableButton || disableDuringMarathon || baseStore.paused"
@@ -230,13 +275,31 @@ onUnmounted(() => {
     </div>
     <div v-if="windowWidth < 820" class="first-row">
       <button
-        v-if="baseStore.replayMode"
+        v-if="baseStore.replayMode || baseStore.playgroundMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.paused"
         @click="doRestart('fromMain')"
       >
         Restart
+      </button>
+      <button
+        v-if="baseStore.playgroundMode"
+        type="button"
+        class="tool-button"
+        :disabled="disableButton"
+        @click="doRenew"
+      >
+        Renew
+      </button>
+      <button
+        v-if="baseStore.playgroundMode"
+        type="button"
+        class="tool-button"
+        :disabled="disableButton || baseStore.inReplay"
+        @click="addScramble"
+      >
+        Add
       </button>
       <button
         v-if="baseStore.replayMode"
@@ -256,7 +319,7 @@ onUnmounted(() => {
         Replay
       </button>
       <button
-        v-if="!baseStore.replayMode"
+        v-if="!(baseStore.replayMode || baseStore.playgroundMode)"
         type="button"
         class="tool-button"
         :disabled="disableButton || disableDuringMarathon || baseStore.paused"
@@ -265,7 +328,7 @@ onUnmounted(() => {
         Config
       </button>
       <button
-        v-if="!baseStore.replayMode"
+        v-if="!(baseStore.replayMode || baseStore.playgroundMode)"
         type="button"
         class="tool-button mobile"
         :disabled="disableButton || baseStore.paused"
@@ -295,6 +358,7 @@ onUnmounted(() => {
     v-if="baseStore.showImageGallery"
     @close="closeImageGallery"
   />
+  <AddScramble v-if="baseStore.showAddScramble" @set="setScramble" @close="closeAddScramble" />
 </template>
 
 <style scoped>

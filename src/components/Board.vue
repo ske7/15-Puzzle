@@ -5,7 +5,9 @@ import { useElementBounding, useEventBus } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { getSquareSize } from '../composables/usePrepare';
 import { useCanMove } from '../composables/useCanMove';
+import { cores } from '@/const';
 import Square from './Square.vue';
+import { type puzzleCores } from '../types';
 
 const baseStore = useBaseStore();
 
@@ -80,6 +82,11 @@ const touchMove = (e: TouchEvent): void => {
   }
   eventBus.emit('touchmove-from-board', e);
 };
+
+const changePuzzleSize = (puzzleSize: number): void => {
+  baseStore.numLines = puzzleSize as puzzleCores;
+  baseStore.initAfterNewPuzzleSize();
+};
 </script>
 
 <template>
@@ -130,6 +137,16 @@ const touchMove = (e: TouchEvent): void => {
         :class="{ 'board-veil': baseStore.paused && !baseStore.isDone,
                   'loading-veil': baseStore.cageMode && !baseStore.finishLoadingAllCageImages }"
       />
+    </div>
+    <div v-if="baseStore.playgroundMode" class="puzzle-sizes">
+      <span
+        v-for="(item, index) in cores"
+        :key="index"
+        :class="{ 'selected': baseStore.numLines === item }"
+        @click="changePuzzleSize(item)"
+      >
+        {{ item }}
+      </span>
     </div>
   </div>
 </template>
@@ -187,6 +204,26 @@ const touchMove = (e: TouchEvent): void => {
 .complete-cage {
   z-index: 1001;
   border-radius: v-bind(borderRadiusVar);
+}
+.puzzle-sizes {
+  position: absolute;
+  right: -15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+.puzzle-sizes span {
+  cursor: pointer;
+}
+.puzzle-sizes span:hover {
+  cursor: pointer;
+  color: var(--link-color);
+  text-decoration: underline;
+}
+.puzzle-sizes .selected {
+  color: var(--link-color);
+  font-weight: 600;
 }
 @media screen and (max-width: 601px) {
   .paused-veil .bigger {

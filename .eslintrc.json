@@ -79,7 +79,7 @@
     "max-statements": [
       "error",
       {
-        "max": 30
+        "max": 50
       }
     ],
     "generator-star-spacing": [

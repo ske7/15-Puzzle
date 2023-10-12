@@ -2,17 +2,35 @@ import { onMounted, onBeforeUnmount } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
 import { ControlType, cores } from '@/const';
+import { convertToNumbersArray } from '@/utils';
+import type { puzzleCores } from '@/types';
 
 export const useKeyDown = (): void => {
   const baseStore = useBaseStore();
   const eventBus = useEventBus<string>('event-bus');
 
-  const onKeyDown = (event: KeyboardEvent): void => {
+  const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
     if (!baseStore.showModal) {
       event.preventDefault();
     }
+    const ctrlDown = event.ctrlKey || event.metaKey;
     if (event.code === 'Space' && !baseStore.paused) {
+      if (ctrlDown) {
+        baseStore.savedOrders = [];
+      }
       eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
+      return;
+    }
+    if (baseStore.playgroundMode && ctrlDown && event.code === 'KeyV') {
+      // not working in Firefox
+      await navigator.clipboard.readText().then((text) => {
+        const scramble = convertToNumbersArray(text);
+        if (scramble.length > 0 && cores.includes(Math.sqrt(scramble.length))) {
+          baseStore.numLines = Math.sqrt(scramble.length) as puzzleCores;
+          baseStore.savedOrders = scramble;
+          baseStore.renewPuzzle();
+        }
+      });
       return;
     }
     if (!baseStore.showModal && !baseStore.cageMode && !baseStore.replayMode) {
@@ -33,7 +51,6 @@ export const useKeyDown = (): void => {
         return;
       }
     }
-
     if (baseStore.isDone || baseStore.paused || baseStore.inReplay) {
       return;
     }
@@ -49,10 +66,12 @@ export const useKeyDown = (): void => {
   };
 
   onMounted(() => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     window.addEventListener('keydown', onKeyDown);
   });
 
   onBeforeUnmount(() => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     window.removeEventListener('keydown', onKeyDown);
   });
 };

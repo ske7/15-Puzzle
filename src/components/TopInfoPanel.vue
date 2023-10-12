@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import { defineAsyncComponent, type AsyncComponentLoader } from 'vue';
 import { useBaseStore } from '../stores/base';
-import { displayedTime } from '@/utils';
+import { displayedTime, convertScramble } from '@/utils';
 import { baseUrl } from '@/const';
+const CopyButton = defineAsyncComponent({
+  loader: async () => await import('../components/CopyButton.vue') as unknown as AsyncComponentLoader,
+  delay: 150
+});
 
 const baseStore = useBaseStore();
 </script>
@@ -12,6 +17,14 @@ const baseStore = useBaseStore();
       <p>Solved by <span>{{ baseStore.repGame.name }}</span></p>
       <p>
         <span>{{ displayedTime(baseStore.repGame.time) }}s | {{ baseStore.repGame.moves }} | {{ baseStore.repGame.tps }}</span>
+      </p>
+    </div>
+    <div v-if="baseStore.playgroundMode" class="playground-row-info">
+      <p>
+        Scramble:<span>{{ convertScramble(String(baseStore.mixedOrders)) }}</span><CopyButton
+          :item-to-copy="String(baseStore.mixedOrders)"
+          :is-solve-path="false"
+        />
       </p>
     </div>
     <div class="info-wrapper">
@@ -62,10 +75,49 @@ const baseStore = useBaseStore();
   color: var(--link-color);
   font-weight: 600;
 }
+.playground-row-info  {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: -5px;
+  margin-bottom: -5px;
+  max-width: 390px;
+  min-height: 24px;
+  position: relative;
+}
+.playground-row-info p {
+  display: flex;
+  color: var(--link-color);
+  font-weight: 600;
+  align-items: baseline;
+}
+.playground-row-info span {
+  color: var(--link-color);
+  margin-left: 5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
+}
+.playground-row-info :deep(.copy-button) {
+  height: 20px;
+}
 .factor-wrapper {
   position: relative;
 }
+@media screen and (max-width: 450px) {
+  .playground-row-info  {
+    max-width: 320px;
+  }
+  .playground-row-info span {
+    max-width: 200px;
+  }
+}
 @media screen and (max-width: 360px) {
+  .playground-row-info  {
+    line-height: 23px;
+    max-width: 280px;
+  }
   .top-info-panel {
     font-size: 15px;
   }

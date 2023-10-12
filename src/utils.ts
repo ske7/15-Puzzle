@@ -168,6 +168,28 @@ export function convertScramble(str?: string): string {
   return result;
 }
 
+export function convertToNumbersArray(str: string): number[] {
+  const arr = str.replace(/[/\s]/g, ',').split(',');
+  let incorrectArray = false;
+  const numArray: number[] = [];
+  for (const item of arr) {
+    const n = Number(item);
+    if (isNaN(n)) {
+      incorrectArray = true;
+      break;
+    }
+    numArray.push(n);
+  }
+  if (incorrectArray) {
+    return [];
+  }
+  return numArray;
+}
+
 export async function sleep(delay: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, delay));
+}
+
+export function sumArrayElements(array: number[]): number {
+  return array.reduce((a, b) => a + b, 0);
 }

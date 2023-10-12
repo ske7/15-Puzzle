@@ -42,9 +42,6 @@ export const useWatchGameState = (): void => {
     } else {
       time = baseStore.time;
     }
-    if (baseStore.replayMode) {
-      return;
-    }
     if (baseStore.movesRecord === 0 || baseStore.movesCount <= baseStore.movesRecord) {
       baseStore.setMovesRecord(baseStore.movesCount, time,
         baseStore.numLines, baseStore.marathonMode);
@@ -74,7 +71,27 @@ export const useWatchGameState = (): void => {
   };
   watch(isDoneAll, (value) => {
     if (value) {
-      if (baseStore.marathonMode && !baseStore.replayMode) {
+      if (baseStore.replayMode || baseStore.playgroundMode) {
+        let time = 0;
+        if (baseStore.time === 0) {
+          time = 1;
+        } else {
+          time = baseStore.time;
+        }
+        if (baseStore.playgroundBestTime === 0 || time < baseStore.playgroundBestTime) {
+          baseStore.playgroundBestTime = time;
+          baseStore.playgroundBestTimeMoves = baseStore.movesCount;
+          baseStore.newPlaygroundTimeRecord = true;
+        }
+        if (baseStore.playgroundBestMoves === 0 || baseStore.movesCount < baseStore.playgroundBestMoves) {
+          baseStore.playgroundBestMoves = baseStore.movesCount;
+          baseStore.playgroundSolvePath = baseStore.solvePath;
+          baseStore.newPlaygroundMovesRecord = true;
+        }
+        baseStore.stopInterval();
+        return;
+      }
+      if (baseStore.marathonMode) {
         baseStore.solvedPuzzlesInMarathon += 1;
         if (baseStore.solvedPuzzlesInMarathon === 5) {
           baseStore.stopInterval();
@@ -88,15 +105,13 @@ export const useWatchGameState = (): void => {
         }
       } else {
         baseStore.stopInterval();
-        if (!baseStore.replayMode) {
-          baseStore.incConsecutiveSolves();
-          setRecords(baseStore.cageMode ? 'cage_standard' : 'standard');
-          if (baseStore.cageMode) {
-            baseStore.setUnlockedCages();
-          }
-          if (!baseStore.disableWinMessage) {
-            baseStore.showWinModal = true;
-          }
+        baseStore.incConsecutiveSolves();
+        setRecords(baseStore.cageMode ? 'cage_standard' : 'standard');
+        if (baseStore.cageMode) {
+          baseStore.setUnlockedCages();
+        }
+        if (!baseStore.disableWinMessage) {
+          baseStore.showWinModal = true;
         }
       }
     }

@@ -24,6 +24,10 @@ export interface UserData {
   password_confirmation: string;
 }
 
+export interface ScrambleData {
+  scramble: string;
+}
+
 export interface InvalidFields {
   name: boolean;
   email: boolean;

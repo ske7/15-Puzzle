@@ -12,7 +12,16 @@ export const usePrepare = (): void => {
 
   const baseStore = useBaseStore();
 
-  if (location.href.toLowerCase().includes('pro')) {
+  useKeyDown();
+
+  const locationStr = location.href.toLowerCase();
+  if (locationStr.includes('dark')) {
+    baseStore.darkMode = true;
+    localStorage.setItem('darkMode', 'true');
+  }
+  document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');
+
+  if (locationStr.includes('pro') || locationStr.includes('playground')) {
     baseStore.proMode = true;
     localStorage.setItem('proMode', 'true');
     baseStore.enableCageMode = false;
@@ -20,11 +29,16 @@ export const usePrepare = (): void => {
     baseStore.hoverOnControl = true;
     localStorage.setItem('hoverOnControl', 'true');
   }
-  if (location.href.toLowerCase().includes('dark')) {
-    baseStore.darkMode = true;
-    localStorage.setItem('darkMode', 'true');
+  if (locationStr.includes('playground')) {
+    baseStore.marathonMode = false;
+    localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
+    baseStore.playgroundMode = true;
+    baseStore.numLines = CORE_NUM;
+    baseStore.initStore();
+    baseStore.puzzleLoaded = true;
+    return;
   }
-  if (location.href.toLowerCase().includes('cage')) {
+  if (!baseStore.playgroundMode && locationStr.includes('cage')) {
     baseStore.marathonMode = false;
     localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
     baseStore.proMode = false;
@@ -89,12 +103,8 @@ export const usePrepare = (): void => {
     void useGetFetchAPI('version');
   }
 
-  useKeyDown();
-
-  document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');
-
   onMounted(() => {
-    if (gameId === 0) {
+    if (gameId === 0 && !baseStore.playgroundMode) {
       if (baseStore.enableCageMode) {
         baseStore.loadUnlockedCagesFromLocalStorage();
         baseStore.doPrepareCageMode();

@@ -127,6 +127,7 @@ const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
 const resetPasswordMode = ref<boolean>(false);
 const sentResetEmail = ref<boolean>(false);
 
+// Remember about useKeyDown
 const user: UserData = reactive({} as unknown as UserData);
 const errorMsg = ref<string[]>([]);
 const isFetching = ref(false);

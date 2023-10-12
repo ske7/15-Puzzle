@@ -84,7 +84,17 @@ export const useBaseStore = defineStore('base', {
     puzzleLoaded: false,
     inReplay: false,
     replaySpeed: 0,
-    lastGameID: 0
+    lastGameID: 0,
+    playgroundMode: false,
+    savedOrders: [] as number[],
+    showAddScramble: false,
+    playgroundBestTime: 0,
+    playgroundBestTimeMoves: 0,
+    playgroundBestMoves: 0,
+    playgroundSolvePath: [] as string[],
+    newPlaygroundMovesRecord: false,
+    newPlaygroundTimeRecord: false
+
   }),
   actions: {
     initStore() {
@@ -97,6 +107,8 @@ export const useBaseStore = defineStore('base', {
       this.solvedPuzzlesInMarathon = 0;
       this.newMovesRecord = false;
       this.newTimeRecord = false;
+      this.newPlaygroundTimeRecord = false;
+      this.newPlaygroundMovesRecord = false;
       this.setRecords();
       this.afterDoneCount = 0;
       this.solvePath = [];
@@ -112,13 +124,22 @@ export const useBaseStore = defineStore('base', {
       while (!solvable) {
         solvable = this.mixAndCheckSolvable();
       }
+      if (this.playgroundMode) {
+        this.savedOrders = this.mixedOrders;
+      }
       this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
       this.freeElement = this.actualOrders[this.freeElementIndex];
     },
     mixAndCheckSolvable() {
       if (this.replayMode) {
         this.mixedOrders = this.repGame.scramble.split(',').map(x => +x);
+      } else if (this.playgroundMode && this.savedOrders.length > 0) {
+        this.mixedOrders = this.savedOrders;
       } else {
+        this.playgroundBestTime = 0;
+        this.playgroundBestTimeMoves = 0;
+        this.playgroundBestMoves = 0;
+        this.playgroundSolvePath = [];
         this.mixedOrders = generateAndShuffle(this.arrayLength);
       }
       if (isSorted(this.mixedOrders.slice(0, -1))) {
@@ -471,8 +492,11 @@ export const useBaseStore = defineStore('base', {
     initAfterNewPuzzleSize() {
       const eventBus = useEventBus<string>('event-bus');
       localStorage.setItem('numLines', this.numLines.toString());
-      this.updateCurrentAverages();
+      if (!this.playgroundMode) {
+        this.updateCurrentAverages();
+      }
       this.resetConsecutiveSolves();
+      this.savedOrders = [];
       eventBus.emit('restart', 'fromConfig');
     }
   },
@@ -513,7 +537,7 @@ export const useBaseStore = defineStore('base', {
     showModal(): boolean {
       return this.showConfig || this.showInfo || this.showWinModal ||
         this.showImageGallery || this.showRegModal || this.showUserAccount ||
-        this.showLeaderBoard;
+        this.showLeaderBoard || this.showAddScramble;
     },
     cageImgIndex(): number {
       return CAGES_PATH_ARR.indexOf(this.cagePath.toString());
