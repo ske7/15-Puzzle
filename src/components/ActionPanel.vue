@@ -153,6 +153,10 @@ const doRenew = (): void => {
   doRestart('fromMain');
 };
 const addScramble = (): void => {
+  wasPausedBeforeOpenModal.value = baseStore.paused;
+  if (!baseStore.paused && !baseStore.isDone) {
+    baseStore.invertPaused();
+  }
   baseStore.showAddScramble = true;
 };
 
@@ -187,6 +191,9 @@ const setScramble = (scramble: number[]): void => {
 };
 const closeAddScramble = (): void => {
   baseStore.showAddScramble = false;
+  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
+    baseStore.invertPaused();
+  }
 };
 
 onMounted(() => {
@@ -214,7 +221,7 @@ onUnmounted(() => {
         v-if="baseStore.playgroundMode"
         type="button"
         class="tool-button"
-        :disabled="disableButton"
+        :disabled="disableButton || baseStore.inReplay"
         @click="doRenew"
       >
         Renew
@@ -287,7 +294,7 @@ onUnmounted(() => {
         v-if="baseStore.playgroundMode"
         type="button"
         class="tool-button"
-        :disabled="disableButton"
+        :disabled="disableButton || baseStore.inReplay"
         @click="doRenew"
       >
         Renew

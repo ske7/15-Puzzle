@@ -308,7 +308,7 @@ const doWalk = (): void => {
     max-width: 300px;
   }
   .info-row {
-    font-size: 14px;
+    font-size: 15px;
   }
 }
 @media screen and (max-height: 650px) and (max-width: 420px) {
