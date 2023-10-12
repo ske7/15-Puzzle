@@ -2,7 +2,7 @@ export const baseUrl: string = import.meta.env.VITE_BASE_URL;
 
 export const CORE_NUM = 4;
 
-export const cores = [3, 4, 5] as number[];
+export const cores = [3, 4, 5, 6, 7, 8] as number[];
 
 export const SPACE_BETWEEN_SQUARES = 8;
 

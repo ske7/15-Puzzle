@@ -5,6 +5,7 @@ import { Direction, ControlType } from '@/const';
 import { storeToRefs } from 'pinia';
 import { useEventBus } from '@vueuse/core';
 import { useCanMove } from '../composables/useCanMove';
+import { getTileColor } from '@/colors';
 
 const props = defineProps<{
   squareSize: number;
@@ -48,51 +49,7 @@ const blockTransition = computed(() => {
 });
 const bgColor = computed(() => {
   if (baseStore.proMode) {
-    if (baseStore.numLines === 4) {
-      if ([1, 2, 3, 4].includes(props.mixedOrder)) {
-        return '#ff6767';
-      } else if ([5, 9, 13].includes(props.mixedOrder)) {
-        return '#fff054';
-      } else if ([6, 7, 8].includes(props.mixedOrder)) {
-        return '#7eff64';
-      } else if ([10, 14].includes(props.mixedOrder)) {
-        return '#7effde';
-      } else if ([11, 12].includes(props.mixedOrder)) {
-        return '#8eb3fe';
-      } else if ([15].includes(props.mixedOrder)) {
-        return '#cd88fe';
-      }
-    }
-    if (baseStore.numLines === 3) {
-      if ([1, 2, 3].includes(props.mixedOrder)) {
-        return '#ff6767';
-      } else if ([4, 7].includes(props.mixedOrder)) {
-        return '#fff054';
-      } else if ([5, 6].includes(props.mixedOrder)) {
-        return '#7eff64';
-      } else if ([8].includes(props.mixedOrder)) {
-        return '#89dcff';
-      }
-    }
-    if (baseStore.numLines === 5) {
-      if ([1, 2, 3, 4, 5].includes(props.mixedOrder)) {
-        return '#ff6767';
-      } else if ([6, 11, 16, 21].includes(props.mixedOrder)) {
-        return '#ffc74c';
-      } else if ([7, 8, 9, 10].includes(props.mixedOrder)) {
-        return '#fff054';
-      } else if ([12, 17, 22].includes(props.mixedOrder)) {
-        return '#7eff64';
-      } else if ([13, 14, 15].includes(props.mixedOrder)) {
-        return '#7effde';
-      } else if ([18, 23].includes(props.mixedOrder)) {
-        return '#84c8ff';
-      } else if ([19, 20].includes(props.mixedOrder)) {
-        return '#9b95ff';
-      } else if ([24].includes(props.mixedOrder)) {
-        return '#cd88fe';
-      }
-    }
+    return getTileColor(baseStore.numLines, props.mixedOrder);
   }
   if (baseStore.cageMode) {
     return 'var(--background-color)';
@@ -101,15 +58,37 @@ const bgColor = computed(() => {
 });
 const fontSizeD = computed(() => {
   if (baseStore.proMode) {
-    return '45px';
+    if (baseStore.numLines === 6) {
+      return '39px';
+    } else if (baseStore.numLines === 7) {
+      return '35px';
+    } else if (baseStore.numLines === 8) {
+      return '33px';
+    } else {
+      return '45px';
+    }
   }
   return '25px';
 });
 const fontSizeM = computed(() => {
   if (baseStore.proMode) {
-    return '33px';
+    if (baseStore.numLines === 6) {
+      return '29px';
+    } else if (baseStore.numLines === 7) {
+      return '25px';
+    } else if (baseStore.numLines === 8) {
+      return '24px';
+    } else {
+      return '33px';
+    }
   }
-  return '25px';
+  if (baseStore.numLines === 7) {
+    return '21px';
+  } else if (baseStore.numLines === 8) {
+    return '18px';
+  } else {
+    return '25px';
+  }
 });
 const inPlaceColor = computed(() => {
   if (baseStore.proMode) {

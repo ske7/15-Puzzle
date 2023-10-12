@@ -140,6 +140,15 @@ export const getSquareSize = (): Record<string, ComputedRef<number>> => {
       if (baseStore.numLines === 5) {
         cageAdd -= 20.4;
       }
+      if (baseStore.numLines === 6) {
+        cageAdd -= 34;
+      }
+      if (baseStore.numLines === 7) {
+        cageAdd -= 42;
+      }
+      if (baseStore.numLines === 8) {
+        cageAdd -= 49.5;
+      }
     } else {
       cageAdd = 12;
       if (baseStore.numLines === 3) {
@@ -148,17 +157,25 @@ export const getSquareSize = (): Record<string, ComputedRef<number>> => {
       if (baseStore.numLines === 5) {
         cageAdd -= 20;
       }
+      if (baseStore.numLines === 6) {
+        cageAdd -= 33.33333;
+      }
+      if (baseStore.numLines === 7) {
+        cageAdd -= 42.857;
+      }
+      if (baseStore.numLines === 8) {
+        cageAdd -= 50;
+      }
     }
     let value = 0;
     if (windowWidth.value <= 370) {
-      if (baseStore.cageMode) {
-        value = Math.floor((windowWidth.value - (spaces + 60)) / baseStore.numLines);
-      } else {
+      if (baseStore.proMode) {
         value = Math.floor((windowWidth.value - (spaces + 40)) / baseStore.numLines);
+      } else {
+        value = Math.floor((windowWidth.value - (spaces + 70)) / baseStore.numLines);
       }
-      value = Math.floor((windowWidth.value - (spaces + 40)) / baseStore.numLines);
     } else if (windowWidth.value <= 480) {
-      value = Math.floor((windowWidth.value - (spaces + 60)) / baseStore.numLines);
+      value = Math.floor((windowWidth.value - (spaces + 50)) / baseStore.numLines);
     } else if (windowWidth.value <= 820 && windowWidth.value >= 600) {
       value = 100 + cageAdd;
     } else {

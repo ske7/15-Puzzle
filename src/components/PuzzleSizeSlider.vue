@@ -41,12 +41,12 @@ const setInputValue = (event: Event): void => {
         v-for="(item, i) in cores"
         :key="i"
         :value="item"
-        :label="`${item}x${item}`"
+        :label="`${item}`"
       />
     </datalist>
     <p class="slider-marks">
       <span v-for="(item, i) in cores" :key="i" @click="setValue(item)">
-        {{ `${item}x${item}` }}
+        {{ `${item}` }}
       </span>
     </p>
   </div>
