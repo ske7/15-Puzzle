@@ -187,7 +187,7 @@ const setScramble = (scramble: number[]): void => {
   baseStore.numLines = Math.sqrt(scramble.length) as puzzleCores;
   baseStore.savedOrders = scramble;
   baseStore.renewPuzzle();
-  baseStore.showAddScramble = false;
+  closeAddScramble();
 };
 const closeAddScramble = (): void => {
   baseStore.showAddScramble = false;
