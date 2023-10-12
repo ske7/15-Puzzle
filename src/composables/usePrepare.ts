@@ -3,13 +3,11 @@ import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useKeyDown } from '../composables/useKeyDown';
 import { CORE_NUM, CAGES_PATH_ARR, cores, baseUrl } from '@/const';
-import { type puzzleCores, type RepGame } from '@/types';
+import { type RepGame } from '@/types';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
 // eslint-disable-next-line max-statements
 export const usePrepare = (): void => {
-  const isPuzzleCore = (x: number): x is puzzleCores => cores.includes(x);
-
   const baseStore = useBaseStore();
 
   useKeyDown();
@@ -57,10 +55,11 @@ export const usePrepare = (): void => {
     }
   } else {
     const numLines = localStorage.getItem('numLines');
-    if (numLines === null || isNaN(Number(numLines)) || !isPuzzleCore(Number(numLines))) {
+    if (numLines === null || isNaN(Number(numLines)) || !cores.includes(Number(numLines))) {
+      localStorage.setItem('numLines', CORE_NUM.toString());
       baseStore.numLines = CORE_NUM;
     } else {
-      baseStore.numLines = Number(numLines) as puzzleCores;
+      baseStore.numLines = Number(numLines);
     }
   }
   if (gameId !== 0) {
@@ -75,7 +74,7 @@ export const usePrepare = (): void => {
           }
           baseStore.replayMode = true;
           baseStore.repGame = res.stats as unknown as RepGame;
-          baseStore.numLines = baseStore.repGame.puzzle_size as puzzleCores;
+          baseStore.numLines = baseStore.repGame.puzzle_size;
           baseStore.initStore();
           baseStore.puzzleLoaded = true;
         } else {

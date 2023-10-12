@@ -3,7 +3,6 @@ import { ref, computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
-import { type puzzleCores } from '@/types';
 import { CORE_NUM } from '@/const';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 
@@ -92,9 +91,8 @@ watch(puzzleSize, (newValue) => {
       baseStore.enableCageMode = false;
       localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
       baseStore.cageMode = false;
-      baseStore.resetConsecutiveSolves();
     }
-    baseStore.numLines = Number(newValue) as puzzleCores;
+    baseStore.numLines = newValue;
     baseStore.initAfterNewPuzzleSize();
   }
 });

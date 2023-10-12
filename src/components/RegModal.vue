@@ -3,6 +3,7 @@ import { ref, reactive, computed, onMounted } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useWindowSize } from '@vueuse/core';
 import { usePostFetchAPI } from '../composables/useFetchAPI';
+import { cores, CORE_NUM } from '@/const';
 import {
   type GameData, type Record, type UserData,
   type UserStats, type InvalidFields
@@ -50,41 +51,23 @@ const fillRecordGames = (): void => {
       consecutive_solves: 0
     });
   };
-  if (localStorage.getItem('timeRecord') != null) {
-    loadAndPush(4, false);
-  }
-  if (localStorage.getItem('timeRecord3') != null) {
-    loadAndPush(3, false);
-  }
-  if (localStorage.getItem('timeRecord5') != null) {
-    loadAndPush(5, false);
-  }
-  if (localStorage.getItem('timeMRecord') != null) {
-    loadAndPush(4, true);
-  }
-  if (localStorage.getItem('timeMRecord3') != null) {
-    loadAndPush(3, true);
-  }
-  if (localStorage.getItem('timeMRecord5') != null) {
-    loadAndPush(5, true);
-  }
-  if (localStorage.getItem('movesRecord') != null) {
-    loadAndPush(4, false, true);
-  }
-  if (localStorage.getItem('movesRecord3') != null) {
-    loadAndPush(3, false, true);
-  }
-  if (localStorage.getItem('movesRecord5') != null) {
-    loadAndPush(5, false, true);
-  }
-  if (localStorage.getItem('movesMRecord') != null) {
-    loadAndPush(4, true, true);
-  }
-  if (localStorage.getItem('movesMRecord3') != null) {
-    loadAndPush(3, true, true);
-  }
-  if (localStorage.getItem('movesMRecord5') != null) {
-    loadAndPush(5, true, true);
+  for (const item of cores) {
+    let itemS = String(item);
+    if (item === CORE_NUM) {
+      itemS = '';
+    }
+    if (localStorage.getItem(`timeRecord${itemS}`) != null) {
+      loadAndPush(item, false);
+    }
+    if (localStorage.getItem(`timeMRecord${itemS}`) != null) {
+      loadAndPush(item, true);
+    }
+    if (localStorage.getItem(`movesRecord${itemS}`) != null) {
+      loadAndPush(item, false, true);
+    }
+    if (localStorage.getItem(`movesMRecord${itemS}`) != null) {
+      loadAndPush(item, true, true);
+    }
   }
 };
 
@@ -116,12 +99,10 @@ const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
       }
     }
   };
-  updateLocalRecord(3, 'standard');
-  updateLocalRecord(3, 'marathon');
-  updateLocalRecord(4, 'standard');
-  updateLocalRecord(4, 'marathon');
-  updateLocalRecord(5, 'standard');
-  updateLocalRecord(5, 'marathon');
+  for (const item of cores) {
+    updateLocalRecord(item, 'standard');
+    updateLocalRecord(item, 'marathon');
+  }
   baseStore.setRecords();
 };
 const resetPasswordMode = ref<boolean>(false);

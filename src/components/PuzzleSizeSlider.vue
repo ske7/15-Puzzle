@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { cores, CORE_NUM } from '@/const';
+
 const props = withDefaults(defineProps<{ modelValue: number; disabled?: boolean }>(), {
   disabled: false
 });
@@ -6,7 +8,11 @@ const props = withDefaults(defineProps<{ modelValue: number; disabled?: boolean 
 const emit = defineEmits<{ 'update:modelValue': [number] }>();
 
 const setValue = (value: number): void => {
-  emit('update:modelValue', value);
+  if (!isNaN(value) && cores.includes(value)) {
+    emit('update:modelValue', value);
+  } else {
+    emit('update:modelValue', CORE_NUM);
+  }
 };
 const setInputValue = (event: Event): void => {
   const value = (event.target as HTMLInputElement).value;
@@ -22,8 +28,8 @@ const setInputValue = (event: Event): void => {
       :value="props.modelValue"
       name="core-num"
       type="range"
-      min="3"
-      max="5"
+      :min="cores[0]"
+      :max="cores.slice(-1)[0]"
       step="1"
       list="markers"
       class="slider"
@@ -31,14 +37,17 @@ const setInputValue = (event: Event): void => {
       @input="setInputValue($event)"
     >
     <datalist id="markers">
-      <option value="3" label="3x3" />
-      <option value="4" label="4x4" />
-      <option value="5" label="5x5" />
+      <option
+        v-for="(item, i) in cores"
+        :key="i"
+        :value="item"
+        :label="`${item}x${item}`"
+      />
     </datalist>
     <p class="slider-marks">
-      <span @click="setValue(3)">3x3</span>
-      <span @click="setValue(4)">4x4</span>
-      <span @click="setValue(5)">5x5</span>
+      <span v-for="(item, i) in cores" :key="i" @click="setValue(item)">
+        {{ `${item}x${item}` }}
+      </span>
     </p>
   </div>
 </template>
@@ -62,7 +71,7 @@ const setInputValue = (event: Event): void => {
 .slider-marks {
   display: flex;
   justify-content: space-between;
-  margin-top: -3px;
+  margin-top: -4px;
   margin-bottom: 5px;
 }
 .slider-marks span {

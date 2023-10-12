@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onMounted, onUnmounted, computed, type AsyncComponentLoader } from 'vue';
 import { ControlTypeReverseMap } from '@/const';
-import { type puzzleCores } from '@/types';
 import { sleep } from '@/utils';
 import { useBaseStore } from '../stores/base';
 import { useEventBus, useWindowSize } from '@vueuse/core';
@@ -184,7 +183,7 @@ const disableDuringMarathon = computed(() => {
 });
 
 const setScramble = (scramble: number[]): void => {
-  baseStore.numLines = Math.sqrt(scramble.length) as puzzleCores;
+  baseStore.numLines = Math.sqrt(scramble.length);
   baseStore.savedOrders = scramble;
   baseStore.renewPuzzle();
   closeAddScramble();

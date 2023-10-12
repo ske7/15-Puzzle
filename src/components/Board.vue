@@ -7,7 +7,6 @@ import { getSquareSize } from '../composables/usePrepare';
 import { useCanMove } from '../composables/useCanMove';
 import { cores } from '@/const';
 import Square from './Square.vue';
-import { type puzzleCores } from '../types';
 
 const baseStore = useBaseStore();
 
@@ -84,7 +83,7 @@ const touchMove = (e: TouchEvent): void => {
 };
 
 const changePuzzleSize = (puzzleSize: number): void => {
-  baseStore.numLines = puzzleSize as puzzleCores;
+  baseStore.numLines = puzzleSize;
   baseStore.initAfterNewPuzzleSize();
 };
 </script>

@@ -3,7 +3,6 @@ import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
 import { ControlType, cores } from '@/const';
 import { convertToNumbersArray } from '@/utils';
-import type { puzzleCores } from '@/types';
 
 export const useKeyDown = (): void => {
   const baseStore = useBaseStore();
@@ -26,7 +25,7 @@ export const useKeyDown = (): void => {
       await navigator.clipboard.readText().then((text) => {
         const scramble = convertToNumbersArray(text);
         if (scramble.length > 0 && cores.includes(Math.sqrt(scramble.length))) {
-          baseStore.numLines = Math.sqrt(scramble.length) as puzzleCores;
+          baseStore.numLines = Math.sqrt(scramble.length);
           baseStore.savedOrders = scramble;
           baseStore.renewPuzzle();
         }

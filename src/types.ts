@@ -1,5 +1,3 @@
-export type puzzleCores = 3 | 4 | 5;
-
 export interface PreloadedImage {
   url?: string;
   item: string;
