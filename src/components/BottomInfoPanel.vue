@@ -154,7 +154,7 @@ const doWalk = (): void => {
       <div v-if="baseStore.replayMode && baseStore.solvePath.length > 0" class="copy-button-wrapper mt-10">
         <div>
           <span class="solution-label">
-            New solution <label v-if="baseStore.repGame.name !== baseStore.userName" class="improved-user">(by {{ baseStore.userName }})</label>:
+            New solution<label v-if="baseStore.repGame.name !== baseStore.userName" class="improved-user"> (by {{ baseStore.userName }})</label>:
           </span>
           <span>{{ baseStore.solvePath.join('') }}</span>
         </div>
