@@ -3,7 +3,8 @@ import { useBaseStore } from '../stores/base';
 
 const baseUrl: string = import.meta.env.VITE_BASE_API_URL;
 
-const api = async (endpoint: string, method: string, body?: BodyInit, token?: string): Promise<Response> => {
+const api = async (endpoint: string, method: string, body?: BodyInit,
+  token?: string, keyH?: string): Promise<Response> => {
   const baseStore = useBaseStore();
 
   let error = null;
@@ -14,6 +15,11 @@ const api = async (endpoint: string, method: string, body?: BodyInit, token?: st
   if (token != null) {
     headers = {
       ...headers, Authorization: `Bearer ${token}`
+    };
+  }
+  if (keyH != null) {
+    headers = {
+      ...headers, 'Request-xkh': keyH
     };
   }
   try {
@@ -27,7 +33,7 @@ const api = async (endpoint: string, method: string, body?: BodyInit, token?: st
       if (response.status === 401 || response.status === 404) {
         baseStore.token = undefined;
         localStorage.removeItem('token');
-        baseStore.userName = null;
+        baseStore.userName = undefined;
       }
       const res = await response.json() as Promise<ErrResponse>;
       error = Error(`${(await res).error ?? response.statusText}`);
@@ -46,8 +52,8 @@ const api = async (endpoint: string, method: string, body?: BodyInit, token?: st
 };
 
 export const usePostFetchAPI = async (endpoint: string, body?: BodyInit,
-  token?: string): Promise<Response> => {
-  return await api(endpoint, 'POST', body, token);
+  token?: string, keyH?: string): Promise<Response> => {
+  return await api(endpoint, 'POST', body, token, keyH);
 };
 
 export const useGetFetchAPI = async (endpoint: string, token?: string): Promise<Response> => {

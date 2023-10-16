@@ -62,7 +62,7 @@ export const useBaseStore = defineStore('base', {
     darkMode: localStorage.getItem('darkMode') === 'true',
     boardPos: {} as unknown as Position,
     token: localStorage.getItem('token') as (string | undefined),
-    userName: null as (null | undefined | string),
+    userName: undefined as (undefined | string),
     isMoving: false,
     moveDoneBy: ControlType.Mouse,
     isNetworkError: false,

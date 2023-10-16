@@ -9,13 +9,13 @@ export const useWatchGameState = (): void => {
 
   const errorMsg = ref('');
   const isFetching = ref(false);
-  const postGame = (game: GameData): void => {
+  const postGame = (game: GameData, keyH: string): void => {
     errorMsg.value = '';
     if (isFetching.value) {
       return;
     }
     isFetching.value = true;
-    usePostFetchAPI('game', JSON.stringify({ game }) as BodyInit, baseStore.token)
+    usePostFetchAPI('game', JSON.stringify({ game }) as BodyInit, baseStore.token, keyH)
       .then((res) => {
         if (!baseStore.marathonMode) {
           baseStore.lastGameID = res.game_id ?? 0;
@@ -57,7 +57,9 @@ export const useWatchGameState = (): void => {
         scramble = baseStore.mixedOrders.join(',');
         solvePath = baseStore.solvePath.join('');
       }
+      const keyH = String(time + baseStore.movesCount * import.meta.env.VITE_GAME_KEY);
       postGame({
+        user_name: baseStore.userName,
         time,
         moves: baseStore.movesCount,
         puzzle_size: baseStore.numLines,
@@ -66,7 +68,7 @@ export const useWatchGameState = (): void => {
         consecutive_solves: baseStore.consecutiveSolves,
         scramble,
         solve_path: solvePath
-      });
+      }, keyH);
     }
   };
   watch(isDoneAll, (value) => {

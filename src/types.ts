@@ -33,6 +33,7 @@ export interface InvalidFields {
 }
 
 export interface GameData {
+  user_name?: string;
   time: number;
   moves: number;
   puzzle_size?: number;
