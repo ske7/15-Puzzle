@@ -103,7 +103,7 @@ if (location.href.toLowerCase().includes('reset_password&token=') && !baseStore.
 
 const getMinHeight = computed(() => {
   if (baseStore.replayMode) {
-    return '63px';
+    return '83px';
   }
   return '0px';
 });
@@ -140,14 +140,24 @@ const doWalk = (): void => {
         />
       </div>
       <div v-if="baseStore.replayMode" class="copy-button-wrapper">
-        <span>{{ baseStore.repGame.solve_path }}</span>
+        <div>
+          <span class="solution-label">
+            Original solution:
+          </span>
+          <span>{{ baseStore.repGame.solve_path }}</span>
+        </div>
         <CopyButton
           :item-to-copy="String(baseStore.repGame.solve_path)"
           :is-solve-path="true"
         />
       </div>
-      <div v-if="baseStore.replayMode && baseStore.solvePath.length > 0" class="copy-button-wrapper">
-        <span>{{ baseStore.solvePath.join('') }}</span>
+      <div v-if="baseStore.replayMode && baseStore.solvePath.length > 0" class="copy-button-wrapper mt-10">
+        <div>
+          <span class="solution-label">
+            New solution <label v-if="baseStore.repGame.name !== baseStore.userName" class="improved-user">(by {{ baseStore.userName }})</label>:
+          </span>
+          <span>{{ baseStore.solvePath.join('') }}</span>
+        </div>
         <CopyButton
           :item-to-copy="String(baseStore.solvePath.join(''))"
           :is-solve-path="true"
@@ -240,6 +250,9 @@ const doWalk = (): void => {
   width: 100%;
   line-height: 27px;
 }
+.mt-10 {
+  margin-top: 10px;
+}
 .copy-button-wrapper {
   display: flex;
   align-items: center;
@@ -247,13 +260,16 @@ const doWalk = (): void => {
   flex-direction: row;
   line-height: 1;
 }
+.solution-label {
+  display: flex;
+}
 .copy-button-wrapper :deep(.copy-button) {
   display: inline;
   --vd-font-size: 13px;
   --vh-font-size: 14px;
 }
 .copy-button-wrapper .copy-button {
-  margin-top: -3px;
+  margin-top: 0px;
 }
 .copy-button-wrapper span {
   overflow: hidden;
@@ -266,6 +282,10 @@ const doWalk = (): void => {
 }
 .records-row, .info-row, .reg-wrapper {
   font-family: 'consolas', sans-serif;
+}
+.improved-user {
+  color: var(--link-color);
+  font-weight: 600;
 }
 .link-item {
   color: var(--link-color);
