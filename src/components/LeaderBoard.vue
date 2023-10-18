@@ -189,13 +189,13 @@ const tbodyHeightMobile = computed(() => {
 });
 const getProStatus = (item: UserRecord): string => {
   if (item.pro_record ?? false) {
-    if ((item.pro_avg_time ?? false) && bestAverage.value === 'time') {
+    if (bestAverage.value === 'time') {
       return item.pro_time_value ?? '';
     }
-    if ((item.pro_avg_moves ?? false) && bestAverage.value === 'moves') {
+    if (bestAverage.value === 'moves') {
       return item.pro_moves_value ?? '';
     }
-    if ((item.pro_avg_tps ?? false) && bestAverage.value === 'TPS') {
+    if (bestAverage.value === 'TPS') {
       return item.pro_tps_value ?? '';
     }
   }
