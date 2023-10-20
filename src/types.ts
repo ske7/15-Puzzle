@@ -25,6 +25,15 @@ export interface UserData {
 export interface ScrambleData {
   scramble: string;
 }
+export interface UserScrambleData {
+  id?: number;
+  puzzle_size?: number;
+  best_time?: number;
+  best_moves?: number;
+  best_time_moves?: number;
+  scramble?: string;
+  solve_path?: string;
+}
 
 export interface InvalidFields {
   name: boolean;
@@ -136,6 +145,7 @@ export interface Response {
   game_records?: GameData[];
   was_avg_records?: WasAvgRecord[];
   game_id?: number;
+  user_scramble_id?: number;
 }
 
 export interface AverageData {

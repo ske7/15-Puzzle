@@ -59,3 +59,8 @@ export const usePostFetchAPI = async (endpoint: string, body?: BodyInit,
 export const useGetFetchAPI = async (endpoint: string, token?: string): Promise<Response> => {
   return await api(endpoint, 'GET', undefined, token);
 };
+
+export const usePatchFetchAPI = async (endpoint: string, body?: BodyInit,
+  token?: string, keyH?: string): Promise<Response> => {
+  return await api(endpoint, 'PATCH', body, token, keyH);
+};

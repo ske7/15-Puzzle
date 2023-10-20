@@ -7,7 +7,7 @@ import {
 import {
   type PreloadedImage, type Record, type Position,
   type AverageData, type AverageStats, type WasAvgRecord,
-  type RepGame
+  type RepGame, type UserScrambleData
 } from '@/types';
 import {
   generateAndShuffle, generate, isSolvable, isSorted,
@@ -93,8 +93,9 @@ export const useBaseStore = defineStore('base', {
     playgroundBestMoves: 0,
     playgroundSolvePath: [] as string[],
     newPlaygroundMovesRecord: false,
-    newPlaygroundTimeRecord: false
-
+    newPlaygroundTimeRecord: false,
+    userScrambleId: 0,
+    checkUserScrambleInDB: false
   }),
   actions: {
     initStore() {
@@ -126,6 +127,27 @@ export const useBaseStore = defineStore('base', {
       }
       if (this.playgroundMode) {
         this.savedOrders = this.mixedOrders;
+        if (this.checkUserScrambleInDB) {
+          if (this.token != null) {
+            void useGetFetchAPI(`user_scramble?scramble=${this.mixedOrders.join(',')}`, this.token)
+              .then((res) => {
+                if (res.stats != null) {
+                  const stats = res.stats as unknown as UserScrambleData;
+                  if (stats.id != null) {
+                    this.userScrambleId = stats.id;
+                  }
+                  this.playgroundBestTime = stats.best_time!;
+                  this.playgroundBestTimeMoves = stats.best_time_moves!;
+                  this.playgroundBestMoves = stats.best_moves!;
+                  this.playgroundSolvePath = stats.solve_path!.split('');
+                }
+              })
+              .catch(error => {
+                console.log(error as string);
+              });
+          }
+          this.checkUserScrambleInDB = false;
+        }
       }
       this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
       this.freeElement = this.actualOrders[this.freeElementIndex];
@@ -135,11 +157,15 @@ export const useBaseStore = defineStore('base', {
         this.mixedOrders = this.repGame.scramble.split(',').map(x => +x);
       } else if (this.playgroundMode && this.savedOrders.length > 0) {
         this.mixedOrders = this.savedOrders;
-      } else {
+      } else if (this.playgroundMode && this.savedOrders.length === 0) {
+        this.userScrambleId = 0;
         this.playgroundBestTime = 0;
         this.playgroundBestTimeMoves = 0;
         this.playgroundBestMoves = 0;
         this.playgroundSolvePath = [];
+        this.checkUserScrambleInDB = true;
+        this.mixedOrders = generateAndShuffle(this.arrayLength);
+      } else {
         this.mixedOrders = generateAndShuffle(this.arrayLength);
       }
       if (isSorted(this.mixedOrders.slice(0, -1))) {

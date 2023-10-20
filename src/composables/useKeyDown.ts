@@ -20,13 +20,14 @@ export const useKeyDown = (): void => {
       eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
       return;
     }
-    if (baseStore.playgroundMode && ctrlDown && event.code === 'KeyV') {
-      // not working in Firefox
+    if (baseStore.playgroundMode && !baseStore.showAddScramble && ctrlDown && event.code === 'KeyV') {
+      // not working in Firefox until dom.events.asyncClipboard.readText = true
       await navigator.clipboard.readText().then((text) => {
         const scramble = convertToNumbersArray(text);
         if (scramble.length > 0 && cores.includes(Math.sqrt(scramble.length))) {
           baseStore.numLines = Math.sqrt(scramble.length);
           baseStore.savedOrders = scramble;
+          baseStore.checkUserScrambleInDB = true;
           baseStore.renewPuzzle();
         }
       });

@@ -1,8 +1,8 @@
 import { computed, watch, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
-import { type GameData, type AverageStats, type WasAvgRecord } from '@/types';
-import { usePostFetchAPI } from '../composables/useFetchAPI';
+import { type GameData, type AverageStats, type WasAvgRecord, type UserScrambleData } from '@/types';
+import { usePostFetchAPI, usePatchFetchAPI } from '../composables/useFetchAPI';
 
 export const useWatchGameState = (): void => {
   const baseStore = useBaseStore();
@@ -24,6 +24,39 @@ export const useWatchGameState = (): void => {
           baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
           baseStore.setWasAvgRecords(res.was_avg_records as unknown as WasAvgRecord[]);
         }
+        isFetching.value = false;
+      })
+      .catch(error => {
+        errorMsg.value = error as string;
+        isFetching.value = false;
+      });
+  };
+
+  const postUserScramble = (user_scramble: UserScrambleData): void => {
+    errorMsg.value = '';
+    if (isFetching.value) {
+      return;
+    }
+    isFetching.value = true;
+    usePostFetchAPI('user_scramble', JSON.stringify({ user_scramble }) as BodyInit, baseStore.token)
+      .then((res) => {
+        baseStore.userScrambleId = res.user_scramble_id!;
+        isFetching.value = false;
+      })
+      .catch(error => {
+        errorMsg.value = error as string;
+        isFetching.value = false;
+      });
+  };
+
+  const patchUserScramble = (user_scramble: UserScrambleData): void => {
+    errorMsg.value = '';
+    if (isFetching.value) {
+      return;
+    }
+    isFetching.value = true;
+    usePatchFetchAPI('user_scramble', JSON.stringify({ user_scramble }) as BodyInit, baseStore.token)
+      .then((_res) => {
         isFetching.value = false;
       })
       .catch(error => {
@@ -89,6 +122,28 @@ export const useWatchGameState = (): void => {
           baseStore.playgroundBestMoves = baseStore.movesCount;
           baseStore.playgroundSolvePath = baseStore.solvePath;
           baseStore.newPlaygroundMovesRecord = true;
+        }
+        if (baseStore.token != null && baseStore.playgroundMode) {
+          if (baseStore.userScrambleId === 0) {
+            postUserScramble({
+              puzzle_size: baseStore.numLines,
+              best_time: baseStore.playgroundBestTime,
+              best_moves: baseStore.playgroundBestMoves,
+              best_time_moves: baseStore.playgroundBestTimeMoves,
+              solve_path: baseStore.playgroundSolvePath.join(''),
+              scramble: baseStore.mixedOrders.join(',')
+            });
+          } else {
+            if (baseStore.newPlaygroundTimeRecord || baseStore.newPlaygroundMovesRecord) {
+              patchUserScramble({
+                id: baseStore.userScrambleId,
+                best_time: baseStore.playgroundBestTime,
+                best_time_moves: baseStore.playgroundBestTimeMoves,
+                best_moves: baseStore.playgroundBestMoves,
+                solve_path: baseStore.playgroundSolvePath.join('')
+              });
+            }
+          }
         }
         baseStore.stopInterval();
         return;

@@ -185,6 +185,7 @@ const disableDuringMarathon = computed(() => {
 const setScramble = (scramble: number[]): void => {
   baseStore.numLines = Math.sqrt(scramble.length);
   baseStore.savedOrders = scramble;
+  baseStore.checkUserScrambleInDB = true;
   baseStore.renewPuzzle();
   closeAddScramble();
 };

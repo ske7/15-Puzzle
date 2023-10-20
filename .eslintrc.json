@@ -41,6 +41,7 @@
     "@typescript-eslint/quotes": ["warn", "single"],
     "@typescript-eslint/no-magic-numbers": "off",
     "@typescript-eslint/space-before-function-paren": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
     "quotes": ["warn", "single"],
     "@typescript-eslint/semi": [
       "warn",
