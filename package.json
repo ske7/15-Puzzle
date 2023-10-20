@@ -19,7 +19,7 @@
   "dependencies": {
     "@vueuse/core": "^10.5.0",
     "pinia": "^2.1.7",
-    "vue": "^3.3.4"
+    "vue": "^3.3.5"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.2",
