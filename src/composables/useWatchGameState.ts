@@ -126,6 +126,7 @@ export const useWatchGameState = (): void => {
         if (baseStore.token != null && baseStore.playgroundMode) {
           if (baseStore.userScrambleId === 0) {
             postUserScramble({
+              user_name: baseStore.userName,
               puzzle_size: baseStore.numLines,
               best_time: baseStore.playgroundBestTime,
               best_moves: baseStore.playgroundBestMoves,
@@ -137,6 +138,7 @@ export const useWatchGameState = (): void => {
             if (baseStore.newPlaygroundTimeRecord || baseStore.newPlaygroundMovesRecord) {
               patchUserScramble({
                 id: baseStore.userScrambleId,
+                user_name: baseStore.userName,
                 best_time: baseStore.playgroundBestTime,
                 best_time_moves: baseStore.playgroundBestTimeMoves,
                 best_moves: baseStore.playgroundBestMoves,

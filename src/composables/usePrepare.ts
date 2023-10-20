@@ -12,6 +12,25 @@ export const usePrepare = (): void => {
 
   useKeyDown();
 
+  const checkCurrentUser = (gameId: number): void => {
+    if (baseStore.token != null) {
+      useGetFetchAPI('get_current_user', baseStore.token)
+        .then((res) => {
+          baseStore.token = res.token;
+          localStorage.setItem('token', String(baseStore.token));
+          baseStore.userName = res.name;
+          if (gameId === 0 && !baseStore.playgroundMode) {
+            baseStore.loadAverages();
+          }
+        })
+        .catch(error => {
+          console.log(error as string);
+        });
+    } else {
+      void useGetFetchAPI('version');
+    }
+  };
+  let gameId = 0;
   const locationStr = location.href.toLowerCase();
   if (locationStr.includes('dark')) {
     baseStore.darkMode = true;
@@ -32,6 +51,7 @@ export const usePrepare = (): void => {
     localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
     baseStore.playgroundMode = true;
     baseStore.numLines = CORE_NUM;
+    checkCurrentUser(gameId);
     baseStore.initStore();
     baseStore.puzzleLoaded = true;
     return;
@@ -46,7 +66,6 @@ export const usePrepare = (): void => {
     baseStore.enableCageMode = true;
     localStorage.setItem('enableCageMode', 'true');
   }
-  let gameId = 0;
   if (location.href.toLowerCase().includes('game_id')) {
     const searchParams = new URLSearchParams(location.search);
     const gameIdParam = Number(searchParams.get('game_id'));
@@ -85,22 +104,7 @@ export const usePrepare = (): void => {
         console.log(error as string);
       });
   }
-  if (baseStore.token != null) {
-    useGetFetchAPI('get_current_user', baseStore.token)
-      .then((res) => {
-        baseStore.token = res.token;
-        localStorage.setItem('token', String(baseStore.token));
-        baseStore.userName = res.name;
-        if (gameId === 0) {
-          baseStore.loadAverages();
-        }
-      })
-      .catch(error => {
-        console.log(error as string);
-      });
-  } else {
-    void useGetFetchAPI('version');
-  }
+  checkCurrentUser(gameId);
 
   onMounted(() => {
     if (gameId === 0 && !baseStore.playgroundMode) {

@@ -26,6 +26,7 @@ export interface ScrambleData {
   scramble: string;
 }
 export interface UserScrambleData {
+  user_name?: string;
   id?: number;
   puzzle_size?: number;
   best_time?: number;
