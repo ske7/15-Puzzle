@@ -69,6 +69,7 @@ export const useWatchGameState = (): void => {
             if (baseStore.newPlaygroundTimeRecord || baseStore.newPlaygroundMovesRecord) {
               patchUserScramble({
                 id: baseStore.userScrambleId,
+                user_name: baseStore.userName,
                 best_time: baseStore.playgroundBestTime,
                 best_time_moves: baseStore.playgroundBestTimeMoves,
                 best_moves: baseStore.playgroundBestMoves,

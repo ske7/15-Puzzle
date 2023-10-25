@@ -78,7 +78,9 @@ export const usePrepare = (): void => {
                 baseStore.playgroundBestTime = stats.best_time!;
                 baseStore.playgroundBestTimeMoves = stats.best_time_moves!;
                 baseStore.playgroundBestMoves = stats.best_moves!;
-                baseStore.playgroundSolvePath = stats.solve_path!.split('');
+                if (stats.solve_path != null) {
+                  baseStore.playgroundSolvePath = stats.solve_path.split('');
+                }
                 baseStore.userScrambleId = stats.id!;
                 baseStore.otherUserName = stats.name!;
                 baseStore.publicId = publicId;
