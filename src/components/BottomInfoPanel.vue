@@ -68,6 +68,9 @@ const doShowLeaderBoard = (): void => {
 const goMain = (): void => {
   createLinkAndClick(`${baseUrl}`, false);
 };
+const goPlayground = (): void => {
+  createLinkAndClick(`${baseUrl}?playground`, false);
+};
 const closeRegModal = (): void => {
   baseStore.showRegModal = false;
   if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
@@ -339,7 +342,13 @@ const disableSave = computed(() => {
               :class="{ paused: cannotClick }"
               @click="goMain"
             >Main</span>
-            <span v-if="baseStore.playgroundMode || baseStore.replayMode"> | </span>
+            <span
+              v-if="!baseStore.playgroundMode && !baseStore.replayMode"
+              class="link-item"
+              :class="{ paused: cannotClick }"
+              @click="goPlayground"
+            >Playground</span>
+            <span> | </span>
             <span class="link-item" :class="{ paused: cannotClick }" @click="doShowLeaderBoard">Leaderboard</span>
             <span> | </span>
             <span v-if="!baseStore.registered">
@@ -351,7 +360,7 @@ const disableSave = computed(() => {
               class="link-item"
               :class="{ paused: cannotClick }"
               @click="doShowUserAccount"
-            >Your stats</span>
+            >Profile</span>
           </div>
         </Transition>
       </div>

@@ -414,6 +414,7 @@ onUnmounted(() => {
 .action-panel .first-row {
   justify-content: space-around;
   align-items: center;
+  gap: 5px;
 }
 }
 @media screen and (max-width: 420px) {
