@@ -136,16 +136,38 @@ const doShare = (): void => {
       console.log(error as string);
     });
 };
+const doSaveOriginal = async (): Promise<void> => {
+  await postUserScramble({
+    user_name: baseStore.userName,
+    puzzle_size: baseStore.numLines,
+    best_time: baseStore.repGame.time,
+    best_moves: baseStore.repGame.moves,
+    best_time_moves: baseStore.repGame.moves,
+    solve_path: baseStore.repGame.solve_path,
+    scramble: baseStore.mixedOrders.join(',')
+  });
+  localStorage.setItem('sharedPlaygroundScramble', String(baseStore.mixedOrders));
+  createLinkAndClick(`${baseUrl}?playground`, false);
+};
 const doSave = async (): Promise<void> => {
-  const time = baseStore.getTime;
+  let time = baseStore.getTime;
+  if (time > baseStore.repGame.time) {
+    time = baseStore.repGame.time;
+  }
+  let movesCount = baseStore.movesCount;
+  let solvePath = baseStore.solvePath;
+  if (movesCount > baseStore.repGame.moves) {
+    movesCount = baseStore.repGame.moves;
+    solvePath = baseStore.repGame.solve_path.split('');
+  }
   if (baseStore.playgroundBestTime === 0 || time < baseStore.playgroundBestTime) {
     baseStore.playgroundBestTime = time;
-    baseStore.playgroundBestTimeMoves = baseStore.movesCount;
+    baseStore.playgroundBestTimeMoves = movesCount;
     baseStore.newPlaygroundTimeRecord = true;
   }
-  if (baseStore.playgroundBestMoves === 0 || baseStore.movesCount < baseStore.playgroundBestMoves) {
-    baseStore.playgroundBestMoves = baseStore.movesCount;
-    baseStore.playgroundSolvePath = baseStore.solvePath;
+  if (baseStore.playgroundBestMoves === 0 || movesCount < baseStore.playgroundBestMoves) {
+    baseStore.playgroundBestMoves = movesCount;
+    baseStore.playgroundSolvePath = solvePath;
     baseStore.newPlaygroundMovesRecord = true;
   }
   if (baseStore.newPlaygroundTimeRecord || baseStore.newPlaygroundMovesRecord) {
@@ -194,7 +216,7 @@ const disableSave = computed(() => {
       </p>
     </div>
     <div class="info-row" :style="{ 'min-height': getMinHeight }">
-      <div v-if="baseStore.replayMode" class="copy-button-wrapper">
+      <div v-if="baseStore.replayMode" class="copy-button-wrapper center">
         <span>{{ convertScramble(baseStore.repGame.scramble) }}</span>
         <CopyButton
           :item-to-copy="String(baseStore.repGame.scramble)"
@@ -212,6 +234,14 @@ const disableSave = computed(() => {
           :item-to-copy="String(baseStore.repGame.solve_path)"
           :is-solve-path="true"
         />
+        <button
+          v-if="baseStore.registered && (baseStore.userName && baseStore.repGame.name === baseStore.userName)"
+          type="button"
+          class="tool-button save-button"
+          @click="doSaveOriginal"
+        >
+          💾
+        </button>
       </div>
       <div v-if="baseStore.replayMode && baseStore.solvePath.length > 0" class="copy-button-wrapper mt-5">
         <div>
@@ -363,10 +393,12 @@ const disableSave = computed(() => {
 }
 .solution-label {
   display: flex;
+  color: var(--link-color);
+  font-weight: 600;
 }
 .copy-button-wrapper :deep(.copy-button) {
   display: inline;
-  --vd-font-size: 13px;
+  --vd-font-size: 12px;
   --vh-font-size: 14px;
 }
 .copy-button-wrapper .copy-button {
@@ -383,6 +415,9 @@ const disableSave = computed(() => {
 }
 .records-row, .info-row, .reg-wrapper {
   font-family: 'consolas', sans-serif;
+}
+.center {
+  justify-content: center;
 }
 .improved-user {
   color: var(--link-color);
