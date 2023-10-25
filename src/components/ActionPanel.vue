@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onMounted, onUnmounted, computed, type AsyncComponentLoader } from 'vue';
 import { ControlTypeReverseMap, baseUrl } from '@/const';
-import { sleep } from '@/utils';
+import { sleep, createLinkAndClick } from '@/utils';
 import { useBaseStore } from '../stores/base';
 import { useEventBus, useWindowSize } from '@vueuse/core';
 const ConfigModal = defineAsyncComponent({
@@ -199,12 +199,7 @@ const closeAddScramble = (): void => {
 };
 const doTryToImprove = (): void => {
   localStorage.setItem('sharedPlaygroundScramble', String(baseStore.mixedOrders));
-  const link = document.createElement('a');
-  link.setAttribute('href', `${baseUrl}?playground`);
-  link.setAttribute('target', '_blank');
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  createLinkAndClick(`${baseUrl}?playground`, true);
 };
 
 onMounted(() => {
@@ -221,6 +216,7 @@ onUnmounted(() => {
   <div class="action-panel">
     <div v-if="windowWidth >= 820" class="first-row">
       <button
+        v-if="!baseStore.sharedPlaygroundMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.paused"
@@ -302,7 +298,7 @@ onUnmounted(() => {
     </div>
     <div v-if="windowWidth < 820" class="first-row">
       <button
-        v-if="baseStore.replayMode || baseStore.playgroundMode"
+        v-if="(baseStore.replayMode || baseStore.playgroundMode) && !baseStore.sharedPlaygroundMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.paused"
@@ -355,7 +351,7 @@ onUnmounted(() => {
         Config
       </button>
       <button
-        v-if="!(baseStore.replayMode || baseStore.playgroundMode)"
+        v-if="!(baseStore.replayMode || baseStore.playgroundMode) && !baseStore.sharedPlaygroundMode"
         type="button"
         class="tool-button mobile"
         :disabled="disableButton || baseStore.paused"

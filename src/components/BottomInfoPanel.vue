@@ -4,7 +4,10 @@ import { useBaseStore } from '../stores/base';
 import { CORE_NUM, baseUrl } from '@/const';
 import { type RepGame } from '@/types';
 import { useEventBus, useClipboard } from '@vueuse/core';
-import { convertScramble, calculateTPS, displayedTime, shortenSolutionStr } from '@/utils';
+import {
+  convertScramble, calculateTPS, displayedTime,
+  shortenSolutionStr, createLinkAndClick
+} from '@/utils';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 import { postUserScramble } from '../composables/useFetching';
 const CopyButton = defineAsyncComponent({
@@ -61,6 +64,9 @@ const doShowLeaderBoard = (): void => {
   }
   showDefaultLeaderBoard.value = true;
   baseStore.showLeaderBoard = true;
+};
+const goMain = (): void => {
+  createLinkAndClick(`${baseUrl}`, false);
 };
 const closeRegModal = (): void => {
   baseStore.showRegModal = false;
@@ -130,7 +136,7 @@ const doShare = (): void => {
       console.log(error as string);
     });
 };
-const doSave = (): void => {
+const doSave = async (): Promise<void> => {
   const time = baseStore.getTime;
   if (baseStore.playgroundBestTime === 0 || time < baseStore.playgroundBestTime) {
     baseStore.playgroundBestTime = time;
@@ -143,7 +149,7 @@ const doSave = (): void => {
     baseStore.newPlaygroundMovesRecord = true;
   }
   if (baseStore.newPlaygroundTimeRecord || baseStore.newPlaygroundMovesRecord) {
-    postUserScramble({
+    await postUserScramble({
       user_name: baseStore.userName,
       puzzle_size: baseStore.numLines,
       best_time: baseStore.playgroundBestTime,
@@ -152,6 +158,8 @@ const doSave = (): void => {
       solve_path: baseStore.playgroundSolvePath.join(''),
       scramble: baseStore.mixedOrders.join(',')
     });
+    localStorage.setItem('sharedPlaygroundScramble', String(baseStore.mixedOrders));
+    createLinkAndClick(`${baseUrl}?playground`, false);
   }
 };
 const disableSave = computed(() => {
@@ -205,7 +213,7 @@ const disableSave = computed(() => {
           :is-solve-path="true"
         />
       </div>
-      <div v-if="baseStore.replayMode && baseStore.solvePath.length > 0" class="copy-button-wrapper mt-10">
+      <div v-if="baseStore.replayMode && baseStore.solvePath.length > 0" class="copy-button-wrapper mt-5">
         <div>
           <span class="solution-label">
             New solution<label v-if="baseStore.repGame.name !== baseStore.userName" class="improved-user"> (by {{ baseStore.userName }})</label>:
@@ -217,6 +225,7 @@ const disableSave = computed(() => {
           :is-solve-path="true"
         />
         <button
+          v-if="baseStore.registered"
           type="button"
           class="tool-button save-button"
           :disabled="disableSave"
@@ -242,12 +251,12 @@ const disableSave = computed(() => {
           {{ baseStore.playgroundBestMoves }}
         </span>
         <CopyButton
-          v-if="baseStore.playgroundSolvePath.length > 0"
+          v-if="baseStore.playgroundSolvePath.length > 0 && !baseStore.sharedPlaygroundMode"
           :item-to-copy="shortenSolutionStr(String(baseStore.playgroundSolvePath.join('')))"
           :is-solve-path="true"
         />
         <button
-          v-if="baseStore.playgroundSolvePath.length > 0"
+          v-if="baseStore.playgroundSolvePath.length > 0 && !baseStore.sharedPlaygroundMode"
           type="button"
           class="tool-button walk-button"
           @click="doWalk"
@@ -287,13 +296,20 @@ const disableSave = computed(() => {
         </span> out of 5 puzzles
       </p>
     </div>
-    <div v-if="!(baseStore.replayMode)" class="reg-wrapper" :class="{ paused: cannotClick }">
+    <div class="reg-wrapper" :class="{ paused: cannotClick }">
       <p v-if="baseStore.isNetworkError" class="no-connect">
         Local mode (no server connection)
       </p>
       <div v-if="!baseStore.isNetworkError">
         <Transition name="fade2">
           <div v-if="!baseStore.isFetching" class="registered-block">
+            <span
+              v-if="baseStore.playgroundMode || baseStore.replayMode"
+              class="link-item"
+              :class="{ paused: cannotClick }"
+              @click="goMain"
+            >Main</span>
+            <span v-if="baseStore.playgroundMode || baseStore.replayMode"> | </span>
             <span class="link-item" :class="{ paused: cannotClick }" @click="doShowLeaderBoard">Leaderboard</span>
             <span> | </span>
             <span v-if="!baseStore.registered">
@@ -335,8 +351,8 @@ const disableSave = computed(() => {
   width: 100%;
   line-height: 27px;
 }
-.mt-10 {
-  margin-top: 10px;
+.mt-5 {
+  margin-top: 5px;
 }
 .copy-button-wrapper {
   display: flex;
@@ -456,6 +472,9 @@ const disableSave = computed(() => {
   }
   .info-row {
     font-size: 15px;
+  }
+  .registered-block {
+    font-size: 14px;
   }
 }
 @media screen and (max-height: 650px) and (max-width: 420px) {

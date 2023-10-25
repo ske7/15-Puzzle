@@ -193,3 +193,14 @@ export async function sleep(delay: number): Promise<void> {
 export function sumArrayElements(array: number[]): number {
   return array.reduce((a, b) => a + b, 0);
 }
+
+export function createLinkAndClick(path: string, openOnNewPage = false): void {
+  const link = document.createElement('a');
+  link.setAttribute('href', path);
+  if (openOnNewPage) {
+    link.setAttribute('target', '_blank');
+  }
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}

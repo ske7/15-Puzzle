@@ -23,7 +23,7 @@ const cageImgSize = computed(() => {
   if (windowWidth.value <= 420) {
     return 32;
   }
-  return 48;
+  return 42;
 });
 </script>
 
@@ -60,7 +60,7 @@ const cageImgSize = computed(() => {
   align-items: center;
   justify-content: center;
   height: 100%;
-  margin-top: -20px;
+  margin-top: -10px;
 }
 @media (min-height: 800px), screen and (max-width: 820px) {
   .wrapper {
@@ -88,13 +88,13 @@ const cageImgSize = computed(() => {
 .header h1 {
   display: flex;
   justify-content: center;
-  font-size: 40px;
+  font-size: 35px;
   align-items: center;
-  line-height: 48px;
+  line-height: 42px;
 }
 .header img {
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   border-radius: 8px;

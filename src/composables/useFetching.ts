@@ -35,7 +35,7 @@ export const postGame = (game: GameData, keyH: string): void => {
     });
 };
 
-export const postUserScramble = (user_scramble: UserScrambleData): void => {
+export const postUserScramble = async (user_scramble: UserScrambleData): Promise<void> => {
   const baseStore = useBaseStore();
   const { errorMsg, isFetching } = prepare();
   errorMsg.value = '';
@@ -43,7 +43,7 @@ export const postUserScramble = (user_scramble: UserScrambleData): void => {
     return;
   }
   isFetching.value = true;
-  usePostFetchAPI('user_scramble', JSON.stringify({ user_scramble }) as BodyInit, baseStore.token)
+  await usePostFetchAPI('user_scramble', JSON.stringify({ user_scramble }) as BodyInit, baseStore.token)
     .then((res) => {
       baseStore.userScrambleId = res.user_scramble_id!;
       isFetching.value = false;
