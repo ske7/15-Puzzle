@@ -50,7 +50,7 @@ const doSubmit = (): void => {
           <span class="label-text">Scramble (format: 1,2,3... or 1 2 3 4/5 6...)</span>
           <input
             id="scramble"
-            v-model="formData.scramble"
+            v-model.trim="formData.scramble"
             type="text"
             name="scramble"
             minlength="17"

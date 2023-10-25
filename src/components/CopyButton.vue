@@ -21,7 +21,7 @@ const copyText = computed(() => {
     :disabled="copied"
     @click="copy(copyText)"
   >
-    {{ copied ? 'Copied' : '📷' }}
+    <span>📷</span>
   </button>
 </template>
 

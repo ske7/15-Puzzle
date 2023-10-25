@@ -139,8 +139,14 @@ const fetch = (endpoint: string): void => {
       .then(res => {
         baseStore.token = res.token;
         localStorage.setItem('token', String(baseStore.token));
-        baseStore.userName = res.name;
         syncUserRecordsAfterLogin(res.stats);
+        if (window.location.search !== '') {
+          isFetching.value = false;
+          emit('close');
+          location.reload();
+          return;
+        }
+        baseStore.userName = res.name;
         baseStore.loadAverages();
         isFetching.value = false;
         emit('close');

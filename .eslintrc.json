@@ -112,8 +112,8 @@
     "vue/max-len": [
       "error",
       {
-        "code": 110,
-        "template": 110,
+        "code": 120,
+        "template": 120,
         "tabWidth": 2,
         "comments": 110,
         "ignorePattern": "",
