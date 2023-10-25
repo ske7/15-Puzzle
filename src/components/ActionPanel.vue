@@ -35,6 +35,7 @@ const doRestart = (initRestartPath: string): void => {
   savedStep.value = 0;
   stopWalk.value = false;
   baseStore.inReplay = false;
+  baseStore.wasReplay = false;
   baseStore.reset(initRestartPath === 'fromConfig');
 };
 const showAboutModal = (): void => {
@@ -93,6 +94,7 @@ const doReplay = async(walkTime?: number, walkMode = false): Promise<void> => {
   baseStore.replaySpeed = moveTime;
   // eslint-disable-next-line @typescript-eslint/prefer-for-of
   for (let i = savedStep.value; i < baseStore.repGame.solve_path.length; i++) {
+    baseStore.wasReplay = true;
     const move = baseStore.repGame.solve_path[i];
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!baseStore.inReplay) {

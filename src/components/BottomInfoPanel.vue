@@ -159,6 +159,9 @@ const disableSave = computed(() => {
     return true;
   }
   if (baseStore.userName !== baseStore.repGame.name) {
+    if (baseStore.wasReplay) {
+      return true;
+    }
     const time = baseStore.getTime;
     if (baseStore.solvePath.join('') === baseStore.repGame.solve_path && time >= baseStore.repGame.time) {
       return true;

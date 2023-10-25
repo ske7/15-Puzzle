@@ -97,7 +97,8 @@ export const useBaseStore = defineStore('base', {
     userScrambleId: 0,
     checkUserScrambleInDB: false,
     publicId: '',
-    otherUserName: ''
+    otherUserName: '',
+    wasReplay: false
   }),
   actions: {
     initStore() {
