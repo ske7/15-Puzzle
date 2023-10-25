@@ -95,7 +95,9 @@ export const useBaseStore = defineStore('base', {
     newPlaygroundMovesRecord: false,
     newPlaygroundTimeRecord: false,
     userScrambleId: 0,
-    checkUserScrambleInDB: false
+    checkUserScrambleInDB: false,
+    publicId: '',
+    otherUserName: ''
   }),
   actions: {
     initStore() {
@@ -140,6 +142,7 @@ export const useBaseStore = defineStore('base', {
                   this.playgroundBestTimeMoves = stats.best_time_moves!;
                   this.playgroundBestMoves = stats.best_moves!;
                   this.playgroundSolvePath = stats.solve_path!.split('');
+                  this.publicId = stats.public_id ?? '';
                 }
               })
               .catch(error => {
@@ -159,6 +162,7 @@ export const useBaseStore = defineStore('base', {
         this.mixedOrders = this.savedOrders;
       } else if (this.playgroundMode && this.savedOrders.length === 0) {
         this.userScrambleId = 0;
+        this.publicId = '';
         this.playgroundBestTime = 0;
         this.playgroundBestTimeMoves = 0;
         this.playgroundBestMoves = 0;
@@ -604,6 +608,22 @@ export const useBaseStore = defineStore('base', {
           controlType = 'mouse';
       }
       return controlType;
+    },
+    sharedPlaygroundMode(): boolean {
+      return this.playgroundMode &&
+        this.publicId !== '' &&
+        this.userName != null &&
+        this.otherUserName !== '' &&
+        this.userName !== this.otherUserName;
+    },
+    getTime(): number {
+      let time = 0;
+      if (this.time === 0) {
+        time = 1;
+      } else {
+        time = this.time;
+      }
+      return time;
     }
   }
 });

@@ -13,9 +13,9 @@ const baseStore = useBaseStore();
 
 <template>
   <div class="top-info-panel">
-    <div v-if="baseStore.replayMode" class="replay-row-info">
-      <p>Solved by <span>{{ baseStore.repGame.name }}</span></p>
-      <p>
+    <div v-if="baseStore.replayMode || baseStore.sharedPlaygroundMode" class="replay-row-info">
+      <p>Solved by <span>{{ baseStore.sharedPlaygroundMode ? baseStore.otherUserName : baseStore.repGame.name }}</span></p>
+      <p v-if="baseStore.replayMode">
         <span>{{ displayedTime(baseStore.repGame.time) }}s | {{ baseStore.repGame.moves }} | {{ baseStore.repGame.tps }}</span>
       </p>
     </div>

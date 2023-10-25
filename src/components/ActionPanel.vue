@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onMounted, onUnmounted, computed, type AsyncComponentLoader } from 'vue';
-import { ControlTypeReverseMap } from '@/const';
+import { ControlTypeReverseMap, baseUrl } from '@/const';
 import { sleep } from '@/utils';
 import { useBaseStore } from '../stores/base';
 import { useEventBus, useWindowSize } from '@vueuse/core';
@@ -195,6 +195,15 @@ const closeAddScramble = (): void => {
     baseStore.invertPaused();
   }
 };
+const doTryToImprove = (): void => {
+  localStorage.setItem('sharedPlaygroundScramble', String(baseStore.mixedOrders));
+  const link = document.createElement('a');
+  link.setAttribute('href', `${baseUrl}?playground`);
+  link.setAttribute('target', '_blank');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
 onMounted(() => {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -218,7 +227,7 @@ onUnmounted(() => {
         Restart
       </button>
       <button
-        v-if="baseStore.playgroundMode"
+        v-if="baseStore.playgroundMode && !baseStore.sharedPlaygroundMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.inReplay"
@@ -227,7 +236,7 @@ onUnmounted(() => {
         Renew
       </button>
       <button
-        v-if="baseStore.playgroundMode"
+        v-if="baseStore.playgroundMode && !baseStore.sharedPlaygroundMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.inReplay"
@@ -272,6 +281,15 @@ onUnmounted(() => {
         Replay
       </button>
       <button
+        v-if="baseStore.sharedPlaygroundMode"
+        type="button"
+        class="tool-button"
+        :disabled="disableButton || baseStore.inReplay"
+        @click="doTryToImprove"
+      >
+        Try It
+      </button>
+      <button
         type="button"
         class="tool-button"
         :disabled="disableButton || disableDuringMarathon || baseStore.inReplay"
@@ -291,7 +309,7 @@ onUnmounted(() => {
         Restart
       </button>
       <button
-        v-if="baseStore.playgroundMode"
+        v-if="baseStore.playgroundMode && !baseStore.sharedPlaygroundMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.inReplay"
@@ -300,7 +318,7 @@ onUnmounted(() => {
         Renew
       </button>
       <button
-        v-if="baseStore.playgroundMode"
+        v-if="baseStore.playgroundMode && !baseStore.sharedPlaygroundMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.inReplay"
@@ -342,6 +360,15 @@ onUnmounted(() => {
         @click="doRestart('fromMain')"
       >
         Restart
+      </button>
+      <button
+        v-if="baseStore.sharedPlaygroundMode"
+        type="button"
+        class="tool-button"
+        :disabled="disableButton || baseStore.inReplay"
+        @click="doTryToImprove"
+      >
+        Try It
       </button>
       <button
         type="button"

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
 import { useBaseStore } from '../stores/base';
-import { CORE_NUM } from '@/const';
+import { CORE_NUM, baseUrl } from '@/const';
 import { type RepGame } from '@/types';
-import { useEventBus } from '@vueuse/core';
+import { useEventBus, useClipboard } from '@vueuse/core';
 import { convertScramble, calculateTPS, displayedTime, shortenSolutionStr } from '@/utils';
+import { useGetFetchAPI } from '../composables/useFetchAPI';
+import { postUserScramble } from '../composables/useFetching';
 const CopyButton = defineAsyncComponent({
   loader: async () => await import('../components/CopyButton.vue') as unknown as AsyncComponentLoader,
   delay: 150
@@ -89,7 +91,7 @@ const disableDuringMarathon = computed(() => {
   return baseStore.marathonMode && baseStore.doneFirstMove && !baseStore.isDone;
 });
 const cannotClick = computed(() => {
-  return baseStore.showModal || disableDuringMarathon.value;
+  return baseStore.showModal || disableDuringMarathon.value || baseStore.inReplay;
 });
 
 const resetToken = ref<string | null>(null);
@@ -115,6 +117,55 @@ const doWalk = (): void => {
   baseStore.repGame.control_type = 'mouse';
   eventBus.emit('walk');
 };
+const { copy } = useClipboard();
+const doShare = (): void => {
+  useGetFetchAPI(`public_id?user_scramble_id=${baseStore.userScrambleId}`, baseStore.token)
+    .then(async (res) => {
+      if (res.public_id != null) {
+        baseStore.publicId = res.public_id;
+        await copy(`${baseUrl}?playground&public_id=${baseStore.publicId}`);
+      }
+    })
+    .catch(error => {
+      console.log(error as string);
+    });
+};
+const doSave = (): void => {
+  const time = baseStore.getTime;
+  if (baseStore.playgroundBestTime === 0 || time < baseStore.playgroundBestTime) {
+    baseStore.playgroundBestTime = time;
+    baseStore.playgroundBestTimeMoves = baseStore.movesCount;
+    baseStore.newPlaygroundTimeRecord = true;
+  }
+  if (baseStore.playgroundBestMoves === 0 || baseStore.movesCount < baseStore.playgroundBestMoves) {
+    baseStore.playgroundBestMoves = baseStore.movesCount;
+    baseStore.playgroundSolvePath = baseStore.solvePath;
+    baseStore.newPlaygroundMovesRecord = true;
+  }
+  if (baseStore.newPlaygroundTimeRecord || baseStore.newPlaygroundMovesRecord) {
+    postUserScramble({
+      user_name: baseStore.userName,
+      puzzle_size: baseStore.numLines,
+      best_time: baseStore.playgroundBestTime,
+      best_moves: baseStore.playgroundBestMoves,
+      best_time_moves: baseStore.playgroundBestTimeMoves,
+      solve_path: baseStore.playgroundSolvePath.join(''),
+      scramble: baseStore.mixedOrders.join(',')
+    });
+  }
+};
+const disableSave = computed(() => {
+  if (!baseStore.isDone) {
+    return true;
+  }
+  if (baseStore.userName !== baseStore.repGame.name) {
+    const time = baseStore.getTime;
+    if (baseStore.solvePath.join('') === baseStore.repGame.solve_path && time >= baseStore.repGame.time) {
+      return true;
+    }
+  }
+  return false;
+});
 </script>
 
 <template>
@@ -162,12 +213,31 @@ const doWalk = (): void => {
           :item-to-copy="String(baseStore.solvePath.join(''))"
           :is-solve-path="true"
         />
+        <button
+          type="button"
+          class="tool-button save-button"
+          :disabled="disableSave"
+          @click="doSave"
+        >
+          💾
+        </button>
       </div>
       <div v-if="baseStore.playgroundMode">
         Best speed: <span :class="{ 'red bold': baseStore.newPlaygroundTimeRecord }">{{ displayedTime(baseStore.playgroundBestTime) }}s | {{ baseStore.playgroundBestTimeMoves }} | {{ calculateTPS(baseStore.playgroundBestTimeMoves, baseStore.playgroundBestTime) }}</span>
       </div>
       <div v-if="baseStore.playgroundMode" class="best-solution">
-        Best solution: <span :class="{ 'red bold': baseStore.newPlaygroundMovesRecord}">{{ baseStore.playgroundBestMoves }}</span>
+        Best solution:
+        <a
+          v-if="baseStore.userScrambleId !== 0 && baseStore.publicId !== '' && !baseStore.sharedPlaygroundMode"
+          :class="{ 'red bold best-moves': baseStore.newPlaygroundMovesRecord }"
+          :href="`${baseUrl}?playground&public_id=${baseStore.publicId}`"
+          target="_blank"
+        >
+          {{ baseStore.playgroundBestMoves }}
+        </a>
+        <span v-else :class="{ 'red bold best-moves': baseStore.newPlaygroundMovesRecord}">
+          {{ baseStore.playgroundBestMoves }}
+        </span>
         <CopyButton
           v-if="baseStore.playgroundSolvePath.length > 0"
           :item-to-copy="shortenSolutionStr(String(baseStore.playgroundSolvePath.join('')))"
@@ -180,6 +250,18 @@ const doWalk = (): void => {
           @click="doWalk"
         >
           {{ baseStore.inReplay ? 'Stop' : 'Walk' }}
+        </button>
+        <button
+          v-if="baseStore.playgroundSolvePath.length > 0 &&
+            baseStore.token != null &&
+            baseStore.userName != null &&
+            !baseStore.sharedPlaygroundMode"
+          type="button"
+          :disabled="baseStore.publicId !== ''"
+          class="tool-button walk-button"
+          @click="doShare"
+        >
+          Share
         </button>
       </div>
       <p
@@ -202,7 +284,7 @@ const doWalk = (): void => {
         </span> out of 5 puzzles
       </p>
     </div>
-    <div v-if="!(baseStore.replayMode || baseStore.playgroundMode)" class="reg-wrapper" :class="{ paused: cannotClick }">
+    <div v-if="!(baseStore.replayMode)" class="reg-wrapper" :class="{ paused: cannotClick }">
       <p v-if="baseStore.isNetworkError" class="no-connect">
         Local mode (no server connection)
       </p>
@@ -256,7 +338,7 @@ const doWalk = (): void => {
 .copy-button-wrapper {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 3px;
   flex-direction: row;
   line-height: 1;
 }
@@ -325,10 +407,45 @@ const doWalk = (): void => {
 }
 .best-solution {
   display: flex;
-  gap: 15px;
+  gap: 5px;
   justify-content: center;
   align-content: center;
   align-items: center;
+}
+.best-moves {
+  margin: 0 5px;
+}
+.save-button {
+  cursor: auto;
+  border: 0px;
+  font-style: normal;
+  height: 24px;
+  width: 24px;
+  min-width:24px;
+  transition: 1ms all ease-out;
+  font-size: 12px;
+  background-color: transparent;
+  display: inline;
+}
+.save-button:disabled {
+  cursor: auto;
+  opacity: 0.5;
+}
+.save-button:hover, .save-button:active {
+  background-color: transparent;
+}
+.save-button:active:not([disabled]) {
+  cursor: pointer;
+  padding-top: 1px;
+  font-size: 13px;
+  font-style: italic;
+}
+.save-button:hover:not([disabled]) {
+  cursor: pointer;
+  padding-top: 1px;
+  padding-left: 3px;
+  font-size: 13px;
+  background-color: transparent;
 }
 @media screen and (max-width: 420px) {
   .reg-wrapper {

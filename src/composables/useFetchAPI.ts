@@ -7,7 +7,7 @@ const api = async (endpoint: string, method: string, body?: BodyInit,
   token?: string, keyH?: string): Promise<Response> => {
   const baseStore = useBaseStore();
 
-  let error = null;
+  let error;
   let headers: HeadersInit = {
     'Content-Type': 'application/json',
     Accept: 'application/json'

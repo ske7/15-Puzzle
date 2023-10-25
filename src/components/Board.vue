@@ -53,7 +53,7 @@ watch(finishLoadingAllCageImages, value => {
 
 const eventBus = useEventBus<string>('event-bus');
 const touchMove = (e: TouchEvent): void => {
-  if (baseStore.isMoving || baseStore.inReplay) {
+  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode) {
     return;
   }
   let element = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
@@ -137,7 +137,7 @@ const changePuzzleSize = (puzzleSize: number): void => {
                   'loading-veil': baseStore.cageMode && !baseStore.finishLoadingAllCageImages }"
       />
     </div>
-    <div v-if="baseStore.playgroundMode" class="puzzle-sizes">
+    <div v-if="baseStore.playgroundMode && !baseStore.sharedPlaygroundMode" class="puzzle-sizes">
       <span
         v-for="(item, index) in cores"
         :key="index"

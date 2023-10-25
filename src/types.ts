@@ -34,6 +34,8 @@ export interface UserScrambleData {
   best_time_moves?: number;
   scramble?: string;
   solve_path?: string;
+  name?: string;
+  public_id?: string;
 }
 
 export interface InvalidFields {
@@ -147,6 +149,7 @@ export interface Response {
   was_avg_records?: WasAvgRecord[];
   game_id?: number;
   user_scramble_id?: number;
+  public_id?: string;
 }
 
 export interface AverageData {

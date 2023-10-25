@@ -3,7 +3,7 @@ import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useKeyDown } from '../composables/useKeyDown';
 import { CORE_NUM, CAGES_PATH_ARR, cores, baseUrl } from '@/const';
-import { type RepGame } from '@/types';
+import { type RepGame, type UserScrambleData } from '@/types';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
 // eslint-disable-next-line max-statements
@@ -12,6 +12,11 @@ export const usePrepare = (): void => {
 
   useKeyDown();
 
+  const initStore = (numLines: number): void => {
+    baseStore.numLines = numLines;
+    baseStore.initStore();
+    baseStore.puzzleLoaded = true;
+  };
   const checkCurrentUser = (gameId: number): void => {
     if (baseStore.token != null) {
       useGetFetchAPI('get_current_user', baseStore.token)
@@ -31,6 +36,7 @@ export const usePrepare = (): void => {
     }
   };
   let gameId = 0;
+  let numLines = CORE_NUM;
   const locationStr = location.href.toLowerCase();
   if (locationStr.includes('dark')) {
     baseStore.darkMode = true;
@@ -47,13 +53,48 @@ export const usePrepare = (): void => {
     localStorage.setItem('hoverOnControl', 'true');
   }
   if (locationStr.includes('playground')) {
+    baseStore.playgroundMode = true;
+    checkCurrentUser(gameId);
     baseStore.marathonMode = false;
     localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
-    baseStore.playgroundMode = true;
-    baseStore.numLines = CORE_NUM;
-    checkCurrentUser(gameId);
-    baseStore.initStore();
-    baseStore.puzzleLoaded = true;
+    const sharedPlaygroundScramble = localStorage.getItem('sharedPlaygroundScramble');
+    if (sharedPlaygroundScramble !== null) {
+      baseStore.savedOrders = sharedPlaygroundScramble.split(',').map(x => +x);
+      baseStore.checkUserScrambleInDB = true;
+      numLines = Math.sqrt(baseStore.savedOrders.length);
+      localStorage.removeItem('sharedPlaygroundScramble');
+    }
+    if (location.href.toLowerCase().includes('public_id')) {
+      const searchParams = new URLSearchParams(location.search);
+      const publicId = searchParams.get('public_id');
+      if (publicId != null) {
+        if (baseStore.token != null) {
+          void useGetFetchAPI(`user_scramble?public_id=${publicId}`, baseStore.token)
+            .then((res) => {
+              if (res.stats != null) {
+                const stats = res.stats as unknown as UserScrambleData;
+                baseStore.savedOrders = stats.scramble!.split(',').map(x => +x);
+                numLines = Math.sqrt(baseStore.savedOrders.length);
+                baseStore.playgroundBestTime = stats.best_time!;
+                baseStore.playgroundBestTimeMoves = stats.best_time_moves!;
+                baseStore.playgroundBestMoves = stats.best_moves!;
+                baseStore.playgroundSolvePath = stats.solve_path!.split('');
+                baseStore.userScrambleId = stats.id!;
+                baseStore.otherUserName = stats.name!;
+                baseStore.publicId = publicId;
+              }
+              initStore(numLines);
+            })
+            .catch(error => {
+              console.log(error as string);
+            });
+        } else {
+          initStore(numLines);
+        }
+      }
+    } else {
+      initStore(numLines);
+    }
     return;
   }
   if (!baseStore.playgroundMode && locationStr.includes('cage')) {
@@ -73,12 +114,13 @@ export const usePrepare = (): void => {
       gameId = gameIdParam;
     }
   } else {
-    const numLines = localStorage.getItem('numLines');
-    if (numLines === null || isNaN(Number(numLines)) || !cores.includes(Number(numLines))) {
+    const storageNumLines = localStorage.getItem('numLines');
+    if (storageNumLines === null || isNaN(Number(storageNumLines)) ||
+      !cores.includes(Number(storageNumLines))) {
       localStorage.setItem('numLines', CORE_NUM.toString());
-      baseStore.numLines = CORE_NUM;
+      numLines = CORE_NUM;
     } else {
-      baseStore.numLines = Number(numLines);
+      numLines = Number(storageNumLines);
     }
   }
   if (gameId !== 0) {
@@ -93,9 +135,7 @@ export const usePrepare = (): void => {
           }
           baseStore.replayMode = true;
           baseStore.repGame = res.stats as unknown as RepGame;
-          baseStore.numLines = baseStore.repGame.puzzle_size;
-          baseStore.initStore();
-          baseStore.puzzleLoaded = true;
+          initStore(baseStore.repGame.puzzle_size);
         } else {
           location.href = baseUrl;
         }
@@ -112,9 +152,7 @@ export const usePrepare = (): void => {
         baseStore.loadUnlockedCagesFromLocalStorage();
         baseStore.doPrepareCageMode();
       }
-      baseStore.initStore();
-      baseStore.resetConsecutiveSolves();
-      baseStore.puzzleLoaded = true;
+      initStore(numLines);
       setTimeout(() => {
         if (baseStore.unlockedCages.size > 0) {
           const first = [...baseStore.unlockedCages][0];

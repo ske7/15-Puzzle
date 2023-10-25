@@ -20,7 +20,7 @@ export const useKeyDown = (): void => {
       eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
       return;
     }
-    if (baseStore.playgroundMode && !baseStore.showAddScramble && ctrlDown && event.code === 'KeyV') {
+    if (baseStore.playgroundMode && !baseStore.sharedPlaygroundMode && !baseStore.showAddScramble && ctrlDown && event.code === 'KeyV') {
       // not working in Firefox until dom.events.asyncClipboard.readText = true
       await navigator.clipboard.readText().then((text) => {
         const scramble = convertToNumbersArray(text);
@@ -33,7 +33,7 @@ export const useKeyDown = (): void => {
       });
       return;
     }
-    if (!baseStore.showModal && !baseStore.cageMode && !baseStore.replayMode) {
+    if (!baseStore.showModal && !baseStore.cageMode && !baseStore.replayMode && !baseStore.sharedPlaygroundMode) {
       if (event.code === 'PageUp') {
         if (baseStore.numLines === cores.slice(-1)[0]) {
           return;
@@ -51,7 +51,7 @@ export const useKeyDown = (): void => {
         return;
       }
     }
-    if (baseStore.isDone || baseStore.paused || baseStore.inReplay) {
+    if (baseStore.isDone || baseStore.paused || baseStore.inReplay || baseStore.sharedPlaygroundMode) {
       return;
     }
     if (['ArrowLeft', 'KeyA', 'KeyJ'].includes(event.code)) {

@@ -1,80 +1,16 @@
-import { computed, watch, ref } from 'vue';
+import { computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
-import { type GameData, type AverageStats, type WasAvgRecord, type UserScrambleData } from '@/types';
-import { usePostFetchAPI, usePatchFetchAPI } from '../composables/useFetchAPI';
+import { postGame, postUserScramble, patchUserScramble } from '../composables/useFetching';
 
 export const useWatchGameState = (): void => {
   const baseStore = useBaseStore();
-
-  const errorMsg = ref('');
-  const isFetching = ref(false);
-  const postGame = (game: GameData, keyH: string): void => {
-    errorMsg.value = '';
-    if (isFetching.value) {
-      return;
-    }
-    isFetching.value = true;
-    usePostFetchAPI('game', JSON.stringify({ game }) as BodyInit, baseStore.token, keyH)
-      .then((res) => {
-        if (!baseStore.marathonMode) {
-          baseStore.lastGameID = res.game_id ?? 0;
-        }
-        if (baseStore.proMode) {
-          baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
-          baseStore.setWasAvgRecords(res.was_avg_records as unknown as WasAvgRecord[]);
-        }
-        isFetching.value = false;
-      })
-      .catch(error => {
-        errorMsg.value = error as string;
-        isFetching.value = false;
-      });
-  };
-
-  const postUserScramble = (user_scramble: UserScrambleData): void => {
-    errorMsg.value = '';
-    if (isFetching.value) {
-      return;
-    }
-    isFetching.value = true;
-    usePostFetchAPI('user_scramble', JSON.stringify({ user_scramble }) as BodyInit, baseStore.token)
-      .then((res) => {
-        baseStore.userScrambleId = res.user_scramble_id!;
-        isFetching.value = false;
-      })
-      .catch(error => {
-        errorMsg.value = error as string;
-        isFetching.value = false;
-      });
-  };
-
-  const patchUserScramble = (user_scramble: UserScrambleData): void => {
-    errorMsg.value = '';
-    if (isFetching.value) {
-      return;
-    }
-    isFetching.value = true;
-    usePatchFetchAPI('user_scramble', JSON.stringify({ user_scramble }) as BodyInit, baseStore.token)
-      .then((_res) => {
-        isFetching.value = false;
-      })
-      .catch(error => {
-        errorMsg.value = error as string;
-        isFetching.value = false;
-      });
-  };
 
   const isDoneAll = computed(() => {
     return baseStore.isDone;
   });
   const setRecords = (puzzleType: string): void => {
-    let time = 0;
-    if (baseStore.time === 0) {
-      time = 1;
-    } else {
-      time = baseStore.time;
-    }
+    const time = baseStore.getTime;
     if (baseStore.movesRecord === 0 || baseStore.movesCount <= baseStore.movesRecord) {
       baseStore.setMovesRecord(baseStore.movesCount, time,
         baseStore.numLines, baseStore.marathonMode);
@@ -84,8 +20,8 @@ export const useWatchGameState = (): void => {
         baseStore.numLines, baseStore.marathonMode);
     }
     if (baseStore.token != null) {
-      let scramble;
-      let solvePath;
+      let scramble = undefined as unknown as string;
+      let solvePath = undefined as unknown as string;
       if (!baseStore.marathonMode) {
         scramble = baseStore.mixedOrders.join(',');
         solvePath = baseStore.solvePath.join('');
@@ -107,12 +43,7 @@ export const useWatchGameState = (): void => {
   watch(isDoneAll, (value) => {
     if (value) {
       if (baseStore.replayMode || baseStore.playgroundMode) {
-        let time = 0;
-        if (baseStore.time === 0) {
-          time = 1;
-        } else {
-          time = baseStore.time;
-        }
+        const time = baseStore.getTime;
         if (baseStore.playgroundBestTime === 0 || time < baseStore.playgroundBestTime) {
           baseStore.playgroundBestTime = time;
           baseStore.playgroundBestTimeMoves = baseStore.movesCount;
@@ -138,7 +69,6 @@ export const useWatchGameState = (): void => {
             if (baseStore.newPlaygroundTimeRecord || baseStore.newPlaygroundMovesRecord) {
               patchUserScramble({
                 id: baseStore.userScrambleId,
-                user_name: baseStore.userName,
                 best_time: baseStore.playgroundBestTime,
                 best_time_moves: baseStore.playgroundBestTimeMoves,
                 best_moves: baseStore.playgroundBestMoves,
