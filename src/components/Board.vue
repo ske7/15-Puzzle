@@ -137,7 +137,7 @@ const changePuzzleSize = (puzzleSize: number): void => {
                   'loading-veil': baseStore.cageMode && !baseStore.finishLoadingAllCageImages }"
       />
     </div>
-    <div v-if="baseStore.playgroundMode && !baseStore.sharedPlaygroundMode" class="puzzle-sizes">
+    <div v-if="!baseStore.replayMode && !baseStore.sharedPlaygroundMode && !baseStore.cageMode" class="puzzle-sizes">
       <span
         v-for="(item, index) in cores"
         :key="index"
@@ -222,7 +222,7 @@ const changePuzzleSize = (puzzleSize: number): void => {
 }
 .puzzle-sizes .selected {
   color: var(--link-color);
-  font-weight: 600;
+  font-weight: 700;
 }
 @media screen and (max-width: 601px) {
   .paused-veil .bigger {

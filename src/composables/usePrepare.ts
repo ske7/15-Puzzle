@@ -17,6 +17,7 @@ export const usePrepare = (): void => {
     baseStore.initStore();
     baseStore.puzzleLoaded = true;
   };
+
   const checkCurrentUser = (gameId: number): void => {
     if (baseStore.token != null) {
       useGetFetchAPI('get_current_user', baseStore.token)
@@ -35,15 +36,23 @@ export const usePrepare = (): void => {
       void useGetFetchAPI('version');
     }
   };
+
   let gameId = 0;
   let numLines = CORE_NUM;
+  const storageNumLines = localStorage.getItem('numLines');
+  if (storageNumLines === null || isNaN(Number(storageNumLines)) ||
+    !cores.includes(Number(storageNumLines))) {
+    localStorage.setItem('numLines', CORE_NUM.toString());
+    numLines = CORE_NUM;
+  } else {
+    numLines = Number(storageNumLines);
+  }
   const locationStr = location.href.toLowerCase();
   if (locationStr.includes('dark')) {
     baseStore.darkMode = true;
     localStorage.setItem('darkMode', 'true');
   }
   document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');
-
   if (locationStr.includes('pro') || locationStr.includes('playground')) {
     baseStore.proMode = true;
     localStorage.setItem('proMode', 'true');
@@ -114,15 +123,6 @@ export const usePrepare = (): void => {
     const gameIdParam = Number(searchParams.get('game_id'));
     if (!isNaN(gameIdParam)) {
       gameId = gameIdParam;
-    }
-  } else {
-    const storageNumLines = localStorage.getItem('numLines');
-    if (storageNumLines === null || isNaN(Number(storageNumLines)) ||
-      !cores.includes(Number(storageNumLines))) {
-      localStorage.setItem('numLines', CORE_NUM.toString());
-      numLines = CORE_NUM;
-    } else {
-      numLines = Number(storageNumLines);
     }
   }
   if (gameId !== 0) {
