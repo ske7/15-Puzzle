@@ -154,7 +154,7 @@ const doSaveOriginal = async (): Promise<void> => {
 };
 const doSave = async (): Promise<void> => {
   let time = baseStore.getTime;
-  const isOriginal = baseStore.userName != null && baseStore.repGame.name !== baseStore.userName;
+  const isOriginal = baseStore.userName != null && baseStore.repGame.name === baseStore.userName;
   if (isOriginal && time > baseStore.repGame.time) {
     time = baseStore.repGame.time;
   }
