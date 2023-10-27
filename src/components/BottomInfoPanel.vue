@@ -154,12 +154,13 @@ const doSaveOriginal = async (): Promise<void> => {
 };
 const doSave = async (): Promise<void> => {
   let time = baseStore.getTime;
-  if (time > baseStore.repGame.time) {
+  const isOriginal = baseStore.userName != null && baseStore.repGame.name !== baseStore.userName;
+  if (isOriginal && time > baseStore.repGame.time) {
     time = baseStore.repGame.time;
   }
   let movesCount = baseStore.movesCount;
   let solvePath = baseStore.solvePath;
-  if (movesCount > baseStore.repGame.moves) {
+  if (isOriginal && movesCount > baseStore.repGame.moves) {
     movesCount = baseStore.repGame.moves;
     solvePath = baseStore.repGame.solve_path.split('');
   }
