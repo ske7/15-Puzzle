@@ -259,7 +259,7 @@ const setScramble = (strScramble: string): void => {
   max-width: 120px;
 }
 .w-160{
-  max-width: 150px;
+  max-width: 160px;
 }
 .scramble-text {
   margin-right: 5px;
