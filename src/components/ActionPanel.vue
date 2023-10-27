@@ -192,7 +192,7 @@ const setScramble = (scramble: number[]): void => {
   baseStore.numLines = Math.sqrt(scramble.length);
   baseStore.savedOrders = scramble;
   baseStore.checkUserScrambleInDB = true;
-  baseStore.renewPuzzle();
+  baseStore.initStore();
   baseStore.newPlaygroundTimeRecord = false;
   baseStore.newPlaygroundMovesRecord = false;
   if (baseStore.showAddScramble) {
