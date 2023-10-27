@@ -20,6 +20,10 @@ const AddScramble = defineAsyncComponent({
   loader: async () => await import('../components/AddScramble.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
+const ScrambleList = defineAsyncComponent({
+  loader: async () => await import('../components/ScrambleList.vue') as unknown as AsyncComponentLoader,
+  delay: 150
+});
 
 const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
@@ -189,7 +193,12 @@ const setScramble = (scramble: number[]): void => {
   baseStore.savedOrders = scramble;
   baseStore.checkUserScrambleInDB = true;
   baseStore.renewPuzzle();
-  closeAddScramble();
+  if (baseStore.showAddScramble) {
+    closeAddScramble();
+  }
+  if (baseStore.showScrambleList) {
+    closeScrambleList();
+  }
 };
 const closeAddScramble = (): void => {
   baseStore.showAddScramble = false;
@@ -200,6 +209,19 @@ const closeAddScramble = (): void => {
 const doTryToImprove = (): void => {
   localStorage.setItem('sharedPlaygroundScramble', String(baseStore.mixedOrders));
   createLinkAndClick(`${baseUrl}?playground`, true);
+};
+const closeScrambleList = (): void => {
+  baseStore.showScrambleList = false;
+  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
+    baseStore.invertPaused();
+  }
+};
+const showScrambleList = (): void => {
+  wasPausedBeforeOpenModal.value = baseStore.paused;
+  if (!baseStore.paused && !baseStore.isDone) {
+    baseStore.invertPaused();
+  }
+  baseStore.showScrambleList = true;
 };
 
 onMounted(() => {
@@ -241,6 +263,15 @@ onUnmounted(() => {
         @click="addScramble"
       >
         Add
+      </button>
+      <button
+        v-if="baseStore.playgroundMode && !baseStore.sharedPlaygroundMode"
+        type="button"
+        class="tool-button"
+        :disabled="disableButton || baseStore.inReplay"
+        @click="showScrambleList"
+      >
+        List
       </button>
       <button
         v-if="!baseStore.proMode"
@@ -288,6 +319,7 @@ onUnmounted(() => {
         Try It
       </button>
       <button
+        v-if="!baseStore.playgroundMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || disableDuringMarathon || baseStore.inReplay"
@@ -323,6 +355,15 @@ onUnmounted(() => {
         @click="addScramble"
       >
         Add
+      </button>
+      <button
+        v-if="baseStore.playgroundMode && !baseStore.sharedPlaygroundMode"
+        type="button"
+        class="tool-button"
+        :disabled="disableButton || baseStore.inReplay"
+        @click="showScrambleList"
+      >
+        List
       </button>
       <button
         v-if="baseStore.replayMode"
@@ -369,6 +410,7 @@ onUnmounted(() => {
         Try It
       </button>
       <button
+        v-if="!baseStore.playgroundMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || disableDuringMarathon || baseStore.inReplay"
@@ -391,6 +433,7 @@ onUnmounted(() => {
     @close="closeImageGallery"
   />
   <AddScramble v-if="baseStore.showAddScramble" @set="setScramble" @close="closeAddScramble" />
+  <ScrambleList v-if="baseStore.showScrambleList" @set="setScramble" @close="closeScrambleList" />
 </template>
 
 <style scoped>

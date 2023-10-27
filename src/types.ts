@@ -32,10 +32,13 @@ export interface UserScrambleData {
   best_time?: number;
   best_moves?: number;
   best_time_moves?: number;
+  best_tps?: number;
   scramble?: string;
   solve_path?: string;
   name?: string;
   public_id?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface InvalidFields {
@@ -146,6 +149,7 @@ export interface Response {
   stats?: UserStats;
   records?: UserRecord[];
   game_records?: GameData[];
+  scramble_records?: UserScrambleData[];
   was_avg_records?: WasAvgRecord[];
   game_id?: number;
   user_scramble_id?: number;

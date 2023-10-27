@@ -98,7 +98,8 @@ export const useBaseStore = defineStore('base', {
     checkUserScrambleInDB: false,
     publicId: '',
     otherUserName: '',
-    wasReplay: false
+    wasReplay: false,
+    showScrambleList: false
   }),
   actions: {
     initStore() {
@@ -568,7 +569,7 @@ export const useBaseStore = defineStore('base', {
     showModal(): boolean {
       return this.showConfig || this.showInfo || this.showWinModal ||
         this.showImageGallery || this.showRegModal || this.showUserAccount ||
-        this.showLeaderBoard || this.showAddScramble;
+        this.showLeaderBoard || this.showAddScramble || this.showScrambleList;
     },
     cageImgIndex(): number {
       return CAGES_PATH_ARR.indexOf(this.cagePath.toString());
