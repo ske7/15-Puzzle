@@ -79,10 +79,10 @@ const setScramble = (strScramble: string): void => {
         <div class="flex-row w-70">
           ID
         </div>
-        <div class="flex-row w-150">
+        <div class="flex-row w-160">
           Date
         </div>
-        <div class="flex-row w-150">
+        <div class="flex-row w-160">
           Best Time
         </div>
         <div class="flex-row w-95">
@@ -128,10 +128,10 @@ const setScramble = (strScramble: string): void => {
               {{ item.id }}
             </p>
           </div>
-          <div class="flex-row w-150">
+          <div class="flex-row w-160">
             <span>{{ formatDate(item.created_at) }}</span>
           </div>
-          <div class="flex-row w-150">
+          <div class="flex-row w-160">
             <span>{{ item.best_time! / 1000 }} ( {{ item.best_time_moves }} | {{ item.best_tps }})</span>
           </div>
           <div class="flex-row w-95">
@@ -258,7 +258,7 @@ const setScramble = (strScramble: string): void => {
 .w-120{
   max-width: 120px;
 }
-.w-150{
+.w-160{
   max-width: 150px;
 }
 .scramble-text {
@@ -369,7 +369,7 @@ const setScramble = (strScramble: string): void => {
     max-width: 180px;
     min-width: 180px;
   }
-  .w-150 {
+  .w-160 {
     max-width: 180px;
     min-width: 180px;
   }
