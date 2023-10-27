@@ -222,7 +222,6 @@ watch(marathonMode, () => {
             Marathon Mode
           </label>
         </div>
-        <a href="/?playground" class="link-item playground-mode">Playground Mode</a>
       </div>
       <div class="buttons">
         <button type="button" class="tool-button" @click="emit('close')">
@@ -298,10 +297,5 @@ label {
   margin-bottom: 5px;
   display: flex;
   justify-content: center;
-}
-.playground-mode {
-  margin-top: -5px;
-  margin-left: 23.2px;
-  display: block;
 }
 </style>
