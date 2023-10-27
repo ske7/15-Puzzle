@@ -145,6 +145,13 @@ export const useBaseStore = defineStore('base', {
                   this.playgroundBestMoves = stats.best_moves!;
                   this.playgroundSolvePath = stats.solve_path!.split('');
                   this.publicId = stats.public_id ?? '';
+                } else {
+                  this.playgroundBestTime = 0;
+                  this.playgroundBestTimeMoves = 0;
+                  this.playgroundBestMoves = 0;
+                  this.playgroundSolvePath = [];
+                  this.publicId = '';
+                  this.userScrambleId = 0;
                 }
               })
               .catch(error => {
