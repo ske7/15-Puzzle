@@ -159,7 +159,7 @@ const setScramble = (strScramble: string): void => {
             </div>
           </div>
           <div class="flex-row w-120">
-            <a :href="`${baseUrl}/playground?public_id=${item.public_id}`" class="link-item">
+            <a :href="`${baseUrl}?playground&public_id=${item.public_id}`" class="link-item">
               {{ item.public_id }}
             </a>
           </div>
