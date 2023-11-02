@@ -112,7 +112,7 @@ const closeGamesTable = (): void => {
         <p><strong>Registration date:</strong> {{ formatDate(userData.user_data.created_at) }}</p>
         <p>
           <strong>Num games:</strong> {{ userData?.user_data.num_finished_games || 0 }}
-          <span class="last-games" @click="showGamesTable=true">(last 100 games)</span>
+          <span class="last-games" @click="showGamesTable=true">(your games)</span>
         </p>
         <p><strong>Play time:</strong> {{ formatPlayTime }}</p>
       </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { onClickOutside, useDateFormat } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
@@ -19,9 +19,12 @@ onClickOutside(scrambleList, (event) => {
 
 const baseStore = useBaseStore();
 
+const limit = 50;
+let offset = 0;
+
 const puzzleSize = ref<number>(baseStore.numLines);
 const errorMsg = ref('');
-const scrambleRecords = ref<UserScrambleData[]>();
+const scrambleRecords = ref<UserScrambleData[]>([]);
 const isFetching = ref(false);
 const fetched = ref(false);
 const fetch = (endpoint: string): void => {
@@ -33,7 +36,14 @@ const fetch = (endpoint: string): void => {
   useGetFetchAPI(endpoint, baseStore.token)
     .then(res => {
       isFetching.value = false;
-      scrambleRecords.value = res.scramble_records;
+      if (res.scramble_records != null) {
+        if (res.scramble_records.length === 0) {
+          offset = -1;
+        } else {
+          scrambleRecords.value.push(...res.scramble_records);
+          offset += limit;
+        }
+      }
       fetched.value = true;
     })
     .catch(error => {
@@ -50,12 +60,32 @@ const formatDate = (date?: string): string => {
   }
   return useDateFormat(date, 'YYYY-MM-DD HH:mm:ss').value;
 };
+
+let scrambleTable: HTMLElement | null;
+const onscroll = (_event: Event): void => {
+  if (scrambleTable != null && offset !== -1) {
+    if (scrambleTable.scrollTop + scrambleTable.offsetHeight >= scrambleTable.scrollHeight - 100) {
+      fetch(`list_user_scrambles?puzzle_size=${puzzleSize.value}&offset=${offset}&limit=${limit}`);
+    }
+  }
+};
 onMounted(() => {
-  fetch(`list_user_scrambles?puzzle_size=${puzzleSize.value}`);
+  fetch(`list_user_scrambles?puzzle_size=${puzzleSize.value}&offset=${offset}&limit=${limit}`);
+  scrambleTable = document.getElementById('scramble-list-table');
+  if (scrambleTable != null) {
+    scrambleTable.addEventListener('scroll', onscroll);
+  }
+});
+onUnmounted(() => {
+  if (scrambleTable != null) {
+    scrambleTable.removeEventListener('scroll', onscroll);
+  }
 });
 watch(puzzleSize, (newValue) => {
   if (newValue !== 0) {
-    fetch(`list_user_scrambles?puzzle_size=${newValue}`);
+    scrambleRecords.value = [];
+    offset = 0;
+    fetch(`list_user_scrambles?puzzle_size=${newValue}&offset=${offset}&limit=${limit}`);
   }
 });
 
@@ -74,7 +104,7 @@ const setScramble = (strScramble: string): void => {
     </p>
     <PuzzleSizeSlider v-model="puzzleSize" />
     <hr class="nice-hr">
-    <div v-if="fetched" class="table-wrapper">
+    <div id="scramble-list-table" class="table-wrapper">
       <div class="flex-table table-header">
         <div class="flex-row w-70">
           ID
@@ -98,73 +128,79 @@ const setScramble = (strScramble: string): void => {
           Public ID
         </div>
       </div>
-      <div v-for="(item) in scrambleRecords" :key="item.id" class="flex-table">
-        <div class="table-header-mobile">
-          <div class="flex-row">
-            ID
+      <template v-if="fetched">
+        <div
+          v-for="(item) in scrambleRecords"
+          :key="item.id"
+          class="flex-table"
+        >
+          <div class="table-header-mobile">
+            <div class="flex-row">
+              ID
+            </div>
+            <div class="flex-row">
+              Date
+            </div>
+            <div class="flex-row">
+              Best Time
+            </div>
+            <div class="flex-row">
+              Best Moves
+            </div>
+            <div class="flex-row">
+              Scramble
+            </div>
+            <div class="flex-row">
+              Solution
+            </div>
+            <div class="flex-row">
+              Public ID
+            </div>
           </div>
-          <div class="flex-row">
-            Date
-          </div>
-          <div class="flex-row">
-            Best Time
-          </div>
-          <div class="flex-row">
-            Best Moves
-          </div>
-          <div class="flex-row">
-            Scramble
-          </div>
-          <div class="flex-row">
-            Solution
-          </div>
-          <div class="flex-row">
-            Public ID
-          </div>
-        </div>
-        <div class="items">
-          <div class="flex-row w-70">
-            <p class="link-item" @click="setScramble(String(item.scramble))">
-              {{ item.id }}
-            </p>
-          </div>
-          <div class="flex-row w-160">
-            <span>{{ formatDate(item.created_at) }}</span>
-          </div>
-          <div class="flex-row w-160">
-            <span>{{ item.best_time! / 1000 }} ( {{ item.best_time_moves }} | {{ item.best_tps }})</span>
-          </div>
-          <div class="flex-row w-95">
-            <span>{{ item.best_moves }}</span>
-          </div>
-          <div class="flex-row smaller-font">
-            <div class="copy-button-wrapper">
-              <p class="scramble-text">
-                {{ convertScramble(item.scramble) }}
+          <div class="items">
+            <div class="flex-row w-70">
+              <p class="link-item" @click="setScramble(String(item.scramble))">
+                {{ item.id }}
               </p>
-              <CopyButton
-                v-if="item.scramble"
-                :item-to-copy="String(item.scramble)"
-                :is-solve-path="false"
-              />
             </div>
-          </div>
-          <div class="flex-row w-95 smaller-font">
-            <div class="copy-button-wrapper">
-              <CopyButton
-                v-if="item.solve_path"
-                :item-to-copy="String(item.solve_path)"
-                :is-solve-path="true"
-              />
+            <div class="flex-row w-160">
+              <span>{{ formatDate(item.created_at) }}</span>
             </div>
-          </div>
-          <div class="flex-row w-120">
-            <a :href="`${baseUrl}?playground&public_id=${item.public_id}`" class="link-item">
-              {{ item.public_id }}
-            </a>
+            <div class="flex-row w-160">
+              <span>{{ item.best_time! / 1000 }} ( {{ item.best_time_moves }} | {{ item.best_tps }})</span>
+            </div>
+            <div class="flex-row w-95">
+              <span>{{ item.best_moves }}</span>
+            </div>
+            <div class="flex-row smaller-font">
+              <div class="copy-button-wrapper">
+                <p class="scramble-text">
+                  {{ convertScramble(item.scramble) }}
+                </p>
+                <CopyButton
+                  v-if="item.scramble"
+                  :item-to-copy="String(item.scramble)"
+                  :is-solve-path="false"
+                />
+              </div>
+            </div>
+            <div class="flex-row w-95 smaller-font">
+              <div class="copy-button-wrapper">
+                <CopyButton
+                  v-if="item.solve_path"
+                  :item-to-copy="String(item.solve_path)"
+                  :is-solve-path="true"
+                />
+              </div>
+            </div>
+            <div class="flex-row w-120">
+              <a :href="`${baseUrl}?playground&public_id=${item.public_id}`" class="link-item">
+                {{ item.public_id }}
+              </a>
+            </div>
           </div>
         </div>
-      </div>
+      </template>
     </div>
     <div class="buttons">
       <button type="button" class="tool-button" @click="emit('close')">

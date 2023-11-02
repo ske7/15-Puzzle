@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { onClickOutside, useDateFormat } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
@@ -19,10 +19,13 @@ onClickOutside(gamesTable, (event) => {
 
 const baseStore = useBaseStore();
 
+const limit = 50;
+let offset = 0;
+
 const puzzleSize = ref<number>(baseStore.numLines);
 
 const errorMsg = ref('');
-const gameRecords = ref<GameData[]>();
+const gameRecords = ref<GameData[]>([]);
 const isFetching = ref(false);
 const fetched = ref(false);
 const fetch = (endpoint: string): void => {
@@ -34,7 +37,14 @@ const fetch = (endpoint: string): void => {
   useGetFetchAPI(endpoint, baseStore.token)
     .then(res => {
       isFetching.value = false;
-      gameRecords.value = res.game_records;
+      if (res.game_records != null) {
+        if (res.game_records.length === 0) {
+          offset = -1;
+        } else {
+          gameRecords.value.push(...res.game_records);
+          offset += limit;
+        }
+      }
       fetched.value = true;
     })
     .catch(error => {
@@ -51,12 +61,31 @@ const formatDate = (date?: string): string => {
   }
   return useDateFormat(date, 'YYYY-MM-DD HH:mm:ss').value;
 };
+let recordsTable: HTMLElement | null;
+const onscroll = (_event: Event): void => {
+  if (recordsTable != null && offset !== -1) {
+    if (recordsTable.scrollTop + recordsTable.offsetHeight >= recordsTable.scrollHeight - 100) {
+      fetch(`user_games?puzzle_size=${puzzleSize.value}&offset=${offset}&limit=${limit}`);
+    }
+  }
+};
 onMounted(() => {
-  fetch(`user_games?puzzle_size=${puzzleSize.value}`);
+  fetch(`user_games?puzzle_size=${puzzleSize.value}&offset=${offset}&limit=${limit}`);
+  recordsTable = document.getElementById('game-list-table');
+  if (recordsTable != null) {
+    recordsTable.addEventListener('scroll', onscroll);
+  }
+});
+onUnmounted(() => {
+  if (recordsTable != null) {
+    recordsTable.removeEventListener('scroll', onscroll);
+  }
 });
 watch(puzzleSize, (newValue) => {
   if (newValue !== 0) {
-    fetch(`user_games?puzzle_size=${newValue}`);
+    gameRecords.value = [];
+    offset = 0;
+    fetch(`user_games?puzzle_size=${newValue}&offset=${offset}&limit=${limit}`);
   }
 });
 </script>
@@ -70,7 +99,7 @@ watch(puzzleSize, (newValue) => {
     </p>
     <PuzzleSizeSlider v-model="puzzleSize" />
     <hr class="nice-hr">
-    <div v-if="fetched" class="table-wrapper">
+    <div id="game-list-table" class="table-wrapper">
       <div class="flex-table table-header">
         <div class="flex-row w-70">
           ID
@@ -94,74 +123,76 @@ watch(puzzleSize, (newValue) => {
           Solution
         </div>
       </div>
-      <div v-for="(item) in gameRecords" :key="item.id" class="flex-table">
-        <div class="table-header-mobile">
-          <div class="flex-row">
-            ID
+      <template v-if="fetched">
+        <div v-for="(item) in gameRecords" :key="item.id" class="flex-table">
+          <div class="table-header-mobile">
+            <div class="flex-row">
+              ID
+            </div>
+            <div class="flex-row">
+              Date
+            </div>
+            <div class="flex-row">
+              Time
+            </div>
+            <div class="flex-row">
+              Moves
+            </div>
+            <div class="flex-row">
+              TPS
+            </div>
+            <div class="flex-row">
+              Scramble
+            </div>
+            <div class="flex-row">
+              Solution
+            </div>
           </div>
-          <div class="flex-row">
-            Date
-          </div>
-          <div class="flex-row">
-            Time
-          </div>
-          <div class="flex-row">
-            Moves
-          </div>
-          <div class="flex-row">
-            TPS
-          </div>
-          <div class="flex-row">
-            Scramble
-          </div>
-          <div class="flex-row">
-            Solution
-          </div>
-        </div>
-        <div class="items">
-          <div class="flex-row w-70">
-            <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.id}`" class="link-item">
-              {{ item.id }}
-            </a>
-            <span v-else>{{ item.id }}</span>
-          </div>
-          <div class="flex-row w-95">
-            <span>{{ formatDate(item.created_at) }}</span>
-          </div>
-          <div class="flex-row w-70">
-            <span>{{ item.time / 1000 }}</span>
-          </div>
-          <div class="flex-row w-70">
-            <span>{{ item.moves }}</span>
-          </div>
-          <div class="flex-row w-70">
-            <span>{{ item.tps }}</span>
-          </div>
-          <div class="flex-row smaller-font">
-            <div class="copy-button-wrapper">
-              <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.id}`" class="link-item smaller-font">
-                {{ convertScramble(item.scramble) }}
+          <div class="items">
+            <div class="flex-row w-70">
+              <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.id}`" class="link-item">
+                {{ item.id }}
               </a>
-              <span v-else>{{ convertScramble(item.scramble) }}</span>
-              <CopyButton
-                v-if="item.scramble"
-                :item-to-copy="String(item.scramble)"
-                :is-solve-path="false"
-              />
+              <span v-else>{{ item.id }}</span>
             </div>
-          </div>
-          <div class="flex-row smaller-font">
-            <div class="copy-button-wrapper">
-              <span>{{ shortenSolutionStr(item.solve_path) }}</span>
-              <CopyButton
-                v-if="item.solve_path"
-                :item-to-copy="String(item.solve_path)"
-                :is-solve-path="true"
-              />
+            <div class="flex-row w-95">
+              <span>{{ formatDate(item.created_at) }}</span>
+            </div>
+            <div class="flex-row w-70">
+              <span>{{ item.time / 1000 }}</span>
+            </div>
+            <div class="flex-row w-70">
+              <span>{{ item.moves }}</span>
+            </div>
+            <div class="flex-row w-70">
+              <span>{{ item.tps }}</span>
+            </div>
+            <div class="flex-row smaller-font">
+              <div class="copy-button-wrapper">
+                <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.id}`" class="link-item smaller-font">
+                  {{ convertScramble(item.scramble) }}
+                </a>
+                <span v-else>{{ convertScramble(item.scramble) }}</span>
+                <CopyButton
+                  v-if="item.scramble"
+                  :item-to-copy="String(item.scramble)"
+                  :is-solve-path="false"
+                />
+              </div>
+            </div>
+            <div class="flex-row smaller-font">
+              <div class="copy-button-wrapper">
+                <span>{{ shortenSolutionStr(item.solve_path) }}</span>
+                <CopyButton
+                  v-if="item.solve_path"
+                  :item-to-copy="String(item.solve_path)"
+                  :is-solve-path="true"
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </template>
     </div>
     <div class="buttons">
       <button type="button" class="tool-button" @click="emit('close')">
