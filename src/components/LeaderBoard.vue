@@ -234,7 +234,7 @@ const doProSort = (): void => {
         :choices="['time', 'moves', 'TPS']"
         :header="'Best Factor'"
       />
-      <div class="table-container">
+      <div class="table-container" :class="{ 'table-container-ml-8': isDefault }">
         <table v-if="isDefault" class="items-table">
           <thead>
             <tr>
@@ -503,7 +503,7 @@ const doProSort = (): void => {
   .table-container .items-table tbody {
     max-height: v-bind(tbodyHeightMobile);
   }
-  .table-container {
+  .table-container-ml-8 {
     margin-left: -8px;
   }
 }
