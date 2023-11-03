@@ -503,6 +503,9 @@ const doProSort = (): void => {
   .table-container .items-table tbody {
     max-height: v-bind(tbodyHeightMobile);
   }
+  .table-container {
+    margin-left: -8px;
+  }
 }
 @media screen and (max-height: 620px) {
   .leaderboard {
