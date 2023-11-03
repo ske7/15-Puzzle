@@ -5,7 +5,7 @@ import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 import { type UserScrambleData } from '@/types';
-import { baseUrl } from '@/const';
+import { baseUrl, OrderDirection, OrderDirectionMap } from '@/const';
 import { convertScramble, convertToNumbersArray } from '@/utils';
 import CopyButton from './CopyButton.vue';
 
@@ -60,17 +60,22 @@ const formatDate = (date?: string): string => {
   }
   return useDateFormat(date, 'YYYY-MM-DD HH:mm:ss').value;
 };
-
+let orderDirection: OrderDirection = OrderDirection.Desc;
+let sortField = 'id';
+const doFetch = (): void => {
+  // eslint-disable-next-line vue/max-len
+  fetch(`list_user_scrambles?puzzle_size=${puzzleSize.value}&offset=${offset}&limit=${limit}&order_field=${sortField}&order_direction=${OrderDirectionMap.get(orderDirection)}`);
+};
 let scrambleTable: HTMLElement | null;
 const onscroll = (_event: Event): void => {
   if (scrambleTable != null && offset !== -1) {
     if (scrambleTable.scrollTop + scrambleTable.offsetHeight >= scrambleTable.scrollHeight - 100) {
-      fetch(`list_user_scrambles?puzzle_size=${puzzleSize.value}&offset=${offset}&limit=${limit}`);
+      doFetch();
     }
   }
 };
 onMounted(() => {
-  fetch(`list_user_scrambles?puzzle_size=${puzzleSize.value}&offset=${offset}&limit=${limit}`);
+  doFetch();
   scrambleTable = document.getElementById('scramble-list-table');
   if (scrambleTable != null) {
     scrambleTable.addEventListener('scroll', onscroll);
@@ -85,13 +90,29 @@ watch(puzzleSize, (newValue) => {
   if (newValue !== 0) {
     scrambleRecords.value = [];
     offset = 0;
-    fetch(`list_user_scrambles?puzzle_size=${newValue}&offset=${offset}&limit=${limit}`);
+    fetched.value = false;
+    doFetch();
   }
 });
-
 const setScramble = (strScramble: string): void => {
   const scramble = convertToNumbersArray(strScramble);
   emit('set', scramble);
+};
+const doSort = (newSortField: string): void => {
+  if (newSortField !== sortField) {
+    sortField = newSortField;
+    orderDirection = OrderDirection.Asc;
+  } else {
+    if (orderDirection === OrderDirection.Asc) {
+      orderDirection = OrderDirection.Desc;
+    } else if (orderDirection === OrderDirection.Desc) {
+      orderDirection = OrderDirection.Asc;
+    }
+  }
+  scrambleRecords.value = [];
+  offset = 0;
+  fetched.value = false;
+  doFetch();
 };
 </script>
 
@@ -111,12 +132,21 @@ const setScramble = (strScramble: string): void => {
         </div>
         <div class="flex-row w-160">
           Date
+          <span class="pro-sort" @click="doSort('id')">
+            {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+          </span>
         </div>
         <div class="flex-row w-160">
           Best Time
+          <span class="pro-sort" @click="doSort('best_time')">
+            {{ sortField !== 'best_time' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+          </span>
         </div>
-        <div class="flex-row w-95">
+        <div class="flex-row w-120">
           Best Moves
+          <span class="pro-sort" @click="doSort('best_moves')">
+            {{ sortField !== 'best_moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+          </span>
         </div>
         <div class="flex-row">
           Scramble
@@ -140,12 +170,21 @@ const setScramble = (strScramble: string): void => {
             </div>
             <div class="flex-row">
               Date
+              <span class="pro-sort" @click="doSort('id')">
+                {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+              </span>
             </div>
             <div class="flex-row">
               Best Time
+              <span class="pro-sort" @click="doSort('best_time')">
+                {{ sortField !== 'best_time' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+              </span>
             </div>
             <div class="flex-row">
               Best Moves
+              <span class="pro-sort" @click="doSort('best_moves')">
+                {{ sortField !== 'best_moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+              </span>
             </div>
             <div class="flex-row">
               Scramble
@@ -169,7 +208,7 @@ const setScramble = (strScramble: string): void => {
             <div class="flex-row w-160">
               <span>{{ item.best_time! / 1000 }} ( {{ item.best_time_moves }} | {{ item.best_tps }})</span>
             </div>
-            <div class="flex-row w-95">
+            <div class="flex-row w-120">
               <span>{{ item.best_moves }}</span>
             </div>
             <div class="flex-row smaller-font">
@@ -202,7 +241,7 @@ const setScramble = (strScramble: string): void => {
         </div>
       </template>
     </div>
-    <div class="buttons">
+    <div v-if="fetched" class="buttons">
       <button type="button" class="tool-button" @click="emit('close')">
         OK
       </button>
@@ -259,7 +298,7 @@ const setScramble = (strScramble: string): void => {
 }
 .table-wrapper {
   display: block;
-  margin: 5px auto;
+  margin: 4px auto;
   width: 100%;
   max-width: 95%;
   overflow: auto;
@@ -344,6 +383,19 @@ const setScramble = (strScramble: string): void => {
   color: var(--text-color);
   cursor: pointer;
 }
+.pro-sort {
+  cursor: pointer;
+  font-weight: 800;
+  color: darkcyan;
+  min-width: auto !important;
+  font-size: 16px !important;
+}
+.pro-sort:hover {
+  opacity: 0.8;
+}
+.pro-sort:active {
+  opacity: 0.7;
+}
 @media screen and (max-width: 1100px) {
   .scramble-text {
     display: none;
@@ -368,8 +420,9 @@ const setScramble = (strScramble: string): void => {
   .flex-table {
     display: flex;
     flex-flow: row wrap;
-    margin-bottom: 20px;
-    border-bottom: solid 0px var(--table-border-color);
+    margin-bottom: 12px;
+    border-bottom: 0px;
+    border-left: 0px;
     justify-content: center;
   }
   .flex-row {

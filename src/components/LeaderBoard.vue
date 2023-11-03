@@ -244,13 +244,15 @@ const doProSort = (): void => {
               <th class="w-120">
                 Name
               </th>
-              <th v-if="bestType==='time'" class="min-width">
+              <th v-if="bestType==='time'" class="min-width w-70">
                 Time
               </th>
-              <th v-if="bestType === 'moves'" class="min-width">
+              <th v-if="bestType === 'moves'" class="min-width w-70">
                 Moves
               </th>
-              <th>TPS</th>
+              <th class="w-60">
+                TPS
+              </th>
               <th class="w-28">
                 By
               </th>
@@ -264,7 +266,7 @@ const doProSort = (): void => {
               <td class="w-120 t-overflow">
                 {{ item.name }}
               </td>
-              <td v-if="bestType === 'time'" class="min-width">
+              <td v-if="bestType === 'time'" class="min-width w-70">
                 <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.game_id}`" class="link-item">
                   {{ item.time / 1000 }}
                 </a>
@@ -272,7 +274,7 @@ const doProSort = (): void => {
                   {{ item.time / 1000 }}
                 </span>
               </td>
-              <td v-if="bestType === 'moves'" class="min-width">
+              <td v-if="bestType === 'moves'" class="min-width w-70">
                 <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.game_id}`" class="link-item">
                   {{ item.moves }}
                 </a>
@@ -280,7 +282,7 @@ const doProSort = (): void => {
                   {{ item.moves }}
                 </span>
               </td>
-              <td class="min-width">
+              <td class="min-width w-60">
                 {{ item.tps }}
               </td>
               <td class="w-28">
@@ -310,7 +312,7 @@ const doProSort = (): void => {
               <th>
                 Pro
                 <span class="pro-sort" @click="doProSort">
-                  {{ baseStore.sortAveragesByProValues ? '↓' : '↕' }}
+                  {{ baseStore.sortAveragesByProValues ? (bestAverage === 'TPS' ? '↓' : '↑') : '↑↓' }}
                 </span>
               </th>
             </tr>
@@ -350,7 +352,7 @@ const doProSort = (): void => {
 
 <style scoped>
 .leaderboard {
-  --modal-width: 380px;
+  --modal-width: 400px;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -444,8 +446,11 @@ const doProSort = (): void => {
 .w-150 {
   width: 150px;
 }
-.w-40 {
-  width: 40px;
+.w-60 {
+  width: 70px;
+}
+.w-70 {
+  width: 70px;
 }
 .t-overflow {
   overflow: hidden;
@@ -460,7 +465,7 @@ const doProSort = (): void => {
 .pro-sort {
   cursor: pointer;
   font-weight: 600;
-  color: var(--c-black)
+  color: darkcyan;
 }
 .pro-sort:hover {
   opacity: 0.7;

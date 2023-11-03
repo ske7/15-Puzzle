@@ -126,27 +126,30 @@ const doSort = (newSortField: string): void => {
       <div class="flex-table table-header">
         <div class="flex-row w-70">
           ID
+        </div>
+        <div class="flex-row w-95">
+          Date
           <span class="pro-sort" @click="doSort('id')">
             {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
         </div>
-        <div class="flex-row w-95">
-          Date
-        </div>
-        <div class="flex-row w-70">
+        <div class="flex-row w-80">
           Time
           <span class="pro-sort" @click="doSort('time')">
             {{ sortField !== 'time' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
         </div>
-        <div class="flex-row w-70">
+        <div class="flex-row w-80">
           Moves
           <span class="pro-sort" @click="doSort('moves')">
             {{ sortField !== 'moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
         </div>
-        <div class="flex-row w-70">
+        <div class="flex-row w-80">
           TPS
+          <span class="pro-sort" @click="doSort('tps')">
+            {{ sortField !== 'tps' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↓' : '↑') }}
+          </span>
         </div>
         <div class="flex-row">
           Scramble
@@ -160,12 +163,12 @@ const doSort = (newSortField: string): void => {
           <div class="table-header-mobile">
             <div class="flex-row">
               ID
-              <span class="pro-sort" @click="doSort('id')">
-                {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-              </span>
             </div>
             <div class="flex-row">
               Date
+              <span class="pro-sort" @click="doSort('id')">
+                {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+              </span>
             </div>
             <div class="flex-row">
               Time
@@ -181,6 +184,9 @@ const doSort = (newSortField: string): void => {
             </div>
             <div class="flex-row">
               TPS
+              <span class="pro-sort" @click="doSort('tps')">
+                {{ sortField !== 'tps' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↓' : '↑') }}
+              </span>
             </div>
             <div class="flex-row">
               Scramble
@@ -199,13 +205,13 @@ const doSort = (newSortField: string): void => {
             <div class="flex-row w-95">
               <span class="white-space-normal">{{ formatDate(item.created_at) }}</span>
             </div>
-            <div class="flex-row w-70">
+            <div class="flex-row w-80">
               <span>{{ item.time / 1000 }}</span>
             </div>
-            <div class="flex-row w-70">
+            <div class="flex-row w-80">
               <span>{{ item.moves }}</span>
             </div>
-            <div class="flex-row w-70">
+            <div class="flex-row w-80">
               <span>{{ item.tps }}</span>
             </div>
             <div class="flex-row smaller-font">
@@ -245,7 +251,7 @@ const doSort = (newSortField: string): void => {
 
 <style scoped>
 .games-table {
-  --modal-width: 1000px;
+  --modal-width: 1100px;
   display: flex;
   flex-direction: column;
   background-color: var(--background-modal-color);
@@ -292,7 +298,7 @@ const doSort = (newSortField: string): void => {
 }
 .table-wrapper {
   display: block;
-  margin: 5px auto;
+  margin: 0px auto;
   width: 100%;
   max-width: 95%;
   overflow: auto;
@@ -312,7 +318,8 @@ const doSort = (newSortField: string): void => {
   align-items: center;
   justify-content: center;
   max-width: 100%;
-  padding: 8px 4px;
+  min-height: 52.6px;
+  padding: 7px 4px;
   overflow: hidden;
   text-align: center;
   border-right: solid 1px var(--table-border-color);
@@ -321,12 +328,18 @@ const doSort = (newSortField: string): void => {
 .w-70 {
   max-width: 70px;
 }
+.w-80 {
+  max-width: 80px;
+}
 .w-95 {
   max-width: 95px;
 }
 .items {
   display: flex;
   flex: 1;
+}
+.table-header > .flex-row {
+  min-height: 35.6px;
 }
 .flex-table:first-of-type {
   border-top: solid 1px var(--table-border-color);
@@ -350,7 +363,7 @@ const doSort = (newSortField: string): void => {
 .copy-button-wrapper {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 2px;
   flex-direction: column;
   line-height: 1.2;
   margin-bottom: -5px;
@@ -374,12 +387,13 @@ const doSort = (newSortField: string): void => {
 }
 .pro-sort {
   cursor: pointer;
-  font-weight: 600;
-  color: var(--c-black);
+  font-weight: 800;
+  color: darkcyan;
   min-width: auto !important;
+  font-size: 16px !important;
 }
 .pro-sort:hover {
-  opacity: 0.7;
+  opacity: 0.8;
 }
 .pro-sort:active {
   opacity: 0.7;
@@ -387,7 +401,7 @@ const doSort = (newSortField: string): void => {
 .white-space-normal {
   white-space: normal !important;
 }
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1100px) {
   .nice-hr {
     display: none;
   }
@@ -434,11 +448,7 @@ const doSort = (newSortField: string): void => {
   .table-header {
     display: none;
   }
-  .w-70 {
-    max-width: 180px;
-    min-width: 180px;
-  }
-  .w-95 {
+  .w-70, .w-80, w-95 {
     max-width: 180px;
     min-width: 180px;
   }
