@@ -5,7 +5,7 @@ import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 import { type GameData } from '@/types';
-import { baseUrl } from '@/const';
+import { baseUrl, OrderDirection, OrderDirectionMap } from '@/const';
 import { shortenSolutionStr, convertScramble } from '@/utils';
 import CopyButton from './CopyButton.vue';
 
@@ -61,16 +61,22 @@ const formatDate = (date?: string): string => {
   }
   return useDateFormat(date, 'YYYY-MM-DD HH:mm:ss').value;
 };
+let orderDirection: OrderDirection = OrderDirection.Desc;
+let sortField = 'id';
+const doFetch = (): void => {
+  // eslint-disable-next-line vue/max-len
+  fetch(`user_games?puzzle_size=${puzzleSize.value}&offset=${offset}&limit=${limit}&order_field=${sortField}&order_direction=${OrderDirectionMap.get(orderDirection)}`);
+};
 let recordsTable: HTMLElement | null;
 const onscroll = (_event: Event): void => {
   if (recordsTable != null && offset !== -1) {
     if (recordsTable.scrollTop + recordsTable.offsetHeight >= recordsTable.scrollHeight - 100) {
-      fetch(`user_games?puzzle_size=${puzzleSize.value}&offset=${offset}&limit=${limit}`);
+      doFetch();
     }
   }
 };
 onMounted(() => {
-  fetch(`user_games?puzzle_size=${puzzleSize.value}&offset=${offset}&limit=${limit}`);
+  doFetch();
   recordsTable = document.getElementById('game-list-table');
   if (recordsTable != null) {
     recordsTable.addEventListener('scroll', onscroll);
@@ -85,9 +91,26 @@ watch(puzzleSize, (newValue) => {
   if (newValue !== 0) {
     gameRecords.value = [];
     offset = 0;
-    fetch(`user_games?puzzle_size=${newValue}&offset=${offset}&limit=${limit}`);
+    fetched.value = false;
+    doFetch();
   }
 });
+const doSort = (newSortField: string): void => {
+  if (newSortField !== sortField) {
+    sortField = newSortField;
+    orderDirection = OrderDirection.Asc;
+  } else {
+    if (orderDirection === OrderDirection.Asc) {
+      orderDirection = OrderDirection.Desc;
+    } else if (orderDirection === OrderDirection.Desc) {
+      orderDirection = OrderDirection.Asc;
+    }
+  }
+  gameRecords.value = [];
+  offset = 0;
+  fetched.value = false;
+  doFetch();
+};
 </script>
 
 <template>
@@ -103,15 +126,24 @@ watch(puzzleSize, (newValue) => {
       <div class="flex-table table-header">
         <div class="flex-row w-70">
           ID
+          <span class="pro-sort" @click="doSort('id')">
+            {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+          </span>
         </div>
         <div class="flex-row w-95">
           Date
         </div>
         <div class="flex-row w-70">
           Time
+          <span class="pro-sort" @click="doSort('time')">
+            {{ sortField !== 'time' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+          </span>
         </div>
         <div class="flex-row w-70">
           Moves
+          <span class="pro-sort" @click="doSort('moves')">
+            {{ sortField !== 'moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+          </span>
         </div>
         <div class="flex-row w-70">
           TPS
@@ -128,15 +160,24 @@ watch(puzzleSize, (newValue) => {
           <div class="table-header-mobile">
             <div class="flex-row">
               ID
+              <span class="pro-sort" @click="doSort('id')">
+                {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+              </span>
             </div>
             <div class="flex-row">
               Date
             </div>
             <div class="flex-row">
               Time
+              <span class="pro-sort" @click="doSort('time')">
+                {{ sortField !== 'time' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+              </span>
             </div>
             <div class="flex-row">
               Moves
+              <span class="pro-sort" @click="doSort('moves')">
+                {{ sortField !== 'moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+              </span>
             </div>
             <div class="flex-row">
               TPS
@@ -169,9 +210,9 @@ watch(puzzleSize, (newValue) => {
             </div>
             <div class="flex-row smaller-font">
               <div class="copy-button-wrapper">
-                <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.id}`" class="link-item smaller-font">
+                <span v-if="item.scramble" class="smaller-font">
                   {{ convertScramble(item.scramble) }}
-                </a>
+                </span>
                 <span v-else>{{ convertScramble(item.scramble) }}</span>
                 <CopyButton
                   v-if="item.scramble"
@@ -194,7 +235,7 @@ watch(puzzleSize, (newValue) => {
         </div>
       </template>
     </div>
-    <div class="buttons">
+    <div v-if="fetched" class="buttons">
       <button type="button" class="tool-button" @click="emit('close')">
         OK
       </button>
@@ -300,6 +341,7 @@ watch(puzzleSize, (newValue) => {
 .flex-row span {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
   max-width: 250px;
   font-size: 14px;
   padding: 0 5px;
@@ -329,6 +371,18 @@ watch(puzzleSize, (newValue) => {
   text-decoration: underline;
   color: var(--text-color);
   cursor: pointer;
+}
+.pro-sort {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--c-black);
+  min-width: auto !important;
+}
+.pro-sort:hover {
+  opacity: 0.7;
+}
+.pro-sort:active {
+  opacity: 0.7;
 }
 @media screen and (max-width: 1000px) {
   .nice-hr {

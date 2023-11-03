@@ -14,6 +14,18 @@ export const enum Direction {
   Left = 4
 }
 
+export const enum OrderDirection {
+  None = 0,
+  Asc = 1,
+  Desc = 2
+}
+
+export const OrderDirectionMap = new Map<OrderDirection, string>([
+  [OrderDirection.None, 'asc'],
+  [OrderDirection.Asc, 'asc'],
+  [OrderDirection.Desc, 'desc']
+]);
+
 export const DirectionMap = new Map<Direction, string>([
   [Direction.Up, 'U'],
   [Direction.Right, 'R'],
