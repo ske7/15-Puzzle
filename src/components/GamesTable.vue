@@ -197,7 +197,7 @@ const doSort = (newSortField: string): void => {
               <span v-else>{{ item.id }}</span>
             </div>
             <div class="flex-row w-95">
-              <span>{{ formatDate(item.created_at) }}</span>
+              <span class="white-space-normal">{{ formatDate(item.created_at) }}</span>
             </div>
             <div class="flex-row w-70">
               <span>{{ item.time / 1000 }}</span>
@@ -384,6 +384,9 @@ const doSort = (newSortField: string): void => {
 .pro-sort:active {
   opacity: 0.7;
 }
+.white-space-normal {
+  white-space: normal !important;
+}
 @media screen and (max-width: 1000px) {
   .nice-hr {
     display: none;
@@ -406,7 +409,8 @@ const doSort = (newSortField: string): void => {
     display: flex;
     flex-flow: row wrap;
     margin-bottom: 20px;
-    border-bottom: solid 0px var(--table-border-color);
+    border-bottom: 0px;
+    border-left: 0px;
     justify-content: center;
   }
   .flex-row {
