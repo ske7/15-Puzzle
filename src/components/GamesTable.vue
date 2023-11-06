@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
-import { onClickOutside, useDateFormat } from '@vueuse/core';
+import { onClickOutside, useDateFormat, useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
@@ -18,7 +18,7 @@ onClickOutside(gamesTable, (event) => {
 });
 
 const baseStore = useBaseStore();
-
+const { width: windowWidth } = useWindowSize();
 const limit = 50;
 let offset = 0;
 
@@ -151,10 +151,10 @@ const doSort = (newSortField: string): void => {
             {{ sortField !== 'tps' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↓' : '↑') }}
           </span>
         </div>
-        <div class="flex-row">
+        <div class="flex-row" :class="{ 'w-80': windowWidth <= 1100 }">
           Scramble
         </div>
-        <div class="flex-row">
+        <div class="flex-row" :class="{ 'w-80': windowWidth <= 1100 }">
           Solution
         </div>
       </div>
@@ -203,7 +203,7 @@ const doSort = (newSortField: string): void => {
               <span v-else>{{ item.id }}</span>
             </div>
             <div class="flex-row w-95">
-              <span class="white-space-normal">{{ formatDate(item.created_at) }}</span>
+              <span class="white-space-normal date-smaller">{{ formatDate(item.created_at) }}</span>
             </div>
             <div class="flex-row w-80">
               <span>{{ item.time / 1000 }}</span>
@@ -214,12 +214,12 @@ const doSort = (newSortField: string): void => {
             <div class="flex-row w-80">
               <span>{{ item.tps }}</span>
             </div>
-            <div class="flex-row smaller-font">
+            <div class="flex-row smaller-font" :class="{ 'w-80': windowWidth <= 1100 }">
               <div class="copy-button-wrapper">
-                <span v-if="item.scramble" class="smaller-font">
+                <span v-if="item.scramble" class="smaller-font long-span">
                   {{ convertScramble(item.scramble) }}
                 </span>
-                <span v-else>{{ convertScramble(item.scramble) }}</span>
+                <span v-else class="long-span">{{ convertScramble(item.scramble) }}</span>
                 <CopyButton
                   v-if="item.scramble"
                   :item-to-copy="String(item.scramble)"
@@ -227,9 +227,9 @@ const doSort = (newSortField: string): void => {
                 />
               </div>
             </div>
-            <div class="flex-row smaller-font">
+            <div class="flex-row smaller-font" :class="{ 'w-80': windowWidth <= 1100 }">
               <div class="copy-button-wrapper">
-                <span>{{ shortenSolutionStr(item.solve_path) }}</span>
+                <span class="long-span">{{ shortenSolutionStr(item.solve_path) }}</span>
                 <CopyButton
                   v-if="item.solve_path"
                   :item-to-copy="String(item.solve_path)"
@@ -402,6 +402,32 @@ const doSort = (newSortField: string): void => {
   white-space: normal !important;
 }
 @media screen and (max-width: 1100px) {
+  .games-table {
+  --modal-width: 768px;
+  }
+  .w-70, .w-80, .w-95 {
+    max-width: 100%;
+  }
+  .table-wrapper {
+    max-width: 100%;
+  }
+  .long-span {
+    display: none !important;
+  }
+}
+@media screen and (max-width: 768px) {
+  .games-table {
+  --modal-width: 600px;
+  }
+  .date-smaller {
+    min-width: 80px;
+    font-size: 13px !important;
+  }
+}
+@media screen and (max-width: 600px) {
+  .games-table {
+  --modal-width: 600px;
+  }
   .nice-hr {
     display: none;
   }
