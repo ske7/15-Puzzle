@@ -8,19 +8,19 @@ export const useKeyDown = (): void => {
   const baseStore = useBaseStore();
   const eventBus = useEventBus<string>('event-bus');
 
-  const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
-    if (!baseStore.showModal) {
-      event.preventDefault();
-    }
-    const ctrlDown = event.ctrlKey || event.metaKey;
-    if (event.code === 'Space' && !baseStore.paused) {
+  const listenSpaceKey = (ctrlDown: boolean, code: string): boolean => {
+    if (code === 'Space' && !baseStore.paused) {
       if (ctrlDown) {
         baseStore.savedOrders = [];
       }
       eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
-      return;
+      return true;
     }
-    if (baseStore.playgroundMode && !baseStore.sharedPlaygroundMode && !baseStore.showAddScramble && ctrlDown && event.code === 'KeyV') {
+    return false;
+  };
+
+  const listenCtrlVKey = async (ctrlDown: boolean, code: string): Promise<boolean> => {
+    if (baseStore.playgroundMode && !baseStore.sharedPlaygroundMode && !baseStore.showModal && ctrlDown && code === 'KeyV') {
       // not working in Firefox until dom.events.asyncClipboard.readText = true
       await navigator.clipboard.readText().then((text) => {
         const scramble = convertToNumbersArray(text);
@@ -31,38 +31,62 @@ export const useKeyDown = (): void => {
           baseStore.renewPuzzle();
         }
       });
-      return;
+      return true;
     }
+    return false;
+  };
+
+  const listenChangePuzzleSize = (code: string): boolean => {
     if (!baseStore.showModal && !baseStore.cageMode && !baseStore.replayMode && !baseStore.sharedPlaygroundMode) {
-      if (event.code === 'PageUp') {
+      if (code === 'PageUp') {
         if (baseStore.numLines === cores.slice(-1)[0]) {
-          return;
+          return false;
         }
         baseStore.numLines += 1;
         baseStore.initAfterNewPuzzleSize();
-        return;
-      }
-      if (event.code === 'PageDown') {
+        return true;
+      } else if (code === 'PageDown') {
         if (baseStore.numLines === cores[0]) {
-          return;
+          return false;
         }
         baseStore.numLines -= 1;
         baseStore.initAfterNewPuzzleSize();
-        return;
+        return true;
       }
+    }
+    return false;
+  };
+
+  const listenMovementKeys = (code: string): void => {
+    if (['ArrowLeft', 'KeyA', 'KeyJ'].includes(code)) {
+      baseStore.moveLeft(ControlType.Keyboard);
+    } else if (['ArrowRight', 'KeyD', 'KeyL'].includes(code)) {
+      baseStore.moveRight(ControlType.Keyboard);
+    } else if (['ArrowUp', 'KeyW', 'KeyI'].includes(code)) {
+      baseStore.moveUp(ControlType.Keyboard);
+    } else if (['ArrowDown', 'KeyS', 'KeyK'].includes(code)) {
+      baseStore.moveDown(ControlType.Keyboard);
+    }
+  };
+
+  const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
+    if (!baseStore.showModal) {
+      event.preventDefault();
+    }
+    const ctrlDown = event.ctrlKey || event.metaKey;
+    if (listenSpaceKey(ctrlDown, event.code)) {
+      return;
+    }
+    if (await listenCtrlVKey(ctrlDown, event.code)) {
+      return;
+    }
+    if (listenChangePuzzleSize(event.code)) {
+      return;
     }
     if (baseStore.isDone || baseStore.paused || baseStore.inReplay || baseStore.sharedPlaygroundMode) {
       return;
     }
-    if (['ArrowLeft', 'KeyA', 'KeyJ'].includes(event.code)) {
-      baseStore.moveLeft(ControlType.Keyboard);
-    } else if (['ArrowRight', 'KeyD', 'KeyL'].includes(event.code)) {
-      baseStore.moveRight(ControlType.Keyboard);
-    } else if (['ArrowUp', 'KeyW', 'KeyI'].includes(event.code)) {
-      baseStore.moveUp(ControlType.Keyboard);
-    } else if (['ArrowDown', 'KeyS', 'KeyK'].includes(event.code)) {
-      baseStore.moveDown(ControlType.Keyboard);
-    }
+    listenMovementKeys(event.code);
   };
 
   onMounted(() => {

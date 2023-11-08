@@ -316,7 +316,7 @@ const doSort = (newSortField: string): void => {
   align-items: center;
   justify-content: center;
   max-width: 100%;
-  padding: 8px 4px;
+  padding: 7px 4px;
   overflow: hidden;
   text-align: center;
   border-right: solid 1px var(--table-border-color);
@@ -338,6 +338,7 @@ const doSort = (newSortField: string): void => {
   margin-right: 5px;
   display: inline;
   font-size: 14px;
+  line-height: 25px;
 }
 .items {
   display: flex;
@@ -363,7 +364,6 @@ const doSort = (newSortField: string): void => {
 }
 .copy-button-wrapper {
   display: inline-block;
-  line-height: 1.5;
 }
 .copy-button-wrapper :deep(.copy-button) {
   display: inline;

@@ -7,12 +7,17 @@ export function shuffle(array: readonly number[]): number[] {
   const lastIndex = length - 1;
   const result = [...array];
   while (++index < length) {
-    const rand = index + Math.floor(Math.random() * (lastIndex - index + 1));
+    const rand = index + Math.floor(generateRand() * (lastIndex - index + 1));
     const value = result[rand];
     result[rand] = result[index];
     result[index] = value;
   }
   return result;
+}
+
+export function generateRand(): number {
+  const value = window.crypto.getRandomValues(new Uint32Array(1))[0];
+  return value / (Math.pow(2, 32) - 1);
 }
 
 export function* sequenceGenerator(minVal: number, maxVal: number): Generator<number> {
@@ -57,7 +62,7 @@ export function isSolvable(array: readonly number[]): boolean {
 
 export function randArrayItem(array: readonly string[], af: readonly string[]): string {
   const a = array.filter(n => !af.includes(n));
-  return a[Math.floor(Math.random() * a.length)];
+  return a[Math.floor(generateRand() * a.length)];
 }
 
 export function getElementCol(el: number, numLines: number): number {

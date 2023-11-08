@@ -40,67 +40,74 @@ export const useWatchGameState = (): void => {
       }, keyH);
     }
   };
+  const playgroundWatch = (): void => {
+    const time = baseStore.getTime;
+    if (baseStore.playgroundBestTime === 0 || time < baseStore.playgroundBestTime) {
+      baseStore.playgroundBestTime = time;
+      baseStore.playgroundBestTimeMoves = baseStore.movesCount;
+      baseStore.newPlaygroundTimeRecord = true;
+    }
+    if (baseStore.playgroundBestMoves === 0 || baseStore.movesCount < baseStore.playgroundBestMoves) {
+      baseStore.playgroundBestMoves = baseStore.movesCount;
+      baseStore.playgroundSolvePath = baseStore.solvePath;
+      baseStore.newPlaygroundMovesRecord = true;
+    }
+    if (baseStore.token != null && baseStore.playgroundMode) {
+      if (baseStore.userScrambleId === 0) {
+        void postUserScramble({
+          user_name: baseStore.userName,
+          puzzle_size: baseStore.numLines,
+          best_time: baseStore.playgroundBestTime,
+          best_moves: baseStore.playgroundBestMoves,
+          best_time_moves: baseStore.playgroundBestTimeMoves,
+          solve_path: baseStore.playgroundSolvePath.join(''),
+          scramble: baseStore.mixedOrders.join(',')
+        });
+      } else if (baseStore.newPlaygroundTimeRecord || baseStore.newPlaygroundMovesRecord) {
+        patchUserScramble({
+          id: baseStore.userScrambleId,
+          user_name: baseStore.userName,
+          best_time: baseStore.playgroundBestTime,
+          best_time_moves: baseStore.playgroundBestTimeMoves,
+          best_moves: baseStore.playgroundBestMoves,
+          solve_path: baseStore.playgroundSolvePath.join('')
+        });
+      }
+    }
+    baseStore.stopInterval();
+  };
+  const marathonWatch = (): void => {
+    baseStore.solvedPuzzlesInMarathon += 1;
+    if (baseStore.solvedPuzzlesInMarathon === 5) {
+      baseStore.stopInterval();
+      baseStore.incConsecutiveSolves();
+      setRecords('marathon');
+      if (!baseStore.disableWinMessage) {
+        baseStore.showWinModal = true;
+      }
+    } else {
+      baseStore.renewPuzzle();
+    }
+  };
+  const mainWatch = (): void => {
+    baseStore.stopInterval();
+    baseStore.incConsecutiveSolves();
+    setRecords(baseStore.cageMode ? 'cage_standard' : 'standard');
+    if (baseStore.cageMode) {
+      baseStore.setUnlockedCages();
+    }
+    if (!baseStore.disableWinMessage) {
+      baseStore.showWinModal = true;
+    }
+  };
   watch(isDoneAll, (value) => {
     if (value) {
       if (baseStore.replayMode || baseStore.playgroundMode) {
-        const time = baseStore.getTime;
-        if (baseStore.playgroundBestTime === 0 || time < baseStore.playgroundBestTime) {
-          baseStore.playgroundBestTime = time;
-          baseStore.playgroundBestTimeMoves = baseStore.movesCount;
-          baseStore.newPlaygroundTimeRecord = true;
-        }
-        if (baseStore.playgroundBestMoves === 0 || baseStore.movesCount < baseStore.playgroundBestMoves) {
-          baseStore.playgroundBestMoves = baseStore.movesCount;
-          baseStore.playgroundSolvePath = baseStore.solvePath;
-          baseStore.newPlaygroundMovesRecord = true;
-        }
-        if (baseStore.token != null && baseStore.playgroundMode) {
-          if (baseStore.userScrambleId === 0) {
-            void postUserScramble({
-              user_name: baseStore.userName,
-              puzzle_size: baseStore.numLines,
-              best_time: baseStore.playgroundBestTime,
-              best_moves: baseStore.playgroundBestMoves,
-              best_time_moves: baseStore.playgroundBestTimeMoves,
-              solve_path: baseStore.playgroundSolvePath.join(''),
-              scramble: baseStore.mixedOrders.join(',')
-            });
-          } else if (baseStore.newPlaygroundTimeRecord || baseStore.newPlaygroundMovesRecord) {
-            patchUserScramble({
-              id: baseStore.userScrambleId,
-              user_name: baseStore.userName,
-              best_time: baseStore.playgroundBestTime,
-              best_time_moves: baseStore.playgroundBestTimeMoves,
-              best_moves: baseStore.playgroundBestMoves,
-              solve_path: baseStore.playgroundSolvePath.join('')
-            });
-          }
-        }
-        baseStore.stopInterval();
-        return;
-      }
-      if (baseStore.marathonMode) {
-        baseStore.solvedPuzzlesInMarathon += 1;
-        if (baseStore.solvedPuzzlesInMarathon === 5) {
-          baseStore.stopInterval();
-          baseStore.incConsecutiveSolves();
-          setRecords('marathon');
-          if (!baseStore.disableWinMessage) {
-            baseStore.showWinModal = true;
-          }
-        } else {
-          baseStore.renewPuzzle();
-        }
+        playgroundWatch();
+      } else if (baseStore.marathonMode) {
+        marathonWatch();
       } else {
-        baseStore.stopInterval();
-        baseStore.incConsecutiveSolves();
-        setRecords(baseStore.cageMode ? 'cage_standard' : 'standard');
-        if (baseStore.cageMode) {
-          baseStore.setUnlockedCages();
-        }
-        if (!baseStore.disableWinMessage) {
-          baseStore.showWinModal = true;
-        }
+        mainWatch();
       }
     }
   }, { immediate: true });

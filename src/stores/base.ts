@@ -12,7 +12,7 @@ import {
 import {
   generateAndShuffle, generate, isSolvable, isSorted,
   getArrayKeyByValue, getElementCol, getElementRow,
-  displayedTime, calculateTPS, randArrayItem
+  displayedTime, calculateTPS, randArrayItem, generateRand
 } from '../utils';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
@@ -130,39 +130,42 @@ export const useBaseStore = defineStore('base', {
         solvable = this.mixAndCheckSolvable();
       }
       if (this.playgroundMode) {
-        this.savedOrders = this.mixedOrders;
-        if (this.checkUserScrambleInDB) {
-          if (this.token != null) {
-            void useGetFetchAPI(`user_scramble?scramble=${this.mixedOrders.join(',')}`, this.token)
-              .then((res) => {
-                if (res.stats != null) {
-                  const stats = res.stats as unknown as UserScrambleData;
-                  if (stats.id != null) {
-                    this.userScrambleId = stats.id;
-                  }
-                  this.playgroundBestTime = stats.best_time!;
-                  this.playgroundBestTimeMoves = stats.best_time_moves!;
-                  this.playgroundBestMoves = stats.best_moves!;
-                  this.playgroundSolvePath = stats.solve_path!.split('');
-                  this.publicId = stats.public_id ?? '';
-                } else {
-                  this.playgroundBestTime = 0;
-                  this.playgroundBestTimeMoves = 0;
-                  this.playgroundBestMoves = 0;
-                  this.playgroundSolvePath = [];
-                  this.publicId = '';
-                  this.userScrambleId = 0;
-                }
-              })
-              .catch(error => {
-                console.log(error as string);
-              });
-          }
-          this.checkUserScrambleInDB = false;
-        }
+        this.playgroundModeRenew();
       }
       this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
       this.freeElement = this.actualOrders[this.freeElementIndex];
+    },
+    playgroundModeRenew() {
+      this.savedOrders = this.mixedOrders;
+      if (this.checkUserScrambleInDB) {
+        if (this.token != null) {
+          void useGetFetchAPI(`user_scramble?scramble=${this.mixedOrders.join(',')}`, this.token)
+            .then((res) => {
+              if (res.stats != null) {
+                const stats = res.stats as unknown as UserScrambleData;
+                if (stats.id != null) {
+                  this.userScrambleId = stats.id;
+                }
+                this.playgroundBestTime = stats.best_time!;
+                this.playgroundBestTimeMoves = stats.best_time_moves!;
+                this.playgroundBestMoves = stats.best_moves!;
+                this.playgroundSolvePath = stats.solve_path!.split('');
+                this.publicId = stats.public_id ?? '';
+              } else {
+                this.playgroundBestTime = 0;
+                this.playgroundBestTimeMoves = 0;
+                this.playgroundBestMoves = 0;
+                this.playgroundSolvePath = [];
+                this.publicId = '';
+                this.userScrambleId = 0;
+              }
+            })
+            .catch(error => {
+              console.log(error as string);
+            });
+        }
+        this.checkUserScrambleInDB = false;
+      }
     },
     mixAndCheckSolvable() {
       if (this.replayMode) {
@@ -338,7 +341,7 @@ export const useBaseStore = defineStore('base', {
       const nLPart = this.getnLPart(puzzleSize);
       this.timeRecord = timeRecord;
       this.timeRecordMoves = moves;
-      const headerPart = Math.random().toString().slice(-4);
+      const headerPart = generateRand().toString().slice(-4);
       const timePart = timeRecord.toString().padStart(6, '0');
       const movesPart = moves.toString().padStart(6, '0');
       const xt = btoa(`${headerPart}${timePart}${movesPart}heh7`);
@@ -355,7 +358,7 @@ export const useBaseStore = defineStore('base', {
       const nLPart = this.getnLPart(puzzleSize);
       this.movesRecord = movesRecord;
       this.movesRecordTime = time;
-      const headerPart = Math.random().toString().slice(-4);
+      const headerPart = generateRand().toString().slice(-4);
       const movesPart = movesRecord.toString().padStart(6, '0');
       const timePart = time.toString().padStart(6, '0');
       const xm = btoa(`${headerPart}${movesPart}${timePart}heh9`);
