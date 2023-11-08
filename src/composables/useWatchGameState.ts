@@ -65,17 +65,15 @@ export const useWatchGameState = (): void => {
               solve_path: baseStore.playgroundSolvePath.join(''),
               scramble: baseStore.mixedOrders.join(',')
             });
-          } else {
-            if (baseStore.newPlaygroundTimeRecord || baseStore.newPlaygroundMovesRecord) {
-              patchUserScramble({
-                id: baseStore.userScrambleId,
-                user_name: baseStore.userName,
-                best_time: baseStore.playgroundBestTime,
-                best_time_moves: baseStore.playgroundBestTimeMoves,
-                best_moves: baseStore.playgroundBestMoves,
-                solve_path: baseStore.playgroundSolvePath.join('')
-              });
-            }
+          } else if (baseStore.newPlaygroundTimeRecord || baseStore.newPlaygroundMovesRecord) {
+            patchUserScramble({
+              id: baseStore.userScrambleId,
+              user_name: baseStore.userName,
+              best_time: baseStore.playgroundBestTime,
+              best_time_moves: baseStore.playgroundBestTimeMoves,
+              best_moves: baseStore.playgroundBestMoves,
+              solve_path: baseStore.playgroundSolvePath.join('')
+            });
           }
         }
         baseStore.stopInterval();

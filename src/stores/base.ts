@@ -602,11 +602,8 @@ export const useBaseStore = defineStore('base', {
       return calculateTPS(this.movesCount, this.time);
     },
     getControlTypeStr(): string {
-      let controlType = 'mouse';
+      let controlType;
       switch (this.moveDoneBy) {
-        case ControlType.Mouse:
-          controlType = 'mouse';
-          break;
         case ControlType.Touch:
           controlType = 'touch';
           break;

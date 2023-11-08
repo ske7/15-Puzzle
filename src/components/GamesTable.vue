@@ -99,12 +99,10 @@ const doSort = (newSortField: string): void => {
   if (newSortField !== sortField) {
     sortField = newSortField;
     orderDirection = OrderDirection.Asc;
-  } else {
-    if (orderDirection === OrderDirection.Asc) {
-      orderDirection = OrderDirection.Desc;
-    } else if (orderDirection === OrderDirection.Desc) {
-      orderDirection = OrderDirection.Asc;
-    }
+  } else if (orderDirection === OrderDirection.Asc) {
+    orderDirection = OrderDirection.Desc;
+  } else if (orderDirection === OrderDirection.Desc) {
+    orderDirection = OrderDirection.Asc;
   }
   gameRecords.value = [];
   offset = 0;

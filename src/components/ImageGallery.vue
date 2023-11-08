@@ -118,11 +118,6 @@ watch(loaded, (newValue, oldValue) => {
 
 const tolerance = ref(30);
 const gesture = reactive({ x: [] as number[] });
-const touchstart = (e: TouchEvent): void => {
-  for (const t of e.touches) {
-    gesture.x.push(t.clientX);
-  }
-};
 const touchmove = (e: TouchEvent): void => {
   for (const t of e.touches) {
     gesture.x.push(t.clientX);
@@ -236,7 +231,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
             class="cage-img"
             draggable="false"
             @load="onCageImgLoad"
-            @touchstart.prevent="touchstart"
+            @touchstart.prevent="touchmove"
             @touchmove.prevent="touchmove"
             @touchend.prevent="touchend"
           >
@@ -244,7 +239,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
         <span
           v-show="isLocked && loaded"
           class="cage-locked-txt"
-          @touchstart.prevent="touchstart"
+          @touchstart.prevent="touchmove"
           @touchmove.prevent="touchmove"
           @touchend.prevent="touchend"
         >
