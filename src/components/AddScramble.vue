@@ -47,7 +47,7 @@ const doSubmit = (): void => {
     <form @submit.prevent="doSubmit">
       <fieldset class="fields">
         <label for="scramble">
-          <span class="label-text">Scramble (format: 1,2,3... or 1 2 3 4/5 6...)</span>
+          <legend class="label-text">Scramble (format: 1,2,3... or 1 2 3 4/5 6...)</legend>
           <input
             id="scramble"
             v-model.trim="formData.scramble"

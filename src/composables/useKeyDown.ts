@@ -66,12 +66,14 @@ export const useKeyDown = (): void => {
   };
 
   onMounted(() => {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keydown', (event) => {
+      void onKeyDown(event);
+    });
   });
 
   onBeforeUnmount(() => {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    window.removeEventListener('keydown', onKeyDown);
+    window.removeEventListener('keydown', (event) => {
+      void onKeyDown(event);
+    });
   });
 };

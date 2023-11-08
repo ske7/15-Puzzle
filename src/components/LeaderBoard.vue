@@ -211,7 +211,7 @@ const doProSort = (): void => {
   <Teleport to="body">
     <div v-if="!baseStore.isFetching" ref="leaderBoard" class="leaderboard">
       <p class="header">
-        <span>
+        <span id="leaderboard-caption">
           {{ isDefault ? 'Leaderboard' : 'Best Averages' }}
         </span>
       </p>
@@ -235,7 +235,7 @@ const doProSort = (): void => {
         :header="'Best Factor'"
       />
       <div class="table-container" :class="{ 'table-container-ml-8': isDefault }">
-        <table v-if="isDefault" class="items-table">
+        <table v-if="isDefault" class="items-table" aria-describedby="leaderboard-caption">
           <thead>
             <tr>
               <th class="w-28">
@@ -291,7 +291,7 @@ const doProSort = (): void => {
             </tr>
           </tbody>
         </table>
-        <table v-if="!isDefault" class="items-table">
+        <table v-if="!isDefault" class="items-table" aria-describedby="leaderboard-caption">
           <thead>
             <tr>
               <th class="w-28">

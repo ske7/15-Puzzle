@@ -105,7 +105,7 @@ const closeGamesTable = (): void => {
   <Teleport to="body">
     <div v-if="!baseStore.isFetching && userData" ref="userAccount" class="user-account">
       <p class="header">
-        <span>Your personal records</span>
+        <span id="user-account-caption">Your personal records</span>
       </p>
       <div v-if="!baseStore.isFetching && userData" class="user-info">
         <p><strong>Name:</strong> {{ baseStore.userName }}</p>
@@ -119,7 +119,7 @@ const closeGamesTable = (): void => {
       <PuzzleSizeSlider v-model="puzzleSize" />
       <PuzzleModeGroup v-model="puzzleMode" :choices="['standard', 'marathon']" :header="'Puzzle Mode'" />
       <div class="table-container">
-        <table class="items-table">
+        <table class="items-table" aria-describedby="user-account-caption">
           <thead>
             <tr>
               <th class="w-65">
@@ -157,7 +157,7 @@ const closeGamesTable = (): void => {
         </table>
       </div>
       <div class="table-container">
-        <table class="items-table">
+        <table class="items-table" aria-describedby="user-account-caption">
           <thead>
             <tr>
               <th>Best Avg</th>

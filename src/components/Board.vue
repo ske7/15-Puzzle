@@ -96,6 +96,7 @@ const changePuzzleSize = (puzzleSize: number): void => {
       :src="cageCompleteImg"
       class="complete-cage"
       draggable="false"
+      alt="cage"
       @load="onCageCompleteImgLoaded"
     >
     <div

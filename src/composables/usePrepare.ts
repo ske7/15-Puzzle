@@ -173,9 +173,6 @@ export const getSquareSize = (): Record<string, ComputedRef<number>> => {
   const squareSize = computed(() => {
     const spaces = baseStore.spaceBetween * 5;
     let cageAdd = 0;
-    if (baseStore.cageMode) {
-      cageAdd = 10;
-    }
     if (baseStore.proMode) {
       cageAdd = 22;
       if (baseStore.numLines === 3) {

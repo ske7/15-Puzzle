@@ -227,12 +227,14 @@ const showScrambleList = (): void => {
 };
 
 onMounted(() => {
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  eventBus.on(listener);
+  eventBus.on((event, payload) => {
+    void listener(event, String(payload));
+  });
 });
 onUnmounted(() => {
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  eventBus.off(listener);
+  eventBus.off((event, payload) => {
+    void listener(event, String(payload));
+  });
 });
 </script>
 

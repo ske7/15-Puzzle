@@ -324,6 +324,7 @@ onUnmounted(() => {
         :src="loadedImg"
         class="item-img"
         draggable="false"
+        alt=""
         @load="onImgLoad"
       >
       <span

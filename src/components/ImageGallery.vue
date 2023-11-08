@@ -230,6 +230,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
             :src="loadedCageImg"
             class="cage-img"
             draggable="false"
+            alt="cage"
             @load="onCageImgLoad"
             @touchstart.prevent="touchmove"
             @touchmove.prevent="touchmove"

@@ -133,13 +133,15 @@ export function shortenSolutionStr(str?: string): string {
 export function expandSolutionStr(str: string): string {
   let result = '';
   let count = 1;
-  for (let i = 0; i < str.length; i++) {
+  let skipNext = false;
+  for (let i = 0; i < str.length; i = i + (skipNext ? 2 : 1)) {
     const currentChar = str[i];
     const nextChar = str[i + 1];
     const nn = parseInt(nextChar, 10);
+    skipNext = false;
     if (!isNaN(nn)) {
       count = nn;
-      i++;
+      skipNext = true;
     }
     result += currentChar.repeat(count);
     count = 1;
