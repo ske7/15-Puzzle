@@ -26,7 +26,7 @@ const getYear = computed(() => {
         <span>About the game</span>
       </p>
       <p class="instruction">
-        <span>Move blocks until they are in regular order. You can play and beat online records of time and moves. Can you be among the best world players? Try "Cage Mode" and unlock all funny images by solving the puzzles. Look under "Config" and try advanced modes: Pro (speed sliding) and Marathon. See more information about the game <a target="_blank" href="https://github.com/ske7/15-Puzzle">here</a>.</span>
+        <span>Move blocks until they are in regular order. You can play and beat online records of time and moves. Can you be among the best world players? Try "Cage Mode" and unlock all funny images by solving the puzzles. Look under "Config" and try advanced modes: Pro (speed sliding) and Marathon. See more information about the game <a target="_blank" rel="noopener" href="https://github.com/ske7/15-Puzzle">here</a>.</span>
       </p>
       <div class="buttons">
         <button type="button" class="tool-button" @click="emit('close')">
@@ -36,7 +36,7 @@ const getYear = computed(() => {
       <p class="copyright">
         <span>© {{ getYear }} SKE</span>
         <br>
-        <span><a target="_blank" href="https://github.com/ske7/15-Puzzle">This game is open source</a></span>
+        <span><a target="_blank" rel="noopener" href="https://github.com/ske7/15-Puzzle">This game is open source</a></span>
       </p>
     </div>
   </Teleport>

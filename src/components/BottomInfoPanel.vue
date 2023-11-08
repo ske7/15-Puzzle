@@ -277,6 +277,7 @@ const disableSave = computed(() => {
           v-if="baseStore.userScrambleId !== 0 && baseStore.publicId !== '' && !baseStore.sharedPlaygroundMode"
           :class="{ 'red bold best-moves': baseStore.newPlaygroundMovesRecord }"
           :href="`${baseUrl}?playground&public_id=${baseStore.publicId}`"
+          rel="noopener"
           target="_blank"
         >
           {{ baseStore.playgroundBestMoves }}
