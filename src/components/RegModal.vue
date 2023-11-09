@@ -26,82 +26,84 @@ const setPasswordForm = computed(() => {
 
 const { width: windowWidth } = useWindowSize();
 const recordGames = ref<GameData[]>([]);
-const fillRecordGames = (): void => {
-  recordGames.value = [];
+
+const loadLocalRecordAndPush = (size: number, isMarathon: boolean, isMovesMain = false): void => {
   const recordControlType = windowWidth.value <= 800 ? 'touch' : 'mouse';
   let record: Record = { record: 0, adding: 0 };
   let time = 0;
   let moves = 0;
-  const loadAndPush = (size: number, isMarathon: boolean, isMovesMain = false): void => {
-    if (isMovesMain) {
-      record = baseStore.loadMovesRecord(isMarathon, size);
-      time = record.adding;
-      moves = record.record;
-    } else {
-      record = baseStore.loadTimeRecord(isMarathon, size);
-      time = record.record;
-      moves = record.adding;
-    }
-    recordGames.value.push({
-      time,
-      moves,
-      puzzle_size: size,
-      puzzle_type: isMarathon ? 'marathon' : 'standard',
-      control_type: recordControlType,
-      consecutive_solves: 0
-    });
-  };
+  if (isMovesMain) {
+    record = baseStore.loadMovesRecord(isMarathon, size);
+    time = record.adding;
+    moves = record.record;
+  } else {
+    record = baseStore.loadTimeRecord(isMarathon, size);
+    time = record.record;
+    moves = record.adding;
+  }
+  recordGames.value.push({
+    time,
+    moves,
+    puzzle_size: size,
+    puzzle_type: isMarathon ? 'marathon' : 'standard',
+    control_type: recordControlType,
+    consecutive_solves: 0
+  });
+};
+
+const fillRecordGames = (): void => {
+  recordGames.value = [];
   for (const item of cores) {
     let itemS = String(item);
     if (item === CORE_NUM) {
       itemS = '';
     }
     if (localStorage.getItem(`timeRecord${itemS}`) != null) {
-      loadAndPush(item, false);
+      loadLocalRecordAndPush(item, false);
     }
     if (localStorage.getItem(`timeMRecord${itemS}`) != null) {
-      loadAndPush(item, true);
+      loadLocalRecordAndPush(item, true);
     }
     if (localStorage.getItem(`movesRecord${itemS}`) != null) {
-      loadAndPush(item, false, true);
+      loadLocalRecordAndPush(item, false, true);
     }
     if (localStorage.getItem(`movesMRecord${itemS}`) != null) {
-      loadAndPush(item, true, true);
+      loadLocalRecordAndPush(item, true, true);
     }
   }
 };
 
+const updateLocalRecord = (stats: UserStats, puzzleSize: number, puzzleType: string): void => {
+  const marathonMode = puzzleType === 'marathon';
+  let record: Record = { record: 0, adding: 0 };
+  let filtered = stats.user_records.filter(item => {
+    return item.puzzle_size === puzzleSize && item.puzzle_type === puzzleType && item.record_type === 'time';
+  });
+  if (filtered.length !== 0) {
+    record = baseStore.loadTimeRecord(marathonMode, puzzleSize);
+    if (record.record === 0 || filtered[0].time < record.record ||
+      filtered[0].time === record.record && filtered[0].moves < record.adding) {
+      baseStore.setTimeRecord(filtered[0].time, filtered[0].moves, puzzleSize, marathonMode, true);
+    }
+  }
+  filtered = stats.user_records.filter(item => {
+    return item.puzzle_size === puzzleSize && item.puzzle_type === puzzleType && item.record_type === 'moves';
+  });
+  if (filtered.length !== 0) {
+    record = baseStore.loadMovesRecord(marathonMode, puzzleSize);
+    if (record.record === 0 || filtered[0].moves < record.record ||
+      filtered[0].moves === record.record && filtered[0].time < record.adding) {
+      baseStore.setMovesRecord(filtered[0].moves, filtered[0].time, puzzleSize, marathonMode, true);
+    }
+  }
+};
 const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
   if ((stats == null) || stats.user_records.length === 0) {
     return;
   }
-  const updateLocalRecord = (puzzleSize: number, puzzleType: string): void => {
-    const marathonMode = puzzleType === 'marathon';
-    let record: Record = { record: 0, adding: 0 };
-    let filtered = stats.user_records.filter(item => {
-      return item.puzzle_size === puzzleSize && item.puzzle_type === puzzleType && item.record_type === 'time';
-    });
-    if (filtered.length !== 0) {
-      record = baseStore.loadTimeRecord(marathonMode, puzzleSize);
-      if (record.record === 0 || filtered[0].time < record.record ||
-        filtered[0].time === record.record && filtered[0].moves < record.adding) {
-        baseStore.setTimeRecord(filtered[0].time, filtered[0].moves, puzzleSize, marathonMode, true);
-      }
-    }
-    filtered = stats.user_records.filter(item => {
-      return item.puzzle_size === puzzleSize && item.puzzle_type === puzzleType && item.record_type === 'moves';
-    });
-    if (filtered.length !== 0) {
-      record = baseStore.loadMovesRecord(marathonMode, puzzleSize);
-      if (record.record === 0 || filtered[0].moves < record.record ||
-        filtered[0].moves === record.record && filtered[0].time < record.adding) {
-        baseStore.setMovesRecord(filtered[0].moves, filtered[0].time, puzzleSize, marathonMode, true);
-      }
-    }
-  };
   for (const item of cores) {
-    updateLocalRecord(item, 'standard');
-    updateLocalRecord(item, 'marathon');
+    updateLocalRecord(stats, item, 'standard');
+    updateLocalRecord(stats, item, 'marathon');
   }
   baseStore.setRecords();
 };

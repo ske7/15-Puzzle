@@ -175,37 +175,43 @@ export const getSquareSize = (): Record<string, ComputedRef<number>> => {
     let cageAdd = 0;
     if (baseStore.proMode) {
       cageAdd = 22;
-      if (baseStore.numLines === 3) {
-        cageAdd += 34;
-      }
-      if (baseStore.numLines === 5) {
-        cageAdd -= 20.4;
-      }
-      if (baseStore.numLines === 6) {
-        cageAdd -= 34;
-      }
-      if (baseStore.numLines === 7) {
-        cageAdd -= 42;
-      }
-      if (baseStore.numLines === 8) {
-        cageAdd -= 49.5;
+      switch (baseStore.numLines) {
+        case 3:
+          cageAdd += 34;
+          break;
+        case 5:
+          cageAdd -= 20.4;
+          break;
+        case 6:
+          cageAdd -= 34;
+          break;
+        case 7:
+          cageAdd -= 42;
+          break;
+        case 8:
+          cageAdd -= 49.5;
+          break;
+        default:
       }
     } else {
       cageAdd = 12;
-      if (baseStore.numLines === 3) {
-        cageAdd += 33.33333;
-      }
-      if (baseStore.numLines === 5) {
-        cageAdd -= 20;
-      }
-      if (baseStore.numLines === 6) {
-        cageAdd -= 33.33333;
-      }
-      if (baseStore.numLines === 7) {
-        cageAdd -= 42.857;
-      }
-      if (baseStore.numLines === 8) {
-        cageAdd -= 50;
+      switch (baseStore.numLines) {
+        case 3:
+          cageAdd += 33.33333;
+          break;
+        case 5:
+          cageAdd -= 20;
+          break;
+        case 6:
+          cageAdd -= 33.33333;
+          break;
+        case 7:
+          cageAdd -= 42.857;
+          break;
+        case 8:
+          cageAdd -= 50;
+          break;
+        default:
       }
     }
     let value = 0;
