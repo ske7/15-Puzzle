@@ -70,6 +70,81 @@ const compare = (x: undefined | number, y: undefined | number): number => {
     return x > y ? -1 : 1;
   }
 };
+
+const sortSingleRecords = (a: UserRecord, b: UserRecord): number => {
+  if (bestType.value === 'time') {
+    if (a.time === b.time) {
+      if (Number(b.tps) === Number(a.tps)) {
+        return Number(a.game_id) - Number(b.game_id);
+      }
+      return Number(b.tps) - Number(a.tps);
+    }
+    return a.time - b.time;
+  } else {
+    if (a.moves === b.moves) {
+      if (Number(b.tps) === Number(a.tps)) {
+        return Number(a.game_id) - Number(b.game_id);
+      }
+      return Number(b.tps) - Number(a.tps);
+    }
+    return a.moves - b.moves;
+  }
+};
+const sortTimeAverages = (a: UserRecord, b: UserRecord): number => {
+  if (baseStore.sortAveragesByProValues) {
+    const diff = compare(infNumber(b.pro_time_value), infNumber(a.pro_time_value));
+    if (diff !== 0) {
+      return diff;
+    }
+    return compare(infNumber(b.avg_time), infNumber(a.avg_time));
+  } else {
+    const diff = compare(infNumber(b.avg_time), infNumber(a.avg_time));
+    if (diff !== 0) {
+      return diff;
+    }
+    return compare(infNumber(b.pro_time_value), infNumber(a.pro_time_value));
+  }
+};
+const sortMovesAverages = (a: UserRecord, b: UserRecord): number => {
+  if (baseStore.sortAveragesByProValues) {
+    const diff = compare(infNumber(b.pro_moves_value), infNumber(a.pro_moves_value));
+    if (diff !== 0) {
+      return diff;
+    }
+    return compare(infNumber(b.avg_moves), infNumber(a.avg_moves));
+  } else {
+    const diff = compare(infNumber(b.avg_moves), infNumber(a.avg_moves));
+    if (diff !== 0) {
+      return diff;
+    }
+    return compare(infNumber(b.pro_moves_value), infNumber(a.pro_moves_value));
+  }
+};
+const sortTPSAverages = (a: UserRecord, b: UserRecord): number => {
+  if (baseStore.sortAveragesByProValues) {
+    const diff = compare(infNumber(a.pro_tps_value, true), infNumber(b.pro_tps_value, true));
+    if (diff !== 0) {
+      return diff;
+    }
+    return compare(infNumber(a.avg_tps, true), infNumber(b.avg_tps, true));
+  } else {
+    const diff = compare(infNumber(a.avg_tps, true), infNumber(b.avg_tps, true));
+    if (diff !== 0) {
+      return diff;
+    }
+    return compare(infNumber(a.pro_tps_value, true), infNumber(b.pro_tps_value, true));
+  }
+};
+const sortAveragesRecords = (a: UserRecord, b: UserRecord): number => {
+  if (bestAverage.value === 'time') {
+    return sortTimeAverages(a, b);
+  } else if (bestAverage.value === 'moves') {
+    return sortMovesAverages(a, b);
+  } else if (bestAverage.value === 'TPS') {
+    return sortTPSAverages(a, b);
+  }
+  return Number(a.avg_time) - Number(b.avg_time);
+};
 const filteredRecords = computed(() => {
   if ((userRecords.value == null) || userRecords.value.length === 0) {
     return [];
@@ -78,71 +153,11 @@ const filteredRecords = computed(() => {
     return value.puzzle_size === Number(puzzleSize.value) &&
            value.puzzle_type === puzzleMode.value &&
            value.record_type === bestType.value;
-  // eslint-disable-next-line max-statements
   }).sort((a, b) => {
     if (isDefault.value) {
-      if (bestType.value === 'time') {
-        if (a.time === b.time) {
-          if (Number(b.tps) === Number(a.tps)) {
-            return Number(a.game_id) - Number(b.game_id);
-          }
-          return Number(b.tps) - Number(a.tps);
-        }
-        return a.time - b.time;
-      } else {
-        if (a.moves === b.moves) {
-          if (Number(b.tps) === Number(a.tps)) {
-            return Number(a.game_id) - Number(b.game_id);
-          }
-          return Number(b.tps) - Number(a.tps);
-        }
-        return a.moves - b.moves;
-      }
+      return sortSingleRecords(a, b);
     } else {
-      if (bestAverage.value === 'time') {
-        if (baseStore.sortAveragesByProValues) {
-          const diff = compare(infNumber(b.pro_time_value), infNumber(a.pro_time_value));
-          if (diff !== 0) {
-            return diff;
-          }
-          return compare(infNumber(b.avg_time), infNumber(a.avg_time));
-        } else {
-          const diff = compare(infNumber(b.avg_time), infNumber(a.avg_time));
-          if (diff !== 0) {
-            return diff;
-          }
-          return compare(infNumber(b.pro_time_value), infNumber(a.pro_time_value));
-        }
-      } else if (bestAverage.value === 'moves') {
-        if (baseStore.sortAveragesByProValues) {
-          const diff = compare(infNumber(b.pro_moves_value), infNumber(a.pro_moves_value));
-          if (diff !== 0) {
-            return diff;
-          }
-          return compare(infNumber(b.avg_moves), infNumber(a.avg_moves));
-        } else {
-          const diff = compare(infNumber(b.avg_moves), infNumber(a.avg_moves));
-          if (diff !== 0) {
-            return diff;
-          }
-          return compare(infNumber(b.pro_moves_value), infNumber(a.pro_moves_value));
-        }
-      } else if (bestAverage.value === 'TPS') {
-        if (baseStore.sortAveragesByProValues) {
-          const diff = compare(infNumber(a.pro_tps_value, true), infNumber(b.pro_tps_value, true));
-          if (diff !== 0) {
-            return diff;
-          }
-          return compare(infNumber(a.avg_tps, true), infNumber(b.avg_tps, true));
-        } else {
-          const diff = compare(infNumber(a.avg_tps, true), infNumber(b.avg_tps, true));
-          if (diff !== 0) {
-            return diff;
-          }
-          return compare(infNumber(a.pro_tps_value, true), infNumber(b.pro_tps_value, true));
-        }
-      }
-      return Number(a.avg_time) - Number(b.avg_time);
+      return sortAveragesRecords(a, b);
     }
   });
 });
