@@ -445,7 +445,7 @@ const doProSort = (): void => {
   scrollbar-width: auto;
 }
 .items-table td {
-  padding: 3px 5px 3px 5px;
+  padding: 3px 4px 3px 4px;
   border: 1px solid var(--table-border-color);
   border-top: 0px;
 }
@@ -462,10 +462,10 @@ const doProSort = (): void => {
   width: 150px;
 }
 .w-60 {
-  width: 70px;
+  width: 67px;
 }
 .w-70 {
-  width: 70px;
+  width: 72px;
 }
 .t-overflow {
   overflow: hidden;
