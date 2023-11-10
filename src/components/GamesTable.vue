@@ -131,28 +131,28 @@ const doSort = (newSortField: string): void => {
             {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
         </div>
-        <div class="flex-row w-80">
+        <div class="flex-row w-85">
           Time
           <span class="pro-sort" @click="doSort('time')">
             {{ sortField !== 'time' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
         </div>
-        <div class="flex-row w-80">
+        <div class="flex-row w-85">
           Moves
           <span class="pro-sort" @click="doSort('moves')">
             {{ sortField !== 'moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
         </div>
-        <div class="flex-row w-80">
+        <div class="flex-row w-85">
           TPS
           <span class="pro-sort" @click="doSort('tps')">
             {{ sortField !== 'tps' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↓' : '↑') }}
           </span>
         </div>
-        <div class="flex-row" :class="{ 'w-80': windowWidth <= 1100 }">
+        <div class="flex-row" :class="{ 'w-85': windowWidth <= 1100 }">
           Scramble
         </div>
-        <div class="flex-row" :class="{ 'w-80': windowWidth <= 1100 }">
+        <div class="flex-row" :class="{ 'w-85': windowWidth <= 1100 }">
           Solution
         </div>
       </div>
@@ -203,16 +203,16 @@ const doSort = (newSortField: string): void => {
             <div class="flex-row w-95">
               <span class="white-space-normal date-smaller">{{ formatDate(item.created_at) }}</span>
             </div>
-            <div class="flex-row w-80">
+            <div class="flex-row w-85">
               <span>{{ item.time / 1000 }}</span>
             </div>
-            <div class="flex-row w-80">
+            <div class="flex-row w-85">
               <span>{{ item.moves }}</span>
             </div>
-            <div class="flex-row w-80">
+            <div class="flex-row w-85">
               <span>{{ item.tps }}</span>
             </div>
-            <div class="flex-row smaller-font" :class="{ 'w-80': windowWidth <= 1100 }">
+            <div class="flex-row smaller-font" :class="{ 'w-85': windowWidth <= 1100 }">
               <div class="copy-button-wrapper">
                 <span v-if="item.scramble" class="smaller-font long-span">
                   {{ convertScramble(item.scramble) }}
@@ -225,7 +225,7 @@ const doSort = (newSortField: string): void => {
                 />
               </div>
             </div>
-            <div class="flex-row smaller-font" :class="{ 'w-80': windowWidth <= 1100 }">
+            <div class="flex-row smaller-font" :class="{ 'w-85': windowWidth <= 1100 }">
               <div class="copy-button-wrapper">
                 <span class="long-span">{{ shortenSolutionStr(item.solve_path) }}</span>
                 <CopyButton
@@ -326,8 +326,8 @@ const doSort = (newSortField: string): void => {
 .w-70 {
   max-width: 70px;
 }
-.w-80 {
-  max-width: 80px;
+.w-85 {
+  max-width: 85px;
 }
 .w-95 {
   max-width: 95px;
@@ -403,7 +403,7 @@ const doSort = (newSortField: string): void => {
   .games-table {
   --modal-width: 768px;
   }
-  .w-70, .w-80, .w-95 {
+  .w-70, .w-85, .w-95 {
     max-width: 100%;
   }
   .table-wrapper {
@@ -472,7 +472,7 @@ const doSort = (newSortField: string): void => {
   .table-header {
     display: none;
   }
-  .w-70, .w-80, w-95 {
+  .w-70, .w-85, w-95 {
     max-width: 180px;
     min-width: 180px;
   }
