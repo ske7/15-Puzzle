@@ -269,6 +269,9 @@ onMounted(() => {
     </div>
     <form v-if="!sentResetEmail" @submit.prevent="doSubmit">
       <fieldset :disabled="isFetching" class="fields">
+        <legend v-if="registerForm && (!user.name || !user.email || !user.password)">
+          * all fields are required
+        </legend>
         <label v-if="registerForm" for="username">
           <span>Username</span>
           <input
@@ -358,7 +361,7 @@ onMounted(() => {
   width: 370px;
   position: fixed;
   z-index: 2001;
-  top: calc(40% - 170px);
+  top: calc(40% - 160px);
   left: calc(50% - 185px);
   padding: 20px;
   box-shadow: 0 8px 16px var(--shadow-color);
@@ -371,7 +374,7 @@ onMounted(() => {
 }
 .header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   margin-top: 5px;
 }
 .header span {
@@ -385,6 +388,10 @@ onMounted(() => {
   align-items: start;
   padding: 0;
   border: none;
+}
+.fields > legend {
+  font-size: 14px;
+  color: red;
 }
 label {
   margin-bottom: 5px;
