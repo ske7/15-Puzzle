@@ -66,8 +66,10 @@ const setHoverOnControl = (): void => {
 const setProMode = (): void => {
   baseStore.proMode = !baseStore.proMode;
   localStorage.setItem('proMode', baseStore.proMode.toString());
-  baseStore.hoverOnControl = true;
-  localStorage.setItem('hoverOnControl', 'true');
+  if (baseStore.proMode) {
+    baseStore.hoverOnControl = true;
+    localStorage.setItem('hoverOnControl', 'true');
+  }
   baseStore.enableCageMode = false;
   localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
   baseStore.cageMode = false;
