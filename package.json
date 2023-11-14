@@ -17,15 +17,15 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore && stylelint **/*.vue"
   },
   "dependencies": {
-    "@vueuse/core": "^10.6.0",
+    "@vueuse/core": "^10.6.1",
     "pinia": "^2.1.7",
     "vue": "^3.3.8"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.2",
     "@types/node": "^20.9.0",
-    "@typescript-eslint/eslint-plugin": "^6.10.0",
-    "@typescript-eslint/parser": "^6.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
     "@vitejs/plugin-vue": "^4.4.1",
     "@vue/tsconfig": "^0.4.0",
     "eslint": "^8.53.0",
