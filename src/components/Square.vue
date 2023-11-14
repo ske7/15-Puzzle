@@ -223,7 +223,7 @@ const moveByMouse = (event: MouseEvent): void => {
 };
 
 const getCursor = computed(() => {
-  if (baseStore.proMode || baseStore.hoverOnControl) {
+  if (baseStore.hoverOnControl) {
     return;
   }
   if (cannotMove.value) {

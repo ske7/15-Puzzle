@@ -70,8 +70,7 @@ export const useBaseStore = defineStore('base', {
     showRegModal: false,
     showUserAccount: false,
     showLeaderBoard: false,
-    hoverOnControl: localStorage.getItem('hoverOnControl') === 'true' ||
-      localStorage.getItem('proMode') === 'true',
+    hoverOnControl: localStorage.getItem('hoverOnControl') === 'true',
     currentAverages: [] as AverageData[],
     prevAverages: [] as AverageData[],
     hideCurrentAverages: localStorage.getItem('hideCurrentAverages') === 'true',

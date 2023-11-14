@@ -190,11 +190,10 @@ watch(marathonMode, () => {
             id="hover-on"
             type="checkbox"
             name="hover-on"
-            :disabled="baseStore.proMode"
             :checked="baseStore.hoverOnControl"
             @change="setHoverOnControl"
           >
-          <label for="hover-on" :class="{ 'disabled-label': baseStore.proMode }">
+          <label for="hover-on">
             Hover On Control
           </label>
         </div>
