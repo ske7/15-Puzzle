@@ -208,7 +208,7 @@ const doSort = (newSortField: string): void => {
           </div>
           <div class="items">
             <div class="flex-row w-70">
-              <a v-if="item.puzzle_type === 'standard' && item.scramble " :href="`${baseUrl}?game_id=${item.id}`" class="link-item">
+              <a v-if="item.scramble " :href="`${baseUrl}?game_id=${item.id}`" class="link-item">
                 {{ item.id }}
               </a>
               <span v-else>{{ item.id }}</span>

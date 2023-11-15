@@ -53,7 +53,8 @@ watch(finishLoadingAllCageImages, value => {
 
 const eventBus = useEventBus<string>('event-bus');
 const touchMove = (e: TouchEvent): void => {
-  if (!baseStore.hoverOnControl || baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode) {
+  if (!baseStore.hoverOnControl || baseStore.isMoving || baseStore.inReplay ||
+  baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
     return;
   }
   let element = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);

@@ -5,7 +5,7 @@ import { CORE_NUM, baseUrl } from '@/const';
 import { type RepGame } from '@/types';
 import { useEventBus, useClipboard } from '@vueuse/core';
 import {
-  convertScramble, calculateTPS, displayedTime,
+  convertScrambles, calculateTPS, displayedTime,
   shortenSolutionStr, createLinkAndClick
 } from '@/utils';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
@@ -221,10 +221,11 @@ const disableSave = computed(() => {
     </div>
     <div class="info-row" :style="{ 'min-height': getMinHeight }">
       <div v-if="baseStore.replayMode" class="copy-button-wrapper center">
-        <span>{{ convertScramble(baseStore.repGame.scramble) }}</span>
+        <span>{{ convertScrambles(baseStore.repGame.scramble, baseStore.marathonReplay ? 'marathon' : 'standard') }}</span>
         <CopyButton
           :item-to-copy="String(baseStore.repGame.scramble)"
           :is-solve-path="false"
+          :puzzle-type="baseStore.marathonReplay ? 'marathon' : 'standard'"
         />
       </div>
       <div v-if="baseStore.replayMode" class="copy-button-wrapper">
@@ -239,7 +240,8 @@ const disableSave = computed(() => {
           :is-solve-path="true"
         />
         <button
-          v-if="baseStore.registered && (baseStore.userName && baseStore.repGame.name === baseStore.userName)"
+          v-if="baseStore.registered && (baseStore.userName && baseStore.repGame.name === baseStore.userName) &&
+            !baseStore.marathonReplay"
           type="button"
           class="tool-button save-button"
           @click="doSaveOriginal"

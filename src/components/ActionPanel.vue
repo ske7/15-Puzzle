@@ -242,7 +242,7 @@ onUnmounted(() => {
   <div class="action-panel">
     <div v-if="windowWidth >= 820" class="first-row">
       <button
-        v-if="!baseStore.sharedPlaygroundMode"
+        v-if="!baseStore.sharedPlaygroundMode && !baseStore.marathonReplay"
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.paused"
@@ -297,7 +297,7 @@ onUnmounted(() => {
         Config
       </button>
       <button
-        v-if="baseStore.replayMode"
+        v-if="baseStore.replayMode && !baseStore.marathonReplay"
         type="button"
         class="tool-button"
         @click="doWalk"
@@ -305,7 +305,7 @@ onUnmounted(() => {
         {{ baseStore.inReplay ? 'Stop' : 'Walk' }}
       </button>
       <button
-        v-if="baseStore.replayMode"
+        v-if="baseStore.replayMode && !baseStore.marathonReplay"
         type="button"
         class="tool-button"
         :disabled="baseStore.inReplay"
@@ -334,7 +334,8 @@ onUnmounted(() => {
     </div>
     <div v-if="windowWidth < 820" class="first-row">
       <button
-        v-if="(baseStore.replayMode || baseStore.playgroundMode) && !baseStore.sharedPlaygroundMode"
+        v-if="(baseStore.replayMode || baseStore.playgroundMode) &&
+          !baseStore.sharedPlaygroundMode && !baseStore.marathonReplay"
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.paused"
@@ -370,7 +371,7 @@ onUnmounted(() => {
         List
       </button>
       <button
-        v-if="baseStore.replayMode"
+        v-if="baseStore.replayMode && !baseStore.marathonReplay"
         type="button"
         class="tool-button"
         @click="doWalk"
@@ -378,7 +379,7 @@ onUnmounted(() => {
         {{ baseStore.inReplay ? 'Stop' : 'Walk' }}
       </button>
       <button
-        v-if="baseStore.replayMode"
+        v-if="baseStore.replayMode && !baseStore.marathonReplay"
         type="button"
         class="tool-button"
         :disabled="baseStore.inReplay"

@@ -100,7 +100,8 @@ export const useBaseStore = defineStore('base', {
     wasReplay: false,
     showScrambleList: false,
     marathonScrambles: '',
-    marathonSolves: ''
+    marathonSolves: '',
+    marathonReplay: false
   }),
   actions: {
     initStore() {
@@ -171,7 +172,11 @@ export const useBaseStore = defineStore('base', {
     },
     mixAndCheckSolvable() {
       if (this.replayMode) {
-        this.mixedOrders = this.repGame.scramble.split(',').map(x => +x);
+        let scramble = this.repGame.scramble;
+        if (this.marathonReplay) {
+          scramble = this.repGame.scramble.split(';')[0];
+        }
+        this.mixedOrders = scramble.split(',').map(x => +x);
       } else if (this.playgroundMode && this.savedOrders.length > 0) {
         this.mixedOrders = this.savedOrders;
       } else if (this.playgroundMode && this.savedOrders.length === 0) {

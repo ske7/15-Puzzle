@@ -67,6 +67,7 @@ export interface RepGame {
   time: number;
   moves: number;
   puzzle_size: number;
+  puzzle_type: string;
   control_type: string;
   consecutive_solves: number;
   scramble: string;

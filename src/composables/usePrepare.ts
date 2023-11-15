@@ -161,6 +161,7 @@ const checkGameLink = (gameId: number): void => {
           }
           baseStore.replayMode = true;
           baseStore.repGame = res.stats as unknown as RepGame;
+          baseStore.marathonReplay = (res.stats as unknown as RepGame).puzzle_type === 'marathon';
           initStore(baseStore.repGame.puzzle_size);
         } else {
           location.href = baseUrl;

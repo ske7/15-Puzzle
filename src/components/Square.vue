@@ -178,7 +178,7 @@ const moveByTouch = (e: TouchEvent): void => {
 };
 
 const move = (control: ControlType): void => {
-  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode) {
+  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
     return;
   }
   if (cannotMove.value) {
@@ -213,7 +213,7 @@ const move = (control: ControlType): void => {
   baseStore.isMoving = false;
 };
 const moveByMouse = (event: MouseEvent): void => {
-  if (!baseStore.hoverOnControl || baseStore.inReplay || baseStore.sharedPlaygroundMode) {
+  if (!baseStore.hoverOnControl || baseStore.inReplay || baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
     return;
   }
   if (event.ctrlKey) {
