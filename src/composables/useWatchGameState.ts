@@ -84,6 +84,8 @@ export const useWatchGameState = (): void => {
     if (baseStore.solvedPuzzlesInMarathon === 5) {
       baseStore.stopInterval();
       baseStore.incConsecutiveSolves();
+      baseStore.marathonScrambles = `${baseStore.marathonScrambles}${baseStore.mixedOrders.join(',')};`;
+      baseStore.marathonSolves = `${baseStore.marathonSolves}${baseStore.solvePath.join('')};`;
       setRecords('marathon');
       if (!baseStore.disableWinMessage) {
         baseStore.showWinModal = true;
