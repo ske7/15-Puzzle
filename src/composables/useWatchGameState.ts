@@ -93,6 +93,7 @@ export const useWatchGameState = (): void => {
     } else {
       baseStore.marathonScrambles = `${baseStore.marathonScrambles}${baseStore.mixedOrders.join(',')};`;
       baseStore.marathonSolves = `${baseStore.marathonSolves}${baseStore.solvePath.join('')};`;
+      baseStore.solvePath = [];
       baseStore.renewPuzzle();
     }
   };
