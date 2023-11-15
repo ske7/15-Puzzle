@@ -98,7 +98,9 @@ export const useBaseStore = defineStore('base', {
     publicId: '',
     otherUserName: '',
     wasReplay: false,
-    showScrambleList: false
+    showScrambleList: false,
+    marathonScrambles: '',
+    marathonSolves: ''
   }),
   actions: {
     initStore() {
@@ -117,6 +119,7 @@ export const useBaseStore = defineStore('base', {
       this.afterDoneCount = 0;
       this.solvePath = [];
       this.lastGameID = 0;
+      this.clearMarathonData();
       this.renewPuzzle();
       this.doResetList = false;
       this.doneFirstMove = false;
@@ -187,6 +190,10 @@ export const useBaseStore = defineStore('base', {
         return false;
       }
       return isSolvable(this.mixedOrders);
+    },
+    clearMarathonData() {
+      this.marathonScrambles = '';
+      this.marathonSolves = '';
     },
     setSpaceBetween() {
       if (this.cageMode) {

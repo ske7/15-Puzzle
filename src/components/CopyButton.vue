@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { shortenSolutionStr, convertScramble } from '@/utils';
+import { shortenSolutionStr, convertScramble, convertScrambles } from '@/utils';
 import { useClipboard } from '@vueuse/core';
 
-const props = defineProps<{ itemToCopy: string; isSolvePath: boolean }>();
+const props = defineProps<{ itemToCopy: string; isSolvePath: boolean; puzzleType?: string }>();
 const { copy, copied } = useClipboard({ copiedDuring: 500 });
 
 const copyText = computed(() => {
   if (props.isSolvePath) {
     return shortenSolutionStr(props.itemToCopy);
+  }
+  if ((props.puzzleType?.toLowerCase().startsWith('m')) ?? false) {
+    return convertScrambles(props.itemToCopy, props.puzzleType);
   }
   return convertScramble(props.itemToCopy);
 });

@@ -3,10 +3,11 @@ import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { onClickOutside, useDateFormat, useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
+import PuzzleModeGroup from './PuzzleModeGroup.vue';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 import { type GameData } from '@/types';
 import { baseUrl, OrderDirection, OrderDirectionMap } from '@/const';
-import { shortenSolutionStr, convertScramble } from '@/utils';
+import { shortenSolutionStr, convertScrambles } from '@/utils';
 import CopyButton from './CopyButton.vue';
 
 const emit = defineEmits<{ close: [] }>();
@@ -23,6 +24,7 @@ const limit = 50;
 let offset = 0;
 
 const puzzleSize = ref<number>(baseStore.numLines);
+const puzzleMode = ref<string>(baseStore.marathonMode ? 'marathon' : 'standard');
 
 const errorMsg = ref('');
 const gameRecords = ref<GameData[]>([]);
@@ -65,7 +67,7 @@ let orderDirection: OrderDirection = OrderDirection.Desc;
 let sortField = 'id';
 const doFetch = (): void => {
   // eslint-disable-next-line vue/max-len
-  fetch(`user_games?puzzle_size=${puzzleSize.value}&offset=${offset}&limit=${limit}&order_field=${sortField}&order_direction=${OrderDirectionMap.get(orderDirection)}`);
+  fetch(`user_games?puzzle_size=${puzzleSize.value}&puzzle_type=${puzzleMode.value}&offset=${offset}&limit=${limit}&order_field=${sortField}&order_direction=${OrderDirectionMap.get(orderDirection)}`);
 };
 let recordsTable: HTMLElement | null;
 const onscroll = (_event: Event): void => {
@@ -95,6 +97,12 @@ watch(puzzleSize, (newValue) => {
     doFetch();
   }
 });
+watch(puzzleMode, () => {
+  gameRecords.value = [];
+  offset = 0;
+  fetched.value = false;
+  doFetch();
+});
 const doSort = (newSortField: string): void => {
   if (newSortField !== sortField) {
     sortField = newSortField;
@@ -119,6 +127,11 @@ const doSort = (newSortField: string): void => {
       </span>
     </p>
     <PuzzleSizeSlider v-model="puzzleSize" />
+    <PuzzleModeGroup
+      v-model="puzzleMode"
+      :choices="['standard', 'marathon']"
+      :header="'Puzzle Mode'"
+    />
     <hr class="nice-hr">
     <div id="game-list-table" class="table-wrapper">
       <div class="flex-table table-header">
@@ -215,13 +228,14 @@ const doSort = (newSortField: string): void => {
             <div class="flex-row smaller-font" :class="{ 'w-85': windowWidth <= 1100 }">
               <div class="copy-button-wrapper">
                 <span v-if="item.scramble" class="smaller-font long-span">
-                  {{ convertScramble(item.scramble) }}
+                  {{ convertScrambles(item.scramble, item.puzzle_type) }}
                 </span>
-                <span v-else class="long-span">{{ convertScramble(item.scramble) }}</span>
+                <span v-else class="long-span">{{ convertScrambles(item.scramble, item.puzzle_type) }}</span>
                 <CopyButton
                   v-if="item.scramble"
                   :item-to-copy="String(item.scramble)"
                   :is-solve-path="false"
+                  :puzzle-type="item.puzzle_type"
                 />
               </div>
             </div>

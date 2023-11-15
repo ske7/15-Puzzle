@@ -154,6 +154,21 @@ export function expandSolutionStr(str: string): string {
   return result;
 }
 
+export function convertScrambles(str?: string, type?: string): string {
+  if (str == null) {
+    return '';
+  }
+  if (type?.toLowerCase().slice(0, 1) === 'm') {
+    const arr = str.split(';');
+    let res = '';
+    for (const item of arr) {
+      res = `${res + convertScramble(item)};`;
+    }
+    return res.slice(0, -1);
+  }
+  return convertScramble(str);
+}
+
 export function convertScramble(str?: string): string {
   if (str == null) {
     return '';

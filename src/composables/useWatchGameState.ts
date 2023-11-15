@@ -20,11 +20,14 @@ export const useWatchGameState = (): void => {
         baseStore.numLines, baseStore.marathonMode);
     }
     if (baseStore.token != null) {
-      let scramble = undefined as unknown as string;
-      let solvePath = undefined as unknown as string;
+      let scramble;
+      let solvePath;
       if (!baseStore.marathonMode) {
         scramble = baseStore.mixedOrders.join(',');
         solvePath = baseStore.solvePath.join('');
+      } else {
+        scramble = baseStore.marathonScrambles.slice(0, -1);
+        solvePath = baseStore.marathonSolves.slice(0, -1);
       }
       const keyH = String(time + baseStore.movesCount * import.meta.env.VITE_GAME_KEY);
       postGame({
@@ -86,6 +89,8 @@ export const useWatchGameState = (): void => {
         baseStore.showWinModal = true;
       }
     } else {
+      baseStore.marathonScrambles = `${baseStore.marathonScrambles}${baseStore.mixedOrders.join(',')};`;
+      baseStore.marathonSolves = `${baseStore.marathonSolves}${baseStore.solvePath.join('')};`;
       baseStore.renewPuzzle();
     }
   };
