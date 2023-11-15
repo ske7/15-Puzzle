@@ -172,6 +172,36 @@ const checkGameLink = (gameId: number): void => {
       });
   }
 };
+const checkTp3pMode = (): void => {
+  const baseStore = useBaseStore();
+
+  let tp3p3 = 0;
+  if (location.href.toLowerCase().includes('tp3p3')) {
+    const searchParams = new URLSearchParams(location.search);
+    const tp3p3param = Number(searchParams.get('tp3p3'));
+    if (!isNaN(tp3p3param)) {
+      baseStore.t3p3Mode = true;
+      baseStore.marathonMode = true;
+      localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
+      baseStore.proMode = true;
+      localStorage.setItem('proMode', baseStore.proMode.toString());
+      baseStore.numLines = 3;
+      localStorage.setItem('numLines', baseStore.numLines.toString());
+      tp3p3 = tp3p3param;
+      let path = import.meta.env.VITE_TP3P3_1;
+      if (tp3p3 === 2) {
+        path = import.meta.env.VITE_TP3P3_2;
+      } else if (tp3p3 === 3) {
+        path = import.meta.env.VITE_TP3P3_3;
+      } else if (tp3p3 === 4) {
+        path = import.meta.env.VITE_TP3P3_4;
+      } else if (tp3p3 === 5) {
+        path = import.meta.env.VITE_TP3P3_5;
+      }
+      baseStore.t3p3Path = path.split(';');
+    }
+  }
+};
 
 export const usePrepare = (): void => {
   const baseStore = useBaseStore();
@@ -197,6 +227,8 @@ export const usePrepare = (): void => {
   checkGameLink(gameId);
 
   checkCurrentUser(gameId);
+
+  checkTp3pMode();
 
   onMounted(() => {
     if (gameId === 0 && !baseStore.playgroundMode) {
