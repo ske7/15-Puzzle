@@ -208,7 +208,7 @@ export const usePrepare = (): void => {
 
   useKeyDown();
 
-  const numLines = getNumLinesFromLocalStorage();
+  let numLines = getNumLinesFromLocalStorage();
   const locationStr = location.href.toLowerCase();
   setStartParams(locationStr);
 
@@ -229,6 +229,9 @@ export const usePrepare = (): void => {
   checkCurrentUser(gameId);
 
   checkTp3pMode();
+  if (baseStore.t3p3Mode) {
+    numLines = 3;
+  }
 
   onMounted(() => {
     if (gameId === 0 && !baseStore.playgroundMode) {
