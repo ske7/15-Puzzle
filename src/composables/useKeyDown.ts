@@ -83,7 +83,8 @@ export const useKeyDown = (): void => {
     if (listenChangePuzzleSize(event.code)) {
       return;
     }
-    if (baseStore.isDone || baseStore.paused || baseStore.inReplay || baseStore.sharedPlaygroundMode) {
+    if (baseStore.isDone || baseStore.paused || baseStore.inReplay ||
+      baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
       return;
     }
     listenMovementKeys(event.code);
