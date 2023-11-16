@@ -5,17 +5,16 @@ import { onMounted } from 'vue';
 const baseStore = useBaseStore();
 
 onMounted(() => {
-  const path1 = import.meta.env.VITE_TP3P3_1;
-  const path2 = import.meta.env.VITE_TP3P3_2;
-  const path3 = import.meta.env.VITE_TP3P3_3;
-  const path4 = import.meta.env.VITE_TP3P3_4;
-  const path5 = import.meta.env.VITE_TP3P3_5;
+  const path1 = atob(import.meta.env.VITE_TP3P3_1);
+  const path2 = atob(import.meta.env.VITE_TP3P3_2);
+  const path3 = atob(import.meta.env.VITE_TP3P3_3);
+  const path4 = atob(import.meta.env.VITE_TP3P3_4);
+  const path5 = atob(import.meta.env.VITE_TP3P3_5);
   baseStore.t3p3Init.push(path1);
   baseStore.t3p3Init.push(path2);
   baseStore.t3p3Init.push(path3);
   baseStore.t3p3Init.push(path4);
   baseStore.t3p3Init.push(path5);
-
   if (baseStore.tp3ModeID > 0) {
     let path = baseStore.t3p3Init[0];
     if (baseStore.tp3ModeID === 2) {
@@ -28,7 +27,6 @@ onMounted(() => {
       path = baseStore.t3p3Init[4];
     }
     baseStore.t3p3Path = path.split(';');
-    console.log(baseStore.t3p3Path);
     baseStore.t3p3Mode = true;
     baseStore.numLines = 3;
     baseStore.renewPuzzle();

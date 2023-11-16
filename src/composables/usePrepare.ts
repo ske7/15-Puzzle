@@ -183,6 +183,8 @@ const checkTp3pMode = (): number => {
       localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
       baseStore.proMode = true;
       localStorage.setItem('proMode', baseStore.proMode.toString());
+      baseStore.hoverOnControl = true;
+      localStorage.setItem('hoverOnControl', 'true');
       baseStore.numLines = 3;
       localStorage.setItem('numLines', baseStore.numLines.toString());
       return tp3p3param;

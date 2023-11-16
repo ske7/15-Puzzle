@@ -2,7 +2,7 @@
 import { computed, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from './stores/base';
-import { usePrepare } from './composables/usePrepare';
+import { usePrepare, getSquareSize } from './composables/usePrepare';
 import { useWatchGameState } from './composables/useWatchGameState';
 import Board from './components/Board.vue';
 import TopInfoPanel from './components/TopInfoPanel.vue';
@@ -29,6 +29,10 @@ const cageImgSize = computed(() => {
   }
   return 42;
 });
+const { squareSize } = getSquareSize();
+const boardSize = computed(() => {
+  return baseStore.boardSize(squareSize.value);
+});
 </script>
 
 <template>
@@ -45,7 +49,9 @@ const cageImgSize = computed(() => {
     </div>
     <AveragesPanel />
     <TopInfoPanel />
-    <Board v-if="baseStore.tp3ModeID === 0 || baseStore.t3p3Mode" />
+    <div class="upper-board-container">
+      <Board v-if="baseStore.tp3ModeID === 0 || baseStore.t3p3Mode" />
+    </div>
     <ActionPanel />
     <BottomInfoPanel />
     <T3P3 v-if="baseStore.tp3ModeID > 0" />
@@ -106,6 +112,15 @@ const cageImgSize = computed(() => {
 }
 .header img[alt] {
   font-size: 15px;
+}
+.upper-board-container {
+  display: flex;
+  width: v-bind(boardSize);
+  height: v-bind(boardSize);
+  min-height: v-bind(boardSize);
+  background-color: var(--background-color);
+  align-content: center;
+  position: relative;
 }
 @media screen and (max-width: 420px) {
   .header {
