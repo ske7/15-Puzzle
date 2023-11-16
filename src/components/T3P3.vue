@@ -19,13 +19,13 @@ onMounted(() => {
   if (baseStore.tp3ModeID > 0) {
     let path = baseStore.t3p3Init[0];
     if (baseStore.tp3ModeID === 2) {
-      path = baseStore.t3p3Init[2];
+      path = baseStore.t3p3Init[1];
     } else if (baseStore.tp3ModeID === 3) {
-      path = baseStore.t3p3Init[3];
+      path = baseStore.t3p3Init[2];
     } else if (baseStore.tp3ModeID === 4) {
-      path = baseStore.t3p3Init[4];
+      path = baseStore.t3p3Init[3];
     } else if (baseStore.tp3ModeID === 5) {
-      path = baseStore.t3p3Init[5];
+      path = baseStore.t3p3Init[4];
     }
     baseStore.t3p3Path = path.split(';');
     console.log(baseStore.t3p3Path);
