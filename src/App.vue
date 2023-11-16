@@ -13,6 +13,10 @@ const WinModal = defineAsyncComponent({
   loader: async () => await import('./components/WinModal.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
+const T3P3 = defineAsyncComponent({
+  loader: async () => await import('./components/T3P3.vue') as unknown as AsyncComponentLoader,
+  delay: 150
+});
 
 const baseStore = useBaseStore();
 usePrepare();
@@ -41,9 +45,10 @@ const cageImgSize = computed(() => {
     </div>
     <AveragesPanel />
     <TopInfoPanel />
-    <Board />
+    <Board v-if="baseStore.tp3ModeID === 0 || baseStore.t3p3Mode" />
     <ActionPanel />
     <BottomInfoPanel />
+    <T3P3 v-if="baseStore.tp3ModeID > 0" />
     <WinModal
       v-if="baseStore.isDone && !baseStore.replayMode &&
         (baseStore.afterDoneAnimationEnd || baseStore.proMode) &&

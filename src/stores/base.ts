@@ -103,7 +103,9 @@ export const useBaseStore = defineStore('base', {
     marathonSolves: '',
     marathonReplay: false,
     t3p3Mode: false,
-    t3p3Path: [] as string[]
+    t3p3Path: [] as string[],
+    t3p3Init: [] as string[],
+    tp3ModeID: 0
   }),
   actions: {
     initStore() {
