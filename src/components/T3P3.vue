@@ -30,6 +30,7 @@ onMounted(() => {
     baseStore.t3p3Path = path.split(';');
     console.log(baseStore.t3p3Path);
     baseStore.t3p3Mode = true;
+    baseStore.numLines = 3;
     baseStore.renewPuzzle();
   }
 });
