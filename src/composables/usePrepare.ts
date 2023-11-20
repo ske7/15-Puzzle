@@ -172,26 +172,6 @@ const checkGameLink = (gameId: number): void => {
       });
   }
 };
-const checkTp3pMode = (): number => {
-  const baseStore = useBaseStore();
-
-  if (location.href.toLowerCase().includes('tp3p3')) {
-    const searchParams = new URLSearchParams(location.search);
-    const tp3p3param = Number(searchParams.get('tp3p3'));
-    if (!isNaN(tp3p3param)) {
-      baseStore.marathonMode = true;
-      localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
-      baseStore.proMode = true;
-      localStorage.setItem('proMode', baseStore.proMode.toString());
-      baseStore.hoverOnControl = true;
-      localStorage.setItem('hoverOnControl', 'true');
-      baseStore.numLines = 3;
-      localStorage.setItem('numLines', baseStore.numLines.toString());
-      return tp3p3param;
-    }
-  }
-  return 0;
-};
 
 export const usePrepare = (): void => {
   const baseStore = useBaseStore();
@@ -218,7 +198,6 @@ export const usePrepare = (): void => {
 
   checkCurrentUser(gameId);
 
-  baseStore.tp3ModeID = checkTp3pMode();
   onMounted(() => {
     if (gameId === 0 && !baseStore.playgroundMode) {
       if (baseStore.enableCageMode) {

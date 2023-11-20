@@ -12,7 +12,7 @@ import {
 import {
   generateAndShuffle, generate, isSolvable, isSorted,
   getArrayKeyByValue, getElementCol, getElementRow,
-  displayedTime, calculateTPS, randArrayItem, generateRand, convertToNumbersArray
+  displayedTime, calculateTPS, randArrayItem, generateRand
 } from '../utils';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
@@ -101,11 +101,7 @@ export const useBaseStore = defineStore('base', {
     showScrambleList: false,
     marathonScrambles: '',
     marathonSolves: '',
-    marathonReplay: false,
-    t3p3Mode: false,
-    t3p3Path: [] as string[],
-    t3p3Init: [] as string[],
-    tp3ModeID: 0
+    marathonReplay: false
   }),
   actions: {
     initStore() {
@@ -183,8 +179,6 @@ export const useBaseStore = defineStore('base', {
         this.mixedOrders = scramble.split(',').map(x => +x);
       } else if (this.playgroundMode && this.savedOrders.length > 0) {
         this.mixedOrders = this.savedOrders;
-      } else if (this.t3p3Mode && this.marathonMode && this.numLines === 3) {
-        this.mixedOrders = convertToNumbersArray(this.t3p3Path[this.solvedPuzzlesInMarathon]);
       } else if (this.playgroundMode && this.savedOrders.length === 0) {
         this.userScrambleId = 0;
         this.publicId = '';
