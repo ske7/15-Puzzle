@@ -88,13 +88,14 @@ const cageImgSize = computed(() => {
 .header h1 {
   display: flex;
   justify-content: center;
-  font-size: 35px;
+  font-size: 32px;
   align-items: center;
-  line-height: 42px;
+  line-height: 32px;
+  font-weight: 500;
 }
 .header img {
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   border-radius: 8px;
