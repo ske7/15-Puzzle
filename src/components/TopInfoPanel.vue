@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { defineAsyncComponent, type AsyncComponentLoader } from 'vue';
+import { useDateFormat } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
-import { displayedTime, convertScramble } from '@/utils';
+import { displayedTime, convertScramble, calculateMD } from '@/utils';
 import { baseUrl } from '@/const';
 const CopyButton = defineAsyncComponent({
   loader: async () => await import('../components/CopyButton.vue') as unknown as AsyncComponentLoader,
@@ -9,19 +10,27 @@ const CopyButton = defineAsyncComponent({
 });
 
 const baseStore = useBaseStore();
+
+const formatDate = (date?: string): string => {
+  if (date == null) {
+    return '';
+  }
+  return useDateFormat(date, 'YYYY-MM-DD HH:mm:ss').value;
+};
 </script>
 
 <template>
   <div class="top-info-panel">
     <div v-if="baseStore.replayMode || baseStore.sharedPlaygroundMode" class="replay-row-info">
       <p>Solved by <span>{{ baseStore.sharedPlaygroundMode ? baseStore.otherUserName : baseStore.repGame.name }}</span></p>
+      <p>Date: <span>{{ formatDate(baseStore.repGame.created_at) }}</span></p>
       <p v-if="baseStore.replayMode">
         <span>{{ displayedTime(baseStore.repGame.time) }}s | {{ baseStore.repGame.moves }} | {{ baseStore.repGame.tps }}</span>
       </p>
     </div>
     <div v-if="baseStore.playgroundMode" class="playground-row-info">
       <p>
-        Scramble:<span>{{ convertScramble(String(baseStore.mixedOrders)) }}</span><CopyButton
+        Scramble:<span>md:{{ calculateMD(baseStore.mixedOrders) }}; {{ convertScramble(String(baseStore.mixedOrders)) }}</span><CopyButton
           :item-to-copy="String(baseStore.mixedOrders)"
           :is-solve-path="false"
         />

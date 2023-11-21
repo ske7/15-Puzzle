@@ -65,16 +65,42 @@ export function randArrayItem(array: readonly string[], af: readonly string[]): 
   return a[Math.floor(generateRand() * a.length)];
 }
 
-export function getElementCol(el: number, numLines: number): number {
-  const c = (el + 1) % numLines;
+export function getElementCol(el: number, numLines: number, mode2 = false): number {
+  const x = mode2 ? 0 : 1;
+  const c = (el + x) % numLines;
   if (c === 0) {
     return numLines;
   }
   return c;
 }
 
-export function getElementRow(el: number, numLines: number): number {
-  return Math.ceil((el + 1) / numLines);
+export function getElementRow(el: number, numLines: number, mode2 = false): number {
+  const x = mode2 ? 0 : 1;
+  return Math.ceil((el + x) / numLines);
+}
+
+export function calculateMD(array: readonly number[] | string[]): number {
+  const length = array.length;
+  if (length === 0) {
+    return -1;
+  }
+  const n = Math.sqrt(length);
+  if (Math.floor(n) !== +n) {
+    return -1;
+  }
+  let md = 0;
+  let currentCol, currentRow, inPlaceCol, inPlaceRow;
+  array.forEach((value, i) => {
+    if (Number(value) === 0) {
+      return; // same as continue here
+    }
+    currentCol = getElementCol(Number(value), n, true);
+    currentRow = getElementRow(Number(value), n, true);
+    inPlaceCol = getElementCol(i + 1, n, true);
+    inPlaceRow = getElementRow(i + 1, n, true);
+    md += Math.abs(currentCol - inPlaceCol) + Math.abs(currentRow - inPlaceRow);
+  });
+  return md;
 }
 
 export function getSeconds(time: number): number {

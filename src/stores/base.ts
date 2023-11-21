@@ -12,7 +12,7 @@ import {
 import {
   generateAndShuffle, generate, isSolvable, isSorted,
   getArrayKeyByValue, getElementCol, getElementRow,
-  displayedTime, calculateTPS, randArrayItem, generateRand
+  displayedTime, calculateTPS, randArrayItem, generateRand, calculateMD
 } from '../utils';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
@@ -644,6 +644,9 @@ export const useBaseStore = defineStore('base', {
         time = this.time;
       }
       return time;
+    },
+    getMD(): number {
+      return calculateMD(this.mixedOrders);
     }
   }
 });
