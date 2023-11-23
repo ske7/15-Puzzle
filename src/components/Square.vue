@@ -6,21 +6,21 @@ import { storeToRefs } from 'pinia';
 import { useEventBus } from '@vueuse/core';
 import { useCanMove } from '../composables/useCanMove';
 import { getTileColor } from '@/colors';
+import { getArrayKeyByValue } from '@/utils';
 
 const props = defineProps<{
   squareSize: number;
-  order: number;
   mixedOrder: number;
 }>();
 
 const baseStore = useBaseStore();
 
-const actualOrder = computed(() => {
-  return baseStore.actualOrders[props.order];
+const currentElementIndex = computed(() => {
+  return getArrayKeyByValue(baseStore.currentOrders, props.mixedOrder) + 1;
 });
 
 const { elementCol, elementRow, canMoveRight, canMoveLeft, canMoveUp, canMoveDown } =
-  useCanMove(actualOrder);
+  useCanMove(currentElementIndex);
 
 const sizeVar = computed(() => {
   return `${props.squareSize}px`;
@@ -102,16 +102,16 @@ const brightnessImg = computed(() => {
 
 const calculatedLeft = computed(() => {
   return (
-    actualOrder.value % baseStore.numLines * baseStore.spaceBetween +
+    (Number(elementCol.value) - 1) * baseStore.spaceBetween +
     baseStore.spaceBetween +
-    props.squareSize * (actualOrder.value % baseStore.numLines)
+    props.squareSize * (Number(elementCol.value) - 1)
   );
 });
 const calculatedTop = computed(() => {
   return (
-    Math.floor(actualOrder.value / baseStore.numLines) * baseStore.spaceBetween +
+    (Number(elementRow.value) - 1) * baseStore.spaceBetween +
     baseStore.spaceBetween +
-    props.squareSize * (Math.ceil((actualOrder.value + 1) / baseStore.numLines) - 1)
+    props.squareSize * (Number(elementRow.value) - 1)
   );
 });
 
@@ -119,7 +119,7 @@ const isFreeElement = computed(() => {
   return props.mixedOrder === 0;
 });
 const isSquareInPlace = computed(() => {
-  return actualOrder.value + 1 === props.mixedOrder;
+  return currentElementIndex.value === props.mixedOrder;
 });
 const isDoneAll = computed(() => {
   return baseStore.isDone;
@@ -185,7 +185,7 @@ const move = (control: ControlType): void => {
     return;
   }
   baseStore.isMoving = true;
-  let diff = Math.abs(baseStore.freeElement - actualOrder.value);
+  let diff = Math.abs(baseStore.freeElementIndex + 1 - currentElementIndex.value);
   if ([Direction.Up, Direction.Down].includes(moveDirection.value)) {
     diff = diff / baseStore.numLines;
   }
@@ -208,7 +208,7 @@ const move = (control: ControlType): void => {
       }
     }
   } else {
-    baseStore.saveActualOrder(props.order, moveDirection.value, control);
+    baseStore.saveActualOrder(moveDirection.value, control, currentElementIndex.value - 1);
   }
   baseStore.isMoving = false;
 };
@@ -247,12 +247,12 @@ watch(
         setTimeout(() => {
           isNoBorder.value = true;
           baseStore.afterDoneCount += 1;
-        }, actualOrder.value * 200);
+        }, currentElementIndex.value * 200);
       } else {
         setTimeout(() => {
           isCaptured.value = true;
           baseStore.afterDoneCount += 1;
-        }, actualOrder.value * 70);
+        }, currentElementIndex.value * 70);
       }
     }
   },
@@ -302,7 +302,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    :sid="actualOrder"
+    :sid="currentElementIndex"
     class="square"
     :class="{
       'free': isFreeElement && !(baseStore.cageMode && isDoneAll),
@@ -312,34 +312,34 @@ onUnmounted(() => {
       'no-border': isNoBorder ||
         (baseStore.cageMode && baseStore.noBordersInCageMode) || baseStore.proMode
     }"
-    :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px` }"
+    :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px`, cursor: getCursor }"
     @mousedown.left="move(ControlType.Mouse)"
     @touchstart.prevent="move(ControlType.Touch)"
     @mousemove.prevent="moveByMouse"
   >
-    <div class="item" :style="{ cursor: getCursor }">
-      <img
-        v-if="baseStore.cageMode"
-        v-show="!baseStore.cageMode || !(isFreeElement && !(baseStore.cageMode && isDoneAll))"
-        :src="loadedImg"
-        class="item-img"
-        draggable="false"
-        alt=""
-        @load="onImgLoad"
-      >
+    <img
+      v-if="baseStore.cageMode"
+      v-show="!baseStore.cageMode || !(isFreeElement && !(baseStore.cageMode && isDoneAll))"
+      :src="loadedImg"
+      class="item-img"
+      draggable="false"
+      alt=""
+      @load="onImgLoad"
+    >
+    <span
+      v-if="baseStore.cageMode && baseStore.finishLoadingAllCageImages"
+      v-show="!baseStore.cageHardcoreMode && !isNoBorder && !isFreeElement"
+      class="item-img-span"
+    >
+      {{ props.mixedOrder }}
+    </span>
+    <Transition :name="baseStore.proMode ? '' : 'bounce'">
       <span
-        v-if="baseStore.cageMode && baseStore.finishLoadingAllCageImages"
-        v-show="!baseStore.cageHardcoreMode && !isNoBorder && !isFreeElement"
-        class="item-img-span"
+        v-if="!baseStore.processingReInit && !baseStore.cageMode && !isFreeElement"
       >
         {{ props.mixedOrder }}
       </span>
-      <Transition :name="baseStore.proMode ? '' : 'bounce'">
-        <span v-if="!baseStore.processingReInit && !baseStore.cageMode && !isFreeElement">
-          {{ props.mixedOrder }}
-        </span>
-      </Transition>
-    </div>
+    </Transition>
   </div>
 </template>
 
@@ -382,6 +382,7 @@ onUnmounted(() => {
   border: 1px solid rgba(136, 165, 191, 0.3);
   display: flex;
   justify-content: center;
+  align-items: center;
   background-color: v-bind(bgColor);
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -401,7 +402,7 @@ onUnmounted(() => {
   border-radius: v-bind(borderRadiusVar);
   background-color: v-bind(bgColor);
 }
-.item .item-img-span {
+.square .item-img-span {
   position: absolute;
   display: flex;
   justify-content: center;
@@ -429,20 +430,14 @@ onUnmounted(() => {
   border: 1px solid var(--background-color);
   z-index: 1;
 }
-.item {
-  display: flex;
-  justify-content: space-evenly;
-  width: 100%;
-  align-items: center;
-}
-.item span {
+.square span {
   font-size: v-bind(fontSizeD);
   font-weight: 600;
   color: #0a0a23;
   font-family: 'consolas', sans-serif;
 }
 @media screen and (max-width: 401px) {
-  .item span {
+  .square span {
     font-size: v-bind(fontSizeM);
   }
 }

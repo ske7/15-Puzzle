@@ -65,18 +65,16 @@ export function randArrayItem(array: readonly string[], af: readonly string[]): 
   return a[Math.floor(generateRand() * a.length)];
 }
 
-export function getElementCol(el: number, numLines: number, mode2 = false): number {
-  const x = mode2 ? 0 : 1;
-  const c = (el + x) % numLines;
+export function getElementCol(el: number, numLines: number): number {
+  const c = el % numLines;
   if (c === 0) {
     return numLines;
   }
   return c;
 }
 
-export function getElementRow(el: number, numLines: number, mode2 = false): number {
-  const x = mode2 ? 0 : 1;
-  return Math.ceil((el + x) / numLines);
+export function getElementRow(el: number, numLines: number): number {
+  return Math.ceil(el / numLines);
 }
 
 export function calculateMD(array: readonly number[] | string[]): number {
@@ -94,10 +92,10 @@ export function calculateMD(array: readonly number[] | string[]): number {
     if (Number(value) === 0) {
       return; // same as continue here
     }
-    currentCol = getElementCol(Number(value), n, true);
-    currentRow = getElementRow(Number(value), n, true);
-    inPlaceCol = getElementCol(i + 1, n, true);
-    inPlaceRow = getElementRow(i + 1, n, true);
+    currentCol = getElementCol(Number(value), n);
+    currentRow = getElementRow(Number(value), n);
+    inPlaceCol = getElementCol(i + 1, n);
+    inPlaceRow = getElementRow(i + 1, n);
     md += Math.abs(currentCol - inPlaceCol) + Math.abs(currentRow - inPlaceRow);
   });
   return md;
@@ -251,4 +249,8 @@ export function createLinkAndClick(path: string, openOnNewPage = false): void {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+export function swapArrayElements(array: number[], index1: number, index2: number): void {
+  [array[index1], array[index2]] = [array[index2], array[index1]];
 }

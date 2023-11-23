@@ -10,9 +10,10 @@ import {
   type RepGame, type UserScrambleData
 } from '@/types';
 import {
-  generateAndShuffle, generate, isSolvable, isSorted,
+  generateAndShuffle, isSolvable, isSorted,
   getArrayKeyByValue, getElementCol, getElementRow,
-  displayedTime, calculateTPS, randArrayItem, generateRand, calculateMD
+  displayedTime, calculateTPS, randArrayItem, generateRand, calculateMD,
+  swapArrayElements
 } from '../utils';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
@@ -20,13 +21,12 @@ export const useBaseStore = defineStore('base', {
   state: () => ({
     numLines: CORE_NUM,
     spaceBetween: SPACE_BETWEEN_SQUARES,
-    freeElement: 0,
-    freeElementIndex: 0,
     time: 0,
     movesCount: 0,
     afterDoneCount: 0,
-    actualOrders: [] as number[],
     mixedOrders: [] as number[],
+    currentOrders: [] as number[],
+    freeElementIndex: 0,
     doResetList: false,
     interval: 0,
     paused: false,
@@ -106,7 +106,6 @@ export const useBaseStore = defineStore('base', {
   actions: {
     initStore() {
       this.setSpaceBetween();
-      this.freeElement = 0;
       this.freeElementIndex = 0;
       this.time = 0;
       this.savedTime = 0;
@@ -127,7 +126,6 @@ export const useBaseStore = defineStore('base', {
       this.cageImageLoadedCount = 0;
     },
     renewPuzzle() {
-      this.actualOrders = generate(this.arrayLength);
       let solvable = this.mixAndCheckSolvable();
       while (!solvable) {
         solvable = this.mixAndCheckSolvable();
@@ -136,7 +134,7 @@ export const useBaseStore = defineStore('base', {
         this.playgroundModeRenew();
       }
       this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
-      this.freeElement = this.actualOrders[this.freeElementIndex];
+      this.currentOrders = this.mixedOrders.slice();
     },
     playgroundModeRenew() {
       this.savedOrders = this.mixedOrders;
@@ -247,66 +245,64 @@ export const useBaseStore = defineStore('base', {
       }
     },
     moveLeft(control: ControlType) {
-      if ((this.freeElement + 1) % this.numLines !== 0) {
+      if ((this.freeElementIndex + 1) % this.numLines !== 0) {
         this.saveActualOrder(
-          getArrayKeyByValue(this.actualOrders, this.freeElement + 1),
           Direction.Left,
-          control
+          control,
+          this.freeElementIndex + 1
         );
       }
     },
     moveRight(control: ControlType) {
-      if (this.freeElement % this.numLines !== 0) {
+      if (this.freeElementIndex % this.numLines !== 0) {
         this.saveActualOrder(
-          getArrayKeyByValue(this.actualOrders, this.freeElement - 1),
           Direction.Right,
-          control
+          control,
+          this.freeElementIndex - 1
         );
       }
     },
     moveUp(control: ControlType) {
       if (this.freeElementRow < this.numLines) {
         this.saveActualOrder(
-          getArrayKeyByValue(this.actualOrders, this.freeElement + this.numLines),
           Direction.Up,
-          control
+          control,
+          this.freeElementIndex + this.numLines
         );
       }
     },
     moveDown(control: ControlType) {
       if (this.freeElementRow > 1) {
         this.saveActualOrder(
-          getArrayKeyByValue(this.actualOrders, this.freeElement - this.numLines),
           Direction.Down,
-          control
+          control,
+          this.freeElementIndex - this.numLines
         );
       }
     },
-    saveActualOrder(order: number, moveDirection: Direction, control: ControlType) {
+    saveActualOrder(moveDirection: Direction, control: ControlType, currentElementIndex: number) {
       if (!this.doneFirstMove) {
         this.doneFirstMove = true;
       }
       if (this.interval === 0) {
         this.restartInterval();
       }
-      const prevOrder = this.actualOrders[order];
       switch (moveDirection) {
         case Direction.Right:
-          this.actualOrders[order] = prevOrder + 1;
+          swapArrayElements(this.currentOrders, currentElementIndex, currentElementIndex + 1);
           break;
         case Direction.Left:
-          this.actualOrders[order] = prevOrder - 1;
+          swapArrayElements(this.currentOrders, currentElementIndex, currentElementIndex - 1);
           break;
         case Direction.Down:
-          this.actualOrders[order] = prevOrder + this.numLines;
+          swapArrayElements(this.currentOrders, currentElementIndex, currentElementIndex + this.numLines);
           break;
         case Direction.Up:
-          this.actualOrders[order] = prevOrder - this.numLines;
+          swapArrayElements(this.currentOrders, currentElementIndex, currentElementIndex - this.numLines);
           break;
         default:
       }
-      this.freeElement = prevOrder;
-      this.actualOrders[this.freeElementIndex] = this.freeElement;
+      this.freeElementIndex = getArrayKeyByValue(this.currentOrders, 0);
       this.incMoves();
       this.moveDoneBy = control;
       this.solvePath.push(DirectionMap.get(moveDirection) ?? '');
@@ -562,8 +558,8 @@ export const useBaseStore = defineStore('base', {
     },
     orderedCount(): number {
       let count = 0;
-      this.actualOrders.forEach((value, i) => {
-        if (value + 1 === this.mixedOrders[i]) {
+      this.currentOrders.forEach((value, i) => {
+        if (value === i + 1) {
           count += 1;
         }
       });
@@ -604,10 +600,10 @@ export const useBaseStore = defineStore('base', {
       });
     },
     freeElementCol(): number {
-      return getElementCol(this.freeElement, this.numLines);
+      return getElementCol(this.freeElementIndex + 1, this.numLines);
     },
     freeElementRow(): number {
-      return getElementRow(this.freeElement, this.numLines);
+      return getElementRow(this.freeElementIndex + 1, this.numLines);
     },
     registered(): boolean {
       return this.token != null;
@@ -645,8 +641,8 @@ export const useBaseStore = defineStore('base', {
       }
       return time;
     },
-    getMD(): number {
-      return calculateMD(this.mixedOrders);
+    getCurrentMD(): number {
+      return calculateMD(this.currentOrders);
     }
   }
 });

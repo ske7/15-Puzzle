@@ -12,17 +12,21 @@ export const useCanMove = (refValue: ComputedRef<number>): Record<string, Comput
     return getElementRow(refValue.value, baseStore.numLines);
   });
 
-  const canMoveRight = computed(() => {
-    return baseStore.freeElementRow === elementRow.value && baseStore.freeElement > refValue.value;
-  });
   const canMoveLeft = computed(() => {
-    return baseStore.freeElementRow === elementRow.value && baseStore.freeElement < refValue.value;
+    return baseStore.freeElementRow === elementRow.value &&
+      (baseStore.freeElementIndex + 1) < refValue.value;
+  });
+  const canMoveRight = computed(() => {
+    return baseStore.freeElementRow === elementRow.value &&
+      (baseStore.freeElementIndex + 1) > refValue.value;
   });
   const canMoveUp = computed(() => {
-    return baseStore.freeElementCol === elementCol.value && baseStore.freeElement < refValue.value;
+    return baseStore.freeElementCol === elementCol.value &&
+      (baseStore.freeElementIndex + 1) < refValue.value;
   });
   const canMoveDown = computed(() => {
-    return baseStore.freeElementCol === elementCol.value && baseStore.freeElement > refValue.value;
+    return baseStore.freeElementCol === elementCol.value &&
+      (baseStore.freeElementIndex + 1) > refValue.value;
   });
 
   const canMove = computed(() => {

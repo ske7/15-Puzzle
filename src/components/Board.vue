@@ -73,10 +73,10 @@ const touchMove = (e: TouchEvent): void => {
   if (sid === null) {
     return;
   }
-  const actualOrderValue = computed(() => {
+  const sidValue = computed(() => {
     return Number(sid);
   });
-  const { canMove } = useCanMove(actualOrderValue);
+  const { canMove } = useCanMove(sidValue);
   if (!(canMove.value as boolean)) {
     return;
   }
@@ -133,7 +133,6 @@ const changePuzzleSize = (puzzleSize: number): void => {
         v-for="(value, index) in baseStore.mixedOrders"
         :key="index"
         :square-size="squareSize"
-        :order="index"
         :mixed-order="value"
         :class="{ 'board-veil': baseStore.paused && !baseStore.isDone,
                   'loading-veil': baseStore.cageMode && !baseStore.finishLoadingAllCageImages }"
