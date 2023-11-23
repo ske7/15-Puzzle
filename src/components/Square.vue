@@ -178,10 +178,10 @@ const moveByTouch = (e: TouchEvent): void => {
 };
 
 const move = (control: ControlType): void => {
-  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
+  if (cannotMove.value) {
     return;
   }
-  if (cannotMove.value) {
+  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
     return;
   }
   baseStore.isMoving = true;
@@ -208,7 +208,7 @@ const move = (control: ControlType): void => {
       }
     }
   } else {
-    baseStore.saveActualOrder(moveDirection.value, control, currentElementIndex.value - 1);
+    baseStore.saveState(currentElementIndex.value - 1, moveDirection.value, control);
   }
   baseStore.isMoving = false;
 };
@@ -315,7 +315,7 @@ onUnmounted(() => {
     :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px`, cursor: getCursor }"
     @mousedown.left="move(ControlType.Mouse)"
     @touchstart.prevent="move(ControlType.Touch)"
-    @mousemove.prevent="moveByMouse"
+    @mouseover.prevent="moveByMouse"
   >
     <img
       v-if="baseStore.cageMode"

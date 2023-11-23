@@ -10,8 +10,7 @@ import {
   type RepGame, type UserScrambleData
 } from '@/types';
 import {
-  generateAndShuffle, isSolvable, isSorted,
-  getArrayKeyByValue, getElementCol, getElementRow,
+  generateAndShuffle, isSolvable, isSorted, getElementCol, getElementRow,
   displayedTime, calculateTPS, randArrayItem, generateRand, calculateMD,
   swapArrayElements
 } from '../utils';
@@ -246,41 +245,25 @@ export const useBaseStore = defineStore('base', {
     },
     moveLeft(control: ControlType) {
       if ((this.freeElementIndex + 1) % this.numLines !== 0) {
-        this.saveActualOrder(
-          Direction.Left,
-          control,
-          this.freeElementIndex + 1
-        );
+        this.saveState(this.freeElementIndex + 1, Direction.Left, control);
       }
     },
     moveRight(control: ControlType) {
       if (this.freeElementIndex % this.numLines !== 0) {
-        this.saveActualOrder(
-          Direction.Right,
-          control,
-          this.freeElementIndex - 1
-        );
+        this.saveState(this.freeElementIndex - 1, Direction.Right, control);
       }
     },
     moveUp(control: ControlType) {
       if (this.freeElementRow < this.numLines) {
-        this.saveActualOrder(
-          Direction.Up,
-          control,
-          this.freeElementIndex + this.numLines
-        );
+        this.saveState(this.freeElementIndex + this.numLines, Direction.Up, control);
       }
     },
     moveDown(control: ControlType) {
       if (this.freeElementRow > 1) {
-        this.saveActualOrder(
-          Direction.Down,
-          control,
-          this.freeElementIndex - this.numLines
-        );
+        this.saveState(this.freeElementIndex - this.numLines, Direction.Down, control);
       }
     },
-    saveActualOrder(moveDirection: Direction, control: ControlType, currentElementIndex: number) {
+    saveState(currentElementIndex: number, moveDirection: Direction, control: ControlType) {
       if (!this.doneFirstMove) {
         this.doneFirstMove = true;
       }
@@ -302,7 +285,7 @@ export const useBaseStore = defineStore('base', {
           break;
         default:
       }
-      this.freeElementIndex = getArrayKeyByValue(this.currentOrders, 0);
+      this.freeElementIndex = currentElementIndex;
       this.incMoves();
       this.moveDoneBy = control;
       this.solvePath.push(DirectionMap.get(moveDirection) ?? '');
