@@ -178,10 +178,10 @@ const moveByTouch = (e: TouchEvent): void => {
 };
 
 const move = (control: ControlType): void => {
-  if (cannotMove.value) {
+  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
     return;
   }
-  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
+  if (cannotMove.value) {
     return;
   }
   baseStore.isMoving = true;
@@ -315,7 +315,7 @@ onUnmounted(() => {
     :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px`, cursor: getCursor }"
     @mousedown.left="move(ControlType.Mouse)"
     @touchstart.prevent="move(ControlType.Touch)"
-    @mouseover.prevent="moveByMouse"
+    @mousemove.prevent="moveByMouse"
   >
     <img
       v-if="baseStore.cageMode"
