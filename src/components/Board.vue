@@ -128,7 +128,7 @@ const changePuzzleSize = (puzzleSize: number): void => {
         </p>
       </div>
     </div>
-    <div v-if="!hideWhenCageShowCageCompleteImg">
+    <div v-if="!hideWhenCageShowCageCompleteImg" class="p-container">
       <Square
         v-for="(value, index) in baseStore.mixedOrders"
         :key="index"
@@ -162,6 +162,11 @@ const changePuzzleSize = (puzzleSize: number): void => {
   border-radius: v-bind(borderRadiusVar);
   align-content: center;
   position: relative;
+}
+.p-container {
+  width: 100%;
+  heighT: 100%;
+  contain: layout paint size;
 }
 .board-veil {
   opacity: 0.2;

@@ -63,6 +63,7 @@ const formatDate = (date?: string): string => {
   align-items: center;
   width: 100%;
   font-family: 'consolas', sans-serif;
+  contain: layout style;
 }
 .info-wrapper {
   display: flex;

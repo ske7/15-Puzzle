@@ -320,31 +320,36 @@ onUnmounted(() => {
     }"
     @mousedown.left="move(ControlType.Mouse)"
     @touchstart.prevent="move(ControlType.Touch)"
-    @mouseover.prevent="moveByMouse"
+    @mousemove.prevent="moveByMouse"
   >
-    <img
-      v-if="baseStore.cageMode"
-      v-show="!baseStore.cageMode || !(isFreeElement && !(baseStore.cageMode && isDoneAll))"
-      :src="loadedImg"
-      class="item-img"
-      draggable="false"
-      alt=""
-      @load="onImgLoad"
-    >
-    <span
-      v-if="baseStore.cageMode && baseStore.finishLoadingAllCageImages"
-      v-show="!baseStore.cageHardcoreMode && !isNoBorder && !isFreeElement"
-      class="item-img-span"
-    >
-      {{ props.mixedOrder }}
-    </span>
-    <Transition :name="baseStore.proMode ? '' : 'bounce'">
+    <template v-if="baseStore.proMode">
+      {{ props.mixedOrder === 0 ? '' : props.mixedOrder }}
+    </template>
+    <template v-else>
+      <img
+        v-if="baseStore.cageMode"
+        v-show="!baseStore.cageMode || !(isFreeElement && !(baseStore.cageMode && isDoneAll))"
+        :src="loadedImg"
+        class="item-img"
+        draggable="false"
+        alt=""
+        @load="onImgLoad"
+      >
       <span
-        v-if="!baseStore.processingReInit && !baseStore.cageMode && !isFreeElement"
+        v-if="baseStore.cageMode && baseStore.finishLoadingAllCageImages"
+        v-show="!baseStore.cageHardcoreMode && !isNoBorder && !isFreeElement"
+        class="item-img-span"
       >
         {{ props.mixedOrder }}
       </span>
-    </Transition>
+      <Transition :name="baseStore.proMode ? '' : 'bounce'">
+        <span
+          v-if="!baseStore.processingReInit && !baseStore.cageMode && !isFreeElement"
+        >
+          {{ props.mixedOrder }}
+        </span>
+      </Transition>
+    </template>
   </div>
 </template>
 
@@ -401,6 +406,11 @@ onUnmounted(() => {
   cursor: v-bind(getCursor);
   top: v-bind(calculatedTopBind);
   left: v-bind(calculatedLeftBind);
+  contain: layout paint size;
+  font-size: v-bind(fontSizeD);
+  font-weight: 600;
+  color: #0a0a23;
+  font-family: 'consolas', sans-serif;
 }
 .item-img {
   width: 100%;
