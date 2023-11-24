@@ -134,7 +134,6 @@ const closeLeaderBoard = (): void => {
   <div
     v-if="!baseStore.replayMode &&
       baseStore.currentAverages.length > 0 && !baseStore.hideCurrentAverages && baseStore.proMode"
-    v-show="windowWidth >= 1050 || (baseStore.isDone || baseStore.time === 0)"
     class="avg-wrapper"
   >
     <div class="avg-row top-row">
@@ -143,7 +142,7 @@ const closeLeaderBoard = (): void => {
       <span>Moves</span>
       <span>TPS</span>
     </div>
-    <div class="avg-rows">
+    <div v-show="windowWidth >= 1050 || (baseStore.isDone || baseStore.time === 0)" class="avg-rows">
       <div class="avg-row">
         <span class="avg-type">ao5</span>
         <span>
@@ -360,6 +359,7 @@ const closeLeaderBoard = (): void => {
     font-size: 14px;
     line-height: 1.3;
     margin-top: -5px;
+    height: 70px;
   }
   .avg-rows {
     max-height: 35px;
