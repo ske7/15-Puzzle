@@ -403,7 +403,7 @@ onUnmounted(() => {
   cursor: v-bind(getCursor);
   top: v-bind(calculatedTopBind);
   left: v-bind(calculatedLeftBind);
-  contain: layout paint size;
+  contain: layout size;
   font-size: v-bind(fontSizeD);
   font-weight: 600;
   color: #0a0a23;

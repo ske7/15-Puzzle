@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
+import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 const LeaderBoard = defineAsyncComponent({
   loader: async () => await import('../components/LeaderBoard.vue') as unknown as AsyncComponentLoader,
@@ -8,6 +9,7 @@ const LeaderBoard = defineAsyncComponent({
 
 const baseStore = useBaseStore();
 
+const { width: windowWidth } = useWindowSize();
 const positionTop = computed(() => {
   return `${baseStore.boardPos.top + 100}px`;
 });
@@ -132,6 +134,7 @@ const closeLeaderBoard = (): void => {
   <div
     v-if="!baseStore.replayMode &&
       baseStore.currentAverages.length > 0 && !baseStore.hideCurrentAverages && baseStore.proMode"
+    v-show="windowWidth >= 1050 || (baseStore.isDone || baseStore.time === 0)"
     class="avg-wrapper"
   >
     <div class="avg-row top-row">
@@ -261,7 +264,7 @@ const closeLeaderBoard = (): void => {
   flex-direction: column;
   font-size: 16px;
   font-family: 'consolas', sans-serif;
-  width: 280px;
+  width: 295px;
   height: 300px;
   contain: layout paint size;
 }
@@ -326,7 +329,7 @@ const closeLeaderBoard = (): void => {
     line-height: 1.5;
     border: 1px solid #ccc;
     border-radius: 8px;
-    display: none;
+    height: 100px;
   }
   .avg-rows {
     max-height: 44px;
