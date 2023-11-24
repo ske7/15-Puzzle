@@ -114,6 +114,12 @@ const calculatedTop = computed(() => {
     props.squareSize * (Number(elementRow.value) - 1)
   );
 });
+const calculatedTopBind = computed(() => {
+  return `${calculatedTop.value}px`;
+});
+const calculatedLeftBind = computed(() => {
+  return `${calculatedLeft.value}px`;
+});
 
 const isFreeElement = computed(() => {
   return props.mixedOrder === 0;
@@ -224,7 +230,7 @@ const moveByMouse = (event: MouseEvent): void => {
 
 const getCursor = computed(() => {
   if (baseStore.hoverOnControl) {
-    return;
+    return 'auto';
   }
   if (cannotMove.value) {
     return 'auto';
@@ -312,10 +318,9 @@ onUnmounted(() => {
       'no-border': isNoBorder ||
         (baseStore.cageMode && baseStore.noBordersInCageMode) || baseStore.proMode
     }"
-    :style="{ top: `${calculatedTop}px`, left: `${calculatedLeft}px`, cursor: getCursor }"
     @mousedown.left="move(ControlType.Mouse)"
     @touchstart.prevent="move(ControlType.Touch)"
-    @mousemove.prevent="moveByMouse"
+    @mouseover.prevent="moveByMouse"
   >
     <img
       v-if="baseStore.cageMode"
@@ -393,6 +398,9 @@ onUnmounted(() => {
   box-shadow: 0 0 4px inset rgba(0, 0, 0, 0.2);
   -webkit-tap-highlight-color: transparent;
   z-index: 2;
+  cursor: v-bind(getCursor);
+  top: v-bind(calculatedTopBind);
+  left: v-bind(calculatedLeftBind);
 }
 .item-img {
   width: 100%;
