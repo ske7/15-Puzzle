@@ -416,7 +416,6 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   position: relative;
-  filter: v-bind(brightnessImg);
   border-radius: v-bind(borderRadiusVar);
   background-color: v-bind(bgColor);
 }
@@ -455,7 +454,7 @@ onUnmounted(() => {
   font-family: 'consolas', sans-serif;
 }
 @media screen and (max-width: 401px) {
-  .square span {
+  .square, .square span {
     font-size: v-bind(fontSizeM);
   }
 }
