@@ -96,9 +96,6 @@ const inPlaceColor = computed(() => {
   }
   return 'var(--square-in-place-color)';
 });
-const brightnessImg = computed(() => {
-  return baseStore.darkMode ? 'brightness(104%)' : 'brightness(101%)';
-});
 
 const calculatedLeft = computed(() => {
   return (

@@ -261,6 +261,9 @@ const closeLeaderBoard = (): void => {
   flex-direction: column;
   font-size: 16px;
   font-family: 'consolas', sans-serif;
+  width: 280px;
+  height: 300px;
+  contain: layout paint size;
 }
 .avg-row {
   display: flex;
@@ -323,6 +326,7 @@ const closeLeaderBoard = (): void => {
     line-height: 1.5;
     border: 1px solid #ccc;
     border-radius: 8px;
+    display: none;
   }
   .avg-rows {
     max-height: 44px;

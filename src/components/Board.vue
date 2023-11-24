@@ -165,7 +165,7 @@ const changePuzzleSize = (puzzleSize: number): void => {
 }
 .p-container {
   width: 100%;
-  heighT: 100%;
+  height: 100%;
   contain: layout paint size;
 }
 .board-veil {
@@ -179,7 +179,7 @@ const changePuzzleSize = (puzzleSize: number): void => {
   border-radius: v-bind(borderRadiusVar);
   justify-content: center;
   align-items: center;
-  position: relative;
+  position: absolute;
   background-color: transparent;
   z-index: 1000;
   cursor: pointer;
