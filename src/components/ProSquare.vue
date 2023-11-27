@@ -235,7 +235,7 @@ onUnmounted(() => {
   -webkit-tap-highlight-color: transparent;
   z-index: 2;
   cursor: v-bind(getCursor);
-  contain: strict;
+  contain: layout size;
   font-size: v-bind(fontSizeD);
   font-weight: 600;
   color: #0a0a23;
