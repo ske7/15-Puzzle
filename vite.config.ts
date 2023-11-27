@@ -8,11 +8,13 @@ import UnpluginInjectPreload from 'unplugin-inject-preload/vite';
 export default defineConfig({
   plugins: [
     vue(),
-    preload(),
+    preload({
+      includeCss: false
+    }),
     UnpluginInjectPreload({
       files: [
         {
-          outputMatch: /[a-z-0-9]*.(css)$/i
+          outputMatch: /^((?!index).)*\.css$/i
         }
       ],
       injectTo: 'head'
