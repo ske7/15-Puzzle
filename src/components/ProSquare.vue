@@ -41,7 +41,7 @@ const borderRadiusVar = computed(() => {
 });
 const bgColor = computed(() => {
   if (currentOrder.value === 0) {
-    return '#ffffff';
+    return 'var(--background-color)';
   }
   return getTileColor(baseStore.numLines, currentOrder.value);
 });
