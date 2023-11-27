@@ -63,7 +63,7 @@ const formatDate = (date?: string): string => {
   align-items: center;
   width: 100%;
   font-family: 'consolas', sans-serif;
-  contain: layout style;
+  contain: content;
 }
 .info-wrapper {
   display: flex;
@@ -114,6 +114,9 @@ const formatDate = (date?: string): string => {
 }
 .factor-wrapper {
   position: relative;
+}
+.factor-wrapper span {
+  contain: content;
 }
 @media screen and (max-width: 450px) {
   .playground-row-info  {
