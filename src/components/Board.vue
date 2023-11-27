@@ -7,6 +7,7 @@ import { getSquareSize } from '../composables/usePrepare';
 import { useCanMove } from '../composables/useCanMove';
 import { cores } from '@/const';
 import Square from './Square.vue';
+import ProSquare from './ProSquare.vue';
 
 const baseStore = useBaseStore();
 
@@ -83,6 +84,11 @@ const touchMove = (e: TouchEvent): void => {
   eventBus.emit('touchmove-from-board', e);
 };
 
+const showProSquare = computed(() => {
+  return baseStore.proMode && !(baseStore.replayMode || baseStore.sharedPlaygroundMode ||
+  baseStore.marathonReplay || baseStore.playgroundMode);
+});
+
 const changePuzzleSize = (puzzleSize: number): void => {
   baseStore.numLines = puzzleSize;
   baseStore.initAfterNewPuzzleSize();
@@ -128,7 +134,7 @@ const changePuzzleSize = (puzzleSize: number): void => {
         </p>
       </div>
     </div>
-    <div v-if="!hideWhenCageShowCageCompleteImg" class="p-container">
+    <div v-if="!showProSquare && !hideWhenCageShowCageCompleteImg" class="p-container">
       <Square
         v-for="(value, index) in baseStore.mixedOrders"
         :key="index"
@@ -136,6 +142,17 @@ const changePuzzleSize = (puzzleSize: number): void => {
         :mixed-order="value"
         :class="{ 'board-veil': baseStore.paused && !baseStore.isDone,
                   'loading-veil': baseStore.cageMode && !baseStore.finishLoadingAllCageImages }"
+      />
+    </div>
+    <div v-if="showProSquare" :key="baseStore.mixedOrders.length" class="p-container">
+      <Pro-Square
+        v-for="(_value, index) in baseStore.mixedOrders"
+        :key="index"
+        :square-size="squareSize"
+        :order="index"
+        :class="{
+          'board-veil': baseStore.paused && !baseStore.isDone
+        }"
       />
     </div>
     <div v-if="!baseStore.replayMode && !baseStore.sharedPlaygroundMode && !baseStore.cageMode" class="puzzle-sizes">

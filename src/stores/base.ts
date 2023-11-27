@@ -552,7 +552,7 @@ export const useBaseStore = defineStore('base', {
       return this.orderedCount === this.arrayLength - 1;
     },
     afterDoneAnimationEnd(): boolean {
-      if (!this.isDone) {
+      if (!this.isDone || this.proMode) {
         return true;
       }
       return this.afterDoneCount === this.arrayLength - 1;
