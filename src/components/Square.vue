@@ -305,6 +305,7 @@ onUnmounted(() => {
 
 <template>
   <div
+    v-if="!isFreeElement || baseStore.cageMode"
     :sid="currentElementIndex"
     class="square"
     :class="{
