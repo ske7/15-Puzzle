@@ -27,11 +27,13 @@ function setStartParams(locationStr: string): void {
   document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');
   if (locationStr.includes('pro') || locationStr.includes('playground')) {
     baseStore.proMode = true;
+    if (localStorage.getItem('proMode') === null) {
+      baseStore.hoverOnControl = true;
+      localStorage.setItem('hoverOnControl', 'true');
+    }
     localStorage.setItem('proMode', 'true');
     baseStore.enableCageMode = false;
     localStorage.setItem('enableCageMode', 'false');
-    baseStore.hoverOnControl = true;
-    localStorage.setItem('hoverOnControl', 'true');
   }
 }
 

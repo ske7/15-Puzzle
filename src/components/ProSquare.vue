@@ -172,14 +172,14 @@ const move = (control: ControlType): void => {
   baseStore.isMoving = false;
 };
 const moveByMouse = (event: MouseEvent): void => {
-  if (!baseStore.hoverOnControl || event.ctrlKey) {
+  if (!(baseStore.hoverOnControl && baseStore.proMode) || event.ctrlKey) {
     return;
   }
   move(ControlType.Mouse);
 };
 
 const getCursor = computed(() => {
-  if (baseStore.hoverOnControl || cannotMove.value) {
+  if ((baseStore.hoverOnControl && baseStore.proMode) || cannotMove.value) {
     return 'auto';
   }
   return 'pointer';

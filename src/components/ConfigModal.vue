@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
 import { CORE_NUM } from '@/const';
+import { sleep } from '@/utils';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 
 const baseStore = useBaseStore();
@@ -20,7 +21,7 @@ const disabledCageMode = computed(() => {
   return !baseStore.enableCageMode || baseStore.marathonMode ||
   baseStore.proMode || baseStore.numLines !== CORE_NUM;
 });
-const setEnableCageMode = (): void => {
+const setEnableCageMode = async (): Promise<void> => {
   baseStore.enableCageMode = !baseStore.enableCageMode;
   localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
   baseStore.marathonMode = false;
@@ -29,6 +30,8 @@ const setEnableCageMode = (): void => {
   localStorage.setItem('proMode', baseStore.proMode.toString());
   puzzleSize.value = CORE_NUM;
   if (baseStore.enableCageMode) {
+    baseStore.initAfterNewPuzzleSize();
+    await sleep(100);
     baseStore.loadUnlockedCagesFromLocalStorage();
     baseStore.cageMode = true;
     baseStore.doPrepareCageMode();
@@ -75,7 +78,9 @@ const setProMode = (): void => {
   baseStore.cageMode = false;
   baseStore.setSpaceBetween();
   baseStore.resetConsecutiveSolves();
-  baseStore.loadAverages();
+  if (baseStore.token != null) {
+    baseStore.loadAverages();
+  }
   eventBus.emit('restart', 'fromConfig');
 };
 const setMarathonMode = (): void => {
@@ -95,7 +100,9 @@ watch(puzzleSize, (newValue) => {
       baseStore.cageMode = false;
     }
     baseStore.numLines = newValue;
-    baseStore.initAfterNewPuzzleSize();
+    if (!baseStore.enableCageMode) {
+      baseStore.initAfterNewPuzzleSize();
+    }
   }
 });
 const { marathonMode } = storeToRefs(baseStore);
@@ -192,10 +199,11 @@ watch(marathonMode, () => {
             id="hover-on"
             type="checkbox"
             name="hover-on"
+            :disabled="!baseStore.proMode"
             :checked="baseStore.hoverOnControl"
             @change="setHoverOnControl"
           >
-          <label for="hover-on">
+          <label for="hover-on" :class="{ 'disabled-label': !baseStore.proMode }">
             Hover On Control
           </label>
         </div>

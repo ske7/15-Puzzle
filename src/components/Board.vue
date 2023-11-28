@@ -54,7 +54,7 @@ watch(finishLoadingAllCageImages, value => {
 
 const eventBus = useEventBus<string>('event-bus');
 const touchMove = (e: TouchEvent): void => {
-  if (!baseStore.hoverOnControl || baseStore.isMoving || baseStore.inReplay ||
+  if (!(baseStore.hoverOnControl && baseStore.proMode) || baseStore.isMoving || baseStore.inReplay ||
   baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
     return;
   }

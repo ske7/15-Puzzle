@@ -42,7 +42,7 @@ const blockTransition = computed(() => {
   if (baseStore.inReplay) {
     return `all ${baseStore.replaySpeed / 1000}s ease 0s`;
   }
-  if (baseStore.proMode || baseStore.hoverOnControl) {
+  if (baseStore.proMode) {
     return 'none';
   }
   return 'all 0.2s ease 0s';
@@ -145,7 +145,7 @@ const cannotMove = computed(() => {
 });
 
 const moveByTouch = (e: TouchEvent): void => {
-  if (baseStore.isMoving || baseStore.inReplay) {
+  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
     return;
   }
   if (!isFreeElement.value || isDoneAll.value || baseStore.paused) {
@@ -216,7 +216,7 @@ const move = (control: ControlType): void => {
   baseStore.isMoving = false;
 };
 const moveByMouse = (event: MouseEvent): void => {
-  if (!baseStore.hoverOnControl || baseStore.inReplay || baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
+  if (!(baseStore.hoverOnControl && baseStore.proMode)) {
     return;
   }
   if (event.ctrlKey) {
@@ -226,14 +226,10 @@ const moveByMouse = (event: MouseEvent): void => {
 };
 
 const getCursor = computed(() => {
-  if (baseStore.hoverOnControl) {
+  if (baseStore.hoverOnControl && baseStore.proMode || cannotMove.value) {
     return 'auto';
   }
-  if (cannotMove.value) {
-    return 'auto';
-  } else {
-    return 'pointer';
-  }
+  return 'pointer';
 });
 
 const isCaptured = ref(false);
