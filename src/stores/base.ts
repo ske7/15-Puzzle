@@ -11,7 +11,7 @@ import {
 } from '@/types';
 import {
   generateAndShuffle, isSolvable, isSorted, getElementCol, getElementRow,
-  displayedTime, calculateTPS, randArrayItem, generateRand, calculateMD,
+  displayedTime, calculateTPS, randArrayItem, generateRand,
   swapArrayElements
 } from '../utils';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
@@ -100,7 +100,8 @@ export const useBaseStore = defineStore('base', {
     showScrambleList: false,
     marathonScrambles: '',
     marathonSolves: '',
-    marathonReplay: false
+    marathonReplay: false,
+    inPlaceCount: 0
   }),
   actions: {
     initStore() {
@@ -134,6 +135,7 @@ export const useBaseStore = defineStore('base', {
       }
       this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
       this.currentOrders = this.mixedOrders.slice();
+      this.inPlaceCount = this.startOrderedCount;
     },
     playgroundModeRenew() {
       this.savedOrders = this.mixedOrders;
@@ -539,9 +541,9 @@ export const useBaseStore = defineStore('base', {
     arrayLength(): number {
       return this.numLines ** 2;
     },
-    orderedCount(): number {
+    startOrderedCount(): number {
       let count = 0;
-      this.currentOrders.forEach((value, i) => {
+      this.mixedOrders.forEach((value, i) => {
         if (value === i + 1) {
           count += 1;
         }
@@ -549,10 +551,13 @@ export const useBaseStore = defineStore('base', {
       return count;
     },
     isDone(): boolean {
-      return this.orderedCount === this.arrayLength - 1;
+      return this.inPlaceCount === this.arrayLength - 1;
     },
     afterDoneAnimationEnd(): boolean {
       if (!this.isDone || this.proMode) {
+        if (this.proMode) {
+          this.afterDoneCount = this.arrayLength - 1;
+        }
         return true;
       }
       return this.afterDoneCount === this.arrayLength - 1;
@@ -623,9 +628,6 @@ export const useBaseStore = defineStore('base', {
         time = this.time;
       }
       return time;
-    },
-    getCurrentMD(): number {
-      return calculateMD(this.currentOrders);
     }
   }
 });

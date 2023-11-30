@@ -10,6 +10,7 @@ import { getArrayKeyByValue } from '@/utils';
 
 const props = defineProps<{
   squareSize: number;
+  order: number;
   mixedOrder: number;
 }>();
 
@@ -18,7 +19,9 @@ const baseStore = useBaseStore();
 const currentElementIndex = computed(() => {
   return getArrayKeyByValue(baseStore.currentOrders, props.mixedOrder) + 1;
 });
-
+const currentOrder = computed(() => {
+  return baseStore.currentOrders[props.order];
+});
 const { elementCol, elementRow, canMoveRight, canMoveLeft, canMoveUp, canMoveDown } =
   useCanMove(currentElementIndex);
 
@@ -257,7 +260,18 @@ watch(
   },
   { immediate: true }
 );
-
+watch(currentOrder, (newValue, oldValue) => {
+  if (!baseStore.doneFirstMove) {
+    return;
+  }
+  if (newValue === props.order + 1) {
+    baseStore.inPlaceCount += 1;
+  } else if (oldValue === props.order + 1) {
+    baseStore.inPlaceCount -= 1;
+  }
+}, {
+  immediate: false
+});
 const loadedImg = computed(() => {
   let imgNum = props.mixedOrder.toString().padStart(2, '0');
   if (isFreeElement.value) {

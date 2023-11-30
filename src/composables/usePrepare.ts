@@ -232,7 +232,7 @@ export const getSquareSize = (): Record<string, ComputedRef<number>> => {
           cageAdd += 34;
           break;
         case 5:
-          cageAdd -= 20.4;
+          cageAdd -= 21;
           break;
         case 6:
           cageAdd -= 34;
@@ -241,7 +241,7 @@ export const getSquareSize = (): Record<string, ComputedRef<number>> => {
           cageAdd -= 42;
           break;
         case 8:
-          cageAdd -= 49.5;
+          cageAdd -= 50;
           break;
         default:
       }
@@ -249,16 +249,16 @@ export const getSquareSize = (): Record<string, ComputedRef<number>> => {
       cageAdd = 12;
       switch (baseStore.numLines) {
         case 3:
-          cageAdd += 33.33333;
+          cageAdd += 33;
           break;
         case 5:
           cageAdd -= 20;
           break;
         case 6:
-          cageAdd -= 33.33333;
+          cageAdd -= 33;
           break;
         case 7:
-          cageAdd -= 42.857;
+          cageAdd -= 43;
           break;
         case 8:
           cageAdd -= 50;

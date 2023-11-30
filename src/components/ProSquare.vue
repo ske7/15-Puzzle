@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { Direction, ControlType } from '@/const';
-import { useEventBus } from '@vueuse/core';
+import { useEventBus, useWindowSize } from '@vueuse/core';
 import { useCanMove } from '../composables/useCanMove';
 import { getTileColor } from '@/colors';
 import { getArrayKeyByValue } from '@/utils';
@@ -41,11 +41,15 @@ const borderRadiusVar = computed(() => {
 });
 const bgColor = computed(() => {
   if (currentOrder.value === 0) {
-    return 'var(--background-color)';
+    return baseStore.darkMode ? '#121212' : '#ffffff';
   }
   return getTileColor(baseStore.numLines, currentOrder.value);
 });
+const { width: windowWidth } = useWindowSize();
 const fontSizeD = computed(() => {
+  if (windowWidth.value < 401) {
+    return fontSizeM.value;
+  }
   if (baseStore.numLines === 6) {
     return '39px';
   } else if (baseStore.numLines === 7) {
@@ -77,10 +81,10 @@ const initPosition = (): void => {
       baseStore.spaceBetween + props.squareSize * (Number(elementRow.value) - 1);
 };
 const calculatedTopBind = computed(() => {
-  return `${calculatedTop.value}px`;
+  return `${calculatedTop.value.toFixed(1)}px`;
 });
 const calculatedLeftBind = computed(() => {
-  return `${calculatedLeft.value}px`;
+  return `${calculatedLeft.value.toFixed(1)}px`;
 });
 
 const isFreeElement = computed(() => {
@@ -191,10 +195,51 @@ const listener = (event: string, payload: unknown): void => {
     moveByTouch(payload as TouchEvent);
   }
 };
+watch(currentOrder, (newValue, oldValue) => {
+  if (!baseStore.doneFirstMove) {
+    return;
+  }
+  if (newValue === props.order + 1) {
+    baseStore.inPlaceCount += 1;
+  } else if (oldValue === props.order + 1) {
+    baseStore.inPlaceCount -= 1;
+  }
+}, {
+  immediate: false
+});
+watch(currentOrder, (newValue) => {
+  setCanvasBg(bgColor.value);
+  context.value!.fillStyle = '#0a0a23';
+  context.value!.fillText(newValue === 0 ? '' : newValue.toString(), props.squareSize / 2, props.squareSize / 2);
+}, {
+  immediate: false
+});
 
+const squareCanvas = ref<HTMLCanvasElement | null>(null);
+const context = ref<CanvasRenderingContext2D | null>(null);
+
+const clearCanvas = (): void => {
+  context.value!.clearRect(0, 0, props.squareSize, props.squareSize);
+};
+const setCanvasBg = (value: string): void => {
+  clearCanvas();
+  context.value!.fillStyle = value;
+  context.value!.fillRect(0, 0, props.squareSize, props.squareSize);
+};
 onMounted(() => {
   initPosition();
   eventBus.on(listener);
+  if (squareCanvas.value !== null) {
+    squareCanvas.value.width = squareCanvas.value.getBoundingClientRect().width;
+    squareCanvas.value.height = squareCanvas.value.getBoundingClientRect().height;
+    context.value = squareCanvas.value.getContext('2d', { alpha: false });
+    context.value!.font = `600 ${fontSizeD.value} sans-serif`;
+    context.value!.textBaseline = 'middle';
+    context.value!.textAlign = 'center';
+    setCanvasBg(bgColor.value);
+    context.value!.fillStyle = '#0a0a23';
+    context.value!.fillText(currentOrder.value.toString() === '0' ? '' : currentOrder.value.toString(), props.squareSize / 2, props.squareSize / 2);
+  }
 });
 onUnmounted(() => {
   eventBus.off(listener);
@@ -202,48 +247,39 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div
-    :sid="currentElementIndex"
-    class="pro-square"
-    @mousedown.left="move(ControlType.Mouse)"
-    @touchstart.prevent="move(ControlType.Touch)"
-    @mousemove.prevent="moveByMouse"
-  >
-    {{ currentOrder === 0 ? '' : currentOrder }}
+  <div class="pro-square">
+    <canvas
+      ref="squareCanvas"
+      class="canvas"
+      :sid="currentElementIndex"
+      :width="props.squareSize"
+      :height="props.squareSize"
+      @mousedown.left="move(ControlType.Mouse)"
+      @touchstart.prevent="move(ControlType.Touch)"
+      @mousemove.prevent="moveByMouse"
+    />
   </div>
 </template>
 
 <style scoped>
 .pro-square {
   position: absolute;
-  top: v-bind(calculatedTopBind);
-  left: v-bind(calculatedLeftBind);
   width: v-bind(sizeVar);
   height: v-bind(sizeVar);
-  border: none;
-  display: flex;
+  top: v-bind(calculatedTopBind);
+  left: v-bind(calculatedLeftBind);
+  display:flex;
   justify-content: center;
   align-items: center;
-  background-color: v-bind(bgColor);
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
-  transition: none;
-  border-radius: v-bind(borderRadiusVar);
-  box-sizing: border-box;
-  box-shadow: none;
   -webkit-tap-highlight-color: transparent;
   z-index: 2;
-  cursor: v-bind(getCursor);
-  contain: layout size;
-  font-size: v-bind(fontSizeD);
-  font-weight: 600;
-  color: #0a0a23;
-  font-family: 'consolas', sans-serif;
+  contain: strict;
 }
-@media screen and (max-width: 401px) {
-  .pro-square {
-    font-size: v-bind(fontSizeM);
-  }
+canvas {
+  border-radius: v-bind(borderRadiusVar);
+  cursor: v-bind(getCursor);
+  contain: strict;
+  width: 100%;
+  height: 100%;
 }
 </style>

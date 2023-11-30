@@ -139,6 +139,7 @@ const changePuzzleSize = (puzzleSize: number): void => {
         v-for="(value, index) in baseStore.mixedOrders"
         :key="index"
         :square-size="squareSize"
+        :order="index"
         :mixed-order="value"
         :class="{ 'board-veil': baseStore.paused && !baseStore.isDone,
                   'loading-veil': baseStore.cageMode && !baseStore.finishLoadingAllCageImages }"
