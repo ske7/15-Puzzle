@@ -97,7 +97,7 @@ const doShowImageGallery = (): void => {
   eventBus.emit('show-image-gallery');
 };
 const disableDuringMarathon = computed(() => {
-  return baseStore.marathonMode && baseStore.doneFirstMove && !baseStore.isDone;
+  return baseStore.marathonMode && baseStore.time > 0 && !baseStore.isDone;
 });
 const cannotClick = computed(() => {
   return baseStore.showModal || disableDuringMarathon.value || baseStore.inReplay;

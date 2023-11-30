@@ -185,7 +185,7 @@ const disableButton = computed(() => {
 });
 
 const disableDuringMarathon = computed(() => {
-  return baseStore.marathonMode && baseStore.doneFirstMove && !baseStore.isDone;
+  return baseStore.marathonMode && baseStore.time > 0 && !baseStore.isDone;
 });
 
 const setScramble = (scramble: number[]): void => {

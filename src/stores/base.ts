@@ -136,6 +136,7 @@ export const useBaseStore = defineStore('base', {
       this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
       this.currentOrders = this.mixedOrders.slice();
       this.inPlaceCount = this.startOrderedCount;
+      this.doneFirstMove = false;
     },
     playgroundModeRenew() {
       this.savedOrders = this.mixedOrders;
