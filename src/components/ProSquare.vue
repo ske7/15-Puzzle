@@ -230,10 +230,14 @@ onMounted(() => {
   initPosition();
   eventBus.on(listener);
   if (squareCanvas.value !== null) {
-    squareCanvas.value.width = squareCanvas.value.getBoundingClientRect().width;
-    squareCanvas.value.height = squareCanvas.value.getBoundingClientRect().height;
-    context.value = squareCanvas.value.getContext('2d', { alpha: false });
-    context.value!.font = `600 ${fontSizeD.value} sans-serif`;
+    squareCanvas.value.style.width = sizeVar.value;
+    squareCanvas.value.style.height = sizeVar.value;
+    const scale = window.devicePixelRatio;
+    squareCanvas.value.width = Math.floor(props.squareSize * scale);
+    squareCanvas.value.height = Math.floor(props.squareSize * scale);
+    context.value = squareCanvas.value.getContext('2d');
+    context.value!.scale(scale, scale);
+    context.value!.font = `600 ${fontSizeD.value} consolas, sans-serif`;
     context.value!.textBaseline = 'middle';
     context.value!.textAlign = 'center';
     setCanvasBg(bgColor.value);
