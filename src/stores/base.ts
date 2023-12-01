@@ -7,7 +7,7 @@ import {
 import {
   type PreloadedImage, type Record, type Position,
   type AverageData, type AverageStats, type WasAvgRecord,
-  type RepGame, type UserScrambleData
+  type RepGame, type UserScrambleData, type Response
 } from '@/types';
 import {
   generateAndShuffle, isSolvable, isSorted, getElementCol, getElementRow,
@@ -101,7 +101,8 @@ export const useBaseStore = defineStore('base', {
     marathonScrambles: '',
     marathonSolves: '',
     marathonReplay: false,
-    inPlaceCount: 0
+    inPlaceCount: 0,
+    opt_m: 0
   }),
   actions: {
     initStore() {
@@ -132,35 +133,44 @@ export const useBaseStore = defineStore('base', {
       }
       if (this.playgroundMode) {
         this.playgroundModeRenew();
+      } else {
+        this.opt_m = 0;
       }
       this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
       this.currentOrders = this.mixedOrders.slice();
       this.inPlaceCount = this.startOrderedCount;
       this.doneFirstMove = false;
     },
+    updatePlaygroundStats(res: Response) {
+      if (res.stats != null) {
+        const stats = res.stats as unknown as UserScrambleData;
+        if (stats.id != null) {
+          this.userScrambleId = stats.id;
+        }
+        this.playgroundBestTime = stats.best_time!;
+        this.playgroundBestTimeMoves = stats.best_time_moves!;
+        this.playgroundBestMoves = stats.best_moves!;
+        this.playgroundSolvePath = stats.solve_path!.split('');
+        this.publicId = stats.public_id ?? '';
+      } else {
+        this.playgroundBestTime = 0;
+        this.playgroundBestTimeMoves = 0;
+        this.playgroundBestMoves = 0;
+        this.playgroundSolvePath = [];
+        this.publicId = '';
+        this.userScrambleId = 0;
+      }
+    },
     playgroundModeRenew() {
       this.savedOrders = this.mixedOrders;
       if (this.checkUserScrambleInDB) {
+        this.opt_m = 0;
         if (this.token != null) {
           void useGetFetchAPI(`user_scramble?scramble=${this.mixedOrders.join(',')}`, this.token)
             .then((res) => {
-              if (res.stats != null) {
-                const stats = res.stats as unknown as UserScrambleData;
-                if (stats.id != null) {
-                  this.userScrambleId = stats.id;
-                }
-                this.playgroundBestTime = stats.best_time!;
-                this.playgroundBestTimeMoves = stats.best_time_moves!;
-                this.playgroundBestMoves = stats.best_moves!;
-                this.playgroundSolvePath = stats.solve_path!.split('');
-                this.publicId = stats.public_id ?? '';
-              } else {
-                this.playgroundBestTime = 0;
-                this.playgroundBestTimeMoves = 0;
-                this.playgroundBestMoves = 0;
-                this.playgroundSolvePath = [];
-                this.publicId = '';
-                this.userScrambleId = 0;
+              this.updatePlaygroundStats(res);
+              if (res.opt_m != null) {
+                this.opt_m = res.opt_m;
               }
             })
             .catch(error => {

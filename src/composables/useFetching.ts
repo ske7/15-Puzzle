@@ -24,6 +24,9 @@ export const postGame = (game: GameData, keyH: string): void => {
       if (baseStore.proMode) {
         baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
         baseStore.setWasAvgRecords(res.was_avg_records as unknown as WasAvgRecord[]);
+        if (baseStore.numLines === 3 && res.opt_m != null) {
+          baseStore.opt_m = res.opt_m;
+        }
       }
       isFetching.value = false;
     })

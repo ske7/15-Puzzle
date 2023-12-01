@@ -221,7 +221,7 @@ const disableSave = computed(() => {
     </div>
     <div class="info-row" :style="{ 'min-height': getMinHeight }">
       <div v-if="baseStore.replayMode" class="copy-button-wrapper center">
-        <span class="solution-label"><em v-if="!baseStore.marathonReplay">md:{{ calculateMD(baseStore.repGame.scramble.split(',')) }}; </em>{{ convertScrambles(baseStore.repGame.scramble, baseStore.marathonReplay ? 'marathon' : 'standard') }}</span>
+        <span class="solution-label"><em v-if="!baseStore.marathonReplay">md:{{ calculateMD(baseStore.repGame.scramble.split(',')) }}; </em><em v-if="baseStore.repGame.opt_moves !== null">om:{{ baseStore.repGame.opt_moves }}; </em>{{ convertScrambles(baseStore.repGame.scramble, baseStore.marathonReplay ? 'marathon' : 'standard') }}</span>
         <CopyButton
           :item-to-copy="String(baseStore.repGame.scramble)"
           :is-solve-path="false"

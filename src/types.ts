@@ -76,6 +76,7 @@ export interface RepGame {
   name: string;
   tps: string;
   created_at: string;
+  opt_moves: number;
 }
 export interface UserRecord {
   id: number;
@@ -155,6 +156,7 @@ export interface Response {
   game_id?: number;
   user_scramble_id?: number;
   public_id?: string;
+  opt_m?: number;
 }
 
 export interface AverageData {

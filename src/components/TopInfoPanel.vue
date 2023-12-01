@@ -46,7 +46,7 @@ const formatDate = (date?: string): string => {
       </div>
       <div class="factor-wrapper">
         <span>Moves:</span>
-        <span class="ml-5">{{ baseStore.movesCount }}</span>
+        <span class="ml-5">{{ baseStore.movesCount }}<span v-if="baseStore.opt_m !== 0" class="opt-moves">+{{ baseStore.movesCount - baseStore.opt_m }}</span></span>
       </div>
       <div class="factor-wrapper">
         <span>TPS:</span>
@@ -114,6 +114,11 @@ const formatDate = (date?: string): string => {
 }
 .factor-wrapper {
   position: relative;
+}
+.opt-moves {
+  color: var(--link-color);
+  font-size: 12px;
+  vertical-align: super;
 }
 @media screen and (max-width: 450px) {
   .playground-row-info  {
