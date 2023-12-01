@@ -272,7 +272,7 @@ onUnmounted(() => {
   height: v-bind(sizeVar);
   top: v-bind(calculatedTopBind);
   left: v-bind(calculatedLeftBind);
-  display:flex;
+  display: flex;
   justify-content: center;
   align-items: center;
   -webkit-tap-highlight-color: transparent;
