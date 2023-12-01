@@ -94,6 +94,9 @@ watch(puzzleSize, (newValue) => {
     gameRecords.value = [];
     offset = 0;
     fetched.value = false;
+    if (sortField === 'opt_diff') {
+      sortField = 'moves';
+    }
     doFetch();
   }
 });
@@ -235,7 +238,7 @@ const doSort = (newSortField: string): void => {
               <span>{{ item.moves }}</span>
             </div>
             <div v-if="puzzleSize === 3" class="flex-row w-85">
-              <span>+{{ item.opt_diff || 0 }}</span>
+              <span v-if="(item.opt_diff || 0) >= 0">+{{ item.opt_diff || 0 }}</span>
             </div>
             <div class="flex-row w-85">
               <span>{{ item.tps }}</span>
