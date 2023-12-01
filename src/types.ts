@@ -60,6 +60,7 @@ export interface GameData {
   id?: number;
   tps?: string;
   created_at?: string;
+  opt_diff?: number;
 }
 
 export interface RepGame {

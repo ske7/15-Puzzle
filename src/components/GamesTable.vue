@@ -156,6 +156,12 @@ const doSort = (newSortField: string): void => {
             {{ sortField !== 'moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
         </div>
+        <div v-if="puzzleSize === 3" class="flex-row w-85">
+          Opt.diff
+          <span class="pro-sort" @click="doSort('opt_diff')">
+            {{ sortField !== 'opt_diff' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+          </span>
+        </div>
         <div class="flex-row w-85">
           TPS
           <span class="pro-sort" @click="doSort('tps')">
@@ -193,6 +199,12 @@ const doSort = (newSortField: string): void => {
                 {{ sortField !== 'moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
               </span>
             </div>
+            <div v-if="puzzleSize === 3" class="flex-row">
+              Opt.diff
+              <span class="pro-sort" @click="doSort('opt_diff')">
+                {{ sortField !== 'opt_diff' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+              </span>
+            </div>
             <div class="flex-row">
               TPS
               <span class="pro-sort" @click="doSort('tps')">
@@ -221,6 +233,9 @@ const doSort = (newSortField: string): void => {
             </div>
             <div class="flex-row w-85">
               <span>{{ item.moves }}</span>
+            </div>
+            <div v-if="puzzleSize === 3" class="flex-row w-85">
+              <span>+{{ item.opt_diff || 0 }}</span>
             </div>
             <div class="flex-row w-85">
               <span>{{ item.tps }}</span>
@@ -367,7 +382,7 @@ const doSort = (newSortField: string): void => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 250px;
+  max-width: 245px;
   font-size: 14px;
   padding: 0 5px;
   display: block;
