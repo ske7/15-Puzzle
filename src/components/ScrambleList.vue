@@ -210,6 +210,7 @@ const doSort = (newSortField: string): void => {
               <span>{{ item.best_moves }}</span>
             </div>
             <div class="flex-row smaller-font">
+              <em v-if="puzzleSize === 3">om:{{ item.optimal_moves }};</em>
               <div class="copy-button-wrapper">
                 <p class="scramble-text">
                   {{ convertScramble(item.scramble) }}
@@ -339,6 +340,11 @@ const doSort = (newSortField: string): void => {
   display: inline;
   font-size: 14px;
   line-height: 25px;
+}
+.flex-row em {
+  color: var(--link-color);
+  font-size: 14px;
+  margin-right: 5px;
 }
 .items {
   display: flex;

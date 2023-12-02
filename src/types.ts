@@ -39,6 +39,7 @@ export interface UserScrambleData {
   public_id?: string;
   created_at?: string;
   updated_at?: string;
+  optimal_moves?: number;
 }
 
 export interface InvalidFields {
