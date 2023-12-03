@@ -22,11 +22,17 @@ export const postGame = (game: GameData, keyH: string): void => {
     .then((res) => {
       baseStore.lastGameID = res.game_id ?? 0;
       if (baseStore.proMode) {
-        baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
-        baseStore.setWasAvgRecords(res.was_avg_records as unknown as WasAvgRecord[]);
         if (baseStore.numLines === 3 && res.opt_m != null) {
           baseStore.opt_m = res.opt_m;
         }
+        usePostFetchAPI('update_stats', JSON.stringify({ game_id: baseStore.lastGameID }) as BodyInit, baseStore.token, keyH)
+          .then((res) => {
+            baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
+            baseStore.setWasAvgRecords(res.was_avg_records as unknown as WasAvgRecord[]);
+          }).catch(error => {
+            errorMsg.value = error as string;
+            isFetching.value = false;
+          });
       }
       isFetching.value = false;
     })
