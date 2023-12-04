@@ -91,6 +91,9 @@ watch(puzzleSize, (newValue) => {
     scrambleRecords.value = [];
     offset = 0;
     fetched.value = false;
+    if (sortField === 'opt_diff') {
+      sortField = 'best_moves';
+    }
     doFetch();
   }
 });
@@ -146,10 +149,16 @@ const doSort = (newSortField: string): void => {
             {{ sortField !== 'best_moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
         </div>
+        <div v-if="puzzleSize === 3" class="flex-row w-85">
+          Opt.diff
+          <span class="pro-sort" @click="doSort('opt_diff')">
+            {{ sortField !== 'opt_diff' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+          </span>
+        </div>
         <div class="flex-row">
           Scramble
         </div>
-        <div class="flex-row w-95">
+        <div class="flex-row w-85">
           Solution
         </div>
         <div class="flex-row w-120">
@@ -184,6 +193,12 @@ const doSort = (newSortField: string): void => {
                 {{ sortField !== 'best_moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
               </span>
             </div>
+            <div v-if="puzzleSize === 3" class="flex-row">
+              Opt.diff
+              <span class="pro-sort" @click="doSort('opt_diff')">
+                {{ sortField !== 'opt_diff' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+              </span>
+            </div>
             <div class="flex-row">
               Scramble
             </div>
@@ -209,6 +224,9 @@ const doSort = (newSortField: string): void => {
             <div class="flex-row w-120">
               <span>{{ item.best_moves }}</span>
             </div>
+            <div v-if="puzzleSize === 3" class="flex-row w-85">
+              <span v-if="item.opt_diff || 0 > 0">+{{ item.opt_diff }}</span>
+            </div>
             <div class="flex-row smaller-font">
               <em v-if="puzzleSize === 3">om:{{ item.optimal_moves }};</em>
               <div class="copy-button-wrapper">
@@ -222,7 +240,7 @@ const doSort = (newSortField: string): void => {
                 />
               </div>
             </div>
-            <div class="flex-row w-95 smaller-font">
+            <div class="flex-row w-85 smaller-font">
               <div class="copy-button-wrapper">
                 <CopyButton
                   v-if="item.solve_path"
@@ -325,6 +343,9 @@ const doSort = (newSortField: string): void => {
 }
 .w-70 {
   max-width: 70px;
+}
+.w-85 {
+  max-width: 85px;
 }
 .w-95 {
   max-width: 95px;
@@ -450,7 +471,7 @@ const doSort = (newSortField: string): void => {
   .table-header {
     display: none;
   }
-  .w-70 {
+  .w-70, .w-85 {
     max-width: 180px;
     min-width: 180px;
   }

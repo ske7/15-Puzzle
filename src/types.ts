@@ -40,6 +40,7 @@ export interface UserScrambleData {
   created_at?: string;
   updated_at?: string;
   optimal_moves?: number;
+  opt_diff?: number;
 }
 
 export interface InvalidFields {
