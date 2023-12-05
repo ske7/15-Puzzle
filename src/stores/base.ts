@@ -75,7 +75,6 @@ export const useBaseStore = defineStore('base', {
     hideCurrentAverages: localStorage.getItem('hideCurrentAverages') === 'true',
     wasAvgRecords: [] as WasAvgRecord[],
     consecutiveSolves: 0,
-    sortAveragesByProValues: localStorage.getItem('sortAveragesByProValues') === 'true',
     solvePath: [] as string[],
     replayMode: false,
     repGame: null as unknown as RepGame,

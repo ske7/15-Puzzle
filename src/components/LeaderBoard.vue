@@ -91,49 +91,25 @@ const sortSingleRecords = (a: UserRecord, b: UserRecord): number => {
   }
 };
 const sortTimeAverages = (a: UserRecord, b: UserRecord): number => {
-  if (baseStore.sortAveragesByProValues) {
-    const diff = compare(infNumber(b.pro_time_value), infNumber(a.pro_time_value));
-    if (diff !== 0) {
-      return diff;
-    }
-    return compare(infNumber(b.avg_time), infNumber(a.avg_time));
-  } else {
-    const diff = compare(infNumber(b.avg_time), infNumber(a.avg_time));
-    if (diff !== 0) {
-      return diff;
-    }
-    return compare(infNumber(b.pro_time_value), infNumber(a.pro_time_value));
+  const diff = compare(infNumber(b.avg_time), infNumber(a.avg_time));
+  if (diff !== 0) {
+    return diff;
   }
+  return compare(new Date(b.updated_at!).getTime(), new Date(a.updated_at!).getTime());
 };
 const sortMovesAverages = (a: UserRecord, b: UserRecord): number => {
-  if (baseStore.sortAveragesByProValues) {
-    const diff = compare(infNumber(b.pro_moves_value), infNumber(a.pro_moves_value));
-    if (diff !== 0) {
-      return diff;
-    }
-    return compare(infNumber(b.avg_moves), infNumber(a.avg_moves));
-  } else {
-    const diff = compare(infNumber(b.avg_moves), infNumber(a.avg_moves));
-    if (diff !== 0) {
-      return diff;
-    }
-    return compare(infNumber(b.pro_moves_value), infNumber(a.pro_moves_value));
+  const diff = compare(infNumber(b.avg_moves), infNumber(a.avg_moves));
+  if (diff !== 0) {
+    return diff;
   }
+  return compare(new Date(b.updated_at!).getTime(), new Date(a.updated_at!).getTime());
 };
 const sortTPSAverages = (a: UserRecord, b: UserRecord): number => {
-  if (baseStore.sortAveragesByProValues) {
-    const diff = compare(infNumber(a.pro_tps_value, true), infNumber(b.pro_tps_value, true));
-    if (diff !== 0) {
-      return diff;
-    }
-    return compare(infNumber(a.avg_tps, true), infNumber(b.avg_tps, true));
-  } else {
-    const diff = compare(infNumber(a.avg_tps, true), infNumber(b.avg_tps, true));
-    if (diff !== 0) {
-      return diff;
-    }
-    return compare(infNumber(a.pro_tps_value, true), infNumber(b.pro_tps_value, true));
+  const diff = compare(infNumber(a.avg_tps, true), infNumber(b.avg_tps, true));
+  if (diff !== 0) {
+    return diff;
   }
+  return compare(new Date(b.updated_at!).getTime(), new Date(a.updated_at!).getTime());
 };
 const sortAveragesRecords = (a: UserRecord, b: UserRecord): number => {
   if (bestAverage.value === 'time') {
@@ -202,24 +178,6 @@ const tbodyHeightMobile = computed(() => {
   }
   return '116.5px';
 });
-const getProStatus = (item: UserRecord): string => {
-  if (item.pro_record ?? false) {
-    if (bestAverage.value === 'time') {
-      return item.pro_time_value ?? '';
-    }
-    if (bestAverage.value === 'moves') {
-      return item.pro_moves_value ?? '';
-    }
-    if (bestAverage.value === 'TPS') {
-      return item.pro_tps_value ?? '';
-    }
-  }
-  return '';
-};
-const doProSort = (): void => {
-  baseStore.sortAveragesByProValues = !baseStore.sortAveragesByProValues;
-  localStorage.setItem('sortAveragesByProValues', baseStore.sortAveragesByProValues.toString());
-};
 </script>
 
 <template>
@@ -253,7 +211,7 @@ const doProSort = (): void => {
         <table v-if="isDefault" class="items-table" aria-describedby="leaderboard-caption">
           <thead>
             <tr>
-              <th class="w-28">
+              <th class="w-30">
                 #
               </th>
               <th class="w-120">
@@ -275,7 +233,7 @@ const doProSort = (): void => {
           </thead>
           <tbody id="records-tbody">
             <tr v-for="(item, index) in filteredRecords.slice(0, 100)" :key="item.id">
-              <td class="w-28">
+              <td class="w-30">
                 {{ index + 1 }}
               </td>
               <td class="w-120 t-overflow">
@@ -306,13 +264,13 @@ const doProSort = (): void => {
             </tr>
           </tbody>
         </table>
-        <table v-if="!isDefault" class="items-table" aria-describedby="leaderboard-caption">
+        <table v-if="!isDefault" class="items-table items-avg" aria-describedby="leaderboard-caption">
           <thead>
             <tr>
-              <th class="w-28">
+              <th class="w-30">
                 #
               </th>
-              <th class="w-150">
+              <th class="w-160">
                 Name
               </th>
               <th v-if="bestAverage === 'time'" class="min-width">
@@ -324,20 +282,14 @@ const doProSort = (): void => {
               <th v-if="bestAverage === 'TPS'" class="min-width">
                 TPS
               </th>
-              <th>
-                Pro
-                <span class="pro-sort" @click="doProSort">
-                  {{ baseStore.sortAveragesByProValues ? (bestAverage === 'TPS' ? '↓' : '↑') : '↑↓' }}
-                </span>
-              </th>
             </tr>
           </thead>
           <tbody id="records-tbody">
             <tr v-for="(item, index) in filteredRecords.slice(0, 50)" :key="item.id">
-              <td class="w-28">
+              <td class="w-30">
                 {{ index + 1 }}
               </td>
-              <td class="w-150 t-overflow">
+              <td class="w-160 t-overflow">
                 {{ item.name }}
               </td>
               <td v-if="bestAverage === 'time'" class="min-width">
@@ -348,9 +300,6 @@ const doProSort = (): void => {
               </td>
               <td v-if="bestAverage === 'TPS'" class="min-width">
                 {{ item.avg_tps }}
-              </td>
-              <td>
-                {{ getProStatus(item) }}
               </td>
             </tr>
           </tbody>
@@ -416,6 +365,10 @@ const doProSort = (): void => {
   font-family: 'consolas', sans-serif;
   line-height: 1.1;
 }
+.items-avg {
+  width: 90%;
+  margin: 0 auto;
+}
 .items-table thead {
   font-size: 16px;
   text-align: left;
@@ -455,11 +408,14 @@ const doProSort = (): void => {
 .w-28 {
   width: 28px;
 }
+.w-30 {
+  width: 30px;
+}
 .w-120 {
   width: 120px;
 }
-.w-150 {
-  width: 150px;
+.w-160 {
+  width: 160px;
 }
 .w-60 {
   width: 67px;
@@ -476,17 +432,6 @@ const doProSort = (): void => {
 }
 .puzzle-mode-container {
   max-width: 350px;
-}
-.pro-sort {
-  cursor: pointer;
-  font-weight: 600;
-  color: darkcyan;
-}
-.pro-sort:hover {
-  opacity: 0.7;
-}
-.pro-sort:active {
-  opacity: 0.7;
 }
 .link-item {
   color: var(--link-color);

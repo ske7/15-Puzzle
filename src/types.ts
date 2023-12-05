@@ -91,6 +91,7 @@ export interface UserRecord {
   moves: number;
   tps: string;
   created_at?: string;
+  updated_at?: string | number | Date;
   control_type?: string;
   avg_time?: string;
   avg_moves?: string;
