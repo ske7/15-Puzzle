@@ -12,7 +12,7 @@ import {
 import {
   generateAndShuffle, isSolvable, isSorted, getElementCol, getElementRow,
   displayedTime, calculateTPS, randArrayItem, generateRand,
-  swapArrayElements
+  swapArrayElements, calculateMD
 } from '../utils';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 
@@ -200,6 +200,9 @@ export const useBaseStore = defineStore('base', {
         this.mixedOrders = generateAndShuffle(this.arrayLength);
       } else {
         this.mixedOrders = generateAndShuffle(this.arrayLength);
+      }
+      if (calculateMD(this.mixedOrders) <= 2) {
+        return false;
       }
       if (isSorted(this.mixedOrders.slice(0, -1))) {
         return false;
