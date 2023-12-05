@@ -1,6 +1,6 @@
 import { ref, type Ref } from 'vue';
 import { useBaseStore } from '../stores/base';
-import { type GameData, type AverageStats, type WasAvgRecord, type UserScrambleData } from '@/types';
+import { type GameData, type AverageStats, type WasAvgRecord, type UserScrambleData, type Response } from '@/types';
 import { usePostFetchAPI, usePatchFetchAPI } from '../composables/useFetchAPI';
 
 const prepare = (): Record<string, Ref<string | boolean>> => {
@@ -19,8 +19,8 @@ export const postGame = (game: GameData, keyH: string): void => {
   }
   isFetching.value = true;
   usePostFetchAPI('game', JSON.stringify({ game }) as BodyInit, baseStore.token, keyH)
-    .then((res) => {
-      baseStore.lastGameID = res.game_id ?? 0;
+    .then((res: Response): void => {
+      baseStore.lastGameID = res.game_id!;
       if (baseStore.proMode) {
         if (baseStore.numLines === 3 && res.opt_m != null) {
           baseStore.opt_m = res.opt_m;
