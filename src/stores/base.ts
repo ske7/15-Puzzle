@@ -201,7 +201,7 @@ export const useBaseStore = defineStore('base', {
       } else {
         this.mixedOrders = generateAndShuffle(this.arrayLength);
       }
-      if (calculateMD(this.mixedOrders) <= 2) {
+      if (calculateMD(this.mixedOrders) < this.numLines) {
         return false;
       }
       if (isSorted(this.mixedOrders.slice(0, -1))) {
