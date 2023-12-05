@@ -8,12 +8,22 @@ export const useKeyDown = (): void => {
   const baseStore = useBaseStore();
   const eventBus = useEventBus<string>('event-bus');
 
+  const listenEscKey = (code: string): boolean => {
+    if (baseStore.resetUnsolvedPuzzleWithEsc && code === 'Escape' && !baseStore.paused) {
+      eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
+      return true;
+    }
+    return false;
+  };
+
   const listenSpaceKey = (ctrlDown: boolean, code: string): boolean => {
     if (code === 'Space' && !baseStore.paused) {
       if (ctrlDown) {
         baseStore.savedOrders = [];
       }
-      eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
+      if (!baseStore.resetUnsolvedPuzzleWithEsc || baseStore.isDone) {
+        eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
+      }
       return true;
     }
     return false;
@@ -72,6 +82,9 @@ export const useKeyDown = (): void => {
   const onKeyDown = async (event: KeyboardEvent): Promise<void> => {
     if (!baseStore.showModal) {
       event.preventDefault();
+    }
+    if (listenEscKey(event.code)) {
+      return;
     }
     const ctrlDown = event.ctrlKey || event.metaKey;
     if (listenSpaceKey(ctrlDown, event.code)) {

@@ -102,7 +102,8 @@ export const useBaseStore = defineStore('base', {
     marathonSolves: '',
     marathonReplay: false,
     inPlaceCount: 0,
-    opt_m: 0
+    opt_m: 0,
+    resetUnsolvedPuzzleWithEsc: localStorage.getItem('resetUnsolvedPuzzleWithEsc') === 'true'
   }),
   actions: {
     initStore() {

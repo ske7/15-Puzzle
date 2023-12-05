@@ -58,6 +58,10 @@ const setDisableWinMessage = (): void => {
   baseStore.disableWinMessage = !baseStore.disableWinMessage;
   localStorage.setItem('disableWinMessage', baseStore.disableWinMessage.toString());
 };
+const setResetUnsolvedPuzzleWithEsc = (): void => {
+  baseStore.resetUnsolvedPuzzleWithEsc = !baseStore.resetUnsolvedPuzzleWithEsc;
+  localStorage.setItem('resetUnsolvedPuzzleWithEsc', baseStore.resetUnsolvedPuzzleWithEsc.toString());
+};
 const setHideAverages = (): void => {
   baseStore.hideCurrentAverages = !baseStore.hideCurrentAverages;
   localStorage.setItem('hideCurrentAverages', baseStore.hideCurrentAverages.toString());
@@ -179,6 +183,18 @@ watch(marathonMode, () => {
           >
           <label for="disable-win-message">
             Disable Win Message
+          </label>
+        </div>
+        <div class="option">
+          <input
+            id="reset-unsolved-puzzle"
+            type="checkbox"
+            name="reset-unsolved-puzzle"
+            :checked="baseStore.resetUnsolvedPuzzleWithEsc"
+            @change="setResetUnsolvedPuzzleWithEsc"
+          >
+          <label for="reset-unsolved-puzzle">
+            Reset unsolved puzzle by Esc
           </label>
         </div>
         <div class="option">
