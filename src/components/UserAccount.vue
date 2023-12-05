@@ -169,13 +169,13 @@ const closeGamesTable = (): void => {
           <tbody>
             <tr v-for="(item) in averagesRecords" :key="item.id">
               <td>{{ item.record_type }}</td>
-              <td :class="{ 'purple': item.pro_avg_time }">
+              <td>
                 {{ item.avg_time }}
               </td>
-              <td :class="{ 'purple': item.pro_avg_moves }">
+              <td>
                 {{ item.avg_moves }}
               </td>
-              <td :class="{ 'purple': item.pro_avg_tps }">
+              <td>
                 {{ item.avg_tps }}
               </td>
             </tr>
@@ -287,9 +287,6 @@ const closeGamesTable = (): void => {
 }
 .puzzle-size-slider-container {
   max-width: 250px;
-}
-.purple {
-  color: var(--violet);
 }
 .last-games {
   color: var(--link-color);

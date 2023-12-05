@@ -96,9 +96,6 @@ export interface UserRecord {
   avg_time?: string;
   avg_moves?: string;
   avg_tps?: string;
-  pro_avg_time?: boolean;
-  pro_avg_moves?: boolean;
-  pro_avg_tps?: boolean;
   game_id?: number;
   scramble?: string;
 }
