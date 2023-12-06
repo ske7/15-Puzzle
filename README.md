@@ -29,13 +29,14 @@ You can play and beat online records of time and moves. Also, dedicated fans can
 9. You can configure the game: turn off Cage mode to perfect your records in the traditional game; play in hardcore Cage mode without numbers on blocks; disable Win message if it doesn't suit your game experience. Change control mode or set dark screen mode and others.
 10. "15 puzzle online" works perfectly on every modern desktop browser, android and iOS platforms, small-size mobiles, and tablets. You are free to choose where and how you prefer to play.
 11. In your profile, you can see all played games with stats. Sort by date, time, and moves, or get a solution/scramble from the chosen game.
+12. For puzzle size 3x3 you can see moves difference from the optimal solution after finishing each game, also in other places: your games in profile, replay page, etc.
 
 ![Cage mode](public/mode2.jpg)
 
 ## Additional info
 
 Every next game begins with the "Restart" button (space key): press it after solving a puzzle or if you want to reset the current game state.
-Press the "PageUp"/"PageDown" keys to increase/decrease puzzle size. "Ctrl + Space" will renew the puzzle in playground mode, and space will restart the same scramble. Holding the "Ctrl" key will allow you to move the mouse to the middle blank tile and start solving from there. Rolling averages (ao5, ao12, etc.) are important indicators for pro players. If you are among them, you understand their meaning. Essentially, it's a sum of your times/moves divided by the number of the finished solves, minus the best and worst 5% game results among 5, 12, 50, or 100. Pro marking means that you have averages of consecutive games (a session of 5, 12, etc).
+Press the "PageUp"/"PageDown" keys to increase/decrease puzzle size. "Ctrl + Space" will renew the puzzle in playground mode, and space will restart the same scramble. Holding the "Ctrl" key will allow you to move the mouse to the middle blank tile and start solving from there. Rolling averages (ao5, ao12, etc.) are important indicators for pro players. If you are among them, you understand their meaning. Essentially, it's a sum of your times/moves divided by the number of the finished solves, minus the best and worst 5% game results among 5, 12, 50, or 100. For getting averages records (check link "Best") you need to do solves in consecutive order, resetting scramble only after its completing.
 
 ## Acknowledgments
 
