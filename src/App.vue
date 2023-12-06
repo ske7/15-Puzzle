@@ -8,7 +8,10 @@ import Board from './components/Board.vue';
 import TopInfoPanel from './components/TopInfoPanel.vue';
 import BottomInfoPanel from './components/BottomInfoPanel.vue';
 import ActionPanel from './components/ActionPanel.vue';
-import AveragesPanel from './components/AveragesPanel.vue';
+const AveragesPanel = defineAsyncComponent({
+  loader: async () => await import('./components/AveragesPanel.vue') as unknown as AsyncComponentLoader,
+  delay: 150
+});
 const WinModal = defineAsyncComponent({
   loader: async () => await import('./components/WinModal.vue') as unknown as AsyncComponentLoader,
   delay: 150
