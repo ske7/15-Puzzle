@@ -197,6 +197,10 @@ export const useBaseStore = defineStore('base', {
     async getNextG1000() {
       await useGetFetchAPI('next_gt', this.token)
         .then((res) => {
+          if (res.id === 1000) {
+            location.href = import.meta.env.VITE_BASE_URL;
+            return false;
+          }
           this.mixedOrders = res.scramble!.split(',').map(x => +x);
           this.consecutiveSolves = res.id!;
           return true;
