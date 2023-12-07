@@ -122,8 +122,8 @@ watch(marathonMode, () => {
         <span>Game config</span>
       </p>
       <div class="options">
-        <PuzzleSizeSlider v-model="puzzleSize" />
-        <div class="option">
+        <PuzzleSizeSlider v-if="!baseStore.g1000Mode" v-model="puzzleSize" />
+        <div v-if="!baseStore.g1000Mode" class="option">
           <input
             id="enable-cage-mode"
             type="checkbox"
@@ -135,7 +135,7 @@ watch(marathonMode, () => {
             Cage Mode
           </label>
         </div>
-        <div class="option">
+        <div v-if="!baseStore.g1000Mode" class="option">
           <input
             id="hardcore"
             type="checkbox"
@@ -148,7 +148,7 @@ watch(marathonMode, () => {
             No Numbers In Cage Mode
           </label>
         </div>
-        <div class="option">
+        <div v-if="!baseStore.g1000Mode" class="option">
           <input
             id="no-borders-in-cage-mode"
             type="checkbox"
@@ -185,7 +185,7 @@ watch(marathonMode, () => {
             Disable Win Message
           </label>
         </div>
-        <div class="option">
+        <div v-if="!baseStore.g1000Mode" class="option">
           <input
             id="reset-unsolved-puzzle"
             type="checkbox"
@@ -223,7 +223,7 @@ watch(marathonMode, () => {
             Hover On Control
           </label>
         </div>
-        <div class="option">
+        <div v-if="!baseStore.g1000Mode" class="option">
           <input
             id="pro-mode"
             type="checkbox"
@@ -235,7 +235,7 @@ watch(marathonMode, () => {
             Pro Mode (speed sliding)
           </label>
         </div>
-        <div class="option">
+        <div v-if="!baseStore.g1000Mode" class="option">
           <input
             id="marathon-mode"
             type="checkbox"

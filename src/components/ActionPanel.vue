@@ -36,6 +36,9 @@ const doRestart = (initRestartPath: string): void => {
      (baseStore.showModal && !['fromConfig', 'fromKeyboard'].includes(initRestartPath))) {
     return;
   }
+  if (baseStore.g1000Mode && !baseStore.isDone) {
+    return;
+  }
   savedStep.value = 0;
   stopWalk.value = false;
   baseStore.inReplay = false;

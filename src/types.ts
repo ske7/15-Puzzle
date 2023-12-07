@@ -63,6 +63,7 @@ export interface GameData {
   tps?: string;
   created_at?: string;
   opt_diff?: number;
+  gt_id?: number | null;
 }
 
 export interface RepGame {
@@ -151,6 +152,8 @@ export interface Response {
   user_scramble_id?: number;
   public_id?: string;
   opt_m?: number;
+  scramble?: string;
+  id?: number;
 }
 
 export interface AverageData {

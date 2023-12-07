@@ -145,7 +145,7 @@ const changePuzzleSize = (puzzleSize: number): void => {
                   'loading-veil': baseStore.cageMode && !baseStore.finishLoadingAllCageImages }"
       />
     </div>
-    <div v-if="showProSquare" :key="baseStore.mixedOrders.length" class="p-container">
+    <div v-if="showProSquare && baseStore.currentOrders.length > 0" :key="baseStore.mixedOrders.length" class="p-container">
       <Pro-Square
         v-for="(_value, index) in baseStore.mixedOrders"
         :key="index"
@@ -156,7 +156,7 @@ const changePuzzleSize = (puzzleSize: number): void => {
         }"
       />
     </div>
-    <div v-if="!baseStore.replayMode && !baseStore.sharedPlaygroundMode && !baseStore.cageMode" class="puzzle-sizes">
+    <div v-if="!baseStore.replayMode && !baseStore.sharedPlaygroundMode && !baseStore.cageMode && !baseStore.g1000Mode" class="puzzle-sizes">
       <span
         v-for="(item, index) in cores"
         :key="index"

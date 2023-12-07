@@ -9,7 +9,7 @@ export const useKeyDown = (): void => {
   const eventBus = useEventBus<string>('event-bus');
 
   const listenEscKey = (code: string): boolean => {
-    if (baseStore.resetUnsolvedPuzzleWithEsc && code === 'Escape' && !baseStore.paused) {
+    if (baseStore.resetUnsolvedPuzzleWithEsc && code === 'Escape' && !baseStore.paused && !baseStore.g1000Mode) {
       eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
       return true;
     }
@@ -21,7 +21,7 @@ export const useKeyDown = (): void => {
       if (ctrlDown) {
         baseStore.savedOrders = [];
       }
-      if (!baseStore.resetUnsolvedPuzzleWithEsc || baseStore.isDone) {
+      if (!(baseStore.resetUnsolvedPuzzleWithEsc || baseStore.g1000Mode) || baseStore.isDone) {
         eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
       }
       return true;
@@ -47,7 +47,8 @@ export const useKeyDown = (): void => {
   };
 
   const listenChangePuzzleSize = (code: string): boolean => {
-    if (!baseStore.showModal && !baseStore.cageMode && !baseStore.replayMode && !baseStore.sharedPlaygroundMode) {
+    if (!baseStore.showModal && !baseStore.cageMode && !baseStore.replayMode &&
+      !baseStore.sharedPlaygroundMode && !baseStore.g1000Mode) {
       if (code === 'PageUp') {
         if (baseStore.numLines === cores.slice(-1)[0]) {
           return false;

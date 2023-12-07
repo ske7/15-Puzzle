@@ -102,7 +102,8 @@ export const useBaseStore = defineStore('base', {
     marathonReplay: false,
     inPlaceCount: 0,
     opt_m: 0,
-    resetUnsolvedPuzzleWithEsc: localStorage.getItem('resetUnsolvedPuzzleWithEsc') === 'true'
+    resetUnsolvedPuzzleWithEsc: localStorage.getItem('resetUnsolvedPuzzleWithEsc') === 'true',
+    g1000Mode: false
   }),
   actions: {
     initStore() {
@@ -127,6 +128,19 @@ export const useBaseStore = defineStore('base', {
       this.cageImageLoadedCount = 0;
     },
     renewPuzzle() {
+      if (this.g1000Mode) {
+        this.getNextG1000().then(() => {
+          this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
+          this.currentOrders = this.mixedOrders.slice();
+          this.inPlaceCount = this.startOrderedCount;
+          this.doneFirstMove = false;
+          this.opt_m = 0;
+        })
+          .catch(error => {
+            console.log(error as string);
+          });
+        return true;
+      }
       let solvable = this.mixAndCheckSolvable();
       while (!solvable) {
         solvable = this.mixAndCheckSolvable();
@@ -179,6 +193,18 @@ export const useBaseStore = defineStore('base', {
         }
         this.checkUserScrambleInDB = false;
       }
+    },
+    async getNextG1000() {
+      await useGetFetchAPI('next_gt', this.token)
+        .then((res) => {
+          this.mixedOrders = res.scramble!.split(',').map(x => +x);
+          this.consecutiveSolves = res.id!;
+          return true;
+        })
+        .catch(error => {
+          console.log(error as string);
+          return false;
+        });
     },
     mixAndCheckSolvable() {
       if (this.replayMode) {

@@ -341,13 +341,13 @@ const disableSave = computed(() => {
         <Transition name="fade2">
           <div v-if="!baseStore.isFetching" class="registered-block">
             <span
-              v-if="baseStore.playgroundMode || baseStore.replayMode"
+              v-if="baseStore.playgroundMode || baseStore.replayMode || baseStore.g1000Mode"
               class="link-item"
               :class="{ paused: cannotClick }"
               @click="goMain"
             >Main</span>
             <span
-              v-if="!baseStore.playgroundMode && !baseStore.replayMode"
+              v-if="!baseStore.playgroundMode && !baseStore.replayMode && !baseStore.g1000Mode"
               class="link-item"
               :class="{ paused: cannotClick }"
               @click="goPlayground"

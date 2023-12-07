@@ -30,6 +30,7 @@ export const useWatchGameState = (): void => {
         solvePath = baseStore.marathonSolves.slice(0, -1);
       }
       const keyH = String(time + baseStore.movesCount * import.meta.env.VITE_GAME_KEY);
+      const gtId = baseStore.g1000Mode ? baseStore.consecutiveSolves - 1 : null;
       postGame({
         user_name: baseStore.userName,
         time,
@@ -39,7 +40,8 @@ export const useWatchGameState = (): void => {
         control_type: baseStore.getControlTypeStr,
         consecutive_solves: baseStore.consecutiveSolves,
         scramble,
-        solve_path: solvePath
+        solve_path: solvePath,
+        gt_id: gtId
       }, keyH);
     }
   };
