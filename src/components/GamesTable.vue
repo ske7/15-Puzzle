@@ -158,6 +158,9 @@ const doSort = (newSortField: string): void => {
             {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
         </div>
+        <div class="flex-row w-49">
+          CS
+        </div>
         <div class="flex-row w-85">
           Time
           <span class="pro-sort" @click="doSort('time')">
@@ -176,7 +179,7 @@ const doSort = (newSortField: string): void => {
             {{ sortField !== 'opt_diff' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
         </div>
-        <div class="flex-row w-85">
+        <div class="flex-row w-70">
           TPS
           <span class="pro-sort" @click="doSort('tps')">
             {{ sortField !== 'tps' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↓' : '↑') }}
@@ -200,6 +203,9 @@ const doSort = (newSortField: string): void => {
               <span class="pro-sort" @click="doSort('id')">
                 {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
               </span>
+            </div>
+            <div class="flex-row">
+              CS
             </div>
             <div class="flex-row">
               Time
@@ -242,6 +248,9 @@ const doSort = (newSortField: string): void => {
             <div class="flex-row w-95">
               <span class="white-space-normal date-smaller">{{ formatDate(item.created_at) }}</span>
             </div>
+            <div class="flex-row w-49">
+              <span> {{ item.consecutive_solves }}</span>
+            </div>
             <div class="flex-row w-85">
               <span>{{ item.time / 1000 }}</span>
             </div>
@@ -251,7 +260,7 @@ const doSort = (newSortField: string): void => {
             <div v-if="puzzleSize === 3" class="flex-row w-85">
               <span v-if="(item.opt_diff || 0) >= 0">+{{ item.opt_diff || 0 }}</span>
             </div>
-            <div class="flex-row w-85">
+            <div class="flex-row w-70">
               <span>{{ item.tps }}</span>
             </div>
             <div class="flex-row smaller-font" :class="{ 'w-85': windowWidth <= 1100 }">
@@ -366,6 +375,9 @@ const doSort = (newSortField: string): void => {
   border-right: solid 1px var(--table-border-color);
   border-bottom: solid 1px var(--table-border-color);
 }
+.w-49 {
+  max-width: 49px;
+}
 .w-70 {
   max-width: 70px;
 }
@@ -388,7 +400,7 @@ const doSort = (newSortField: string): void => {
 .table-header-mobile .flex-row, .flex-table:first-of-type .flex-row {
   background: gold;
   color: black;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   max-height: 50px;
 }
@@ -396,7 +408,7 @@ const doSort = (newSortField: string): void => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 245px;
+  max-width: 232px;
   font-size: 14px;
   padding: 0 5px;
   display: block;
@@ -431,7 +443,7 @@ const doSort = (newSortField: string): void => {
   font-weight: 800;
   color: darkcyan;
   min-width: auto !important;
-  font-size: 16px !important;
+  font-size: 15px !important;
 }
 .pro-sort:hover {
   opacity: 0.8;
@@ -446,7 +458,7 @@ const doSort = (newSortField: string): void => {
   .games-table {
   --modal-width: 768px;
   }
-  .w-70, .w-85, .w-95 {
+  .w-49, .w-70, .w-85, .w-95 {
     max-width: 100%;
   }
   .table-wrapper {
@@ -458,7 +470,7 @@ const doSort = (newSortField: string): void => {
 }
 @media screen and (max-width: 768px) {
   .games-table {
-  --modal-width: 600px;
+  --modal-width: 100%;
   }
   .date-smaller {
     min-width: 80px;
@@ -515,7 +527,7 @@ const doSort = (newSortField: string): void => {
   .table-header {
     display: none;
   }
-  .w-70, .w-85, w-95 {
+  .w-49, .w-70, .w-85, w-95 {
     max-width: 180px;
     min-width: 180px;
   }
@@ -526,6 +538,9 @@ const doSort = (newSortField: string): void => {
   }
   .smaller-font span, .smaller-font .link-item {
     font-size: 12px;
+  }
+  .date-smaller {
+    font-size: 14px !important;
   }
 }
 @media screen and (max-width: 350px) {
