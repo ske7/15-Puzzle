@@ -25,7 +25,9 @@ let offset = 0;
 
 const puzzleSize = ref<number>(baseStore.numLines);
 const puzzleMode = ref<string>(baseStore.marathonMode ? 'marathon' : 'standard');
-
+if (baseStore.g1000Mode) {
+  puzzleMode.value = 'g1000';
+}
 const errorMsg = ref('');
 const gameRecords = ref<GameData[]>([]);
 const isFetching = ref(false);
@@ -89,8 +91,17 @@ onUnmounted(() => {
     recordsTable.removeEventListener('scroll', onscroll);
   }
 });
+const puzzleModeChoices = ref(baseStore.numLines === 3 ? ['standard', 'marathon', 'g1000'] : ['standard', 'marathon']);
 watch(puzzleSize, (newValue) => {
   if (newValue !== 0) {
+    if (newValue === 3) {
+      puzzleModeChoices.value = ['standard', 'marathon', 'g1000'];
+    } else {
+      if (puzzleMode.value === 'g1000') {
+        puzzleMode.value = 'standard';
+      }
+      puzzleModeChoices.value = ['standard', 'marathon'];
+    }
     gameRecords.value = [];
     offset = 0;
     fetched.value = false;
@@ -132,7 +143,7 @@ const doSort = (newSortField: string): void => {
     <PuzzleSizeSlider v-model="puzzleSize" />
     <PuzzleModeGroup
       v-model="puzzleMode"
-      :choices="['standard', 'marathon']"
+      :choices="puzzleModeChoices"
       :header="'Puzzle Mode'"
     />
     <hr class="nice-hr">

@@ -125,6 +125,9 @@ export interface AverageStats {
   ao100t: string;
   ao100m: string;
   ao100tps: string;
+  ao1000t: string;
+  ao1000m: string;
+  ao1000tps: string;
 }
 
 export interface WasAvgRecord {

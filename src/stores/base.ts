@@ -532,6 +532,15 @@ export const useBaseStore = defineStore('base', {
         moves: stats?.ao100m,
         tps: stats?.ao100tps
       });
+      if (this.g1000Mode) {
+        this.currentAverages.push({
+          code: 1000,
+          puzzle_size: this.numLines,
+          time: stats?.ao1000t,
+          moves: stats?.ao1000m,
+          tps: stats?.ao1000tps
+        });
+      }
     },
     setWasAvgRecords(wasAvgRecords?: WasAvgRecord[]): void {
       if (wasAvgRecords == null) {

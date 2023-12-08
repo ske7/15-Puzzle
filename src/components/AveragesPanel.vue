@@ -226,6 +226,30 @@ const closeLeaderBoard = (): void => {
           <span v-if="checkDownTPS(3)" class="red">↓</span>
         </span>
       </div>
+      <div v-if="baseStore.g1000Mode" class="avg-row">
+        <span class="avg-type">ao1000</span>
+        <span>
+          <span :class="{ 'purple': checkIfWasRecord('ao1000', 'time') }">
+            {{ baseStore.currentAverages[4].time || 'tbd' }}
+          </span>
+          <span v-if="checkDownTime(4)" class="green">↓</span>
+          <span v-if="checkUpTime(4)" class="red">↑</span>
+        </span>
+        <span>
+          <span :class="{ 'purple': checkIfWasRecord('ao1000', 'moves') }">
+            {{ baseStore.currentAverages[4].moves || 'tbd' }}
+          </span>
+          <span v-if="checkUpMoves(4)" class="red">↑</span>
+          <span v-if="checkDownMoves(4)" class="green">↓</span>
+        </span>
+        <span>
+          <span :class="{ 'purple': checkIfWasRecord('ao1000', 'tps') }">
+            {{ baseStore.currentAverages[4].tps || 'tbd' }}
+          </span>
+          <span v-if="checkUpTPS(4)" class="green">↑</span>
+          <span v-if="checkDownTPS(4)" class="red">↓</span>
+        </span>
+      </div>
     </div>
     <p class="consecutive-solves">
       Consecutive solves: {{ baseStore.consecutiveSolves }}
