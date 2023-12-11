@@ -20,12 +20,12 @@ export const postGame = (game: GameData, keyH: string): void => {
   isFetching.value = true;
   usePostFetchAPI('game', JSON.stringify({ game }) as BodyInit, baseStore.token, keyH)
     .then((res: Response): void => {
-      baseStore.lastGameID = res.game_id!;
+      baseStore.lastGameID = res.public_id!;
       if (baseStore.proMode) {
         if (baseStore.numLines === 3 && res.opt_m != null) {
           baseStore.opt_m = res.opt_m;
         }
-        usePostFetchAPI('update_stats', JSON.stringify({ game_id: baseStore.lastGameID }) as BodyInit, baseStore.token, keyH)
+        usePostFetchAPI('update_stats', JSON.stringify({ game_id: res.game_id }) as BodyInit, baseStore.token, keyH)
           .then((res) => {
             baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
             baseStore.setWasAvgRecords(res.was_avg_records as unknown as WasAvgRecord[]);

@@ -81,7 +81,7 @@ export const useBaseStore = defineStore('base', {
     puzzleLoaded: false,
     inReplay: false,
     replaySpeed: 0,
-    lastGameID: 0,
+    lastGameID: '0',
     playgroundMode: false,
     savedOrders: [] as number[],
     showAddScramble: false,
@@ -120,7 +120,7 @@ export const useBaseStore = defineStore('base', {
       this.setRecords();
       this.afterDoneCount = 0;
       this.solvePath = [];
-      this.lastGameID = 0;
+      this.lastGameID = '0';
       this.clearMarathonData();
       this.renewPuzzle();
       this.doResetList = false;
