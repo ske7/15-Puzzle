@@ -75,7 +75,7 @@ const sortSingleRecords = (a: UserRecord, b: UserRecord): number => {
   if (bestType.value === 'time') {
     if (a.time === b.time) {
       if (Number(b.tps) === Number(a.tps)) {
-        return Number(a.game_id) - Number(b.game_id);
+        return compare(new Date(b.updated_at!).getTime(), new Date(a.updated_at!).getTime());
       }
       return Number(b.tps) - Number(a.tps);
     }
@@ -83,7 +83,7 @@ const sortSingleRecords = (a: UserRecord, b: UserRecord): number => {
   } else {
     if (a.moves === b.moves) {
       if (Number(b.tps) === Number(a.tps)) {
-        return Number(a.game_id) - Number(b.game_id);
+        return compare(new Date(b.updated_at!).getTime(), new Date(a.updated_at!).getTime());
       }
       return Number(b.tps) - Number(a.tps);
     }
@@ -240,7 +240,7 @@ const tbodyHeightMobile = computed(() => {
                 {{ item.name }}
               </td>
               <td v-if="bestType === 'time'" class="min-width w-70">
-                <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.game_id}`" class="link-item">
+                <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.public_id}`" class="link-item">
                   {{ item.time / 1000 }}
                 </a>
                 <span v-else>
@@ -248,7 +248,7 @@ const tbodyHeightMobile = computed(() => {
                 </span>
               </td>
               <td v-if="bestType === 'moves'" class="min-width w-70">
-                <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.game_id}`" class="link-item">
+                <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.public_id}`" class="link-item">
                   {{ item.moves }}
                 </a>
                 <span v-else>

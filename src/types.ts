@@ -62,12 +62,12 @@ export interface GameData {
   id?: number;
   tps?: string;
   created_at?: string;
+  public_id?: string;
   opt_diff?: number;
   gt_id?: number | null;
 }
 
 export interface RepGame {
-  id: number;
   time: number;
   moves: number;
   puzzle_size: number;
@@ -97,7 +97,7 @@ export interface UserRecord {
   avg_time?: string;
   avg_moves?: string;
   avg_tps?: string;
-  game_id?: number;
+  public_id?: string;
   scramble?: string;
 }
 

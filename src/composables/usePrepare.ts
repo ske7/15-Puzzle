@@ -45,7 +45,7 @@ const initStore = (numLines: number): void => {
   baseStore.puzzleLoaded = true;
 };
 
-const checkCurrentUser = (gameId: number): void => {
+const checkCurrentUser = (gameId: string): void => {
   const baseStore = useBaseStore();
 
   if (baseStore.token != null) {
@@ -54,7 +54,7 @@ const checkCurrentUser = (gameId: number): void => {
         baseStore.token = res.token;
         localStorage.setItem('token', String(baseStore.token));
         baseStore.userName = res.name;
-        if (gameId === 0 && !baseStore.playgroundMode) {
+        if (gameId === '0' && !baseStore.playgroundMode) {
           baseStore.loadAverages();
         }
       })
@@ -119,7 +119,7 @@ const checkPlaygroundMode = (locationStr: string, initNumLines: number): void =>
   let numLines = initNumLines;
   if (locationStr.includes('playground')) {
     baseStore.playgroundMode = true;
-    checkCurrentUser(0);
+    checkCurrentUser('0');
     baseStore.g1000Mode = false;
     baseStore.marathonMode = false;
     localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
@@ -165,10 +165,10 @@ const checkG1000 = (locationStr: string): void => {
   }
 };
 
-const checkGameLink = (gameId: number): void => {
+const checkGameLink = (gameId: string): void => {
   const baseStore = useBaseStore();
 
-  if (gameId !== 0) {
+  if (gameId !== '0') {
     baseStore.g1000Mode = false;
     useGetFetchAPI(`game?game_id=${gameId}`, baseStore.token)
       .then((res) => {
@@ -208,11 +208,11 @@ export const usePrepare = (): void => {
 
   checkCageMode(locationStr);
 
-  let gameId = 0;
+  let gameId = '0';
   if (location.href.toLowerCase().includes('game_id')) {
     const searchParams = new URLSearchParams(location.search);
-    const gameIdParam = Number(searchParams.get('game_id'));
-    if (!isNaN(gameIdParam)) {
+    const gameIdParam = searchParams.get('game_id');
+    if (gameIdParam !== null) {
       gameId = gameIdParam;
     }
   }
@@ -221,7 +221,7 @@ export const usePrepare = (): void => {
   checkCurrentUser(gameId);
 
   onMounted(() => {
-    if (gameId === 0 && !baseStore.playgroundMode && !baseStore.g1000Mode) {
+    if (gameId === '0' && !baseStore.playgroundMode && !baseStore.g1000Mode) {
       if (baseStore.enableCageMode) {
         baseStore.loadUnlockedCagesFromLocalStorage();
         baseStore.doPrepareCageMode();
