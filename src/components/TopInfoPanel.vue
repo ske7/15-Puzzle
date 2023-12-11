@@ -39,7 +39,7 @@ const formatDate = (date?: string): string => {
     <div class="info-wrapper">
       <div class="factor-wrapper">
         <span>Time:</span>
-        <a v-if="baseStore.lastGameID && !baseStore.cageMode" :href="`${baseUrl}?game_id=${baseStore.lastGameID}`" class="ml-5 link-item">
+        <a v-if="baseStore.lastGameID !== '0' && !baseStore.cageMode" :href="`${baseUrl}?game_id=${baseStore.lastGameID}`" class="ml-5 link-item">
           {{ baseStore.timeStr }}s
         </a>
         <span v-else class="ml-5">{{ baseStore.timeStr }}s</span>
