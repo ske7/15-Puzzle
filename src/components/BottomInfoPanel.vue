@@ -66,7 +66,7 @@ const doShowLeaderBoard = (): void => {
   baseStore.showLeaderBoard = true;
 };
 const goMain = (): void => {
-  createLinkAndClick(`${baseUrl}`, false);
+  createLinkAndClick(baseUrl, false);
 };
 const goPlayground = (): void => {
   createLinkAndClick(`${baseUrl}?playground`, false);

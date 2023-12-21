@@ -36,7 +36,7 @@ const api = async (endpoint: string, method: string, body?: BodyInit,
         baseStore.userName = undefined;
       }
       const res = await response.json() as Promise<ErrResponse>;
-      error = Error(`${(await res).error ?? response.statusText}`);
+      error = Error((await res).error ?? response.statusText);
       throw error;
     }
     return await (response.json() as Promise<Response>);
