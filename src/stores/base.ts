@@ -103,7 +103,8 @@ export const useBaseStore = defineStore('base', {
     inPlaceCount: 0,
     opt_m: 0,
     resetUnsolvedPuzzleWithEsc: localStorage.getItem('resetUnsolvedPuzzleWithEsc') === 'true',
-    g1000Mode: false
+    g1000Mode: false,
+    sessionId: undefined as (undefined | string)
   }),
   actions: {
     initStore() {
@@ -127,13 +128,16 @@ export const useBaseStore = defineStore('base', {
       this.doneFirstMove = false;
       this.cageImageLoadedCount = 0;
     },
+    setPuzzleData() {
+      this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
+      this.currentOrders = this.mixedOrders.slice();
+      this.inPlaceCount = this.startOrderedCount;
+      this.doneFirstMove = false;
+    },
     renewPuzzle() {
       if (this.g1000Mode) {
         this.getNextG1000().then(() => {
-          this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
-          this.currentOrders = this.mixedOrders.slice();
-          this.inPlaceCount = this.startOrderedCount;
-          this.doneFirstMove = false;
+          this.setPuzzleData();
           this.opt_m = 0;
         })
           .catch(error => {
@@ -150,10 +154,7 @@ export const useBaseStore = defineStore('base', {
       } else {
         this.opt_m = 0;
       }
-      this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
-      this.currentOrders = this.mixedOrders.slice();
-      this.inPlaceCount = this.startOrderedCount;
-      this.doneFirstMove = false;
+      this.setPuzzleData();
     },
     updatePlaygroundStats(res: Response) {
       if (res.stats != null) {
@@ -554,6 +555,15 @@ export const useBaseStore = defineStore('base', {
     },
     resetConsecutiveSolves(): void {
       this.consecutiveSolves = 0;
+    },
+    setSessionId(): void {
+      if (this.token == null || this.userName === undefined) {
+        return;
+      }
+      if (this.consecutiveSolves === 1) {
+        const rand = generateRand().toString().slice(-4);
+        this.sessionId = `${this.userName.slice(0, 2)}${rand}_${btoa(new Date().getTime().toString())}`.toLowerCase().replace(/=/g, '');
+      }
     },
     loadAverages(): void {
       if (this.proMode) {

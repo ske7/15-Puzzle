@@ -41,7 +41,8 @@ export const useWatchGameState = (): void => {
         consecutive_solves: baseStore.consecutiveSolves,
         scramble,
         solve_path: solvePath,
-        gt_id: gtId
+        gt_id: gtId,
+        session_id: baseStore.sessionId
       }, keyH);
     }
   };
@@ -86,6 +87,7 @@ export const useWatchGameState = (): void => {
     if (baseStore.solvedPuzzlesInMarathon === 5) {
       baseStore.stopInterval();
       baseStore.incConsecutiveSolves();
+      baseStore.setSessionId();
       baseStore.marathonScrambles = `${baseStore.marathonScrambles}${baseStore.mixedOrders.join(',')};`;
       baseStore.marathonSolves = `${baseStore.marathonSolves}${baseStore.solvePath.join('')};`;
       setRecords('marathon');
@@ -102,6 +104,7 @@ export const useWatchGameState = (): void => {
   const mainWatch = (): void => {
     baseStore.stopInterval();
     baseStore.incConsecutiveSolves();
+    baseStore.setSessionId();
     setRecords(baseStore.cageMode ? 'cage_standard' : 'standard');
     if (baseStore.cageMode) {
       baseStore.setUnlockedCages();
