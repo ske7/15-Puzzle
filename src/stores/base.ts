@@ -104,7 +104,8 @@ export const useBaseStore = defineStore('base', {
     opt_m: 0,
     resetUnsolvedPuzzleWithEsc: localStorage.getItem('resetUnsolvedPuzzleWithEsc') === 'true',
     g1000Mode: false,
-    sessionId: undefined as (undefined | string)
+    sessionId: undefined as (undefined | string),
+    keepSession: localStorage.getItem('keepSession') === 'true'
   }),
   actions: {
     initStore() {
@@ -133,6 +134,16 @@ export const useBaseStore = defineStore('base', {
       this.currentOrders = this.mixedOrders.slice();
       this.inPlaceCount = this.startOrderedCount;
       this.doneFirstMove = false;
+      if (!this.g1000Mode && this.keepSession) {
+        const cs = localStorage.getItem('_xcs');
+        const sessionId = localStorage.getItem('_xss');
+        if (cs !== null && sessionId !== null) {
+          this.consecutiveSolves = Number(atob(cs));
+          this.sessionId = atob(sessionId);
+        }
+        localStorage.removeItem('_xss');
+        localStorage.removeItem('_xcs');
+      }
     },
     renewPuzzle() {
       if (this.g1000Mode) {
@@ -258,6 +269,8 @@ export const useBaseStore = defineStore('base', {
     },
     reset(configMode: boolean) {
       if (!this.isDone && this.proMode) {
+        localStorage.removeItem('_xss');
+        localStorage.removeItem('_xcs');
         this.resetConsecutiveSolves();
       }
       this.stopInterval();
@@ -555,6 +568,8 @@ export const useBaseStore = defineStore('base', {
     },
     resetConsecutiveSolves(): void {
       this.consecutiveSolves = 0;
+      this.setCurrentAverages({} satisfies AverageStats, true);
+      this.setWasAvgRecords([]);
     },
     setSessionId(): void {
       if (this.token == null || this.userName === undefined) {
@@ -564,11 +579,24 @@ export const useBaseStore = defineStore('base', {
         const rand = generateRand().toString().slice(-4);
         this.sessionId = `${this.userName.slice(0, 2)}${rand}_${btoa(new Date().getTime().toString())}`.toLowerCase().replace(/=/g, '');
       }
+      if (!this.g1000Mode && this.keepSession) {
+        localStorage.setItem('_xss', btoa(this.sessionId!));
+        localStorage.setItem('_xcs', btoa(this.consecutiveSolves.toString()));
+      }
     },
     loadAverages(): void {
       if (this.proMode) {
+        if (!this.g1000Mode && this.keepSession) {
+          const cs = localStorage.getItem('_xcs');
+          const sessionId = localStorage.getItem('_xss');
+          if (cs !== null && sessionId !== null) {
+            this.consecutiveSolves = Number(atob(cs));
+            this.sessionId = atob(sessionId);
+          }
+        }
         const puzzleType = this.marathonMode ? 'marathon' : 'standard';
-        void useGetFetchAPI(`user_averages?puzzle_size=${this.numLines}&puzzle_type=${puzzleType}`,
+        // eslint-disable-next-line vue/max-len
+        void useGetFetchAPI(`user_averages?puzzle_size=${this.numLines}&puzzle_type=${puzzleType}&cs_param=${this.consecutiveSolves}&gt1000mode=${this.g1000Mode}&session_id=${this.sessionId}`,
           this.token)
           .then((res) => {
             this.setCurrentAverages(res.stats as unknown as AverageStats);
@@ -578,7 +606,7 @@ export const useBaseStore = defineStore('base', {
     updateCurrentAverages() {
       if (this.proMode && this.token != null) {
         const puzzleType = this.marathonMode ? 'marathon' : 'standard';
-        void useGetFetchAPI(`user_averages?puzzle_size=${this.numLines}&puzzle_type=${puzzleType}`,
+        void useGetFetchAPI(`user_averages?puzzle_size=${this.numLines}&puzzle_type=${puzzleType}&cs_param=0`,
           this.token)
           .then((res) => {
             this.setCurrentAverages(res.stats as unknown as AverageStats, true);
@@ -592,6 +620,8 @@ export const useBaseStore = defineStore('base', {
       if (!this.playgroundMode) {
         this.updateCurrentAverages();
       }
+      localStorage.removeItem('_xss');
+      localStorage.removeItem('_xcs');
       this.resetConsecutiveSolves();
       this.savedOrders = [];
       eventBus.emit('restart', 'fromConfig');

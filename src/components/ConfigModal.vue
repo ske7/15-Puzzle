@@ -81,6 +81,8 @@ const setProMode = (): void => {
   localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
   baseStore.cageMode = false;
   baseStore.setSpaceBetween();
+  localStorage.removeItem('_xss');
+  localStorage.removeItem('_xcs');
   baseStore.resetConsecutiveSolves();
   if (baseStore.token != null) {
     baseStore.loadAverages();
@@ -93,8 +95,18 @@ const setMarathonMode = (): void => {
   baseStore.enableCageMode = false;
   localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
   baseStore.cageMode = false;
+  localStorage.removeItem('_xss');
+  localStorage.removeItem('_xcs');
   baseStore.resetConsecutiveSolves();
   eventBus.emit('restart', 'fromConfig');
+};
+const setKeepSession = (): void => {
+  baseStore.keepSession = !baseStore.keepSession;
+  localStorage.setItem('keepSession', baseStore.keepSession.toString());
+  if (!baseStore.keepSession) {
+    localStorage.removeItem('_xss');
+    localStorage.removeItem('_xcs');
+  }
 };
 watch(puzzleSize, (newValue) => {
   if (newValue !== 0) {
@@ -245,6 +257,18 @@ watch(marathonMode, () => {
           >
           <label for="marathon-mode">
             Marathon Mode
+          </label>
+        </div>
+        <div v-if="!baseStore.isNetworkError && baseStore.token != null && !baseStore.g1000Mode" class="option">
+          <input
+            id="keep-session"
+            type="checkbox"
+            name="keep-session"
+            :checked="baseStore.keepSession"
+            @change="setKeepSession"
+          >
+          <label for="keep-session">
+            Keep Session
           </label>
         </div>
       </div>

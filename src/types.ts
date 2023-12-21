@@ -114,21 +114,21 @@ export interface UserStats {
 }
 
 export interface AverageStats {
-  ao5t: string;
-  ao5m: string;
-  ao5tps: string;
-  ao12t: string;
-  ao12m: string;
-  ao12tps: string;
-  ao50t: string;
-  ao50m: string;
-  ao50tps: string;
-  ao100t: string;
-  ao100m: string;
-  ao100tps: string;
-  ao1000t: string;
-  ao1000m: string;
-  ao1000tps: string;
+  ao5t?: string;
+  ao5m?: string;
+  ao5tps?: string;
+  ao12t?: string;
+  ao12m?: string;
+  ao12tps?: string;
+  ao50t?: string;
+  ao50m?: string;
+  ao50tps?: string;
+  ao100t?: string;
+  ao100m?: string;
+  ao100tps?: string;
+  ao1000t?: string;
+  ao1000m?: string;
+  ao1000tps?: string;
 }
 
 export interface WasAvgRecord {
