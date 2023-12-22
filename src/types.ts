@@ -114,6 +114,9 @@ export interface UserStats {
 }
 
 export interface AverageStats {
+  aoSt?: string;
+  aoSm?: string;
+  aoStps?: string;
   ao5t?: string;
   ao5m?: string;
   ao5tps?: string;

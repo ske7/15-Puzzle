@@ -519,6 +519,13 @@ export const useBaseStore = defineStore('base', {
       }
       this.currentAverages = [];
       this.currentAverages.push({
+        code: -1,
+        puzzle_size: this.numLines,
+        time: stats?.aoSt,
+        moves: stats?.aoSm,
+        tps: stats?.aoStps
+      });
+      this.currentAverages.push({
         code: 5,
         puzzle_size: this.numLines,
         time: stats?.ao5t,

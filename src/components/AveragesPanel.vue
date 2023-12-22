@@ -134,44 +134,20 @@ const closeLeaderBoard = (): void => {
         <span class="avg-type">ao5</span>
         <span>
           <span :class="{ 'purple': checkIfWasRecord('ao5', 'time') }">
-            {{ baseStore.currentAverages[0].time || 'tbd' }}
+            {{ baseStore.currentAverages[1].time || 'tbd' }}
           </span>
-          <span v-if="checkUpTime(0)" class="red">↑</span>
-          <span v-if="checkDownTime(0)" class="green">↓</span>
+          <span v-if="checkUpTime(1)" class="red">↑</span>
+          <span v-if="checkDownTime(1)" class="green">↓</span>
         </span>
         <span>
           <span :class="{ 'purple': checkIfWasRecord('ao5', 'moves') }">
-            {{ baseStore.currentAverages[0].moves || 'tbd' }}
-          </span>
-          <span v-if="checkUpMoves(0)" class="red">↑</span>
-          <span v-if="checkDownMoves(0)" class="green">↓</span>
-        </span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao5', 'tps') }">
-            {{ baseStore.currentAverages[0].tps || 'tbd' }}
-          </span>
-          <span v-if="checkUpTPS(0)" class="green">↑</span>
-          <span v-if="checkDownTPS(0)" class="red">↓</span>
-        </span>
-      </div>
-      <div class="avg-row">
-        <span class="avg-type">ao12</span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao12', 'time') }">
-            {{ baseStore.currentAverages[1].time || 'tbd' }}
-          </span>
-          <span v-if="checkDownTime(1)" class="green">↓</span>
-          <span v-if="checkUpTime(1)" class="red">↑</span>
-        </span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao12', 'moves') }">
             {{ baseStore.currentAverages[1].moves || 'tbd' }}
           </span>
           <span v-if="checkUpMoves(1)" class="red">↑</span>
           <span v-if="checkDownMoves(1)" class="green">↓</span>
         </span>
         <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao12', 'tps') }">
+          <span :class="{ 'purple': checkIfWasRecord('ao5', 'tps') }">
             {{ baseStore.currentAverages[1].tps || 'tbd' }}
           </span>
           <span v-if="checkUpTPS(1)" class="green">↑</span>
@@ -179,23 +155,23 @@ const closeLeaderBoard = (): void => {
         </span>
       </div>
       <div class="avg-row">
-        <span class="avg-type">ao50</span>
+        <span class="avg-type">ao12</span>
         <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao50', 'time') }">
+          <span :class="{ 'purple': checkIfWasRecord('ao12', 'time') }">
             {{ baseStore.currentAverages[2].time || 'tbd' }}
           </span>
           <span v-if="checkDownTime(2)" class="green">↓</span>
           <span v-if="checkUpTime(2)" class="red">↑</span>
         </span>
         <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao50', 'moves') }">
+          <span :class="{ 'purple': checkIfWasRecord('ao12', 'moves') }">
             {{ baseStore.currentAverages[2].moves || 'tbd' }}
           </span>
           <span v-if="checkUpMoves(2)" class="red">↑</span>
           <span v-if="checkDownMoves(2)" class="green">↓</span>
         </span>
         <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao50', 'tps') }">
+          <span :class="{ 'purple': checkIfWasRecord('ao12', 'tps') }">
             {{ baseStore.currentAverages[2].tps || 'tbd' }}
           </span>
           <span v-if="checkUpTPS(2)" class="green">↑</span>
@@ -203,51 +179,99 @@ const closeLeaderBoard = (): void => {
         </span>
       </div>
       <div class="avg-row">
-        <span class="avg-type">ao100</span>
+        <span class="avg-type">ao50</span>
         <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao100', 'time') }">
+          <span :class="{ 'purple': checkIfWasRecord('ao50', 'time') }">
             {{ baseStore.currentAverages[3].time || 'tbd' }}
           </span>
           <span v-if="checkDownTime(3)" class="green">↓</span>
           <span v-if="checkUpTime(3)" class="red">↑</span>
         </span>
         <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao100', 'moves') }">
+          <span :class="{ 'purple': checkIfWasRecord('ao50', 'moves') }">
             {{ baseStore.currentAverages[3].moves || 'tbd' }}
           </span>
           <span v-if="checkUpMoves(3)" class="red">↑</span>
           <span v-if="checkDownMoves(3)" class="green">↓</span>
         </span>
         <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao100', 'tps') }">
+          <span :class="{ 'purple': checkIfWasRecord('ao50', 'tps') }">
             {{ baseStore.currentAverages[3].tps || 'tbd' }}
           </span>
           <span v-if="checkUpTPS(3)" class="green">↑</span>
           <span v-if="checkDownTPS(3)" class="red">↓</span>
         </span>
       </div>
-      <div v-if="baseStore.g1000Mode" class="avg-row">
-        <span class="avg-type">ao1000</span>
+      <div class="avg-row">
+        <span class="avg-type">ao100</span>
         <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao1000', 'time') }">
+          <span :class="{ 'purple': checkIfWasRecord('ao100', 'time') }">
             {{ baseStore.currentAverages[4].time || 'tbd' }}
           </span>
           <span v-if="checkDownTime(4)" class="green">↓</span>
           <span v-if="checkUpTime(4)" class="red">↑</span>
         </span>
         <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao1000', 'moves') }">
+          <span :class="{ 'purple': checkIfWasRecord('ao100', 'moves') }">
             {{ baseStore.currentAverages[4].moves || 'tbd' }}
           </span>
           <span v-if="checkUpMoves(4)" class="red">↑</span>
           <span v-if="checkDownMoves(4)" class="green">↓</span>
         </span>
         <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao1000', 'tps') }">
+          <span :class="{ 'purple': checkIfWasRecord('ao100', 'tps') }">
             {{ baseStore.currentAverages[4].tps || 'tbd' }}
           </span>
           <span v-if="checkUpTPS(4)" class="green">↑</span>
           <span v-if="checkDownTPS(4)" class="red">↓</span>
+        </span>
+      </div>
+      <div v-if="baseStore.g1000Mode" class="avg-row">
+        <span class="avg-type">ao1000</span>
+        <span>
+          <span :class="{ 'purple': checkIfWasRecord('ao1000', 'time') }">
+            {{ baseStore.currentAverages[5].time || 'tbd' }}
+          </span>
+          <span v-if="checkDownTime(5)" class="green">↓</span>
+          <span v-if="checkUpTime(5)" class="red">↑</span>
+        </span>
+        <span>
+          <span :class="{ 'purple': checkIfWasRecord('ao1000', 'moves') }">
+            {{ baseStore.currentAverages[5].moves || 'tbd' }}
+          </span>
+          <span v-if="checkUpMoves(5)" class="red">↑</span>
+          <span v-if="checkDownMoves(5)" class="green">↓</span>
+        </span>
+        <span>
+          <span :class="{ 'purple': checkIfWasRecord('ao1000', 'tps') }">
+            {{ baseStore.currentAverages[5].tps || 'tbd' }}
+          </span>
+          <span v-if="checkUpTPS(5)" class="green">↑</span>
+          <span v-if="checkDownTPS(5)" class="red">↓</span>
+        </span>
+      </div>
+      <div class="avg-row">
+        <span class="avg-type">aoS</span>
+        <span>
+          <span>
+            {{ baseStore.currentAverages[0].time || 'tbd' }}
+          </span>
+          <span v-if="checkUpTime(0)" class="red">↑</span>
+          <span v-if="checkDownTime(0)" class="green">↓</span>
+        </span>
+        <span>
+          <span>
+            {{ baseStore.currentAverages[0].moves || 'tbd' }}
+          </span>
+          <span v-if="checkUpMoves(0)" class="red">↑</span>
+          <span v-if="checkDownMoves(0)" class="green">↓</span>
+        </span>
+        <span>
+          <span>
+            {{ baseStore.currentAverages[0].tps || 'tbd' }}
+          </span>
+          <span v-if="checkUpTPS(0)" class="green">↑</span>
+          <span v-if="checkDownTPS(0)" class="red">↓</span>
         </span>
       </div>
     </div>
