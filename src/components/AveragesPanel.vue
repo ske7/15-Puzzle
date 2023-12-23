@@ -119,7 +119,7 @@ const closeLeaderBoard = (): void => {
 
 <template>
   <div
-    v-if="!baseStore.replayMode &&
+    v-if="!baseStore.replayMode && !baseStore.playgroundMode &&
       baseStore.currentAverages.length > 0 && !baseStore.hideCurrentAverages && baseStore.proMode"
     class="avg-wrapper"
   >
