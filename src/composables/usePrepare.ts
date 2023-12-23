@@ -75,6 +75,7 @@ const initPlayground = (res: Response, publicId: string): void => {
     baseStore.playgroundBestTime = stats.best_time!;
     baseStore.playgroundBestTimeMoves = stats.best_time_moves!;
     baseStore.playgroundBestMoves = stats.best_moves!;
+    baseStore.playgroundCreatedAt = stats.created_at!;
     if (stats.solve_path != null) {
       baseStore.playgroundSolvePath = stats.solve_path.split('');
     }

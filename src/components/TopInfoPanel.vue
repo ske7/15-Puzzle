@@ -23,7 +23,7 @@ const formatDate = (date?: string): string => {
   <div class="top-info-panel">
     <div v-if="baseStore.replayMode || baseStore.sharedPlaygroundMode" class="replay-row-info">
       <p>Solved by <span>{{ baseStore.sharedPlaygroundMode ? baseStore.otherUserName : baseStore.repGame.name }}</span></p>
-      <p>Date: <span>{{ formatDate(baseStore.repGame.created_at) }}</span></p>
+      <p>Date: <span>{{ formatDate(baseStore.sharedPlaygroundMode ? baseStore.playgroundCreatedAt : baseStore.repGame.created_at) }}</span></p>
       <p v-if="baseStore.replayMode">
         <span>{{ displayedTime(baseStore.repGame.time) }}s | {{ baseStore.repGame.moves }} | {{ baseStore.repGame.tps }}</span>
       </p>

@@ -89,6 +89,7 @@ export const useBaseStore = defineStore('base', {
     playgroundBestTimeMoves: 0,
     playgroundBestMoves: 0,
     playgroundSolvePath: [] as string[],
+    playgroundCreatedAt: undefined as (undefined | string),
     newPlaygroundMovesRecord: false,
     newPlaygroundTimeRecord: false,
     userScrambleId: 0,
