@@ -66,6 +66,7 @@ export interface GameData {
   opt_diff?: number;
   gt_id?: number | null;
   session_id?: string | null;
+  opt_moves?: number;
 }
 
 export interface RepGame {

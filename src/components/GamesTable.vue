@@ -131,6 +131,47 @@ const doSort = (newSortField: string): void => {
   fetched.value = false;
   doFetch();
 };
+const download = (content: string, fileName: string, contentType: string): void => {
+  const a = document.createElement('a');
+  const file = new Blob([content], { type: contentType });
+  a.href = URL.createObjectURL(file);
+  a.download = fileName;
+  a.click();
+};
+const jsonToCSV = (data: GameData[]): string => {
+  const fields = ['public_id', 'created_at', 'consecutive_solves', 'time', 'moves', 'tps', 'scramble', 'solve_path'];
+  if (puzzleSize.value === 3) {
+    fields.splice(5, 0, 'opt_moves');
+  }
+  let csvStr = `${fields.join(',')}\n`;
+  data.forEach(item => {
+    const publicId = item.public_id;
+    const createdAt = formatDate(item.created_at);
+    const consecutiveSolves = item.consecutive_solves;
+    const time = (item.time / 1000.0).toString();
+    const moves = item.moves;
+    const tps = item.tps;
+    const scramble = convertScrambles(item.scramble, puzzleMode.value);
+    const solvePath = shortenSolutionStr(item.solve_path);
+    let optMoves = '';
+    if (puzzleSize.value === 3) {
+      optMoves = `${item.opt_moves},`;
+    }
+    // eslint-disable-next-line vue/max-len
+    csvStr += `${publicId},${createdAt},${consecutiveSolves},${time},${moves},${optMoves}${tps},${scramble},${solvePath}\n`;
+  });
+  return csvStr;
+};
+const doExport = (): void => {
+  useGetFetchAPI(`session_games?puzzle_size=${puzzleSize.value}&puzzle_type=${puzzleMode.value}`, baseStore.token)
+    .then(res => {
+      download(jsonToCSV(res.game_records!), 'games.csv', 'text/plain');
+    })
+    .catch(error => {
+      errorMsg.value = error as string;
+      console.log(errorMsg.value);
+    });
+};
 </script>
 
 <template>
@@ -146,6 +187,9 @@ const doSort = (newSortField: string): void => {
       :choices="puzzleModeChoices"
       :header="'Puzzle Mode'"
     />
+    <div class="export-link-wrapper">
+      <a class="link-item" @click="doExport">Export last session</a>
+    </div>
     <hr class="nice-hr">
     <div id="game-list-table" class="table-wrapper">
       <div class="flex-table table-header">
@@ -331,12 +375,24 @@ const doSort = (newSortField: string): void => {
   margin-bottom: 5px;
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-direction: column;
 }
 .buttons .tool-button {
   width: 100px;
 }
 .puzzle-size-slider-container {
   max-width: 250px;
+}
+.games-wrapper {
+  position: relative;
+}
+.export-link-wrapper {
+  display: block;
+  width: 100%;
+  max-width: 95%;
+  margin: 0 auto;
 }
 .nice-hr {
   max-width: 95%;
@@ -464,6 +520,9 @@ const doSort = (newSortField: string): void => {
   .table-wrapper {
     max-width: 100%;
   }
+  .export-link-wrapper {
+    max-width: 100%;
+  }
   .long-span {
     display: none !important;
   }
@@ -483,6 +542,10 @@ const doSort = (newSortField: string): void => {
   }
   .nice-hr {
     display: none;
+  }
+  .export-link-wrapper {
+    width: auto;
+    margin-bottom: 5px;
   }
   .table-wrapper {
     display: flex;
