@@ -147,36 +147,12 @@ const cannotMove = computed(() => {
   return isDoneAll.value || baseStore.paused || moveDirection.value === Direction.None;
 });
 const move = (control: ControlType): void => {
-  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
-    return;
-  }
-  if (cannotMove.value) {
+  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode ||
+  baseStore.marathonReplay || cannotMove.value) {
     return;
   }
   baseStore.isMoving = true;
-  let diff = Math.abs(baseStore.freeElementIndex + 1 - currentElementIndex.value);
-  if ([Direction.Up, Direction.Down].includes(moveDirection.value)) {
-    diff = diff / baseStore.numLines;
-  }
-  if (diff > 1) {
-    for (let i = 0; i < diff; i++) {
-      switch (moveDirection.value) {
-        case Direction.Left:
-          baseStore.moveLeft(control);
-          break;
-        case Direction.Right:
-          baseStore.moveRight(control);
-          break;
-        case Direction.Up:
-          baseStore.moveUp(control);
-          break;
-        case Direction.Down:
-          baseStore.moveDown(control);
-          break;
-        default:
-      }
-    }
-  } else {
+  if (!baseStore.checkDiffBetweenElementsAndMove(currentElementIndex.value, moveDirection.value, control)) {
     baseStore.saveState(currentElementIndex.value - 1, moveDirection.value, control);
   }
   baseStore.isMoving = false;

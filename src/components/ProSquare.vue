@@ -209,12 +209,12 @@ onMounted(() => {
   align-items: center;
   -webkit-tap-highlight-color: transparent;
   z-index: 2;
-  contain: style size;
+  contain: style size paint;
 }
 canvas {
   border-radius: v-bind(borderRadiusVar);
   cursor: v-bind(getCursor);
-  contain: style size;
+  contain: style size paint;
   width: 100%;
   height: 100%;
 }
