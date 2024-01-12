@@ -106,7 +106,10 @@ export const useBaseStore = defineStore('base', {
     resetUnsolvedPuzzleWithEsc: localStorage.getItem('resetUnsolvedPuzzleWithEsc') === 'true',
     g1000Mode: false,
     sessionId: undefined as (undefined | string),
-    keepSession: localStorage.getItem('keepSession') === 'true'
+    keepSession: localStorage.getItem('keepSession') === 'true',
+    fmcBlitz: localStorage.getItem('fmcBlitz') === 'true',
+    blitzTime: 0,
+    blitzInterval: 0
   }),
   actions: {
     initStore() {
@@ -129,6 +132,7 @@ export const useBaseStore = defineStore('base', {
       this.doResetList = false;
       this.doneFirstMove = false;
       this.cageImageLoadedCount = 0;
+      this.blitzTime = 0;
     },
     setPuzzleData() {
       this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
@@ -285,11 +289,24 @@ export const useBaseStore = defineStore('base', {
       clearInterval(this.interval);
       this.interval = 0;
     },
+    stopBlitzInterval() {
+      clearInterval(this.blitzInterval);
+      this.blitzInterval = 0;
+    },
     restartInterval() {
       this.startTime = Date.now();
       this.interval = window.setInterval(() => {
         this.time = Date.now() - this.startTime + this.savedTime;
       }, 5);
+      if (this.fmcBlitz) {
+        this.blitzTime = 5 * 60 * 1000;
+        if (this.blitzTime === 0) {
+          this.stopBlitzInterval();
+        }
+        this.blitzInterval = window.setInterval(() => {
+          this.blitzTime -= 1000;
+        }, 1000);
+      }
     },
     saveTime() {
       this.savedTime = this.time;
@@ -323,6 +340,33 @@ export const useBaseStore = defineStore('base', {
       if (this.freeElementRow > 1) {
         this.saveState(this.freeElementIndex - this.numLines, Direction.Down, control);
       }
+    },
+    checkDiffBetweenElementsAndMove(currentElementIndex: number, moveDirection: Direction, control: ControlType) {
+      let diff = Math.abs(this.freeElementIndex + 1 - currentElementIndex);
+      if ([Direction.Up, Direction.Down].includes(moveDirection)) {
+        diff = diff / this.numLines;
+      }
+      if (diff > 1) {
+        for (let i = 0; i < diff; i++) {
+          switch (moveDirection) {
+            case Direction.Left:
+              this.moveLeft(control);
+              break;
+            case Direction.Right:
+              this.moveRight(control);
+              break;
+            case Direction.Up:
+              this.moveUp(control);
+              break;
+            case Direction.Down:
+              this.moveDown(control);
+              break;
+            default:
+          }
+        }
+        return true;
+      }
+      return false;
     },
     saveState(currentElementIndex: number, moveDirection: Direction, control: ControlType) {
       if (!this.doneFirstMove) {
@@ -671,6 +715,9 @@ export const useBaseStore = defineStore('base', {
     },
     timeStr(): string {
       return displayedTime(this.time);
+    },
+    blitzTimeStr(): string {
+      return displayedTime(this.blitzTime);
     },
     showModal(): boolean {
       return this.showConfig || this.showInfo || this.showWinModal ||

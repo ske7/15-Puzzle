@@ -23,7 +23,7 @@ const currentOrder = computed(() => {
   return baseStore.currentOrders[props.order];
 });
 const { elementCol, elementRow, canMoveRight, canMoveLeft, canMoveUp, canMoveDown } =
-  useCanMove(currentElementIndex);
+  useCanMove(currentElementIndex, props.squareSize);
 
 const sizeVar = computed(() => {
   return `${props.squareSize}px`;
@@ -146,43 +146,6 @@ const moveDirection = computed(() => {
 const cannotMove = computed(() => {
   return isDoneAll.value || baseStore.paused || moveDirection.value === Direction.None;
 });
-
-const moveByTouch = (e: TouchEvent): void => {
-  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
-    return;
-  }
-  if (!isFreeElement.value || isDoneAll.value || baseStore.paused) {
-    return;
-  }
-  baseStore.isMoving = true;
-  const posX = calculatedLeft.value + baseStore.boardPos.left;
-  const posY = calculatedTop.value + baseStore.boardPos.top;
-  if (e.touches[0].clientX > posX + props.squareSize &&
-     e.touches[0].clientY >= baseStore.boardPos.top && e.touches[0].clientY <= baseStore.boardPos.bottom) {
-    baseStore.moveLeft(ControlType.Touch);
-    baseStore.isMoving = false;
-    return;
-  }
-  if (e.touches[0].clientX < posX &&
-    e.touches[0].clientY >= baseStore.boardPos.top && e.touches[0].clientY <= baseStore.boardPos.bottom) {
-    baseStore.moveRight(ControlType.Touch);
-    baseStore.isMoving = false;
-    return;
-  }
-  if (e.touches[0].clientY > posY + props.squareSize &&
-    e.touches[0].clientX >= baseStore.boardPos.left && e.touches[0].clientX <= baseStore.boardPos.right) {
-    baseStore.moveUp(ControlType.Touch);
-    baseStore.isMoving = false;
-    return;
-  }
-  if (e.touches[0].clientY < posY &&
-    e.touches[0].clientX >= baseStore.boardPos.left && e.touches[0].clientX <= baseStore.boardPos.right) {
-    baseStore.moveDown(ControlType.Touch);
-    baseStore.isMoving = false;
-  }
-  baseStore.isMoving = false;
-};
-
 const move = (control: ControlType): void => {
   if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
     return;
@@ -299,9 +262,6 @@ const listener = (event: string, payload: unknown): void => {
   if (event === 'restart' && ['fromConfig', 'fromKeyboard'].includes(payload as string)) {
     isCaptured.value = false;
     isNoBorder.value = false;
-  }
-  if (event === 'touchmove-from-board') {
-    moveByTouch(payload as TouchEvent);
   }
 };
 

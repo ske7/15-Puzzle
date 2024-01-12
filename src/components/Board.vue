@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch, reactive } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useElementBounding, useEventBus } from '@vueuse/core';
+import { useElementBounding } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { getSquareSize } from '../composables/usePrepare';
 import { useCanMove } from '../composables/useCanMove';
-import { cores } from '@/const';
+import { cores, ControlType, Direction } from '@/const';
 import Square from './Square.vue';
 import ProSquare from './ProSquare.vue';
 
@@ -52,15 +52,10 @@ watch(finishLoadingAllCageImages, value => {
   }
 });
 
-const eventBus = useEventBus<string>('event-bus');
-const touchMove = (e: TouchEvent): void => {
-  if (!(baseStore.hoverOnControl && baseStore.proMode) || baseStore.isMoving || baseStore.inReplay ||
-  baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
-    return;
-  }
+const getSid = (e: TouchEvent): null | string => {
   let element = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
   if (element === null) {
-    return;
+    return null;
   }
   let sid = element.getAttribute('sid');
   while (sid === null) {
@@ -71,17 +66,73 @@ const touchMove = (e: TouchEvent): void => {
       break;
     }
   }
+  return sid;
+};
+
+// eslint-disable-next-line max-statements
+const touchMove = (e: TouchEvent): void => {
+  if (!(baseStore.hoverOnControl && baseStore.proMode) || baseStore.isMoving || baseStore.inReplay ||
+    baseStore.sharedPlaygroundMode || baseStore.marathonReplay || baseStore.paused || baseStore.isDone) {
+    return;
+  }
+  const sid = getSid(e);
   if (sid === null) {
     return;
   }
   const sidValue = computed(() => {
     return Number(sid);
   });
-  const { canMove } = useCanMove(sidValue);
-  if (!(canMove.value as boolean)) {
+  const { canMove, isFreeElement, elementRow, elementCol, calculatedLeft, calculatedTop } =
+  useCanMove(sidValue, squareSize.value);
+  if (!(canMove.value as boolean) || (isFreeElement.value as boolean)) {
     return;
   }
-  eventBus.emit('touchmove-from-board', e);
+  baseStore.isMoving = true;
+  const clientX = e.touches[0].clientX - baseStore.boardPos.left;
+  const clientY = e.touches[0].clientY - baseStore.boardPos.top;
+  const posX = Number(calculatedLeft.value);
+  const posY = Number(calculatedTop.value);
+  if (baseStore.freeElementIndex < Number(sid) - 1 && clientX >= posX && clientX < posX + squareSize.value &&
+  clientY >= posY && clientY < posY + squareSize.value &&
+  clientY <= baseStore.boardPos.bottom - baseStore.boardPos.top &&
+  elementRow.value === baseStore.freeElementRow) {
+    if (!baseStore.checkDiffBetweenElementsAndMove(Number(sid), Direction.Left, ControlType.Touch)) {
+      baseStore.moveLeft(ControlType.Touch);
+    }
+    baseStore.isMoving = false;
+    return;
+  }
+  if (baseStore.freeElementIndex > Number(sid) - 1 && clientX >= posX && clientX < posX + squareSize.value &&
+    clientY >= posY && clientY < posY + squareSize.value &&
+    clientY <= baseStore.boardPos.bottom - baseStore.boardPos.top &&
+    elementRow.value === baseStore.freeElementRow) {
+    if (!baseStore.checkDiffBetweenElementsAndMove(Number(sid), Direction.Right, ControlType.Touch)) {
+      baseStore.moveRight(ControlType.Touch);
+    }
+    baseStore.isMoving = false;
+    return;
+  }
+  if (baseStore.freeElementIndex < Number(sid) - 1 && clientY >= posY && clientY < posY + squareSize.value &&
+    clientX >= posX && clientX < posX + squareSize.value &&
+    clientX <= baseStore.boardPos.right - baseStore.boardPos.left &&
+    elementCol.value === baseStore.freeElementCol) {
+    if (!baseStore.checkDiffBetweenElementsAndMove(Number(sid), Direction.Up, ControlType.Touch)) {
+      baseStore.moveUp(ControlType.Touch);
+    }
+    baseStore.isMoving = false;
+    return;
+  }
+  if (baseStore.freeElementIndex > Number(sid) - 1 && clientY >= posY && clientY < posY + squareSize.value &&
+    clientX >= posX && clientX < posX + squareSize.value &&
+    clientX <= baseStore.boardPos.right - baseStore.boardPos.left &&
+    elementCol.value === baseStore.freeElementCol) {
+    if (!baseStore.checkDiffBetweenElementsAndMove(Number(sid), Direction.Down, ControlType.Touch)) {
+      baseStore.moveDown(ControlType.Touch);
+    }
+    baseStore.isMoving = false;
+    return;
+  }
+  baseStore.isMoving = false;
 };
 
 const showProSquare = computed(() => {
@@ -93,6 +144,12 @@ const changePuzzleSize = (puzzleSize: number): void => {
   baseStore.numLines = puzzleSize;
   baseStore.initAfterNewPuzzleSize();
 };
+const filteredCores = computed(() => {
+  if (baseStore.fmcBlitz) {
+    return [3, 4];
+  }
+  return cores;
+});
 </script>
 
 <template>
@@ -158,7 +215,7 @@ const changePuzzleSize = (puzzleSize: number): void => {
     </div>
     <div v-if="!baseStore.replayMode && !baseStore.sharedPlaygroundMode && !baseStore.cageMode && !baseStore.g1000Mode" class="puzzle-sizes">
       <span
-        v-for="(item, index) in cores"
+        v-for="(item, index) in filteredCores"
         :key="index"
         :class="{ 'selected': baseStore.numLines === item }"
         @click="changePuzzleSize(item)"

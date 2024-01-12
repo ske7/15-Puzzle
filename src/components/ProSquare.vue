@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { Direction, ControlType } from '@/const';
-import { useEventBus, useWindowSize } from '@vueuse/core';
+import { useWindowSize } from '@vueuse/core';
 import { useCanMove } from '../composables/useCanMove';
 import { getTileColor } from '@/colors';
 import { getArrayKeyByValue } from '@/utils';
@@ -25,9 +25,9 @@ const cOrder = computed(() => {
   return props.order + 1;
 });
 const { canMoveRight, canMoveLeft, canMoveUp, canMoveDown } =
-  useCanMove(currentElementIndex);
+  useCanMove(currentElementIndex, props.squareSize);
 const { elementCol, elementRow } =
-  useCanMove(cOrder);
+  useCanMove(cOrder, props.squareSize);
 
 const sizeVar = computed(() => {
   return `${props.squareSize}px`;
@@ -87,9 +87,6 @@ const calculatedLeftBind = computed(() => {
   return `${calculatedLeft.value.toFixed(1)}px`;
 });
 
-const isFreeElement = computed(() => {
-  return currentOrder.value === 0;
-});
 const isDoneAll = computed(() => {
   return baseStore.isDone;
 });
@@ -110,67 +107,12 @@ const cannotMove = computed(() => {
   return isDoneAll.value || baseStore.paused || moveDirection.value === Direction.None;
 });
 
-const moveByTouch = (e: TouchEvent): void => {
-  if (baseStore.isMoving || !isFreeElement.value || isDoneAll.value || baseStore.paused) {
-    return;
-  }
-  baseStore.isMoving = true;
-  const posX = calculatedLeft.value + baseStore.boardPos.left;
-  const posY = calculatedTop.value + baseStore.boardPos.top;
-  if (e.touches[0].clientX > posX + props.squareSize &&
-     e.touches[0].clientY >= baseStore.boardPos.top && e.touches[0].clientY <= baseStore.boardPos.bottom) {
-    baseStore.moveLeft(ControlType.Touch);
-    baseStore.isMoving = false;
-    return;
-  }
-  if (e.touches[0].clientX < posX &&
-    e.touches[0].clientY >= baseStore.boardPos.top && e.touches[0].clientY <= baseStore.boardPos.bottom) {
-    baseStore.moveRight(ControlType.Touch);
-    baseStore.isMoving = false;
-    return;
-  }
-  if (e.touches[0].clientY > posY + props.squareSize &&
-    e.touches[0].clientX >= baseStore.boardPos.left && e.touches[0].clientX <= baseStore.boardPos.right) {
-    baseStore.moveUp(ControlType.Touch);
-    baseStore.isMoving = false;
-    return;
-  }
-  if (e.touches[0].clientY < posY &&
-    e.touches[0].clientX >= baseStore.boardPos.left && e.touches[0].clientX <= baseStore.boardPos.right) {
-    baseStore.moveDown(ControlType.Touch);
-    baseStore.isMoving = false;
-  }
-  baseStore.isMoving = false;
-};
-
 const move = (control: ControlType): void => {
   if (baseStore.isMoving || cannotMove.value) {
     return;
   }
   baseStore.isMoving = true;
-  let diff = Math.abs(baseStore.freeElementIndex + 1 - currentElementIndex.value);
-  if ([Direction.Up, Direction.Down].includes(moveDirection.value)) {
-    diff = diff / baseStore.numLines;
-  }
-  if (diff > 1) {
-    for (let i = 0; i < diff; i++) {
-      switch (moveDirection.value) {
-        case Direction.Left:
-          baseStore.moveLeft(control);
-          break;
-        case Direction.Right:
-          baseStore.moveRight(control);
-          break;
-        case Direction.Up:
-          baseStore.moveUp(control);
-          break;
-        case Direction.Down:
-          baseStore.moveDown(control);
-          break;
-        default:
-      }
-    }
-  } else {
+  if (!baseStore.checkDiffBetweenElementsAndMove(currentElementIndex.value, moveDirection.value, control)) {
     baseStore.saveState(currentElementIndex.value - 1, moveDirection.value, control);
   }
   baseStore.isMoving = false;
@@ -189,12 +131,6 @@ const getCursor = computed(() => {
   return 'pointer';
 });
 
-const eventBus = useEventBus<string>('event-bus');
-const listener = (event: string, payload: unknown): void => {
-  if (event === 'touchmove-from-board') {
-    moveByTouch(payload as TouchEvent);
-  }
-};
 watch(currentOrder, (newValue, oldValue) => {
   if (!baseStore.doneFirstMove) {
     return;
@@ -228,7 +164,6 @@ const setCanvasBg = (value: string): void => {
 };
 onMounted(() => {
   initPosition();
-  eventBus.on(listener);
   if (squareCanvas.value !== null) {
     squareCanvas.value.style.width = sizeVar.value;
     squareCanvas.value.style.height = sizeVar.value;
@@ -244,9 +179,6 @@ onMounted(() => {
     context.value!.fillStyle = '#0a0a23';
     context.value!.fillText(currentOrder.value.toString() === '0' ? '' : currentOrder.value.toString(), props.squareSize / 2, props.squareSize / 2);
   }
-});
-onUnmounted(() => {
-  eventBus.off(listener);
 });
 </script>
 
@@ -277,12 +209,12 @@ onUnmounted(() => {
   align-items: center;
   -webkit-tap-highlight-color: transparent;
   z-index: 2;
-  contain: strict;
+  contain: style size;
 }
 canvas {
   border-radius: v-bind(borderRadiusVar);
   cursor: v-bind(getCursor);
-  contain: strict;
+  contain: style size;
   width: 100%;
   height: 100%;
 }
