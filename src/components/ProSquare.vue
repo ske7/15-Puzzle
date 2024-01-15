@@ -192,7 +192,7 @@ onMounted(() => {
       :height="props.squareSize"
       @mousedown.left="move(ControlType.Mouse)"
       @touchstart.prevent="move(ControlType.Touch)"
-      @mousemove.prevent="moveByMouse"
+      @mouseenter.prevent="moveByMouse"
     />
   </div>
 </template>
@@ -209,12 +209,12 @@ onMounted(() => {
   align-items: center;
   -webkit-tap-highlight-color: transparent;
   z-index: 2;
-  contain: style size paint;
+  contain: style size;
 }
 canvas {
   border-radius: v-bind(borderRadiusVar);
   cursor: v-bind(getCursor);
-  contain: style size paint;
+  contain: style size;
   width: 100%;
   height: 100%;
 }
