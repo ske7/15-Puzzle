@@ -563,6 +563,9 @@ export const useBaseStore = defineStore('base', {
         this.prevAverages = this.currentAverages;
       }
       this.currentAverages = [];
+      if (this.token == null) {
+        return;
+      }
       this.currentAverages.push({
         code: -1,
         puzzle_size: this.numLines,
