@@ -1,7 +1,7 @@
 import { onMounted, onBeforeUnmount } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
-import { ControlType, cores } from '@/const';
+import { CORE_NUM, ControlType, cores } from '@/const';
 import { convertToNumbersArray } from '@/utils';
 
 export const useKeyDown = (): void => {
@@ -46,23 +46,37 @@ export const useKeyDown = (): void => {
     return false;
   };
 
+  const checkPageUp = (): boolean => {
+    if (baseStore.numLines === cores.slice(-1)[0]) {
+      return false;
+    }
+    if (baseStore.fmcBlitz && baseStore.numLines === CORE_NUM) {
+      return false;
+    }
+    baseStore.numLines += 1;
+    baseStore.initAfterNewPuzzleSize();
+    return true;
+  };
+
+  const checkPageDown = (): boolean => {
+    if (baseStore.numLines === cores[0]) {
+      return false;
+    }
+    if (baseStore.fmcBlitz && baseStore.numLines === 3) {
+      return false;
+    }
+    baseStore.numLines -= 1;
+    baseStore.initAfterNewPuzzleSize();
+    return true;
+  };
+
   const listenChangePuzzleSize = (code: string): boolean => {
     if (!baseStore.showModal && !baseStore.cageMode && !baseStore.replayMode &&
       !baseStore.sharedPlaygroundMode && !baseStore.g1000Mode) {
-      if (code === 'PageUp') {
-        if (baseStore.numLines === cores.slice(-1)[0]) {
-          return false;
-        }
-        baseStore.numLines += 1;
-        baseStore.initAfterNewPuzzleSize();
-        return true;
-      } else if (code === 'PageDown') {
-        if (baseStore.numLines === cores[0]) {
-          return false;
-        }
-        baseStore.numLines -= 1;
-        baseStore.initAfterNewPuzzleSize();
-        return true;
+      if (code === 'PageUp' || code === 'NumpadAdd') {
+        return checkPageUp();
+      } else if (code === 'PageDown' || code === 'NumpadSubtract') {
+        return checkPageDown();
       }
     }
     return false;

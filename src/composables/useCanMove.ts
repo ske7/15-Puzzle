@@ -1,9 +1,10 @@
 import { computed, type ComputedRef } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { getElementCol, getElementRow } from '../utils';
+import { Direction } from '@/const';
 
 export const useCanMove = (refValue: ComputedRef<number>,
-  squareSize: number): Record<string, ComputedRef<boolean | number>> => {
+  squareSize: number): Record<string, ComputedRef<boolean | number | Direction>> => {
   const baseStore = useBaseStore();
 
   const elementCol = computed(() => {
@@ -43,6 +44,19 @@ export const useCanMove = (refValue: ComputedRef<number>,
     return canMoveRight.value || canMoveLeft.value || canMoveUp.value || canMoveDown.value;
   });
 
+  const moveDirection = computed(() => {
+    if (canMoveRight.value) {
+      return Direction.Right;
+    } else if (canMoveLeft.value) {
+      return Direction.Left;
+    } else if (canMoveUp.value) {
+      return Direction.Up;
+    } else if (canMoveDown.value) {
+      return Direction.Down;
+    }
+    return Direction.None;
+  });
+
   return {
     elementCol,
     elementRow,
@@ -53,6 +67,7 @@ export const useCanMove = (refValue: ComputedRef<number>,
     canMoveDown,
     canMove,
     calculatedLeft,
-    calculatedTop
+    calculatedTop,
+    moveDirection
   };
 };

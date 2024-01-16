@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, reactive } from 'vue';
+import { computed, ref, watch, reactive, type ComputedRef } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
@@ -52,8 +52,8 @@ watch(finishLoadingAllCageImages, value => {
   }
 });
 
-const getSid = (e: TouchEvent): null | string => {
-  let element = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+const getSid = (clientX: number, clientY: number): null | ComputedRef<number> => {
+  let element = document.elementFromPoint(clientX, clientY);
   if (element === null) {
     return null;
   }
@@ -66,24 +66,79 @@ const getSid = (e: TouchEvent): null | string => {
       break;
     }
   }
-  return sid;
+  const sidValue = computed(() => {
+    return Number(sid);
+  });
+  return sidValue;
 };
 
-// eslint-disable-next-line max-statements
+const touchMoveLeft = (clientX: number, clientY: number, posX: number, posY: number,
+  elementRow: number, sid: number): boolean => {
+  if (baseStore.freeElementIndex < sid - 1 && clientX >= posX && clientX < posX + squareSize.value &&
+    clientY >= posY && clientY < posY + squareSize.value &&
+    clientY <= baseStore.boardPos.bottom - baseStore.boardPos.top &&
+    elementRow === baseStore.freeElementRow) {
+    if (!baseStore.checkDiffBetweenElementsAndMove(sid, Direction.Left, ControlType.Touch)) {
+      baseStore.moveLeft(ControlType.Touch);
+    }
+    baseStore.isMoving = false;
+    return true;
+  }
+  return false;
+};
+const touchMoveRight = (clientX: number, clientY: number, posX: number, posY: number,
+  elementRow: number, sid: number): boolean => {
+  if (baseStore.freeElementIndex > sid - 1 && clientX >= posX && clientX < posX + squareSize.value &&
+      clientY >= posY && clientY < posY + squareSize.value &&
+      clientY <= baseStore.boardPos.bottom - baseStore.boardPos.top &&
+      elementRow === baseStore.freeElementRow) {
+    if (!baseStore.checkDiffBetweenElementsAndMove(sid, Direction.Right, ControlType.Touch)) {
+      baseStore.moveRight(ControlType.Touch);
+    }
+    baseStore.isMoving = false;
+    return true;
+  }
+  return false;
+};
+const touchMoveUp = (clientX: number, clientY: number, posX: number, posY: number,
+  elementCol: number, sid: number): boolean => {
+  if (baseStore.freeElementIndex < sid - 1 && clientY >= posY && clientY < posY + squareSize.value &&
+    clientX >= posX && clientX < posX + squareSize.value &&
+    clientX <= baseStore.boardPos.right - baseStore.boardPos.left &&
+    elementCol === baseStore.freeElementCol) {
+    if (!baseStore.checkDiffBetweenElementsAndMove(sid, Direction.Up, ControlType.Touch)) {
+      baseStore.moveUp(ControlType.Touch);
+    }
+    baseStore.isMoving = false;
+    return true;
+  }
+  return false;
+};
+const touchMoveDown = (clientX: number, clientY: number, posX: number, posY: number,
+  elementCol: number, sid: number): boolean => {
+  if (baseStore.freeElementIndex > sid - 1 && clientY >= posY && clientY < posY + squareSize.value &&
+    clientX >= posX && clientX < posX + squareSize.value &&
+    clientX <= baseStore.boardPos.right - baseStore.boardPos.left &&
+    elementCol === baseStore.freeElementCol) {
+    if (!baseStore.checkDiffBetweenElementsAndMove(sid, Direction.Down, ControlType.Touch)) {
+      baseStore.moveDown(ControlType.Touch);
+    }
+    baseStore.isMoving = false;
+    return true;
+  }
+  return false;
+};
 const touchMove = (e: TouchEvent): void => {
   if (!(baseStore.hoverOnControl && baseStore.proMode) || baseStore.isMoving || baseStore.inReplay ||
     baseStore.sharedPlaygroundMode || baseStore.marathonReplay || baseStore.paused || baseStore.isDone) {
     return;
   }
-  const sid = getSid(e);
+  const sid = getSid(e.touches[0].clientX, e.touches[0].clientY);
   if (sid === null) {
     return;
   }
-  const sidValue = computed(() => {
-    return Number(sid);
-  });
   const { canMove, isFreeElement, elementRow, elementCol, calculatedLeft, calculatedTop } =
-  useCanMove(sidValue, squareSize.value);
+  useCanMove(sid, squareSize.value);
   if (!(canMove.value as boolean) || (isFreeElement.value as boolean)) {
     return;
   }
@@ -92,44 +147,16 @@ const touchMove = (e: TouchEvent): void => {
   const clientY = e.touches[0].clientY - baseStore.boardPos.top;
   const posX = Number(calculatedLeft.value);
   const posY = Number(calculatedTop.value);
-  if (baseStore.freeElementIndex < Number(sid) - 1 && clientX >= posX && clientX < posX + squareSize.value &&
-  clientY >= posY && clientY < posY + squareSize.value &&
-  clientY <= baseStore.boardPos.bottom - baseStore.boardPos.top &&
-  elementRow.value === baseStore.freeElementRow) {
-    if (!baseStore.checkDiffBetweenElementsAndMove(Number(sid), Direction.Left, ControlType.Touch)) {
-      baseStore.moveLeft(ControlType.Touch);
-    }
-    baseStore.isMoving = false;
+  if (touchMoveLeft(clientX, clientY, posX, posY, Number(elementRow.value), sid.value)) {
     return;
   }
-  if (baseStore.freeElementIndex > Number(sid) - 1 && clientX >= posX && clientX < posX + squareSize.value &&
-    clientY >= posY && clientY < posY + squareSize.value &&
-    clientY <= baseStore.boardPos.bottom - baseStore.boardPos.top &&
-    elementRow.value === baseStore.freeElementRow) {
-    if (!baseStore.checkDiffBetweenElementsAndMove(Number(sid), Direction.Right, ControlType.Touch)) {
-      baseStore.moveRight(ControlType.Touch);
-    }
-    baseStore.isMoving = false;
+  if (touchMoveRight(clientX, clientY, posX, posY, Number(elementRow.value), sid.value)) {
     return;
   }
-  if (baseStore.freeElementIndex < Number(sid) - 1 && clientY >= posY && clientY < posY + squareSize.value &&
-    clientX >= posX && clientX < posX + squareSize.value &&
-    clientX <= baseStore.boardPos.right - baseStore.boardPos.left &&
-    elementCol.value === baseStore.freeElementCol) {
-    if (!baseStore.checkDiffBetweenElementsAndMove(Number(sid), Direction.Up, ControlType.Touch)) {
-      baseStore.moveUp(ControlType.Touch);
-    }
-    baseStore.isMoving = false;
+  if (touchMoveUp(clientX, clientY, posX, posY, Number(elementCol.value), sid.value)) {
     return;
   }
-  if (baseStore.freeElementIndex > Number(sid) - 1 && clientY >= posY && clientY < posY + squareSize.value &&
-    clientX >= posX && clientX < posX + squareSize.value &&
-    clientX <= baseStore.boardPos.right - baseStore.boardPos.left &&
-    elementCol.value === baseStore.freeElementCol) {
-    if (!baseStore.checkDiffBetweenElementsAndMove(Number(sid), Direction.Down, ControlType.Touch)) {
-      baseStore.moveDown(ControlType.Touch);
-    }
-    baseStore.isMoving = false;
+  if (touchMoveDown(clientX, clientY, posX, posY, Number(elementCol.value), sid.value)) {
     return;
   }
   baseStore.isMoving = false;
@@ -150,6 +177,27 @@ const filteredCores = computed(() => {
   }
   return cores;
 });
+const move = (currentElementIndex: number, moveDirection: Direction, control: ControlType): void => {
+  if (baseStore.isMoving || baseStore.isDone || baseStore.paused || moveDirection === Direction.None) {
+    return;
+  }
+  baseStore.isMoving = true;
+  if (!baseStore.checkDiffBetweenElementsAndMove(currentElementIndex, moveDirection, control)) {
+    baseStore.saveState(currentElementIndex - 1, moveDirection, control);
+  }
+  baseStore.isMoving = false;
+};
+const moveByMouse = (e: MouseEvent): void => {
+  if (!(baseStore.hoverOnControl && baseStore.proMode) || e.ctrlKey) {
+    return;
+  }
+  const sid = getSid(e.clientX, e.clientY);
+  if (sid === null) {
+    return;
+  }
+  const { moveDirection } = useCanMove(sid, squareSize.value);
+  move(sid.value, moveDirection.value as Direction, ControlType.Mouse);
+};
 </script>
 
 <template>
@@ -202,7 +250,12 @@ const filteredCores = computed(() => {
                   'loading-veil': baseStore.cageMode && !baseStore.finishLoadingAllCageImages }"
       />
     </div>
-    <div v-if="showProSquare && baseStore.currentOrders.length > 0" :key="baseStore.mixedOrders.length" class="p-container">
+    <div
+      v-if="showProSquare && baseStore.currentOrders.length > 0"
+      :key="baseStore.mixedOrders.length"
+      class="p-container"
+      @mousemove.prevent="moveByMouse"
+    >
       <Pro-Square
         v-for="(_value, index) in baseStore.mixedOrders"
         :key="index"
