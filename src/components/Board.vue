@@ -177,27 +177,6 @@ const filteredCores = computed(() => {
   }
   return cores;
 });
-const move = (currentElementIndex: number, moveDirection: Direction, control: ControlType): void => {
-  if (baseStore.isMoving || baseStore.isDone || baseStore.paused || moveDirection === Direction.None) {
-    return;
-  }
-  baseStore.isMoving = true;
-  if (!baseStore.checkDiffBetweenElementsAndMove(currentElementIndex, moveDirection, control)) {
-    baseStore.saveState(currentElementIndex - 1, moveDirection, control);
-  }
-  baseStore.isMoving = false;
-};
-const moveByMouse = (e: MouseEvent): void => {
-  if (!(baseStore.hoverOnControl && baseStore.proMode) || e.ctrlKey) {
-    return;
-  }
-  const sid = getSid(e.clientX, e.clientY);
-  if (sid === null) {
-    return;
-  }
-  const { moveDirection } = useCanMove(sid, squareSize.value);
-  move(sid.value, moveDirection.value as Direction, ControlType.Mouse);
-};
 </script>
 
 <template>
@@ -254,7 +233,6 @@ const moveByMouse = (e: MouseEvent): void => {
       v-if="showProSquare && baseStore.currentOrders.length > 0"
       :key="baseStore.mixedOrders.length"
       class="p-container"
-      @mousemove.prevent="moveByMouse"
     >
       <Pro-Square
         v-for="(_value, index) in baseStore.mixedOrders"

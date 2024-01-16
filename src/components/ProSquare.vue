@@ -117,6 +117,13 @@ const move = (control: ControlType): void => {
   }
   baseStore.isMoving = false;
 };
+const moveByMouse = (event: MouseEvent): void => {
+  if (!(baseStore.hoverOnControl && baseStore.proMode) || event.ctrlKey) {
+    return;
+  }
+  move(ControlType.Mouse);
+};
+
 const getCursor = computed(() => {
   if ((baseStore.hoverOnControl && baseStore.proMode) || cannotMove.value) {
     return 'auto';
@@ -185,6 +192,7 @@ onMounted(() => {
       :height="props.squareSize"
       @mousedown.left="move(ControlType.Mouse)"
       @touchstart.prevent="move(ControlType.Touch)"
+      @mouseenter.prevent="moveByMouse"
     />
   </div>
 </template>
