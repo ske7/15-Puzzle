@@ -339,7 +339,7 @@ const disableSave = computed(() => {
         </span> out of {{ baseStore.marathonMode ? 5 : baseStore.blitzScrambleCount }} puzzles
       </p>
       <p v-if="baseStore.fmcBlitz" class="center">
-        T: {{ baseStore.blitzTimeStr }} | M: {{ baseStore.solvedPuzzlesInMarathon === baseStore.blitzScrambleCount ? baseStore.blitzMovesCount : baseStore.blitzMovesCount + baseStore.movesCount }}
+        T: {{ baseStore.blitzTimeStr }} | M: {{ baseStore.solvedPuzzlesInMarathon === baseStore.blitzScrambleCount || baseStore.interval === 0 ? baseStore.blitzMovesCount : baseStore.blitzMovesCount + baseStore.movesCount }}
       </p>
     </div>
     <div class="reg-wrapper" :class="{ paused: cannotClick }">
