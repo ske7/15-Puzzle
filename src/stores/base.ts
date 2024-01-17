@@ -113,7 +113,8 @@ export const useBaseStore = defineStore('base', {
     blitzTime: 0,
     blitzInterval: 0,
     blitzScrambleCount: 0,
-    blitzMovesCount: 0
+    blitzMovesCount: 0,
+    isTimeFailed: false
   }),
   actions: {
     initStore() {
@@ -137,6 +138,7 @@ export const useBaseStore = defineStore('base', {
       this.doResetList = false;
       this.doneFirstMove = false;
       this.cageImageLoadedCount = 0;
+      this.isTimeFailed = false;
       if (this.fmcBlitz) {
         this.blitzScrambleCount = this.numLines === 3 ? 50 : 12;
         this.stopBlitzInterval();

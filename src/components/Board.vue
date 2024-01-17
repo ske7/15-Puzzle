@@ -130,7 +130,8 @@ const touchMoveDown = (clientX: number, clientY: number, posX: number, posY: num
 };
 const touchMove = (e: TouchEvent): void => {
   if (!(baseStore.hoverOnControl && baseStore.proMode) || baseStore.isMoving || baseStore.inReplay ||
-    baseStore.sharedPlaygroundMode || baseStore.marathonReplay || baseStore.paused || baseStore.isDone) {
+    baseStore.sharedPlaygroundMode || baseStore.marathonReplay || baseStore.paused ||
+    baseStore.isDone || baseStore.isTimeFailed) {
     return;
   }
   const sid = getSid(e.touches[0].clientX, e.touches[0].clientY);

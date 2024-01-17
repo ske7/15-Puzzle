@@ -21,7 +21,8 @@ export const useKeyDown = (): void => {
       if (ctrlDown) {
         baseStore.savedOrders = [];
       }
-      if (!(baseStore.resetUnsolvedPuzzleWithEsc || baseStore.g1000Mode) || baseStore.isDone) {
+      if (!(baseStore.resetUnsolvedPuzzleWithEsc || baseStore.g1000Mode) ||
+        baseStore.isDone || baseStore.isTimeFailed) {
         eventBus.emit('restart', baseStore.showWinModal ? 'fromKeyboard' : '');
       }
       return true;
@@ -111,7 +112,7 @@ export const useKeyDown = (): void => {
     if (listenChangePuzzleSize(event.code)) {
       return;
     }
-    if (baseStore.isDone || baseStore.paused || baseStore.inReplay ||
+    if (baseStore.isDone || baseStore.isTimeFailed || baseStore.paused || baseStore.inReplay ||
       baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
       return;
     }

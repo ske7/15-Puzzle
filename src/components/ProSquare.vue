@@ -88,7 +88,7 @@ const calculatedLeftBind = computed(() => {
 });
 
 const isDoneAll = computed(() => {
-  return baseStore.isDone;
+  return baseStore.isDone || baseStore.isTimeFailed;
 });
 
 const moveDirection = computed(() => {
