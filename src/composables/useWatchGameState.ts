@@ -158,8 +158,8 @@ export const useWatchGameState = (): void => {
       }, 200);
     }
   }, { immediate: true, flush: 'post' });
-  watch(blitzTime, (value) => {
-    if (value <= 0) {
+  watch(blitzTime, (value, oldValue) => {
+    if (oldValue > 0 && value <= 0 && baseStore.time > 0) {
       baseStore.stopInterval();
       baseStore.stopBlitzInterval();
       baseStore.isTimeFailed = true;
