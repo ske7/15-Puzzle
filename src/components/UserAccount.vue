@@ -80,7 +80,7 @@ const filteredRecords = computed(() => {
 });
 const bestRecords = computed(() => {
   return filteredRecords.value?.filter((value) => {
-    return ['time', 'moves'].includes(value.record_type);
+    return ['time', 'moves', 'fmc_blitz_moves'].includes(value.record_type);
   });
 });
 const averagesRecords = computed(() => {
@@ -140,7 +140,7 @@ const closeGamesTable = (): void => {
           <tbody>
             <tr v-for="(item) in bestRecords" :key="item.id">
               <td class="w-65">
-                {{ item.record_type }}
+                {{ item.record_type === 'fmc_blitz_moves' ? 'fmc_bl.' : item.record_type }}
               </td>
               <td class="w-75">
                 {{ item.record_type === 'time' ? (item.time / 1000) : item.moves }}
@@ -282,8 +282,8 @@ const closeGamesTable = (): void => {
   width: 75px;
 }
 .items-table .w-65 {
-  min-width: 65px;
-  width: 65px;
+  min-width: 66px;
+  width: 66px;
 }
 .puzzle-size-slider-container {
   max-width: 250px;
@@ -321,8 +321,8 @@ const closeGamesTable = (): void => {
     top: 0px;
   }
   .items-table tbody {
-    max-height: 55px;
-    min-height: 55px;
+    max-height: 57px;
+    min-height: 57px;
     overflow-y: auto;
   }
 }

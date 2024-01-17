@@ -1,7 +1,7 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { useEventBus } from '@vueuse/core';
 import {
-  CORE_NUM, SPACE_BETWEEN_SQUARES,
+  CORE_NUM, SPACE_BETWEEN_SQUARES, FMC_BLITZ_TIME,
   CAGES_PATH_ARR, Direction, ControlType, DirectionMap
 } from '@/const';
 import {
@@ -31,6 +31,7 @@ export const useBaseStore = defineStore('base', {
     paused: false,
     timeRecord: 0,
     movesRecord: 0,
+    fmcBlitzMovesRecord: 0,
     timeRecordMoves: 0,
     movesRecordTime: 0,
     doneFirstMove: false,
@@ -47,6 +48,7 @@ export const useBaseStore = defineStore('base', {
     processingReInit: false,
     disableWinMessage: localStorage.getItem('disableWinMessage') === 'true',
     newMovesRecord: false,
+    newFMCBlitzMovesRecord: false,
     newTimeRecord: false,
     showConfig: false,
     showImageGallery: false,
@@ -109,7 +111,9 @@ export const useBaseStore = defineStore('base', {
     keepSession: localStorage.getItem('keepSession') === 'true',
     fmcBlitz: localStorage.getItem('fmcBlitz') === 'true',
     blitzTime: 0,
-    blitzInterval: 0
+    blitzInterval: 0,
+    blitzScrambleCount: 0,
+    blitzMovesCount: 0
   }),
   actions: {
     initStore() {
@@ -120,6 +124,7 @@ export const useBaseStore = defineStore('base', {
       this.movesCount = 0;
       this.solvedPuzzlesInMarathon = 0;
       this.newMovesRecord = false;
+      this.newFMCBlitzMovesRecord = false;
       this.newTimeRecord = false;
       this.newPlaygroundTimeRecord = false;
       this.newPlaygroundMovesRecord = false;
@@ -132,7 +137,12 @@ export const useBaseStore = defineStore('base', {
       this.doResetList = false;
       this.doneFirstMove = false;
       this.cageImageLoadedCount = 0;
-      this.blitzTime = 0;
+      if (this.fmcBlitz) {
+        this.blitzScrambleCount = this.numLines === 3 ? 50 : 12;
+        this.stopBlitzInterval();
+        this.blitzTime = 0;
+        this.blitzMovesCount = 0;
+      }
     },
     setPuzzleData() {
       this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
@@ -151,6 +161,9 @@ export const useBaseStore = defineStore('base', {
       }
     },
     renewPuzzle() {
+      if (this.fmcBlitz) {
+        this.doneFirstMove = false;
+      }
       if (this.g1000Mode) {
         this.getNextG1000().then(() => {
           this.setPuzzleData();
@@ -279,6 +292,7 @@ export const useBaseStore = defineStore('base', {
         this.resetConsecutiveSolves();
       }
       this.stopInterval();
+      this.stopBlitzInterval();
       if (this.proMode || this.showConfig || configMode) {
         this.initStore();
         return;
@@ -298,14 +312,11 @@ export const useBaseStore = defineStore('base', {
       this.interval = window.setInterval(() => {
         this.time = Date.now() - this.startTime + this.savedTime;
       }, 5);
-      if (this.fmcBlitz) {
-        this.blitzTime = 5 * 60 * 1000;
-        if (this.blitzTime === 0) {
-          this.stopBlitzInterval();
-        }
+      if (this.fmcBlitz && this.solvedPuzzlesInMarathon === 0) {
+        this.blitzTime = FMC_BLITZ_TIME * 1000;
         this.blitzInterval = window.setInterval(() => {
-          this.blitzTime -= 1000;
-        }, 1000);
+          this.blitzTime -= 5;
+        }, 5);
       }
     },
     saveTime() {
@@ -371,6 +382,14 @@ export const useBaseStore = defineStore('base', {
     saveState(currentElementIndex: number, moveDirection: Direction, control: ControlType) {
       if (!this.doneFirstMove) {
         this.doneFirstMove = true;
+        if (this.fmcBlitz) {
+          this.opt_m = 0;
+          this.time = 0;
+          this.movesCount = 0;
+          this.solvePath = [];
+          this.lastGameID = '0';
+          this.doResetList = false;
+        }
       }
       if (this.interval === 0) {
         this.restartInterval();
@@ -462,6 +481,21 @@ export const useBaseStore = defineStore('base', {
         this.newMovesRecord = true;
       }
     },
+    setFMCBlitzRecord(fmcBlitzMovesRecord: number, time: number, puzzleSize: number, onlySetToStorage = false) {
+      if (fmcBlitzMovesRecord === this.fmcBlitzMovesRecord) {
+        return;
+      }
+      const nLPart = this.getnLPart(puzzleSize);
+      this.fmcBlitzMovesRecord = fmcBlitzMovesRecord;
+      const headerPart = generateRand().toString().slice(-4);
+      const movesPart = fmcBlitzMovesRecord.toString().padStart(6, '0');
+      const timePart = time.toString().padStart(6, '0');
+      const xm = btoa(`${headerPart}${movesPart}${timePart}heh8`);
+      localStorage.setItem(`fmcBlitzMovesRecord${nLPart}`, xm);
+      if (!onlySetToStorage) {
+        this.newFMCBlitzMovesRecord = true;
+      }
+    },
     loadRecordFromLocalStorage(recordName: string, puzzleSize: number,
       marathonMode: boolean, codeWord: string): Record {
       const lsItem = localStorage.getItem(recordName);
@@ -471,6 +505,8 @@ export const useBaseStore = defineStore('base', {
         if (lastPart !== codeWord && lastPart.replace('y', 'h') !== codeWord.replace('y', 'h')) {
           if (recordName.includes('time')) {
             this.setTimeRecord(0, 0, puzzleSize, marathonMode, true);
+          } else if (recordName.includes('fmcBlitz')) {
+            this.setFMCBlitzRecord(0, 0, puzzleSize, true);
           } else {
             this.setMovesRecord(0, 0, puzzleSize, marathonMode, true);
           }
@@ -481,14 +517,7 @@ export const useBaseStore = defineStore('base', {
           const adding = Number(decoded.slice(10, 16));
           return { record, adding };
         } else {
-          // previous old variant
-          let record = 0;
-          if (recordName.includes('time')) {
-            record = Number(decoded.slice(4, 8)) * 1000;
-          } else {
-            record = Number(decoded.slice(4, 8));
-          }
-          return { record, adding: 0 };
+          return { record: 0, adding: 0 };
         }
       }
       return { record: 0, adding: 0 };
@@ -509,6 +538,14 @@ export const useBaseStore = defineStore('base', {
         return this.loadRecordFromLocalStorage(marathonMode
           ? `movesMRecord${nLPart}`
           : `movesRecord${nLPart}`, puzzleSize, marathonMode, 'heh9');
+      } catch {
+        return { record: 0, adding: 0 };
+      }
+    },
+    loadFMCBlitzMovesRecord(puzzleSize: number): Record {
+      const nLPart = this.getnLPart(puzzleSize);
+      try {
+        return this.loadRecordFromLocalStorage(`fmcBlitzMovesRecord${nLPart}`, puzzleSize, false, 'heh8');
       } catch {
         return { record: 0, adding: 0 };
       }
@@ -539,10 +576,11 @@ export const useBaseStore = defineStore('base', {
       const { record, adding } = this.loadTimeRecord(this.marathonMode, this.numLines);
       this.timeRecord = record;
       this.timeRecordMoves = adding;
-      const { record: recordM, adding: addingM } =
-        this.loadMovesRecord(this.marathonMode, this.numLines);
+      const { record: recordM, adding: addingM } = this.loadMovesRecord(this.marathonMode, this.numLines);
       this.movesRecord = recordM;
       this.movesRecordTime = addingM;
+      const { record: recordF } = this.loadFMCBlitzMovesRecord(this.numLines);
+      this.fmcBlitzMovesRecord = recordF;
     },
     preloadImage(item: string, isPlaceholder = false) {
       const img = new Image();
@@ -720,7 +758,10 @@ export const useBaseStore = defineStore('base', {
       return displayedTime(this.time);
     },
     blitzTimeStr(): string {
-      return displayedTime(this.blitzTime);
+      const longMode = !(this.solvedPuzzlesInMarathon === 0 && this.blitzTime === 0);
+      return this.solvedPuzzlesInMarathon === 0 && this.blitzTime === 0
+        ? FMC_BLITZ_TIME.toString()
+        : displayedTime(this.blitzTime, longMode);
     },
     showModal(): boolean {
       return this.showConfig || this.showInfo || this.showWinModal ||

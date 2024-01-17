@@ -43,6 +43,12 @@ export interface UserScrambleData {
   opt_diff?: number;
 }
 
+export interface FMCBlitzData {
+  moves: number;
+  time: number;
+  session_id: string;
+}
+
 export interface InvalidFields {
   name: boolean;
   email: boolean;

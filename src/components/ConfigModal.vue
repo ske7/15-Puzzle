@@ -26,6 +26,8 @@ const setEnableCageMode = async (): Promise<void> => {
   localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
   baseStore.marathonMode = false;
   localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
+  baseStore.fmcBlitz = false;
+  localStorage.setItem('fmcBlitz', baseStore.fmcBlitz.toString());
   baseStore.proMode = false;
   localStorage.setItem('proMode', baseStore.proMode.toString());
   puzzleSize.value = CORE_NUM;
@@ -92,6 +94,8 @@ const setProMode = (): void => {
 const setMarathonMode = (): void => {
   baseStore.marathonMode = !baseStore.marathonMode;
   localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
+  baseStore.fmcBlitz = false;
+  localStorage.setItem('fmcBlitz', baseStore.fmcBlitz.toString());
   baseStore.enableCageMode = false;
   localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
   baseStore.cageMode = false;
@@ -99,6 +103,25 @@ const setMarathonMode = (): void => {
   localStorage.removeItem('_xcs');
   baseStore.resetConsecutiveSolves();
   eventBus.emit('restart', 'fromConfig');
+};
+const setFMCBlitzMode = (): void => {
+  if (!baseStore.proMode) {
+    setProMode();
+  }
+  baseStore.fmcBlitz = !baseStore.fmcBlitz;
+  localStorage.setItem('fmcBlitz', baseStore.fmcBlitz.toString());
+  baseStore.marathonMode = false;
+  localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
+  baseStore.enableCageMode = false;
+  localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
+  baseStore.cageMode = false;
+  localStorage.removeItem('_xss');
+  localStorage.removeItem('_xcs');
+  baseStore.resetConsecutiveSolves();
+  if (![3, 4].includes(puzzleSize.value)) {
+    puzzleSize.value = CORE_NUM;
+  }
+  baseStore.initAfterNewPuzzleSize();
 };
 const setKeepSession = (): void => {
   baseStore.keepSession = !baseStore.keepSession;
@@ -114,6 +137,10 @@ watch(puzzleSize, (newValue) => {
       baseStore.enableCageMode = false;
       localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
       baseStore.cageMode = false;
+    }
+    if (![3, 4].includes(newValue)) {
+      baseStore.fmcBlitz = false;
+      localStorage.setItem('fmcBlitz', baseStore.fmcBlitz.toString());
     }
     baseStore.numLines = newValue;
     if (!baseStore.enableCageMode) {
@@ -190,10 +217,11 @@ watch(marathonMode, () => {
             id="disable-win-message"
             type="checkbox"
             name="disable-win-message"
+            :disabled="baseStore.fmcBlitz"
             :checked="baseStore.disableWinMessage"
             @change="setDisableWinMessage"
           >
-          <label for="disable-win-message">
+          <label for="disable-win-message" :class="{ 'disabled-label': baseStore.fmcBlitz }">
             Disable Win Message
           </label>
         </div>
@@ -257,6 +285,18 @@ watch(marathonMode, () => {
           >
           <label for="marathon-mode">
             Marathon Mode
+          </label>
+        </div>
+        <div v-if="!baseStore.isNetworkError && baseStore.token != null && !baseStore.g1000Mode" class="option">
+          <input
+            id="fmc-blitz-mode-mode"
+            type="checkbox"
+            name="fmc-blitz-mode-mode"
+            :checked="baseStore.fmcBlitz"
+            @change="setFMCBlitzMode"
+          >
+          <label for="fmc-blitz-mode-mode">
+            FMC Blitz Mode
           </label>
         </div>
         <div v-if="!baseStore.isNetworkError && baseStore.token != null && !baseStore.g1000Mode" class="option">

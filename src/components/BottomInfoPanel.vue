@@ -208,7 +208,7 @@ const disableSave = computed(() => {
 <template>
   <div class="bottom-info-panel">
     <div v-if="!(baseStore.replayMode || baseStore.playgroundMode)" class="records-row">
-      <p>
+      <p v-if="!baseStore.fmcBlitz">
         <span>PB time / moves: </span>
         <span class="italic" :class="{ red: baseStore.newTimeRecord }">
           {{ baseStore.timeRecord === 0 ? '?' : baseStore.timeMRecord }}s
@@ -216,6 +216,12 @@ const disableSave = computed(() => {
         <span>| </span>
         <span class="italic" :class="{ red: baseStore.newMovesRecord }">
           {{ baseStore.movesRecord || '?' }}
+        </span>
+      </p>
+      <p v-if="baseStore.fmcBlitz">
+        <span>PB FMC blitz moves: </span>
+        <span class="italic" :class="{ red: baseStore.newFMCBlitzMovesRecord }">
+          {{ baseStore.fmcBlitzMovesRecord || '?' }}
         </span>
       </p>
     </div>
@@ -326,11 +332,14 @@ const disableSave = computed(() => {
           {{ baseStore.unlockedCages.size }}
         </span> out of {{ baseStore.cagesCount }} "Cages"
       </p>
-      <p v-if="baseStore.marathonMode && !(baseStore.replayMode || baseStore.playgroundMode)">
+      <p v-if="(baseStore.marathonMode || baseStore.fmcBlitz) && !(baseStore.replayMode || baseStore.playgroundMode)">
         Solved
         <span class="italic">
           {{ baseStore.solvedPuzzlesInMarathon }}
-        </span> out of 5 puzzles
+        </span> out of {{ baseStore.marathonMode ? 5 : baseStore.blitzScrambleCount }} puzzles
+      </p>
+      <p v-if="baseStore.fmcBlitz" class="center">
+        T: {{ baseStore.blitzTimeStr }} | M: {{ baseStore.solvedPuzzlesInMarathon === baseStore.blitzScrambleCount ? baseStore.blitzMovesCount : baseStore.blitzMovesCount + baseStore.movesCount }}
       </p>
     </div>
     <div class="reg-wrapper" :class="{ paused: cannotClick }">
@@ -518,8 +527,12 @@ const disableSave = computed(() => {
   .reg-wrapper {
     max-width: 300px;
   }
-  .info-row {
+  .records-row, .info-row {
     font-size: 15px;
+    line-height: 1.4;
+  }
+  .records-row {
+    margin-bottom: 3px;
   }
   .registered-block {
     font-size: 14px;

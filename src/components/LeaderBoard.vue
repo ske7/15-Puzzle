@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { onClickOutside } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
@@ -50,6 +50,17 @@ const puzzleSize = ref<number>(baseStore.numLines);
 const puzzleMode = ref<string>(baseStore.marathonMode ? 'marathon' : 'standard');
 const bestType = ref<string>(props.formType === 'default' ? 'time' : 'ao5');
 const bestAverage = ref<string>('time');
+
+watch(puzzleSize, (newValue) => {
+  if (![3, 4].includes(newValue) && bestType.value === 'fmc_blitz_moves') {
+    bestType.value = 'time';
+  }
+});
+watch(puzzleMode, (newValue) => {
+  if (newValue === 'marathon' && bestType.value === 'fmc_blitz_moves') {
+    bestType.value = 'time';
+  }
+});
 
 const infNumber = (n: undefined | string, isDesc = false): number => {
   if (n == null) {
@@ -150,7 +161,19 @@ const scrollWidth = computed(() => {
 });
 const factorChoices = computed(() => {
   if (isDefault.value) {
-    return ['time', 'moves'];
+    if (![3, 4].includes(puzzleSize.value) || puzzleMode.value === 'marathon') {
+      return ['time', 'moves'];
+    }
+    return ['time', 'moves', 'fmc_blitz_moves'];
+  }
+  return ['ao5', 'ao12', 'ao50', 'ao100'];
+});
+const factorNames = computed(() => {
+  if (isDefault.value) {
+    if (![3, 4].includes(puzzleSize.value) || puzzleMode.value === 'marathon') {
+      return ['Time', 'Moves'];
+    }
+    return ['Time', 'Moves', 'FMC Blitz'];
   }
   return ['ao5', 'ao12', 'ao50', 'ao100'];
 });
@@ -200,6 +223,7 @@ const tbodyHeightMobile = computed(() => {
         :header="isDefault ? 'Best Factor' : 'Average Type'"
         :capitalize="isDefault"
         :gap="isDefault ? 25 : 15"
+        :names="factorNames"
       />
       <PuzzleModeGroup
         v-if="!isDefault"
@@ -220,7 +244,7 @@ const tbodyHeightMobile = computed(() => {
               <th v-if="bestType==='time'" class="min-width w-70">
                 Time
               </th>
-              <th v-if="bestType === 'moves'" class="min-width w-70">
+              <th v-if="bestType === 'moves' || bestType === 'fmc_blitz_moves'" class="min-width w-70">
                 Moves
               </th>
               <th class="w-60">
@@ -247,8 +271,8 @@ const tbodyHeightMobile = computed(() => {
                   {{ item.time / 1000 }}
                 </span>
               </td>
-              <td v-if="bestType === 'moves'" class="min-width w-70">
-                <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.public_id}`" class="link-item">
+              <td v-if="bestType === 'moves' || bestType === 'fmc_blitz_moves'" class="min-width w-70">
+                <a v-if="item.scramble && bestType !== 'fmc_blitz_moves'" :href="`${baseUrl}?game_id=${item.public_id}`" class="link-item">
                   {{ item.moves }}
                 </a>
                 <span v-else>

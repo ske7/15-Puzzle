@@ -105,16 +105,16 @@ export function getSeconds(time: number): number {
   return Math.floor(time / 1000);
 }
 
-export function getMilliSeconds(time: number): string {
+export function getMilliSeconds(time: number, longMode = false): string {
   const tr = time % 1000;
   if (tr === 0) {
-    return '';
+    return longMode ? '.000' : '';
   }
   return `.${tr.toString().padStart(3, '0')}`;
 }
 
-export function displayedTime(time: number): string {
-  return `${getSeconds(time)}${getMilliSeconds(time)}`;
+export function displayedTime(time: number, longMode = false): string {
+  return `${getSeconds(time)}${getMilliSeconds(time, longMode)}`;
 }
 
 export function isSorted(array: readonly number[]): boolean {

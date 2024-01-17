@@ -96,6 +96,16 @@ const updateLocalRecord = (stats: UserStats, puzzleSize: number, puzzleType: str
       baseStore.setMovesRecord(filtered[0].moves, filtered[0].time, puzzleSize, marathonMode, true);
     }
   }
+  filtered = stats.user_records.filter(item => {
+    return item.puzzle_size === puzzleSize && item.puzzle_type === puzzleType && item.record_type === 'fmc_blitz_moves';
+  });
+  if (filtered.length !== 0) {
+    record = baseStore.loadFMCBlitzMovesRecord(puzzleSize);
+    if (record.record === 0 || filtered[0].moves < record.record ||
+      filtered[0].moves === record.record && filtered[0].time < record.adding) {
+      baseStore.setFMCBlitzRecord(filtered[0].moves, filtered[0].time, puzzleSize, true);
+    }
+  }
 };
 const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
   if ((stats == null) || stats.user_records.length === 0) {

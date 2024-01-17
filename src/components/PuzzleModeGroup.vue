@@ -7,17 +7,22 @@ const props = withDefaults(defineProps<{
   header: string;
   capitalize?: boolean;
   gap?: number;
+  names?: string[] | null;
 }>(),
 {
   capitalize: true,
-  gap: 25
+  gap: 25,
+  names: null
 });
 const emit = defineEmits<{ 'update:modelValue': [string] }>();
 
 const setValue = (value: string): void => {
   emit('update:modelValue', value);
 };
-const doCapitalize = (str: string): string => {
+const doCapitalize = (str: string, index: number): string => {
+  if (props.names !== null) {
+    return props.names[index];
+  }
   if (!props.capitalize) {
     return str;
   }
@@ -42,7 +47,7 @@ const gapValue = computed(() => {
           @change="setValue(item)"
         >
         <span @click="setValue(item)">
-          {{ doCapitalize(item) }}
+          {{ doCapitalize(item, index) }}
         </span>
       </label>
     </div>

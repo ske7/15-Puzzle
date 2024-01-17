@@ -63,6 +63,9 @@ const checkCurrentUser = (gameId: string): void => {
       });
   } else {
     void useGetFetchAPI('version');
+    if (baseStore.fmcBlitz) {
+      baseStore.fmcBlitz = false;
+    }
   }
 };
 

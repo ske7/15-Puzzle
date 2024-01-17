@@ -1,7 +1,8 @@
 import { computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
-import { postGame, postUserScramble, patchUserScramble } from '../composables/useFetching';
+import { postGame, postUserScramble, patchUserScramble, postFMCBlitz } from '../composables/useFetching';
+import { FMC_BLITZ_TIME } from '@/const';
 
 export const useWatchGameState = (): void => {
   const baseStore = useBaseStore();
@@ -101,6 +102,28 @@ export const useWatchGameState = (): void => {
       baseStore.renewPuzzle();
     }
   };
+  const fmcBlitzWatch = (): void => {
+    baseStore.solvedPuzzlesInMarathon += 1;
+    baseStore.blitzMovesCount += baseStore.movesCount;
+    baseStore.stopInterval();
+    baseStore.incConsecutiveSolves();
+    baseStore.setSessionId();
+    setRecords('standard');
+    if (baseStore.solvedPuzzlesInMarathon === baseStore.blitzScrambleCount) {
+      if (baseStore.fmcBlitzMovesRecord === 0 || baseStore.blitzMovesCount < baseStore.fmcBlitzMovesRecord) {
+        baseStore.setFMCBlitzRecord(baseStore.blitzMovesCount, FMC_BLITZ_TIME * 1000 - baseStore.blitzTime,
+          baseStore.numLines);
+      }
+      baseStore.stopBlitzInterval();
+      postFMCBlitz({
+        moves: baseStore.blitzMovesCount,
+        time: FMC_BLITZ_TIME * 1000 - baseStore.blitzTime,
+        session_id: String(baseStore.sessionId)
+      });
+    } else {
+      baseStore.renewPuzzle();
+    }
+  };
   const mainWatch = (): void => {
     baseStore.stopInterval();
     baseStore.incConsecutiveSolves();
@@ -119,13 +142,14 @@ export const useWatchGameState = (): void => {
         playgroundWatch();
       } else if (baseStore.marathonMode) {
         marathonWatch();
+      } else if (baseStore.fmcBlitz) {
+        fmcBlitzWatch();
       } else {
         mainWatch();
       }
     }
   }, { immediate: true });
-
-  const { doResetList } = storeToRefs(baseStore);
+  const { doResetList, blitzTime } = storeToRefs(baseStore);
   watch(doResetList, (value) => {
     if (value) {
       baseStore.processingReInit = true;
@@ -139,4 +163,10 @@ export const useWatchGameState = (): void => {
       }, 200);
     }
   }, { immediate: true, flush: 'post' });
+  watch(blitzTime, (value) => {
+    if (value <= 0) {
+      baseStore.stopBlitzInterval();
+      baseStore.reset(false);
+    }
+  });
 };
