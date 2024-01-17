@@ -5,6 +5,7 @@ import {
   type UserScrambleData, type FMCBlitzData, type Response
 } from '@/types';
 import { usePostFetchAPI, usePatchFetchAPI } from '../composables/useFetchAPI';
+import { FMC_BLITZ_TIME } from '@/const';
 
 const prepare = (): Record<string, Ref<string | boolean>> => {
   const errorMsg = ref('');
@@ -36,6 +37,13 @@ export const postGame = (game: GameData, keyH: string): void => {
             errorMsg.value = error as string;
             isFetching.value = false;
           });
+        if (baseStore.fmcBlitz && baseStore.solvedPuzzlesInMarathon === baseStore.blitzScrambleCount) {
+          postFMCBlitz({
+            moves: baseStore.blitzMovesCount,
+            time: FMC_BLITZ_TIME * 1000 - baseStore.blitzTime,
+            session_id: String(game.session_id)
+          });
+        }
       }
       isFetching.value = false;
     })

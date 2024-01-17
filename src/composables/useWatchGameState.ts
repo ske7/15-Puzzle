@@ -1,7 +1,7 @@
 import { computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
-import { postGame, postUserScramble, patchUserScramble, postFMCBlitz } from '../composables/useFetching';
+import { postGame, postUserScramble, patchUserScramble } from '../composables/useFetching';
 import { FMC_BLITZ_TIME } from '@/const';
 
 export const useWatchGameState = (): void => {
@@ -115,11 +115,6 @@ export const useWatchGameState = (): void => {
           baseStore.numLines);
       }
       baseStore.stopBlitzInterval();
-      postFMCBlitz({
-        moves: baseStore.blitzMovesCount,
-        time: FMC_BLITZ_TIME * 1000 - baseStore.blitzTime,
-        session_id: String(baseStore.sessionId)
-      });
     } else {
       baseStore.renewPuzzle();
     }
