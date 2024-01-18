@@ -314,12 +314,6 @@ export const useBaseStore = defineStore('base', {
       this.interval = window.setInterval(() => {
         this.time = Date.now() - this.startTime + this.savedTime;
       }, 5);
-      if (this.fmcBlitz && this.solvedPuzzlesInMarathon === 0) {
-        this.blitzTime = FMC_BLITZ_TIME * 1000;
-        this.blitzInterval = window.setInterval(() => {
-          this.blitzTime -= 5;
-        }, 5);
-      }
     },
     saveTime() {
       this.savedTime = this.time;
@@ -381,7 +375,7 @@ export const useBaseStore = defineStore('base', {
       }
       return false;
     },
-    saveState(currentElementIndex: number, moveDirection: Direction, control: ControlType) {
+    beforeMove() {
       if (!this.doneFirstMove) {
         this.doneFirstMove = true;
         if (this.fmcBlitz) {
@@ -396,6 +390,15 @@ export const useBaseStore = defineStore('base', {
       if (this.interval === 0) {
         this.restartInterval();
       }
+      if (this.fmcBlitz && this.blitzInterval === 0 && this.solvedPuzzlesInMarathon === 0) {
+        this.blitzTime = FMC_BLITZ_TIME * 1000;
+        this.blitzInterval = window.setInterval(() => {
+          this.blitzTime -= 5;
+        }, 5);
+      }
+    },
+    saveState(currentElementIndex: number, moveDirection: Direction, control: ControlType) {
+      this.beforeMove();
       switch (moveDirection) {
         case Direction.Right:
           swapArrayElements(this.currentOrders, currentElementIndex, currentElementIndex + 1);
