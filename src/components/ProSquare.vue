@@ -24,7 +24,7 @@ const currentElementIndex = computed(() => {
 const cOrder = computed(() => {
   return props.order + 1;
 });
-const { canMoveRight, canMoveLeft, canMoveUp, canMoveDown } =
+const { canMoveRight, canMoveLeft, canMoveUp, canMoveDown, canMove } =
   useCanMove(currentElementIndex, props.squareSize);
 const { elementCol, elementRow } =
   useCanMove(cOrder, props.squareSize);
@@ -104,7 +104,7 @@ const moveDirection = computed(() => {
   return Direction.None;
 });
 const cannotMove = computed(() => {
-  return isDoneAll.value || baseStore.paused || moveDirection.value === Direction.None;
+  return isDoneAll.value || baseStore.paused || currentOrder.value === 0 || !(canMove.value as boolean);
 });
 
 const move = (control: ControlType): void => {
