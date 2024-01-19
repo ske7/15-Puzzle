@@ -59,6 +59,7 @@ export const useBaseStore = defineStore('base', {
     marathonMode: localStorage.getItem('marathonMode') === 'true',
     solvedPuzzlesInMarathon: 0,
     startTime: 0,
+    startBlitzTime: 0,
     savedTime: 0,
     darkMode: localStorage.getItem('darkMode') === 'true',
     boardPos: {} as unknown as Position,
@@ -391,9 +392,9 @@ export const useBaseStore = defineStore('base', {
         this.restartInterval();
       }
       if (this.fmcBlitz && this.blitzInterval === 0 && this.solvedPuzzlesInMarathon === 0) {
-        this.blitzTime = FMC_BLITZ_TIME * 1000;
+        this.startBlitzTime = Date.now();
         this.blitzInterval = window.setInterval(() => {
-          this.blitzTime -= 5;
+          this.blitzTime = FMC_BLITZ_TIME * 1000 - (Date.now() - this.startBlitzTime);
         }, 5);
       }
     },
