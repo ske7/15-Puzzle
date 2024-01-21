@@ -309,6 +309,9 @@ export const useBaseStore = defineStore('base', {
     stopBlitzInterval() {
       clearInterval(this.blitzInterval);
       this.blitzInterval = 0;
+      if (this.blitzTime < 0) {
+        this.blitzTime = 0;
+      }
     },
     restartInterval() {
       this.startTime = Date.now();
@@ -764,6 +767,9 @@ export const useBaseStore = defineStore('base', {
       return displayedTime(this.time);
     },
     blitzTimeStr(): string {
+      if (this.blitzTime < 0) {
+        return '0';
+      }
       const longMode = !(this.solvedPuzzlesInMarathon === 0 && this.blitzTime === 0);
       return this.solvedPuzzlesInMarathon === 0 && this.blitzTime === 0
         ? FMC_BLITZ_TIME.toString()
