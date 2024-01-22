@@ -47,6 +47,14 @@ export const useKeyDown = (): void => {
     return false;
   };
 
+  const listenCtrlLKey = (ctrlDown: boolean, code: string): boolean => {
+    if (ctrlDown && code === 'KeyL') {
+      baseStore.lowerMouseSensitiveness = !baseStore.lowerMouseSensitiveness;
+      return true;
+    }
+    return false;
+  };
+
   const checkPageUp = (): boolean => {
     if (baseStore.numLines === cores.slice(-1)[0]) {
       return false;
@@ -107,6 +115,9 @@ export const useKeyDown = (): void => {
       return;
     }
     if (await listenCtrlVKey(ctrlDown, event.code)) {
+      return;
+    }
+    if (listenCtrlLKey(ctrlDown, event.code)) {
       return;
     }
     if (listenChangePuzzleSize(event.code)) {

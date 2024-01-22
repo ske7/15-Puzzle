@@ -115,7 +115,8 @@ export const useBaseStore = defineStore('base', {
     blitzInterval: 0,
     blitzScrambleCount: 0,
     blitzMovesCount: 0,
-    isTimeFailed: false
+    isTimeFailed: false,
+    lowerMouseSensitiveness: false
   }),
   actions: {
     initStore() {
