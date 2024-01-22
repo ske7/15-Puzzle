@@ -117,33 +117,8 @@ const move = (control: ControlType): void => {
   }
   baseStore.isMoving = false;
 };
-const cursorX = ref<number | null>(null);
-const cursorY = ref<number | null>(null);
-const cursorThreshold = 3;
 const moveByMouse = (event: MouseEvent): void => {
-  if (!baseStore.lowerMouseSensitiveness ||
-  !(baseStore.hoverOnControl && baseStore.proMode) || event.ctrlKey) {
-    return;
-  }
-  if (cursorX.value === null) {
-    cursorX.value = event.clientX;
-  }
-  if (cursorY.value === null) {
-    cursorY.value = event.clientY;
-  }
-  if ((event.clientX <= cursorX.value - cursorThreshold) ||
-      (event.clientY <= cursorY.value - cursorThreshold) ||
-      (event.clientX >= cursorX.value + cursorThreshold) ||
-      (event.clientY >= cursorY.value + cursorThreshold)) {
-    cursorX.value = null;
-    cursorY.value = null;
-    move(ControlType.Mouse);
-  }
-};
-
-const mouseEnter = (event: MouseEvent): void => {
-  if (baseStore.lowerMouseSensitiveness ||
-    !(baseStore.hoverOnControl && baseStore.proMode) || event.ctrlKey) {
+  if (!(baseStore.hoverOnControl && baseStore.proMode) || event.ctrlKey) {
     return;
   }
   move(ControlType.Mouse);
@@ -217,8 +192,7 @@ onMounted(() => {
       :height="props.squareSize"
       @mousedown.left="move(ControlType.Mouse)"
       @touchstart.prevent="move(ControlType.Touch)"
-      @mouseenter.prevent="mouseEnter"
-      @mousemove.prevent="moveByMouse"
+      @mouseenter.prevent="moveByMouse"
     />
   </div>
 </template>
