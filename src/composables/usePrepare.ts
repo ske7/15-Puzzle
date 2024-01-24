@@ -127,6 +127,7 @@ const checkPlaygroundMode = (locationStr: string, initNumLines: number): void =>
     baseStore.g1000Mode = false;
     baseStore.marathonMode = false;
     localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
+    baseStore.fmcBlitz = false;
     const sharedPlaygroundScramble = localStorage.getItem('sharedPlaygroundScramble');
     if (sharedPlaygroundScramble !== null) {
       baseStore.savedOrders = sharedPlaygroundScramble.split(',').map(x => +x);
@@ -145,6 +146,7 @@ const checkCageMode = (locationStr: string): void => {
     baseStore.marathonMode = false;
     baseStore.g1000Mode = false;
     localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
+    baseStore.fmcBlitz = false;
     baseStore.proMode = false;
     localStorage.setItem('proMode', baseStore.proMode.toString());
     baseStore.numLines = CORE_NUM;
@@ -162,6 +164,7 @@ const checkG1000 = (locationStr: string): void => {
     localStorage.setItem('proMode', baseStore.proMode.toString());
     baseStore.marathonMode = false;
     localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
+    baseStore.fmcBlitz = false;
     baseStore.g1000Mode = true;
     baseStore.numLines = 3;
     localStorage.setItem('numLines', baseStore.numLines.toString());
@@ -186,6 +189,7 @@ const checkGameLink = (gameId: string): void => {
           baseStore.replayMode = true;
           baseStore.repGame = res.stats as unknown as RepGame;
           baseStore.marathonReplay = (res.stats as unknown as RepGame).puzzle_type === 'marathon';
+          baseStore.fmcBlitz = false;
           initStore(baseStore.repGame.puzzle_size);
         } else {
           location.href = baseUrl;
