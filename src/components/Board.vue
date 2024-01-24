@@ -245,7 +245,11 @@ const filteredCores = computed(() => {
         }"
       />
     </div>
-    <div v-if="!baseStore.replayMode && !baseStore.sharedPlaygroundMode && !baseStore.cageMode && !baseStore.g1000Mode" class="puzzle-sizes">
+    <div
+      v-if="!baseStore.replayMode && !baseStore.sharedPlaygroundMode &&
+        !baseStore.cageMode && !baseStore.g1000Mode && !baseStore.clearDisplay"
+      class="puzzle-sizes"
+    >
       <span
         v-for="(item, index) in filteredCores"
         :key="index"

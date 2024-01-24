@@ -342,7 +342,7 @@ const disableSave = computed(() => {
         T: {{ baseStore.blitzTimeStr }} | M: {{ baseStore.solvedPuzzlesInMarathon === baseStore.blitzScrambleCount || baseStore.interval === 0 ? baseStore.blitzMovesCount : baseStore.blitzMovesCount + baseStore.movesCount }}
       </p>
     </div>
-    <div class="reg-wrapper" :class="{ paused: cannotClick }">
+    <div v-show="!baseStore.clearDisplay" class="reg-wrapper" :class="{ paused: cannotClick }">
       <p v-if="baseStore.isNetworkError" class="no-connect">
         Local mode (no server connection)
       </p>

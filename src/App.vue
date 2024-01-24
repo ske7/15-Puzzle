@@ -28,11 +28,16 @@ const cageImgSize = computed(() => {
   }
   return 42;
 });
+const touchMove = (e: TouchEvent): void => {
+  if (baseStore.clearDisplay) {
+    e.preventDefault();
+  }
+};
 </script>
 
 <template>
-  <div v-if="baseStore.puzzleLoaded" class="wrapper">
-    <div class="header">
+  <div v-if="baseStore.puzzleLoaded" class="wrapper" @touchmove="touchMove">
+    <div v-show="!baseStore.clearDisplay" class="header">
       <h1>15 Puzzle Online</h1>
       <img
         src="./assets/cage.webp"
@@ -41,6 +46,13 @@ const cageImgSize = computed(() => {
         :height="cageImgSize"
         draggable="false"
       >
+    </div>
+    <div
+      v-show="!baseStore.replayMode && !baseStore.playgroundMode"
+      class="clear-field"
+      @click="baseStore.clearDisplay = !baseStore.clearDisplay"
+    >
+      {{ baseStore.clearDisplay ? '&#128316;' : '&#128317;' }}
     </div>
     <AveragesPanel />
     <TopInfoPanel />
@@ -105,6 +117,27 @@ const cageImgSize = computed(() => {
 }
 .header img[alt] {
   font-size: 15px;
+}
+.clear-field {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  opacity: 0.7;
+  top: 10px;
+  right: 10px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.clear-field:active, .clear-field:hover {
+  opacity: 1;
+}
+@media screen and (min-width: 601px) {
+  .clear-field {
+    display: none;
+  }
 }
 @media screen and (max-width: 420px) {
   .header {

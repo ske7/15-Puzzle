@@ -124,7 +124,16 @@ const closeLeaderBoard = (): void => {
     class="avg-wrapper"
   >
     <div class="avg-row top-row">
-      <span><span class="best-averages-mobile link-item" :class="{ paused: cannotClick }" @click="doShowLeaderBoard">Best</span></span>
+      <span>
+        <span
+          v-show="!baseStore.clearDisplay"
+          class="best-averages-mobile link-item"
+          :class="{ paused: cannotClick }"
+          @click="doShowLeaderBoard"
+        >
+          Best
+        </span>
+      </span>
       <span>Time</span>
       <span>Moves</span>
       <span>TPS</span>

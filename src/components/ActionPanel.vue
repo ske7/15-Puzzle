@@ -391,7 +391,7 @@ onUnmounted(() => {
         Replay
       </button>
       <button
-        v-if="!(baseStore.replayMode || baseStore.playgroundMode)"
+        v-if="!(baseStore.replayMode || baseStore.playgroundMode) && !baseStore.clearDisplay"
         type="button"
         class="tool-button"
         :disabled="disableButton || disableDuringMarathon || baseStore.paused"
@@ -418,7 +418,7 @@ onUnmounted(() => {
         Try It
       </button>
       <button
-        v-if="!baseStore.playgroundMode"
+        v-if="!baseStore.playgroundMode && !baseStore.clearDisplay"
         type="button"
         class="tool-button"
         :disabled="disableButton || disableDuringMarathon || baseStore.inReplay"
