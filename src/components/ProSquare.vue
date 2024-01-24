@@ -132,7 +132,7 @@ const getCursor = computed(() => {
 });
 
 watch(currentOrder, (newValue, oldValue) => {
-  if (!baseStore.doneFirstMove) {
+  if (!baseStore.doneFirstMove || baseStore.isMoving) {
     return;
   }
   if (newValue === props.order + 1) {
@@ -144,6 +144,9 @@ watch(currentOrder, (newValue, oldValue) => {
   immediate: false
 });
 watch(currentOrder, (newValue) => {
+  if (baseStore.isMoving) {
+    return;
+  }
   setCanvasBg(bgColor.value);
   context.value!.fillStyle = '#0a0a23';
   context.value!.fillText(newValue === 0 ? '' : newValue.toString(), props.squareSize / 2, props.squareSize / 2);
