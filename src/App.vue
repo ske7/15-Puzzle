@@ -33,10 +33,18 @@ const touchMove = (e: TouchEvent): void => {
     e.preventDefault();
   }
 };
+const clearDisplay = (): void => {
+  baseStore.clearDisplay = !baseStore.clearDisplay;
+  if (baseStore.clearDisplay) {
+    document.documentElement.addEventListener('touchmove', touchMove, { passive: false });
+  } else {
+    document.documentElement.removeEventListener('touchmove', touchMove);
+  }
+};
 </script>
 
 <template>
-  <div v-if="baseStore.puzzleLoaded" class="wrapper" @touchmove="touchMove">
+  <div v-if="baseStore.puzzleLoaded" class="wrapper">
     <div v-show="!baseStore.clearDisplay" class="header">
       <h1>15 Puzzle Online</h1>
       <img
@@ -50,7 +58,7 @@ const touchMove = (e: TouchEvent): void => {
     <div
       v-show="!baseStore.replayMode && !baseStore.playgroundMode"
       class="clear-field"
-      @click="baseStore.clearDisplay = !baseStore.clearDisplay"
+      @click="clearDisplay"
     >
       {{ baseStore.clearDisplay ? '&#128316;' : '&#128317;' }}
     </div>
@@ -128,7 +136,6 @@ const touchMove = (e: TouchEvent): void => {
   justify-content: center;
   align-items: center;
   display: flex;
-  border-radius: 8px;
   cursor: pointer;
 }
 .clear-field:active, .clear-field:hover {
