@@ -144,14 +144,11 @@ watch(currentOrder, (newValue, oldValue) => {
   immediate: false
 });
 watch(currentOrder, (newValue) => {
-  if (baseStore.isMoving) {
-    return;
-  }
   setCanvasBg(bgColor.value);
   context.value!.fillStyle = '#0a0a23';
   context.value!.fillText(newValue === 0 ? '' : newValue.toString(), props.squareSize / 2, props.squareSize / 2);
 }, {
-  immediate: false
+  immediate: false, flush: 'sync'
 });
 
 const squareCanvas = ref<HTMLCanvasElement | null>(null);
@@ -195,7 +192,7 @@ onMounted(() => {
       :height="props.squareSize"
       @mousedown.left="move(ControlType.Mouse)"
       @touchstart.prevent="move(ControlType.Touch)"
-      @mouseenter.prevent="moveByMouse"
+      @mousemove.prevent="moveByMouse"
     />
   </div>
 </template>
