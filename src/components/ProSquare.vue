@@ -192,7 +192,7 @@ onMounted(() => {
       :height="props.squareSize"
       @mousedown.left="move(ControlType.Mouse)"
       @touchstart.prevent="move(ControlType.Touch)"
-      @mousemove.prevent="moveByMouse"
+      @mouseenter.prevent="moveByMouse"
     />
   </div>
 </template>
