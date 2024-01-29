@@ -116,7 +116,8 @@ export const useBaseStore = defineStore('base', {
     blitzScrambleCount: 0,
     blitzMovesCount: 0,
     isTimeFailed: false,
-    clearDisplay: false
+    clearDisplay: false,
+    marathonFirstMove: false
   }),
   actions: {
     initStore() {
@@ -391,6 +392,9 @@ export const useBaseStore = defineStore('base', {
           this.lastGameID = '0';
           this.doResetList = false;
         }
+      }
+      if (!this.marathonFirstMove) {
+        this.marathonFirstMove = true;
       }
       if (this.interval === 0) {
         this.restartInterval();

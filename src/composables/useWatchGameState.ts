@@ -99,6 +99,7 @@ export const useWatchGameState = (): void => {
       baseStore.marathonScrambles = `${baseStore.marathonScrambles}${baseStore.mixedOrders.join(',')};`;
       baseStore.marathonSolves = `${baseStore.marathonSolves}${baseStore.solvePath.join('')};`;
       baseStore.solvePath = [];
+      baseStore.marathonFirstMove = false;
       baseStore.renewPuzzle();
     }
   };
@@ -116,6 +117,7 @@ export const useWatchGameState = (): void => {
       }
       baseStore.stopBlitzInterval();
     } else {
+      baseStore.marathonFirstMove = false;
       baseStore.renewPuzzle();
     }
   };

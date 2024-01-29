@@ -106,7 +106,6 @@ const moveDirection = computed(() => {
 const cannotMove = computed(() => {
   return isDoneAll.value || baseStore.paused || currentOrder.value === 0 || !(canMove.value as boolean);
 });
-
 const move = (control: ControlType): void => {
   if (baseStore.isMoving || cannotMove.value) {
     return;
@@ -123,7 +122,18 @@ const moveByMouse = (event: MouseEvent): void => {
   }
   move(ControlType.Mouse);
 };
-
+const mouseEnter = (event: MouseEvent): void => {
+  if (baseStore.marathonFirstMove) {
+    return;
+  }
+  moveByMouse(event);
+};
+const mouseMove = (event: MouseEvent): void => {
+  if ((baseStore.marathonMode || baseStore.fmcBlitz) && !baseStore.marathonFirstMove) {
+    return;
+  }
+  moveByMouse(event);
+};
 const getCursor = computed(() => {
   if ((baseStore.hoverOnControl && baseStore.proMode) || cannotMove.value) {
     return 'auto';
@@ -192,7 +202,8 @@ onMounted(() => {
       :height="props.squareSize"
       @mousedown.left="move(ControlType.Mouse)"
       @touchstart.prevent="move(ControlType.Touch)"
-      @mouseenter.prevent="moveByMouse"
+      @mouseenter.prevent="mouseEnter"
+      @mousemove.prevent="mouseMove"
     />
   </div>
 </template>
