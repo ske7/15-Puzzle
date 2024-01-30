@@ -59,6 +59,7 @@ const checkCurrentUser = (gameId: string): void => {
         }
       })
       .catch(error => {
+        baseStore.fmcBlitz = false;
         console.log(error as string);
       });
   } else {
