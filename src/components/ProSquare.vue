@@ -201,7 +201,7 @@ onMounted(() => {
       :width="props.squareSize"
       :height="props.squareSize"
       @mousedown.left="move(ControlType.Mouse)"
-      @touchstart.capture.stop.prevent="move(ControlType.Touch)"
+      @touchstart.prevent="move(ControlType.Touch)"
       @mouseenter.capture.stop.prevent="mouseEnter"
       @mousemove.capture.stop.prevent="mouseMove"
     />

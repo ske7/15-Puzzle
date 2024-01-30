@@ -222,7 +222,7 @@ const filteredCores = computed(() => {
     <div
       v-if="!showProSquare && !hideWhenCageShowCageCompleteImg"
       class="p-container"
-      @touchmove.capture.stop.prevent="touchMove"
+      @touchmove.prevent="touchMove"
     >
       <Square
         v-for="(value, index) in baseStore.mixedOrders"
@@ -238,7 +238,7 @@ const filteredCores = computed(() => {
       v-if="showProSquare && baseStore.currentOrders.length > 0"
       :key="baseStore.mixedOrders.length"
       class="p-container"
-      @touchmove.capture.stop.prevent="touchMove"
+      @touchmove.prevent="touchMove"
     >
       <Pro-Square
         v-for="(_value, index) in baseStore.mixedOrders"
