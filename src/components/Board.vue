@@ -181,7 +181,7 @@ const filteredCores = computed(() => {
 </script>
 
 <template>
-  <div ref="container" class="board" @touchmove.prevent="touchMove">
+  <div ref="container" class="board">
     <img
       v-if="baseStore.cageMode && baseStore.isDone && cageCompleteImg"
       v-show="baseStore.afterDoneAnimationEnd && baseStore.cageCompleteImgLoaded"
@@ -219,7 +219,11 @@ const filteredCores = computed(() => {
         </p>
       </div>
     </div>
-    <div v-if="!showProSquare && !hideWhenCageShowCageCompleteImg" class="p-container">
+    <div
+      v-if="!showProSquare && !hideWhenCageShowCageCompleteImg"
+      class="p-container"
+      @touchmove.capture.stop.prevent="touchMove"
+    >
       <Square
         v-for="(value, index) in baseStore.mixedOrders"
         :key="index"
@@ -234,6 +238,7 @@ const filteredCores = computed(() => {
       v-if="showProSquare && baseStore.currentOrders.length > 0"
       :key="baseStore.mixedOrders.length"
       class="p-container"
+      @touchmove.capture.stop.prevent="touchMove"
     >
       <Pro-Square
         v-for="(_value, index) in baseStore.mixedOrders"
