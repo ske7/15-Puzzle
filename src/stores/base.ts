@@ -25,7 +25,6 @@ export const useBaseStore = defineStore('base', {
     afterDoneCount: 0,
     mixedOrders: [] as number[],
     currentOrders: [] as number[],
-    freeElementIndex: 0,
     doResetList: false,
     interval: 0,
     paused: false,
@@ -122,7 +121,6 @@ export const useBaseStore = defineStore('base', {
   actions: {
     initStore() {
       this.setSpaceBetween();
-      this.freeElementIndex = 0;
       this.time = 0;
       this.savedTime = 0;
       this.movesCount = 0;
@@ -150,7 +148,6 @@ export const useBaseStore = defineStore('base', {
       }
     },
     setPuzzleData() {
-      this.freeElementIndex = this.mixedOrders.findIndex((x) => x === 0);
       this.currentOrders = this.mixedOrders.slice();
       this.inPlaceCount = this.startOrderedCount;
       this.doneFirstMove = false;
@@ -423,7 +420,6 @@ export const useBaseStore = defineStore('base', {
           break;
         default:
       }
-      this.freeElementIndex = currentElementIndex;
       this.incMoves();
       this.moveDoneBy = control;
       this.solvePath.push(DirectionMap.get(moveDirection) ?? '');
@@ -735,6 +731,9 @@ export const useBaseStore = defineStore('base', {
     }
   },
   getters: {
+    freeElementIndex(): number {
+      return this.currentOrders.findIndex((x) => x === 0);
+    },
     cagesCount(): number {
       return CAGES_PATH_ARR.length;
     },
