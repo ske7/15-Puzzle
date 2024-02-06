@@ -272,7 +272,7 @@ onUnmounted(() => {
         Add
       </button>
       <button
-        v-if="baseStore.playgroundMode && !baseStore.sharedPlaygroundMode"
+        v-if="baseStore.registered && baseStore.playgroundMode && !baseStore.sharedPlaygroundMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.inReplay"
@@ -365,7 +365,7 @@ onUnmounted(() => {
         Add
       </button>
       <button
-        v-if="baseStore.playgroundMode && !baseStore.sharedPlaygroundMode"
+        v-if="baseStore.registered && baseStore.playgroundMode && !baseStore.sharedPlaygroundMode"
         type="button"
         class="tool-button"
         :disabled="disableButton || baseStore.inReplay"

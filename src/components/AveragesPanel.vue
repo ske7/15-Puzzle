@@ -397,7 +397,7 @@ const closeLeaderBoard = (): void => {
     font-size: 14px;
     line-height: 1.3;
     margin-top: -5px;
-    height: 70px;
+    height: 69px;
   }
   .avg-rows {
     max-height: 35px;

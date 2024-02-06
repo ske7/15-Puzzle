@@ -41,7 +41,7 @@ onUnmounted(() => {
     <div class="buttons">
       <button
         type="button"
-        class="tool-button"
+        class="tool-button win-button"
         @click="closeAndRestart"
       >
         {{ baseStore.cageMode ? 'OK' : 'New Game' }}
@@ -102,7 +102,7 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
 }
-.buttons .tool-button {
+.win-button {
   width: 100px;
 }
 .mb-5 {

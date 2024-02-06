@@ -143,7 +143,7 @@ const checkPlaygroundMode = (locationStr: string, initNumLines: number): void =>
 const checkCageMode = (locationStr: string): void => {
   const baseStore = useBaseStore();
 
-  if (!baseStore.playgroundMode && locationStr.includes('cage')) {
+  if (!baseStore.playgroundMode && locationStr.includes('?cage')) {
     baseStore.marathonMode = false;
     baseStore.g1000Mode = false;
     localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
