@@ -1,7 +1,7 @@
 import { onMounted, onBeforeUnmount } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useEventBus } from '@vueuse/core';
-import { CORE_NUM, ControlType, cores } from '@/const';
+import { ControlType, cores, fmcBlitzCores } from '@/const';
 import { convertToNumbersArray } from '@/utils';
 
 export const useKeyDown = (): void => {
@@ -51,7 +51,7 @@ export const useKeyDown = (): void => {
     if (baseStore.numLines === cores.slice(-1)[0]) {
       return false;
     }
-    if (baseStore.fmcBlitz && baseStore.numLines === CORE_NUM) {
+    if (baseStore.fmcBlitz && baseStore.numLines === fmcBlitzCores.slice(-1)[0]) {
       return false;
     }
     baseStore.numLines += 1;
@@ -63,7 +63,7 @@ export const useKeyDown = (): void => {
     if (baseStore.numLines === cores[0]) {
       return false;
     }
-    if (baseStore.fmcBlitz && baseStore.numLines === 3) {
+    if (baseStore.fmcBlitz && baseStore.numLines === fmcBlitzCores[0]) {
       return false;
     }
     baseStore.numLines -= 1;

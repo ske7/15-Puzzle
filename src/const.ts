@@ -4,6 +4,8 @@ export const CORE_NUM = 4;
 
 export const cores = [3, 4, 5, 6, 7, 8] as number[];
 
+export const fmcBlitzCores = [3, 4, 5] as number[];
+
 export const SPACE_BETWEEN_SQUARES = 8;
 
 export const FMC_BLITZ_TIME = 180;

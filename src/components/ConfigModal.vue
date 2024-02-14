@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside, useEventBus } from '@vueuse/core';
-import { CORE_NUM } from '@/const';
+import { CORE_NUM, fmcBlitzCores } from '@/const';
 import { sleep } from '@/utils';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 
@@ -118,7 +118,7 @@ const setFMCBlitzMode = (): void => {
   localStorage.removeItem('_xss');
   localStorage.removeItem('_xcs');
   baseStore.resetConsecutiveSolves();
-  if (![3, 4].includes(puzzleSize.value)) {
+  if (!fmcBlitzCores.includes(puzzleSize.value)) {
     puzzleSize.value = CORE_NUM;
   }
   baseStore.initAfterNewPuzzleSize();
@@ -138,7 +138,7 @@ watch(puzzleSize, (newValue) => {
       localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
       baseStore.cageMode = false;
     }
-    if (![3, 4].includes(newValue)) {
+    if (!fmcBlitzCores.includes(newValue)) {
       baseStore.fmcBlitz = false;
       localStorage.setItem('fmcBlitz', baseStore.fmcBlitz.toString());
     }

@@ -141,7 +141,7 @@ export const useBaseStore = defineStore('base', {
       this.cageImageLoadedCount = 0;
       this.isTimeFailed = false;
       if (this.fmcBlitz) {
-        this.blitzScrambleCount = this.numLines === 3 ? 50 : 12;
+        this.blitzScrambleCount = this.getFMCBlitzScrambleCount(this.numLines);
         this.stopBlitzInterval();
         this.blitzTime = 0;
         this.blitzMovesCount = 0;
@@ -728,6 +728,21 @@ export const useBaseStore = defineStore('base', {
       this.resetConsecutiveSolves();
       this.savedOrders = [];
       eventBus.emit('restart', 'fromConfig');
+    },
+    getFMCBlitzScrambleCount(numLines: number): number {
+      let res = 0;
+      switch (numLines) {
+        case 3:
+          res = 50;
+          break;
+        case 5:
+          res = 5;
+          break;
+        default:
+          res = 12;
+          break;
+      }
+      return res;
     }
   },
   getters: {

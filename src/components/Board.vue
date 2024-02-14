@@ -5,7 +5,7 @@ import { useElementBounding } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { getSquareSize } from '../composables/usePrepare';
 import { useCanMove } from '../composables/useCanMove';
-import { cores, ControlType, Direction } from '@/const';
+import { cores, fmcBlitzCores, ControlType, Direction } from '@/const';
 import Square from './Square.vue';
 import ProSquare from './ProSquare.vue';
 
@@ -174,7 +174,7 @@ const changePuzzleSize = (puzzleSize: number): void => {
 };
 const filteredCores = computed(() => {
   if (baseStore.fmcBlitz) {
-    return [3, 4];
+    return fmcBlitzCores;
   }
   return cores;
 });

@@ -6,7 +6,7 @@ import { useGetFetchAPI } from '../composables/useFetchAPI';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
 import { type UserRecord } from '@/types';
-import { baseUrl } from '@/const';
+import { baseUrl, fmcBlitzCores } from '@/const';
 
 const props = defineProps<{ formType: string }>();
 const emit = defineEmits<{ close: [] }>();
@@ -52,7 +52,7 @@ const bestType = ref<string>(props.formType === 'default' ? 'time' : 'ao5');
 const bestAverage = ref<string>('time');
 
 watch(puzzleSize, (newValue) => {
-  if (![3, 4].includes(newValue) && bestType.value === 'fmc_blitz_moves') {
+  if (!fmcBlitzCores.includes(newValue) && bestType.value === 'fmc_blitz_moves') {
     bestType.value = 'time';
   }
 });
@@ -161,7 +161,7 @@ const scrollWidth = computed(() => {
 });
 const factorChoices = computed(() => {
   if (isDefault.value) {
-    if (![3, 4].includes(puzzleSize.value) || puzzleMode.value === 'marathon') {
+    if (!fmcBlitzCores.includes(puzzleSize.value) || puzzleMode.value === 'marathon') {
       return ['time', 'moves'];
     }
     return ['time', 'moves', 'fmc_blitz_moves'];
@@ -170,7 +170,7 @@ const factorChoices = computed(() => {
 });
 const factorNames = computed(() => {
   if (isDefault.value) {
-    if (![3, 4].includes(puzzleSize.value) || puzzleMode.value === 'marathon') {
+    if (!fmcBlitzCores.includes(puzzleSize.value) || puzzleMode.value === 'marathon') {
       return ['Time', 'Moves'];
     }
     return ['Time', 'Moves', 'FMC Blitz'];
@@ -248,7 +248,7 @@ const tbodyHeightMobile = computed(() => {
                 Moves
               </th>
               <th class="w-60">
-                TPS
+                {{ bestType === 'fmc_blitz_moves' ? 'Time' : 'TPS' }}
               </th>
               <th class="w-28">
                 By
@@ -280,7 +280,7 @@ const tbodyHeightMobile = computed(() => {
                 </span>
               </td>
               <td class="min-width w-60">
-                {{ item.tps }}
+                {{ bestType === 'fmc_blitz_moves' ? Number(item.moves / Number(item.tps)).toFixed(3) : item.tps }}
               </td>
               <td class="w-28">
                 {{ item.control_type?.slice(0, 1) }}
