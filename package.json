@@ -19,14 +19,14 @@
   "dependencies": {
     "@vueuse/core": "^10.7.2",
     "pinia": "^2.1.7",
-    "vue": "^3.4.15"
+    "vue": "^3.4.19"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.2",
-    "@types/node": "^20.11.16",
+    "@types/node": "^20.11.17",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
-    "@vitejs/plugin-vue": "^5.0.3",
+    "@vitejs/plugin-vue": "^5.0.4",
     "@vue/tsconfig": "^0.5.1",
     "eslint": "^8.56.0",
     "eslint-config-standard": "^17.1.0",
@@ -38,7 +38,7 @@
     "stylelint-config-recommended-vue": "^1.5.0",
     "typescript": "^5.3.3",
     "unplugin-inject-preload": "^2.0.0",
-    "vite": "^5.0.12",
+    "vite": "^5.1.2",
     "vite-plugin-preload": "^0.3.1",
     "vue-tsc": "^1.8.27"
   }
