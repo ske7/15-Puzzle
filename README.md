@@ -7,7 +7,7 @@
 ### Play the game here:
 
 https://15puzzle.uk \
-https://15puzzle.uk?pro (speed sliding)
+https://15puzzle.uk/?pro (speed sliding)
 
 ![Pro mode](public/mode3.png)
 
@@ -21,15 +21,18 @@ You can play and beat online records of time and moves. Also, dedicated fans can
 1. Traditional mode for casual and beginner players. Beat your personal records of time and moves.
 2. Cage mode. The puzzle here is a sliced image that needs to be joined. Solve the puzzle in Cage mode, and you will open a new Cage picture. There are many such images, and opening them all is a challenge. You can obtain all unlocked items in the Cage Image Gallery (press the "Complete" link).
 3. Pro mode (speed sliding). The puzzle is represented in a fringe color scheme, and you control movement with mouse hover. This mode is intended for professional and highly skilled experienced players; for world champions in this discipline, and for those who want to be among them. Can you solve "15 puzzle" in 1-2 seconds? It's possible, and several people in the world do this!
-4. You can select different puzzle sizes: 3x3, 4x4, 5x5, 6x6, 7x7 and 8x8
+4. You can select different puzzle sizes: 3x3, 4x4, 5x5, 6x6, 7x7 and 8x8.
 5. Marathon mode: you need to beat five puzzles in a row without any pause.
 6. Online records database. Register your account then game time/moves will be stored and compared to other best results. There are single and averages records on all puzzle sizes and two modes. You can log in to different devices (browsers) with your account.
 7. Playground mode. You can master your skills here. Choose scramble and try to solve it with the best time or find an optimal solution. You can add your own scramble or choose it randomly. Also, it is possible to share your game with received results.
 8. After each game, you will have a link to the page with game stats and a replay feature.
-9. You can configure the game: turn off Cage mode to perfect your records in the traditional game; play in hardcore Cage mode without numbers on blocks; disable Win message if it doesn't suit your game experience. Change control mode or set dark screen mode and others.
+9. You can configure the game: turn off Cage mode to perfect your records in the traditional game; play in hardcore Cage mode without numbers on blocks; disable Win message if it doesn't suit your game experience. Option for saving current game session. Change control mode or set dark screen mode and others.
 10. "15 puzzle online" works perfectly on every modern desktop browser, android and iOS platforms, small-size mobiles, and tablets. You are free to choose where and how you prefer to play.
 11. In your profile, you can see all played games with stats. Sort by date, time, and moves, or get a solution/scramble from the chosen game.
 12. For puzzle size 3x3 you can see moves difference from the optimal solution after finishing each game, also in other places: your games in profile, replay page, etc.
+13. Exclusive G1000 mode for 3x3 savants (https://15puzzle.uk/?g1000). You must finish 1000 3x3 puzzles without skipping.
+14. Feature for loading games data from last session (profile/your games).
+15. FMC (fewer moves challenge) Blitz mode: finish puzzles in 180 seconds with best (lowest) moves sum.
 
 ![Cage mode](public/mode2.jpg)
 
