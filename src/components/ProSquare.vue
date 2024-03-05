@@ -154,6 +154,10 @@ watch(currentOrder, (newValue, oldValue) => {
   immediate: false
 });
 watch(currentOrder, (newValue) => {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (newValue === undefined) {
+    return;
+  }
   setCanvasBg(bgColor.value);
   context.value!.fillStyle = '#0a0a23';
   context.value!.fillText(newValue === 0 ? '' : newValue.toString(), props.squareSize / 2, props.squareSize / 2);
