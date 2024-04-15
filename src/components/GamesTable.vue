@@ -51,7 +51,7 @@ const fetch = (endpoint: string): void => {
       }
       fetched.value = true;
     })
-    .catch(error => {
+    .catch((error: unknown) => {
       errorMsg.value = error as string;
       if (String(errorMsg.value).toLowerCase().includes('networkerror')) {
         baseStore.isNetworkError = true;
@@ -167,7 +167,7 @@ const doExport = (): void => {
     .then(res => {
       download(jsonToCSV(res.game_records!), 'games.csv', 'text/plain');
     })
-    .catch(error => {
+    .catch((error: unknown) => {
       errorMsg.value = error as string;
       console.log(errorMsg.value);
     });

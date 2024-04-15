@@ -135,7 +135,7 @@ const doShare = (): void => {
         await copy(`${baseUrl}?playground&public_id=${baseStore.publicId}`);
       }
     })
-    .catch(error => {
+    .catch((error: unknown) => {
       console.log(error as string);
     });
 };

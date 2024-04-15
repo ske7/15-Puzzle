@@ -33,7 +33,7 @@ export const postGame = (game: GameData, keyH: string): void => {
           .then((res) => {
             baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
             baseStore.setWasAvgRecords(res.was_avg_records as unknown as WasAvgRecord[]);
-          }).catch(error => {
+          }).catch((error: unknown) => {
             errorMsg.value = error as string;
             isFetching.value = false;
           });
@@ -47,7 +47,7 @@ export const postGame = (game: GameData, keyH: string): void => {
       }
       isFetching.value = false;
     })
-    .catch(error => {
+    .catch((error: unknown) => {
       errorMsg.value = error as string;
       isFetching.value = false;
     });
@@ -66,7 +66,7 @@ export const postUserScramble = async (user_scramble: UserScrambleData): Promise
       baseStore.userScrambleId = res.user_scramble_id!;
       isFetching.value = false;
     })
-    .catch(error => {
+    .catch((error: unknown) => {
       errorMsg.value = error as string;
       isFetching.value = false;
     });
@@ -84,7 +84,7 @@ export const patchUserScramble = (user_scramble: UserScrambleData): void => {
     .then((_res) => {
       isFetching.value = false;
     })
-    .catch(error => {
+    .catch((error: unknown) => {
       errorMsg.value = error as string;
       isFetching.value = false;
     });
@@ -102,7 +102,7 @@ export const postFMCBlitz = (data: FMCBlitzData): void => {
     .then((_res) => {
       isFetching.value = false;
     })
-    .catch(error => {
+    .catch((error: unknown) => {
       errorMsg.value = error as string;
       isFetching.value = false;
     });

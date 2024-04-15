@@ -146,7 +146,7 @@ export function shortenSolutionStr(str?: string): string {
     } else {
       result += currentChar;
       if (charCount > 1) {
-        result += charCount;
+        result += String(charCount);
       }
       currentChar = str[i];
       charCount = 1;
@@ -154,7 +154,7 @@ export function shortenSolutionStr(str?: string): string {
   }
   result += currentChar;
   if (charCount > 1) {
-    result += charCount;
+    result += String(charCount);
   }
   return result;
 }

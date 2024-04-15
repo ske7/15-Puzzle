@@ -58,7 +58,7 @@ const checkCurrentUser = (gameId: string): void => {
           baseStore.loadAverages();
         }
       })
-      .catch(error => {
+      .catch((error: unknown) => {
         baseStore.fmcBlitz = false;
         console.log(error as string);
       });
@@ -106,7 +106,7 @@ const checkPublicID = (initNumLines: number): void => {
             }
             initStore(numLines);
           })
-          .catch(error => {
+          .catch((error: unknown) => {
             console.log(error as string);
           });
       } else {
@@ -196,7 +196,7 @@ const checkGameLink = (gameId: string): void => {
           location.href = baseUrl;
         }
       })
-      .catch(error => {
+      .catch((error: unknown) => {
         console.log(error as string);
       });
   }

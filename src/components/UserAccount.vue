@@ -37,7 +37,7 @@ const fetch = (endpoint: string): void => {
       baseStore.isFetching = false;
       userData.value = res.stats;
     })
-    .catch(error => {
+    .catch((error: unknown) => {
       errorMsg.value = error as string;
       if (String(errorMsg.value).toLowerCase().includes('networkerror')) {
         baseStore.isNetworkError = true;

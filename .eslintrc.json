@@ -14,7 +14,7 @@
   },
   "plugins": ["@typescript-eslint"],
   "extends": [
-    "standard-with-typescript",
+    "love",
     "eslint:recommended",
     "plugin:@typescript-eslint/strict-type-checked",
     "plugin:@typescript-eslint/stylistic-type-checked",
@@ -30,19 +30,24 @@
         "format": ["camelCase", "UPPER_CASE", "PascalCase"]
       }
     ],
-    "@typescript-eslint/object-curly-spacing": ["error", "always"],
-    "@typescript-eslint/indent": [
-      "error",
-      2,
-      {
-        "SwitchCase": 1
-      }
-    ],
-    "@typescript-eslint/quotes": ["warn", "single"],
+    "object-curly-spacing": "off",
+    "@typescript-eslint/object-curly-spacing": "error",
+    "@typescript-eslint/indent": "error",
+    "quotes": "off",
+    "@typescript-eslint/quotes": "error",
     "@typescript-eslint/no-magic-numbers": "off",
     "@typescript-eslint/space-before-function-paren": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "quotes": ["warn", "single"],
+    "@typescript-eslint/restrict-template-expressions": [
+      "error",
+      {
+        "allowAny": true,
+        "allowBoolean": true,
+        "allowNullish": true,
+        "allowNumber": true,
+        "allowRegExp": true
+      }
+    ],
     "@typescript-eslint/semi": [
       "warn",
       "always",

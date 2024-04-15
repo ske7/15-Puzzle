@@ -46,7 +46,7 @@ const fetch = (endpoint: string): void => {
       }
       fetched.value = true;
     })
-    .catch(error => {
+    .catch((error: unknown) => {
       errorMsg.value = error as string;
       if (String(errorMsg.value).toLowerCase().includes('networkerror')) {
         baseStore.isNetworkError = true;

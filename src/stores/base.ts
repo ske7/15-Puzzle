@@ -171,7 +171,7 @@ export const useBaseStore = defineStore('base', {
           this.setPuzzleData();
           this.opt_m = 0;
         })
-          .catch(error => {
+          .catch((error: unknown) => {
             console.log(error as string);
           });
         return true;
@@ -219,7 +219,7 @@ export const useBaseStore = defineStore('base', {
                 this.opt_m = res.opt_m;
               }
             })
-            .catch(error => {
+            .catch((error: unknown) => {
               console.log(error as string);
             });
         }
@@ -237,7 +237,7 @@ export const useBaseStore = defineStore('base', {
           this.consecutiveSolves = res.id!;
           return true;
         })
-        .catch(error => {
+        .catch((error: unknown) => {
           console.log(error as string);
           return false;
         });

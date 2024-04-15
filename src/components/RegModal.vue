@@ -140,7 +140,7 @@ const fetch = (endpoint: string): void => {
         sentResetEmail.value = true;
         isFetching.value = false;
       })
-      .catch(error => {
+      .catch((error: unknown) => {
         errorMsg.value.push(error as string);
         isFetching.value = false;
       });
@@ -163,7 +163,7 @@ const fetch = (endpoint: string): void => {
         isFetching.value = false;
         emit('close');
       })
-      .catch(error => {
+      .catch((error: unknown) => {
         errorMsg.value.push(error as string);
         isFetching.value = false;
       });

@@ -36,7 +36,7 @@ const fetch = (endpoint: string): void => {
       baseStore.isFetching = false;
       userRecords.value = res.records;
     })
-    .catch(error => {
+    .catch((error: unknown) => {
       errorMsg.value = error as string;
       if (String(errorMsg.value).toLowerCase().includes('networkerror')) {
         baseStore.isNetworkError = true;
@@ -309,7 +309,7 @@ const tbodyHeightMobile = computed(() => {
             </tr>
           </thead>
           <tbody id="records-tbody">
-            <tr v-for="(item, index) in filteredRecords.slice(0, 50)" :key="item.id">
+            <tr v-for="(item, index) in filteredRecords.slice(0, 100)" :key="item.id">
               <td class="w-30">
                 {{ index + 1 }}
               </td>
