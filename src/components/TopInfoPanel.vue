@@ -57,7 +57,7 @@ const formatDate = (date?: string): string => {
       <div class="factor-wrapper">
         <span>Moves:</span>
         <span class="ml-5">{{ baseStore.movesCount }}<span
-          v-show="baseStore.opt_m !== 0 && baseStore.movesCount !== 0"
+          v-show="baseStore.opt_m !== 0 && (baseStore.movesCount !== 0 || baseStore.playgroundMode)"
           class="opt-moves"
         >+{{ baseStore.movesCount - baseStore.opt_m }}</span></span>
       </div>
