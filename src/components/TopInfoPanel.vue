@@ -22,31 +22,44 @@ const formatDate = (date?: string): string => {
 <template>
   <div class="top-info-panel">
     <div v-if="baseStore.replayMode || baseStore.sharedPlaygroundMode" class="replay-row-info">
-      <p>Solved by <span>{{ baseStore.sharedPlaygroundMode ? baseStore.otherUserName : baseStore.repGame.name }}</span></p>
-      <p>Date: <span>{{ formatDate(baseStore.sharedPlaygroundMode ? baseStore.playgroundCreatedAt : baseStore.repGame.created_at) }}</span></p>
+      <p>
+        Solved by <span>{{ baseStore.sharedPlaygroundMode ? baseStore.otherUserName : baseStore.repGame.name }}</span>
+      </p>
+      <p>
+        Date:
+        <span>{{ formatDate(baseStore.sharedPlaygroundMode ?
+          baseStore.playgroundCreatedAt : baseStore.repGame.created_at) }}</span>
+      </p>
       <p v-if="baseStore.replayMode">
-        <span>{{ displayedTime(baseStore.repGame.time) }}s | {{ baseStore.repGame.moves }} | {{ baseStore.repGame.tps }}</span>
+        <span>{{ displayedTime(baseStore.repGame.time) }}s | {{ baseStore.repGame.moves }} |
+          {{ baseStore.repGame.tps }}</span>
       </p>
     </div>
     <div v-if="baseStore.playgroundMode" class="playground-row-info">
       <p>
-        Scramble:<span>md:{{ calculateMD(baseStore.mixedOrders) }}; {{ convertScramble(String(baseStore.mixedOrders)) }}</span><CopyButton
-          :item-to-copy="String(baseStore.mixedOrders)"
-          :is-solve-path="false"
-        />
+        Scramble:<span>md:{{ calculateMD(baseStore.mixedOrders) }};
+          {{ convertScramble(String(baseStore.mixedOrders)) }}</span>
+        <CopyButton :item-to-copy="String(baseStore.mixedOrders)" :is-solve-path="false" />
       </p>
     </div>
     <div class="info-wrapper">
       <div class="factor-wrapper">
         <span>Time:</span>
-        <a v-if="baseStore.lastGameID !== '0' && !baseStore.cageMode" :href="`${baseUrl}?game_id=${baseStore.lastGameID}`" class="ml-5 link-item">
+        <a
+          v-if="baseStore.lastGameID !== '0' && !baseStore.cageMode"
+          :href="`${baseUrl}?game_id=${baseStore.lastGameID}`"
+          class="ml-5 link-item"
+        >
           {{ baseStore.timeStr }}s
         </a>
         <span v-else class="ml-5">{{ baseStore.timeStr }}s</span>
       </div>
       <div class="factor-wrapper">
         <span>Moves:</span>
-        <span class="ml-5">{{ baseStore.movesCount }}<span v-if="baseStore.opt_m !== 0" class="opt-moves">+{{ baseStore.movesCount - baseStore.opt_m }}</span></span>
+        <span class="ml-5">{{ baseStore.movesCount }}<span
+          v-show="baseStore.opt_m !== 0 && baseStore.movesCount !== 0"
+          class="opt-moves"
+        >+{{ baseStore.movesCount - baseStore.opt_m }}</span></span>
       </div>
       <div class="factor-wrapper">
         <span>TPS:</span>
