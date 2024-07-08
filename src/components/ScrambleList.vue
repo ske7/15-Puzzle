@@ -91,7 +91,7 @@ watch(puzzleSize, (newValue) => {
     scrambleRecords.value = [];
     offset = 0;
     fetched.value = false;
-    if (sortField === 'opt_diff') {
+    if (sortField === 'opt_diff' || sortField === 'optimal_moves') {
       sortField = 'best_moves';
     }
     doFetch();
@@ -131,26 +131,32 @@ const doSort = (newSortField: string): void => {
         <div class="flex-row w-70">
           ID
         </div>
-        <div class="flex-row w-160">
+        <div class="flex-row w-150">
           Date
           <span class="pro-sort" @click="doSort('id')">
             {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
         </div>
-        <div class="flex-row w-160">
-          Best Time
+        <div class="flex-row w-130">
+          Time
           <span class="pro-sort" @click="doSort('best_time')">
             {{ sortField !== 'best_time' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
         </div>
-        <div class="flex-row w-120">
-          Best Moves
+        <div class="flex-row w-80">
+          Moves
           <span class="pro-sort" @click="doSort('best_moves')">
             {{ sortField !== 'best_moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
         </div>
-        <div v-if="puzzleSize === 3" class="flex-row w-85">
-          Opt.diff
+        <div v-if="puzzleSize === 3" class="flex-row w-80">
+          Opt.
+          <span class="pro-sort" @click="doSort('optimal_moves')">
+            {{ sortField !== 'optimal_moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+          </span>
+        </div>
+        <div v-if="puzzleSize === 3" class="flex-row w-80">
+          Diff
           <span class="pro-sort" @click="doSort('opt_diff')">
             {{ sortField !== 'opt_diff' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
           </span>
@@ -166,11 +172,7 @@ const doSort = (newSortField: string): void => {
         </div>
       </div>
       <template v-if="fetched">
-        <div
-          v-for="(item) in scrambleRecords"
-          :key="item.id"
-          class="flex-table"
-        >
+        <div v-for="(item) in scrambleRecords" :key="item.id" class="flex-table">
           <div class="table-header-mobile">
             <div class="flex-row">
               ID
@@ -182,19 +184,25 @@ const doSort = (newSortField: string): void => {
               </span>
             </div>
             <div class="flex-row">
-              Best Time
+              Time
               <span class="pro-sort" @click="doSort('best_time')">
                 {{ sortField !== 'best_time' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
               </span>
             </div>
             <div class="flex-row">
-              Best Moves
+              Moves
               <span class="pro-sort" @click="doSort('best_moves')">
                 {{ sortField !== 'best_moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
               </span>
             </div>
             <div v-if="puzzleSize === 3" class="flex-row">
-              Opt.diff
+              Opt.
+              <span class="pro-sort" @click="doSort('optimal_moves')">
+                {{ sortField !== 'optimal_moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+              </span>
+            </div>
+            <div v-if="puzzleSize === 3" class="flex-row">
+              Diff
               <span class="pro-sort" @click="doSort('opt_diff')">
                 {{ sortField !== 'opt_diff' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
               </span>
@@ -215,16 +223,21 @@ const doSort = (newSortField: string): void => {
                 {{ item.id }}
               </p>
             </div>
-            <div class="flex-row w-160">
+            <div class="flex-row w-150">
               <span>{{ formatDate(item.created_at) }}</span>
             </div>
-            <div class="flex-row w-160">
-              <span>{{ item.best_time! / 1000 }} ( {{ item.best_time_moves }} | {{ item.best_tps }})</span>
+            <div class="flex-row w-130 column-direction">
+              <span>{{ item.best_time! / 1000 }}</span>
+              <br>
+              <span>( {{ item.best_time_moves }} | {{ item.best_tps }})</span>
             </div>
-            <div class="flex-row w-120">
+            <div class="flex-row w-80">
               <span>{{ item.best_moves }}</span>
             </div>
-            <div v-if="puzzleSize === 3" class="flex-row w-85">
+            <div v-if="puzzleSize === 3" class="flex-row w-80">
+              <span>{{ item.optimal_moves }}</span>
+            </div>
+            <div v-if="puzzleSize === 3" class="flex-row w-80">
               <span v-if="item.opt_diff || 0 > 0">+{{ item.opt_diff }}</span>
             </div>
             <div class="flex-row smaller-font">
@@ -233,20 +246,12 @@ const doSort = (newSortField: string): void => {
                 <p class="scramble-text">
                   {{ convertScramble(item.scramble) }}
                 </p>
-                <CopyButton
-                  v-if="item.scramble"
-                  :item-to-copy="String(item.scramble)"
-                  :is-solve-path="false"
-                />
+                <CopyButton v-if="item.scramble" :item-to-copy="String(item.scramble)" :is-solve-path="false" />
               </div>
             </div>
             <div class="flex-row w-85 smaller-font">
               <div class="copy-button-wrapper">
-                <CopyButton
-                  v-if="item.solve_path"
-                  :item-to-copy="String(item.solve_path)"
-                  :is-solve-path="true"
-                />
+                <CopyButton v-if="item.solve_path" :item-to-copy="String(item.solve_path)" :is-solve-path="true" />
               </div>
             </div>
             <div class="flex-row w-120">
@@ -344,6 +349,9 @@ const doSort = (newSortField: string): void => {
 .w-70 {
   max-width: 70px;
 }
+.w-80 {
+  max-width: 80px;
+}
 .w-85 {
   max-width: 85px;
 }
@@ -352,6 +360,12 @@ const doSort = (newSortField: string): void => {
 }
 .w-120{
   max-width: 120px;
+}
+.w-130 {
+  max-width: 130px;
+}
+.w-150 {
+  max-width: 150px;
 }
 .w-160{
   max-width: 160px;
@@ -421,6 +435,9 @@ const doSort = (newSortField: string): void => {
 .pro-sort:active {
   opacity: 0.7;
 }
+.column-direction {
+  flex-direction: column;
+}
 @media screen and (max-width: 1100px) {
   .scramble-text {
     display: none;
@@ -456,7 +473,7 @@ const doSort = (newSortField: string): void => {
     flex-grow: 1;
     max-width: 180px;
     min-width: 180px;
-    min-height: 32px;
+    min-height: 52px;
     border-top: solid 1px var(--table-border-color);
     border-bottom: solid 0px var(--table-border-color);
   }
@@ -471,7 +488,7 @@ const doSort = (newSortField: string): void => {
   .table-header {
     display: none;
   }
-  .w-70, .w-85 {
+  .w-70, .w-80, .w-85 {
     max-width: 180px;
     min-width: 180px;
   }
@@ -483,7 +500,7 @@ const doSort = (newSortField: string): void => {
     max-width: 180px;
     min-width: 180px;
   }
-  .w-160 {
+  .w-130, w-150, .w-160 {
     max-width: 180px;
     min-width: 180px;
   }
