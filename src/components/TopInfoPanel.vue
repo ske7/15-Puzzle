@@ -46,7 +46,7 @@ const formatDate = (date?: string): string => {
       <div class="factor-wrapper">
         <span>Time:</span>
         <a
-          v-if="baseStore.lastGameID !== '0' && !baseStore.cageMode"
+          v-if="baseStore.lastGameID !== '0' && baseStore.isDone && !baseStore.cageMode"
           :href="`${baseUrl}?game_id=${baseStore.lastGameID}`"
           class="ml-5 link-item"
         >
