@@ -182,7 +182,7 @@ export function convertScrambles(str?: string, type?: string): string {
   if (str == null) {
     return '';
   }
-  if (type?.toLowerCase().slice(0, 1) === 'm') {
+  if ((type?.toLowerCase().startsWith('m')) ?? false) {
     const arr = str.split(';');
     let res = '';
     for (const item of arr) {

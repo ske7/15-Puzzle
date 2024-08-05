@@ -231,12 +231,12 @@ const showScrambleList = (): void => {
 
 onMounted(() => {
   eventBus.on((event, payload) => {
-    void listener(event, String(payload));
+    listener(event, String(payload)).catch((error: unknown) => { console.log(error) });
   });
 });
 onUnmounted(() => {
   eventBus.off((event, payload) => {
-    void listener(event, String(payload));
+    listener(event, String(payload)).catch((error: unknown) => { console.log(error) });
   });
 });
 </script>

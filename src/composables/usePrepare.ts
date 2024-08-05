@@ -75,7 +75,9 @@ const initPlayground = (res: Response, publicId: string): void => {
 
   if (res.stats != null) {
     const stats = res.stats as unknown as UserScrambleData;
-    baseStore.savedOrders = stats.scramble!.split(',').map(x => +x);
+    if (stats.scramble !== undefined) {
+      baseStore.savedOrders = stats.scramble.split(',').map(x => +x);
+    }
     baseStore.playgroundBestTime = stats.best_time!;
     baseStore.playgroundBestTimeMoves = stats.best_time_moves!;
     baseStore.playgroundBestMoves = stats.best_moves!;
