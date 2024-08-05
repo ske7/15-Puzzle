@@ -196,7 +196,9 @@ export const useBaseStore = defineStore('base', {
         this.playgroundBestTime = stats.best_time!;
         this.playgroundBestTimeMoves = stats.best_time_moves!;
         this.playgroundBestMoves = stats.best_moves!;
-        this.playgroundSolvePath = stats.solve_path!.split('');
+        if (stats.solve_path !== undefined) {
+          this.playgroundSolvePath = stats.solve_path.split('');
+        }
         this.publicId = stats.public_id ?? '';
       } else {
         this.playgroundBestTime = 0;
@@ -233,7 +235,9 @@ export const useBaseStore = defineStore('base', {
             location.href = import.meta.env.VITE_BASE_URL;
             return false;
           }
-          this.mixedOrders = res.scramble!.split(',').map(x => +x);
+          if (res.scramble !== undefined) {
+            this.mixedOrders = res.scramble.split(',').map(x => +x);
+          }
           this.consecutiveSolves = res.id!;
           return true;
         })
@@ -675,7 +679,7 @@ export const useBaseStore = defineStore('base', {
       this.setWasAvgRecords([]);
     },
     setSessionId(): void {
-      if (this.token == null || this.userName === undefined) {
+      if (this.token == null || this.userName === undefined || this.sessionId === undefined) {
         return;
       }
       if (this.consecutiveSolves === 1) {
@@ -683,7 +687,7 @@ export const useBaseStore = defineStore('base', {
         this.sessionId = `${this.userName.slice(0, 2)}${rand}_${btoa(new Date().getTime().toString())}`.toLowerCase().replace(/=/g, '');
       }
       if (!this.g1000Mode && this.keepSession) {
-        localStorage.setItem('_xss', btoa(this.sessionId!));
+        localStorage.setItem('_xss', btoa(this.sessionId));
         localStorage.setItem('_xcs', btoa(this.consecutiveSolves.toString()));
       }
     },
