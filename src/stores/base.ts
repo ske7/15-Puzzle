@@ -679,7 +679,7 @@ export const useBaseStore = defineStore('base', {
       this.setWasAvgRecords([]);
     },
     setSessionId(): void {
-      if (this.token == null || this.userName === undefined || this.sessionId === undefined) {
+      if (this.token == null || this.userName === undefined) {
         return;
       }
       if (this.consecutiveSolves === 1) {
@@ -687,7 +687,9 @@ export const useBaseStore = defineStore('base', {
         this.sessionId = `${this.userName.slice(0, 2)}${rand}_${btoa(new Date().getTime().toString())}`.toLowerCase().replace(/=/g, '');
       }
       if (!this.g1000Mode && this.keepSession) {
-        localStorage.setItem('_xss', btoa(this.sessionId));
+        if (this.sessionId !== undefined) {
+          localStorage.setItem('_xss', btoa(this.sessionId));
+        }
         localStorage.setItem('_xcs', btoa(this.consecutiveSolves.toString()));
       }
     },
