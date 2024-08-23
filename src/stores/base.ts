@@ -116,7 +116,8 @@ export const useBaseStore = defineStore('base', {
     blitzMovesCount: 0,
     isTimeFailed: false,
     clearDisplay: false,
-    marathonFirstMove: false
+    marathonFirstMove: false,
+    fastWalkMode: localStorage.getItem('fastWalkMode') === 'true'
   }),
   actions: {
     initStore() {
@@ -857,6 +858,9 @@ export const useBaseStore = defineStore('base', {
         time = this.time;
       }
       return time;
+    },
+    walkSpeed(): number {
+      return this.fastWalkMode ? 50 : 200;
     }
   }
 });

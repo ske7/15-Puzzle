@@ -203,6 +203,10 @@ const disableSave = computed(() => {
   }
   return false;
 });
+const setWalkMode = (fastWalkMode: boolean): void => {
+  baseStore.fastWalkMode = fastWalkMode;
+  localStorage.setItem('fastWalkMode', baseStore.fastWalkMode.toString());
+};
 </script>
 
 <template>
@@ -227,7 +231,12 @@ const disableSave = computed(() => {
     </div>
     <div class="info-row" :style="{ 'min-height': getMinHeight }">
       <div v-if="baseStore.replayMode" class="copy-button-wrapper center">
-        <span class="solution-label"><em v-if="!baseStore.marathonReplay">md:{{ calculateMD(baseStore.repGame.scramble.split(',')) }}; </em><em v-if="baseStore.repGame.opt_moves !== null">om:{{ baseStore.repGame.opt_moves }}; </em>{{ convertScrambles(baseStore.repGame.scramble, baseStore.marathonReplay ? 'marathon' : 'standard') }}</span>
+        <span class="solution-label"><em
+          v-if="!baseStore.marathonReplay"
+        >md:{{ calculateMD(baseStore.repGame.scramble.split(',')) }}; </em><em
+          v-if="baseStore.repGame.opt_moves !== null"
+        >om:{{ baseStore.repGame.opt_moves }};
+        </em>{{ convertScrambles(baseStore.repGame.scramble, baseStore.marathonReplay ? 'marathon' : 'standard') }}</span>
         <CopyButton
           :item-to-copy="String(baseStore.repGame.scramble)"
           :is-solve-path="false"
@@ -241,10 +250,7 @@ const disableSave = computed(() => {
           </span>
           <span>{{ baseStore.repGame.solve_path }}</span>
         </div>
-        <CopyButton
-          :item-to-copy="String(baseStore.repGame.solve_path)"
-          :is-solve-path="true"
-        />
+        <CopyButton :item-to-copy="String(baseStore.repGame.solve_path)" :is-solve-path="true" />
         <button
           v-if="baseStore.registered && (baseStore.userName && baseStore.repGame.name === baseStore.userName) &&
             !baseStore.marathonReplay"
@@ -258,14 +264,14 @@ const disableSave = computed(() => {
       <div v-if="baseStore.replayMode && baseStore.solvePath.length > 0" class="copy-button-wrapper mt-5">
         <div>
           <span class="solution-label">
-            New solution<em v-if="baseStore.userName && baseStore.repGame.name !== baseStore.userName" class="improved-user"> (by {{ baseStore.userName }})</em>:
+            New solution<em
+              v-if="baseStore.userName && baseStore.repGame.name !== baseStore.userName"
+              class="improved-user"
+            > (by {{ baseStore.userName }})</em>:
           </span>
           <span>{{ baseStore.solvePath.join('') }}</span>
         </div>
-        <CopyButton
-          :item-to-copy="String(baseStore.solvePath.join(''))"
-          :is-solve-path="true"
-        />
+        <CopyButton :item-to-copy="String(baseStore.solvePath.join(''))" :is-solve-path="true" />
         <button
           v-if="baseStore.registered"
           type="button"
@@ -277,7 +283,11 @@ const disableSave = computed(() => {
         </button>
       </div>
       <div v-if="baseStore.playgroundMode">
-        Best speed: <span :class="{ 'red bold': baseStore.newPlaygroundTimeRecord }">{{ displayedTime(baseStore.playgroundBestTime) }}s | {{ baseStore.playgroundBestTimeMoves }} | {{ calculateTPS(baseStore.playgroundBestTimeMoves, baseStore.playgroundBestTime) }}</span>
+        Best speed: <span
+          :class="{ 'red bold': baseStore.newPlaygroundTimeRecord }"
+        >{{ displayedTime(baseStore.playgroundBestTime) }}s
+          | {{ baseStore.playgroundBestTimeMoves }} |
+          {{ calculateTPS(baseStore.playgroundBestTimeMoves, baseStore.playgroundBestTime) }}</span>
       </div>
       <div v-if="baseStore.playgroundMode" class="best-solution">
         Best solution:
@@ -306,6 +316,26 @@ const disableSave = computed(() => {
         >
           {{ baseStore.inReplay ? 'Stop' : 'Walk' }}
         </button>
+        <div v-if="baseStore.playgroundSolvePath.length > 0 && !baseStore.sharedPlaygroundMode" class="speed-buttons">
+          <button
+            type="button"
+            class="tool-button"
+            :class="{ 'black bold': !baseStore.fastWalkMode }"
+            :disabled="baseStore.inReplay"
+            @click="setWalkMode(false)"
+          >
+            s
+          </button>
+          <button
+            type="button"
+            class="tool-button"
+            :class="{ 'black bold': baseStore.fastWalkMode }"
+            :disabled="baseStore.inReplay"
+            @click="setWalkMode(true)"
+          >
+            f
+          </button>
+        </div>
         <button
           v-if="baseStore.playgroundSolvePath.length > 0 &&
             baseStore.token != null &&
@@ -323,12 +353,8 @@ const disableSave = computed(() => {
         v-if="baseStore.enableCageMode &&
           !(baseStore.marathonMode || baseStore.proMode) && baseStore.numLines === CORE_NUM"
       >
-        <span
-          class="link-item"
-          :class="{ paused: cannotClick }"
-          @click="doShowImageGallery"
-        >
-          Completed</span>  <span class="italic">
+        <span class="link-item" :class="{ paused: cannotClick }" @click="doShowImageGallery">
+          Completed</span> <span class="italic">
           {{ baseStore.unlockedCages.size }}
         </span> out of {{ baseStore.cagesCount }} "Cages"
       </p>
@@ -339,7 +365,10 @@ const disableSave = computed(() => {
         </span> out of {{ baseStore.marathonMode ? 5 : baseStore.blitzScrambleCount }} puzzles
       </p>
       <p v-if="baseStore.fmcBlitz && !(baseStore.replayMode || baseStore.playgroundMode)" class="center">
-        T: {{ baseStore.blitzTimeStr }} | M: {{ baseStore.solvedPuzzlesInMarathon === baseStore.blitzScrambleCount || (baseStore.interval === 0 && baseStore.blitzInterval !== 0) ? baseStore.blitzMovesCount : baseStore.blitzMovesCount + baseStore.movesCount }}
+        T: {{ baseStore.blitzTimeStr }} | M:
+        {{ baseStore.solvedPuzzlesInMarathon === baseStore.blitzScrambleCount ||
+          (baseStore.interval === 0 && baseStore.blitzInterval !== 0) ?
+            baseStore.blitzMovesCount : baseStore.blitzMovesCount + baseStore.movesCount }}
       </p>
     </div>
     <div v-show="!baseStore.clearDisplay" class="reg-wrapper" :class="{ paused: cannotClick }">
@@ -365,7 +394,11 @@ const disableSave = computed(() => {
             <span class="link-item" :class="{ paused: cannotClick }" @click="doShowLeaderBoard">Leaderboard</span>
             <span> | </span>
             <span v-if="!baseStore.registered">
-              <span class="link-item" :class="{ paused: cannotClick }" @click="doShowRegModal('register')">Register</span>  or
+              <span
+                class="link-item"
+                :class="{ paused: cannotClick }"
+                @click="doShowRegModal('register')"
+              >Register</span> or
               <span class="link-item" :class="{ paused: cannotClick }" @click="doShowRegModal('login')">login</span>
             </span>
             <span
@@ -459,6 +492,9 @@ const disableSave = computed(() => {
 }
 .red {
   color: red;
+}
+.black {
+  color: black;
 }
 .bold {
   font-weight: 600;

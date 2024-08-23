@@ -135,7 +135,7 @@ const doWalk = async (): Promise<void> => {
   if (solveLen > 0 && baseStore.solvePath.join('') === baseStore.repGame.solve_path) {
     doRestart('fromMain');
     await sleep(100);
-    await doReplay(200, true);
+    await doReplay(baseStore.walkSpeed, true);
     return;
   }
   if (baseStore.isDone ||
@@ -145,7 +145,7 @@ const doWalk = async (): Promise<void> => {
     stopWalk.value = false;
     doRestart('fromMain');
     await sleep(100);
-    await doReplay(200, true);
+    await doReplay(baseStore.walkSpeed, true);
     return;
   }
   if (baseStore.inReplay) {
@@ -153,7 +153,7 @@ const doWalk = async (): Promise<void> => {
     stopWalk.value = true;
   } else {
     stopWalk.value = false;
-    await doReplay(200, true);
+    await doReplay(baseStore.walkSpeed, true);
   }
 };
 const doRenew = (): void => {
@@ -228,7 +228,10 @@ const showScrambleList = (): void => {
   }
   baseStore.showScrambleList = true;
 };
-
+const setWalkMode = (fastWalkMode: boolean): void => {
+  baseStore.fastWalkMode = fastWalkMode;
+  localStorage.setItem('fastWalkMode', baseStore.fastWalkMode.toString());
+};
 onMounted(() => {
   eventBus.on((event, payload) => {
     listener(event, String(payload)).catch((error: unknown) => { console.log(error) });
@@ -307,6 +310,26 @@ onUnmounted(() => {
       >
         {{ baseStore.inReplay ? 'Stop' : 'Walk' }}
       </button>
+      <div v-if="baseStore.replayMode && !baseStore.playgroundMode" class="speed-buttons">
+        <button
+          type="button"
+          class="tool-button"
+          :class="{ 'black bold': !baseStore.fastWalkMode }"
+          :disabled="baseStore.inReplay"
+          @click="setWalkMode(false)"
+        >
+          s
+        </button>
+        <button
+          type="button"
+          class="tool-button"
+          :class="{ 'black bold': baseStore.fastWalkMode }"
+          :disabled="baseStore.inReplay"
+          @click="setWalkMode(true)"
+        >
+          f
+        </button>
+      </div>
       <button
         v-if="baseStore.replayMode && !baseStore.marathonReplay"
         type="button"
@@ -381,6 +404,26 @@ onUnmounted(() => {
       >
         {{ baseStore.inReplay ? 'Stop' : 'Walk' }}
       </button>
+      <div v-if="baseStore.replayMode && !baseStore.playgroundMode" class="speed-buttons">
+        <button
+          type="button"
+          class="tool-button"
+          :class="{ 'black bold': !baseStore.fastWalkMode }"
+          :disabled="baseStore.inReplay"
+          @click="setWalkMode(false)"
+        >
+          s
+        </button>
+        <button
+          type="button"
+          class="tool-button"
+          :class="{ 'black bold': baseStore.fastWalkMode }"
+          :disabled="baseStore.inReplay"
+          @click="setWalkMode(true)"
+        >
+          f
+        </button>
+      </div>
       <button
         v-if="baseStore.replayMode && !baseStore.marathonReplay"
         type="button"
@@ -428,18 +471,9 @@ onUnmounted(() => {
       </button>
     </div>
   </div>
-  <ConfigModal
-    v-if="baseStore.showConfig"
-    @close="closeConfigModal"
-  />
-  <InfoModal
-    v-if="baseStore.showInfo"
-    @close="closeAboutModal"
-  />
-  <ImageGallery
-    v-if="baseStore.showImageGallery"
-    @close="closeImageGallery"
-  />
+  <ConfigModal v-if="baseStore.showConfig" @close="closeConfigModal" />
+  <InfoModal v-if="baseStore.showInfo" @close="closeAboutModal" />
+  <ImageGallery v-if="baseStore.showImageGallery" @close="closeImageGallery" />
   <AddScramble v-if="baseStore.showAddScramble" @set="setScramble" @close="closeAddScramble" />
   <ScrambleList v-if="baseStore.showScrambleList" @set="setScramble" @close="closeScrambleList" />
 </template>
@@ -460,6 +494,12 @@ onUnmounted(() => {
   margin-bottom: 5px;
   width: 100%;
   justify-content: space-around;
+}
+.black {
+  color: black;
+}
+.bold {
+  font-weight: 600;
 }
 @media screen and (max-width: 820px) {
 .action-panel .first-row {
