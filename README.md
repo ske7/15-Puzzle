@@ -43,7 +43,7 @@ Press the "PageUp"/"PageDown" keys to increase/decrease puzzle size. "Ctrl + Spa
 
 ## Acknowledgments
 
-Thanks a lot to the [Speedsliding community](https://discord.com/invite/snzGkxsZ) for giving advice, testing, filling the leaderboard with the best-ever results, and having fun :)
+Thanks a lot to the Speedsliding community for giving advice, testing, filling the leaderboard with the best-ever results, and having fun :)
 
 ## Contact
 
