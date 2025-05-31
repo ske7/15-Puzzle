@@ -396,8 +396,8 @@ export const useBaseStore = defineStore('base', {
           this.doResetList = false;
         }
       }
-      // NOSONAR
-      if (!this.marathonFirstMove) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-boolean-literal-compare
+      if (this.marathonFirstMove !== true) {
         this.marathonFirstMove = true;
       }
       if (this.interval === 0) {
