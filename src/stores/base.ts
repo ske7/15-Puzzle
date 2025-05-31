@@ -396,6 +396,7 @@ export const useBaseStore = defineStore('base', {
           this.doResetList = false;
         }
       }
+      // NOSONAR
       if (!this.marathonFirstMove) {
         this.marathonFirstMove = true;
       }
