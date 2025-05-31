@@ -41,7 +41,7 @@ export const useCanMove = (refValue: ComputedRef<number>,
       baseStore.spaceBetween + squareSize * (Number(elementRow.value) - 1);
   });
   const canMove = computed(() => {
-    return canMoveRight.value || canMoveLeft.value || canMoveUp.value || canMoveDown.value;
+    return [canMoveRight.value, canMoveLeft.value, canMoveUp.value, canMoveDown.value].some(Boolean);
   });
 
   const moveDirection = computed(() => {

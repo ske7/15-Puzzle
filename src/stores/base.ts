@@ -396,9 +396,7 @@ export const useBaseStore = defineStore('base', {
           this.doResetList = false;
         }
       }
-      if (!this.marathonFirstMove) {
-        this.marathonFirstMove = true;
-      }
+      this.marathonFirstMove ||= true;
       if (this.interval === 0) {
         this.restartInterval();
       }
@@ -803,9 +801,17 @@ export const useBaseStore = defineStore('base', {
         : displayedTime(this.blitzTime, longMode);
     },
     showModal(): boolean {
-      return this.showConfig || this.showInfo || this.showWinModal ||
-        this.showImageGallery || this.showRegModal || this.showUserAccount ||
-        this.showLeaderBoard || this.showAddScramble || this.showScrambleList;
+      return [
+        this.showConfig,
+        this.showInfo,
+        this.showWinModal,
+        this.showImageGallery,
+        this.showRegModal,
+        this.showUserAccount,
+        this.showLeaderBoard,
+        this.showAddScramble,
+        this.showScrambleList
+      ].some(Boolean);
     },
     cageImgIndex(): number {
       return CAGES_PATH_ARR.indexOf(this.cagePath.toString());
