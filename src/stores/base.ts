@@ -62,7 +62,7 @@ export const useBaseStore = defineStore('base', {
     savedTime: 0,
     darkMode: localStorage.getItem('darkMode') === 'true',
     boardPos: {} as unknown as Position,
-    token: localStorage.getItem('token') as (string | undefined),
+    token: localStorage.getItem('token') ?? undefined,
     userName: undefined as (undefined | string),
     isMoving: false,
     moveDoneBy: ControlType.Mouse,
@@ -117,7 +117,8 @@ export const useBaseStore = defineStore('base', {
     isTimeFailed: false,
     clearDisplay: false,
     marathonFirstMove: false,
-    fastWalkMode: localStorage.getItem('fastWalkMode') === 'true'
+    fastWalkMode: localStorage.getItem('fastWalkMode') === 'true',
+    proBeforeCage: localStorage.getItem('proBeforeCage') === 'true'
   }),
   actions: {
     initStore() {

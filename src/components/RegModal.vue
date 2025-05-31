@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useBaseStore } from '../stores/base';
-import { onClickOutside, useWindowSize } from '@vueuse/core';
+import { onClickOutside } from '@vueuse/core';
 import { usePostFetchAPI } from '../composables/useFetchAPI';
-import { cores, CORE_NUM } from '@/const';
-import {
-  type GameData, type Record, type UserData,
-  type UserStats, type InvalidFields
-} from '@/types';
+import { cores } from '@/const';
+import { type Record, type UserData, type UserStats, type InvalidFields } from '@/types';
 
 const props = defineProps<{ formType: string; resetToken?: string; email?: string }>();
 const emit = defineEmits<{ close: [] }>();
@@ -23,55 +20,6 @@ const registerForm = computed(() => {
 const setPasswordForm = computed(() => {
   return props.formType === 'set-password';
 });
-
-const { width: windowWidth } = useWindowSize();
-const recordGames = ref<GameData[]>([]);
-
-const loadLocalRecordAndPush = (size: number, isMarathon: boolean, isMovesMain = false): void => {
-  const recordControlType = windowWidth.value <= 800 ? 'touch' : 'mouse';
-  let record: Record = { record: 0, adding: 0 };
-  let time = 0;
-  let moves = 0;
-  if (isMovesMain) {
-    record = baseStore.loadMovesRecord(isMarathon, size);
-    time = record.adding;
-    moves = record.record;
-  } else {
-    record = baseStore.loadTimeRecord(isMarathon, size);
-    time = record.record;
-    moves = record.adding;
-  }
-  recordGames.value.push({
-    time,
-    moves,
-    puzzle_size: size,
-    puzzle_type: isMarathon ? 'marathon' : 'standard',
-    control_type: recordControlType,
-    consecutive_solves: 0
-  });
-};
-
-const fillRecordGames = (): void => {
-  recordGames.value = [];
-  for (const item of cores) {
-    let itemS = String(item);
-    if (item === CORE_NUM) {
-      itemS = '';
-    }
-    if (localStorage.getItem(`timeRecord${itemS}`) != null) {
-      loadLocalRecordAndPush(item, false);
-    }
-    if (localStorage.getItem(`timeMRecord${itemS}`) != null) {
-      loadLocalRecordAndPush(item, true);
-    }
-    if (localStorage.getItem(`movesRecord${itemS}`) != null) {
-      loadLocalRecordAndPush(item, false, true);
-    }
-    if (localStorage.getItem(`movesMRecord${itemS}`) != null) {
-      loadLocalRecordAndPush(item, true, true);
-    }
-  }
-};
 
 const updateLocalRecord = (stats: UserStats, puzzleSize: number, puzzleType: string): void => {
   const marathonMode = puzzleType === 'marathon';
@@ -132,7 +80,6 @@ const fetch = (endpoint: string): void => {
   if (!checkFields()) {
     return;
   }
-  fillRecordGames();
   isFetching.value = true;
   if (resetPasswordMode.value) {
     usePostFetchAPI(endpoint, JSON.stringify({ email: user.email }) as BodyInit)
@@ -146,12 +93,13 @@ const fetch = (endpoint: string): void => {
       });
   } else {
     usePostFetchAPI(endpoint, JSON.stringify(
-      { user, games: recordGames.value, reset_token: props.resetToken }
+      { user, reset_token: props.resetToken }
     ) as BodyInit)
       .then(res => {
         baseStore.token = res.token;
         localStorage.setItem('token', String(baseStore.token));
         syncUserRecordsAfterLogin(res.stats);
+        baseStore.initAfterNewPuzzleSize();
         if (window.location.search !== '') {
           isFetching.value = false;
           emit('close');
@@ -211,7 +159,7 @@ const checkFields = (): boolean => {
     if (user.password.trim() === '') {
       invalidFields.password = true;
     }
-    if (!(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g).test(user.email)) {
+    if (!(/^[\w-.]+@([\w-]+\.)+[\w-.]{2,20}$/g).test(user.email)) {
       errorMsg.value.push('Invalid email address');
       invalidFields.email = true;
     }
@@ -255,10 +203,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    ref="regModal"
-    class="reg-modal"
-  >
+  <div ref="regModal" class="reg-modal">
     <p class="header">
       <span>{{ headerText }}</span>
     </p>
@@ -280,7 +225,9 @@ onMounted(() => {
     <form v-if="!sentResetEmail" @submit.prevent="doSubmit">
       <fieldset :disabled="isFetching" class="fields">
         <legend v-if="registerForm && (!user.name || !user.email || !user.password)">
-          * all fields are required
+          * all fields are required (please use a real email)
+          <br>
+          ** your offline records will not published to the leaderboard
         </legend>
         <label v-if="registerForm" for="username">
           <span>Username</span>
@@ -336,11 +283,7 @@ onMounted(() => {
         </p>
       </div>
       <div class="buttons">
-        <button
-          type="submit"
-          class="tool-button"
-          :disabled="isFetching"
-        >
+        <button type="submit" class="tool-button" :disabled="isFetching">
           {{ submitButtonText }}
         </button>
         <button
@@ -400,8 +343,7 @@ onMounted(() => {
   border: none;
 }
 .fields > legend {
-  font-size: 14px;
-  color: red;
+  font-size: 12px;
 }
 label {
   margin-bottom: 5px;

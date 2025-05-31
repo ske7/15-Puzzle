@@ -19,7 +19,9 @@ const api = async (endpoint: string, method: string, body?: BodyInit,
   }
   if (keyH != null) {
     headers = {
-      ...headers, 'Request-xkh': keyH
+      ...headers,
+      'Request-xkh': keyH,
+      ts: Date.now().toString()
     };
   }
   try {

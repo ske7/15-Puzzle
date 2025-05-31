@@ -193,6 +193,7 @@ const disableDuringMarathon = computed(() => {
 
 const setScramble = (scramble: number[]): void => {
   baseStore.numLines = Math.sqrt(scramble.length);
+  localStorage.setItem('numLines', baseStore.numLines.toString());
   baseStore.savedOrders = scramble;
   baseStore.checkUserScrambleInDB = true;
   baseStore.initStore();
@@ -310,7 +311,7 @@ onUnmounted(() => {
       >
         {{ baseStore.inReplay ? 'Stop' : 'Walk' }}
       </button>
-      <div v-if="baseStore.replayMode && !baseStore.playgroundMode" class="speed-buttons">
+      <div v-if="baseStore.replayMode && !baseStore.playgroundMode && !baseStore.marathonReplay" class="speed-buttons">
         <button
           type="button"
           class="tool-button"
@@ -404,7 +405,7 @@ onUnmounted(() => {
       >
         {{ baseStore.inReplay ? 'Stop' : 'Walk' }}
       </button>
-      <div v-if="baseStore.replayMode && !baseStore.playgroundMode" class="speed-buttons">
+      <div v-if="baseStore.replayMode && !baseStore.playgroundMode && !baseStore.marathonReplay" class="speed-buttons">
         <button
           type="button"
           class="tool-button"

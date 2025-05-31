@@ -145,7 +145,7 @@ const checkPlaygroundMode = (locationStr: string, initNumLines: number): void =>
 const checkCageMode = (locationStr: string): void => {
   const baseStore = useBaseStore();
 
-  if (!baseStore.playgroundMode && locationStr.includes('?cage')) {
+  if (!baseStore.playgroundMode && locationStr.includes('?cage') || baseStore.enableCageMode) {
     baseStore.marathonMode = false;
     baseStore.g1000Mode = false;
     localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
@@ -217,35 +217,37 @@ export const usePrepare = (): void => {
 
   checkPlaygroundMode(locationStr, numLines);
 
-  checkCageMode(locationStr);
+  if (!baseStore.playgroundMode) {
+    checkCageMode(locationStr);
 
-  let gameId = '0';
-  if (location.href.toLowerCase().includes('game_id')) {
-    const searchParams = new URLSearchParams(location.search);
-    const gameIdParam = searchParams.get('game_id');
-    if (gameIdParam !== null) {
-      gameId = gameIdParam;
-    }
-  }
-  checkGameLink(gameId);
-
-  checkCurrentUser(gameId);
-
-  onMounted(() => {
-    if (gameId === '0' && !baseStore.playgroundMode && !baseStore.g1000Mode) {
-      if (baseStore.enableCageMode) {
-        baseStore.loadUnlockedCagesFromLocalStorage();
-        baseStore.doPrepareCageMode();
-        setTimeout(() => {
-          if (baseStore.unlockedCages.size > 0) {
-            const first = [...baseStore.unlockedCages][0];
-            baseStore.preloadImage(CAGES_PATH_ARR[first]);
-          }
-        }, 1000);
+    let gameId = '0';
+    if (location.href.toLowerCase().includes('game_id')) {
+      const searchParams = new URLSearchParams(location.search);
+      const gameIdParam = searchParams.get('game_id');
+      if (gameIdParam !== null) {
+        gameId = gameIdParam;
       }
-      initStore(numLines);
     }
-  });
+    checkGameLink(gameId);
+
+    checkCurrentUser(gameId);
+
+    onMounted(() => {
+      if (gameId === '0' && !baseStore.playgroundMode && !baseStore.g1000Mode) {
+        if (baseStore.enableCageMode) {
+          baseStore.loadUnlockedCagesFromLocalStorage();
+          baseStore.doPrepareCageMode();
+          setTimeout(() => {
+            if (baseStore.unlockedCages.size > 0) {
+              const first = [...baseStore.unlockedCages][0];
+              baseStore.preloadImage(CAGES_PATH_ARR[first]);
+            }
+          }, 1000);
+        }
+        initStore(numLines);
+      }
+    });
+  }
 };
 
 export const getSquareSize = (): Record<string, ComputedRef<number>> => {

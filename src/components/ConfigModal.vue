@@ -28,10 +28,12 @@ const setEnableCageMode = async (): Promise<void> => {
   localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
   baseStore.fmcBlitz = false;
   localStorage.setItem('fmcBlitz', baseStore.fmcBlitz.toString());
-  baseStore.proMode = false;
-  localStorage.setItem('proMode', baseStore.proMode.toString());
   puzzleSize.value = CORE_NUM;
   if (baseStore.enableCageMode) {
+    baseStore.proBeforeCage = baseStore.proMode;
+    localStorage.setItem('proBeforeCage', baseStore.proBeforeCage.toString());
+    baseStore.proMode = false;
+    localStorage.setItem('proMode', baseStore.proMode.toString());
     baseStore.initAfterNewPuzzleSize();
     await sleep(100);
     baseStore.loadUnlockedCagesFromLocalStorage();
@@ -40,6 +42,10 @@ const setEnableCageMode = async (): Promise<void> => {
     eventBus.emit('restart', 'fromConfig');
   } else {
     baseStore.cageMode = false;
+    if (baseStore.proBeforeCage) {
+      baseStore.proMode = baseStore.proBeforeCage;
+      localStorage.setItem('proMode', baseStore.proMode.toString());
+    }
     eventBus.emit('restart', 'fromConfig');
   }
 };
@@ -137,12 +143,17 @@ watch(puzzleSize, (newValue) => {
       baseStore.enableCageMode = false;
       localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
       baseStore.cageMode = false;
+      if (baseStore.proBeforeCage) {
+        baseStore.proMode = baseStore.proBeforeCage;
+        localStorage.setItem('proMode', baseStore.proMode.toString());
+      }
     }
     if (!fmcBlitzCores.includes(newValue)) {
       baseStore.fmcBlitz = false;
       localStorage.setItem('fmcBlitz', baseStore.fmcBlitz.toString());
     }
     baseStore.numLines = newValue;
+    localStorage.setItem('numLines', baseStore.numLines.toString());
     if (!baseStore.enableCageMode) {
       baseStore.initAfterNewPuzzleSize();
     }

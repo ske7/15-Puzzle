@@ -103,7 +103,7 @@ onUnmounted(() => {
   justify-content: center;
 }
 .win-button {
-  width: 100px;
+  width: 120px;
 }
 .mb-5 {
   margin-bottom: 5px;

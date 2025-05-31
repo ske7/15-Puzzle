@@ -37,6 +37,7 @@ export const useKeyDown = (): void => {
         const scramble = convertToNumbersArray(text);
         if (scramble.length > 0 && cores.includes(Math.sqrt(scramble.length))) {
           baseStore.numLines = Math.sqrt(scramble.length);
+          localStorage.setItem('numLines', baseStore.numLines.toString());
           baseStore.savedOrders = scramble;
           baseStore.checkUserScrambleInDB = true;
           baseStore.renewPuzzle();
