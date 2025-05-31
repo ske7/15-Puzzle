@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue';
-import { onClickOutside, useDateFormat, useWindowSize } from '@vueuse/core';
+import { ref, watch } from 'vue';
+import { onClickOutside, useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
@@ -9,6 +9,7 @@ import { type GameData } from '@/types';
 import { baseUrl, OrderDirection, OrderDirectionMap } from '@/const';
 import { shortenSolutionStr, convertScrambles } from '@/utils';
 import CopyButton from './CopyButton.vue';
+import { usePaginatedFetch } from '../composables/usePaginatedFetch';
 
 const emit = defineEmits<{ close: [] }>();
 
@@ -20,77 +21,34 @@ onClickOutside(gamesTable, (event) => {
 
 const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
-const limit = 50;
-let offset = 0;
-
 const puzzleSize = ref<number>(baseStore.numLines);
 const puzzleMode = ref<string>(baseStore.marathonMode ? 'marathon' : 'standard');
 if (baseStore.g1000Mode) {
   puzzleMode.value = 'g1000';
 }
-const errorMsg = ref('');
-const gameRecords = ref<GameData[]>([]);
-const isFetching = ref(false);
-const fetched = ref(false);
-const fetch = (endpoint: string): void => {
-  errorMsg.value = '';
-  if (isFetching.value) {
-    return;
-  }
-  isFetching.value = true;
-  useGetFetchAPI(endpoint, baseStore.token)
-    .then(res => {
-      isFetching.value = false;
-      if (res.game_records != null) {
-        if (res.game_records.length === 0) {
-          offset = -1;
-        } else {
-          gameRecords.value.push(...res.game_records);
-          offset += limit;
-        }
-      }
-      fetched.value = true;
-    })
-    .catch((error: unknown) => {
-      errorMsg.value = error as string;
-      if (String(errorMsg.value).toLowerCase().includes('networkerror')) {
-        baseStore.isNetworkError = true;
-      }
-      isFetching.value = false;
-    });
-};
-const formatDate = (date?: string): string => {
-  if (date == null) {
-    return '';
-  }
-  return useDateFormat(date, 'YYYY-MM-DD HH:mm:ss').value;
-};
-let orderDirection: OrderDirection = OrderDirection.Desc;
-let sortField = 'id';
-const doFetch = (): void => {
+
+const buildScrambleUrl = (
+  offset: number,
+  limit: number,
+  sortField: string,
+  orderDirection: OrderDirection
+): string => {
+  const direction = OrderDirectionMap.get(orderDirection);
   // eslint-disable-next-line vue/max-len
-  fetch(`user_games?puzzle_size=${puzzleSize.value}&puzzle_type=${puzzleMode.value}&offset=${offset}&limit=${limit}&order_field=${sortField}&order_direction=${OrderDirectionMap.get(orderDirection)}`);
+  return `user_games?puzzle_size=${puzzleSize.value}&puzzle_type=${puzzleMode.value}&offset=${offset}&limit=${limit}&order_field=${sortField}&order_direction=${direction}`;
 };
-let recordsTable: HTMLElement | null;
-const onscroll = (_event: Event): void => {
-  if (recordsTable != null && offset !== -1) {
-    if (recordsTable.scrollTop + recordsTable.offsetHeight >= recordsTable.scrollHeight - 100) {
-      doFetch();
-    }
-  }
-};
-onMounted(() => {
-  doFetch();
-  recordsTable = document.getElementById('game-list-table');
-  if (recordsTable != null) {
-    recordsTable.addEventListener('scroll', onscroll);
-  }
-});
-onUnmounted(() => {
-  if (recordsTable != null) {
-    recordsTable.removeEventListener('scroll', onscroll);
-  }
-});
+
+const {
+  records: gameRecords,
+  fetched,
+  errorMsg,
+  reset,
+  formatDate,
+  sort,
+  sortField,
+  orderDirection
+} = usePaginatedFetch<GameData>(buildScrambleUrl, (res) => res.game_records ?? [], 'game-list-table');
+
 const puzzleModeChoices = ref(baseStore.numLines === 3 ? ['standard', 'marathon', 'g1000'] : ['standard', 'marathon']);
 watch(puzzleSize, (newValue) => {
   if (newValue !== 0) {
@@ -102,34 +60,17 @@ watch(puzzleSize, (newValue) => {
       }
       puzzleModeChoices.value = ['standard', 'marathon'];
     }
-    gameRecords.value = [];
-    offset = 0;
-    fetched.value = false;
-    if (sortField === 'opt_diff') {
-      sortField = 'moves';
+    if (sortField.value === 'opt_diff') {
+      sortField.value = 'moves';
     }
-    doFetch();
+    reset();
   }
 });
 watch(puzzleMode, () => {
-  gameRecords.value = [];
-  offset = 0;
-  fetched.value = false;
-  doFetch();
+  reset();
 });
 const doSort = (newSortField: string): void => {
-  if (newSortField !== sortField) {
-    sortField = newSortField;
-    orderDirection = OrderDirection.Asc;
-  } else if (orderDirection === OrderDirection.Asc) {
-    orderDirection = OrderDirection.Desc;
-  } else if (orderDirection === OrderDirection.Desc) {
-    orderDirection = OrderDirection.Asc;
-  }
-  gameRecords.value = [];
-  offset = 0;
-  fetched.value = false;
-  doFetch();
+  sort(newSortField);
 };
 const download = (content: string, fileName: string, contentType: string): void => {
   const a = document.createElement('a');

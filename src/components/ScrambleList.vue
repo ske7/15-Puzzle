@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue';
-import { onClickOutside, useDateFormat } from '@vueuse/core';
+import { ref, watch } from 'vue';
+import { onClickOutside } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
-import { useGetFetchAPI } from '../composables/useFetchAPI';
 import { type UserScrambleData } from '@/types';
 import { baseUrl, OrderDirection, OrderDirectionMap } from '@/const';
 import { convertScramble, convertToNumbersArray } from '@/utils';
 import CopyButton from './CopyButton.vue';
+import { usePaginatedFetch } from '../composables/usePaginatedFetch';
 
 const emit = defineEmits<{ close: []; set: [scramble: number[]] }>();
 
@@ -18,103 +18,45 @@ onClickOutside(scrambleList, (event) => {
 });
 
 const baseStore = useBaseStore();
-
-const limit = 50;
-let offset = 0;
-
 const puzzleSize = ref<number>(baseStore.numLines);
-const errorMsg = ref('');
-const scrambleRecords = ref<UserScrambleData[]>([]);
-const isFetching = ref(false);
-const fetched = ref(false);
-const fetch = (endpoint: string): void => {
-  errorMsg.value = '';
-  if (isFetching.value) {
-    return;
-  }
-  isFetching.value = true;
-  useGetFetchAPI(endpoint, baseStore.token)
-    .then(res => {
-      isFetching.value = false;
-      if (res.scramble_records != null) {
-        if (res.scramble_records.length === 0) {
-          offset = -1;
-        } else {
-          scrambleRecords.value.push(...res.scramble_records);
-          offset += limit;
-        }
-      }
-      fetched.value = true;
-    })
-    .catch((error: unknown) => {
-      errorMsg.value = error as string;
-      if (String(errorMsg.value).toLowerCase().includes('networkerror')) {
-        baseStore.isNetworkError = true;
-      }
-      isFetching.value = false;
-    });
+
+const buildScrambleUrl = (
+  offset: number,
+  limit: number,
+  sortField: string,
+  orderDirection: OrderDirection
+): string => {
+  const direction = OrderDirectionMap.get(orderDirection);
+  return `list_user_scrambles?puzzle_size=${puzzleSize.value}&offset=${offset}&limit=${limit}&order_field=${sortField}&order_direction=${direction}`;
 };
-const formatDate = (date?: string): string => {
-  if (date == null) {
-    return '';
-  }
-  return useDateFormat(date, 'YYYY-MM-DD HH:mm:ss').value;
-};
-let orderDirection: OrderDirection = OrderDirection.Desc;
-let sortField = 'id';
-const doFetch = (): void => {
-  // eslint-disable-next-line vue/max-len
-  fetch(`list_user_scrambles?puzzle_size=${puzzleSize.value}&offset=${offset}&limit=${limit}&order_field=${sortField}&order_direction=${OrderDirectionMap.get(orderDirection)}`);
-};
-let scrambleTable: HTMLElement | null;
-const onscroll = (_event: Event): void => {
-  if (scrambleTable != null && offset !== -1) {
-    if (scrambleTable.scrollTop + scrambleTable.offsetHeight >= scrambleTable.scrollHeight - 100) {
-      doFetch();
-    }
-  }
-};
-onMounted(() => {
-  doFetch();
-  scrambleTable = document.getElementById('scramble-list-table');
-  if (scrambleTable != null) {
-    scrambleTable.addEventListener('scroll', onscroll);
-  }
-});
-onUnmounted(() => {
-  if (scrambleTable != null) {
-    scrambleTable.removeEventListener('scroll', onscroll);
-  }
-});
+
+const {
+  records: scrambleRecords,
+  fetched,
+  reset,
+  formatDate,
+  sort,
+  sortField,
+  orderDirection
+} = usePaginatedFetch<UserScrambleData>(buildScrambleUrl, (res) => res.scramble_records ?? [], 'scramble-list-table');
+
 watch(puzzleSize, (newValue) => {
-  if (newValue !== 0) {
-    scrambleRecords.value = [];
-    offset = 0;
-    fetched.value = false;
-    if (sortField === 'opt_diff' || sortField === 'optimal_moves') {
-      sortField = 'best_moves';
-    }
-    doFetch();
+  if (newValue === 0) return;
+  if (['opt_diff', 'optimal_moves'].includes(sortField.value)) {
+    sortField.value = 'best_moves';
   }
+  reset();
 });
+
 const setScramble = (strScramble: string): void => {
   const scramble = convertToNumbersArray(strScramble);
   emit('set', scramble);
 };
+
 const doSort = (newSortField: string): void => {
-  if (newSortField !== sortField) {
-    sortField = newSortField;
-    orderDirection = OrderDirection.Asc;
-  } else if (orderDirection === OrderDirection.Asc) {
-    orderDirection = OrderDirection.Desc;
-  } else if (orderDirection === OrderDirection.Desc) {
-    orderDirection = OrderDirection.Asc;
-  }
-  scrambleRecords.value = [];
-  offset = 0;
-  fetched.value = false;
-  doFetch();
+  sort(newSortField);
 };
+
 </script>
 
 <template>
