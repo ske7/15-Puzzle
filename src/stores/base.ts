@@ -396,7 +396,9 @@ export const useBaseStore = defineStore('base', {
           this.doResetList = false;
         }
       }
-      this.marathonFirstMove ||= true;
+      if (!this.marathonFirstMove) {
+        this.marathonFirstMove = true;
+      }
       if (this.interval === 0) {
         this.restartInterval();
       }
