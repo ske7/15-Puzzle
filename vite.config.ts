@@ -16,6 +16,7 @@ export default defineConfig({
             }
             return 'vendor';
           }
+          return undefined;
         }
       },
     },

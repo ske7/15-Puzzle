@@ -295,7 +295,7 @@ const setWalkMode = (fastWalkMode: boolean): void => {
           v-if="baseStore.userScrambleId !== 0 && baseStore.publicId !== '' && !baseStore.sharedPlaygroundMode"
           :class="{ 'red bold best-moves': baseStore.newPlaygroundMovesRecord }"
           :href="`${baseUrl}?playground&public_id=${baseStore.publicId}`"
-          rel="noopener"
+          rel="noopener noreferrer"
           target="_blank"
         >
           {{ baseStore.playgroundBestMoves }}

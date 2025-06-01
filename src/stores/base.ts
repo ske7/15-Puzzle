@@ -169,25 +169,26 @@ export const useBaseStore = defineStore('base', {
         this.doneFirstMove = false;
       }
       if (this.g1000Mode) {
-        this.getNextG1000().then(() => {
-          this.setPuzzleData();
-          this.opt_m = 0;
-        })
+        this.getNextG1000()
+          .then(() => {
+            this.setPuzzleData();
+            this.opt_m = 0;
+          })
           .catch((error: unknown) => {
             console.log(error as string);
           });
-        return true;
-      }
-      let solvable = this.mixAndCheckSolvable();
-      while (!solvable) {
-        solvable = this.mixAndCheckSolvable();
-      }
-      if (this.playgroundMode) {
-        this.playgroundModeRenew();
       } else {
-        this.opt_m = 0;
+        let solvable = this.mixAndCheckSolvable();
+        while (!solvable) {
+          solvable = this.mixAndCheckSolvable();
+        }
+        if (this.playgroundMode) {
+          this.playgroundModeRenew();
+        } else {
+          this.opt_m = 0;
+        }
+        this.setPuzzleData();
       }
-      this.setPuzzleData();
     },
     updatePlaygroundStats(res: Response) {
       if (res.stats != null) {

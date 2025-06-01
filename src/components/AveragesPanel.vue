@@ -20,61 +20,37 @@ const checkUpTime = (arrayID: number): boolean => {
   if (baseStore.prevAverages.length === 0 || baseStore.currentAverages.length === 0) {
     return false;
   }
-  if (Number(baseStore.currentAverages[arrayID].time ?? 0) >
-      Number(baseStore.prevAverages[arrayID].time ?? 0)) {
-    return true;
-  }
-  return false;
+  return (Number(baseStore.currentAverages[arrayID].time ?? 0) > Number(baseStore.prevAverages[arrayID].time ?? 0));
 };
 const checkDownTime = (arrayID: number): boolean => {
   if (baseStore.prevAverages.length === 0 || baseStore.currentAverages.length === 0) {
     return false;
   }
-  if (Number(baseStore.currentAverages[arrayID].time ?? 0) <
-      Number(baseStore.prevAverages[arrayID].time ?? 0)) {
-    return true;
-  }
-  return false;
+  return (Number(baseStore.currentAverages[arrayID].time ?? 0) < Number(baseStore.prevAverages[arrayID].time ?? 0));
 };
 const checkUpMoves = (arrayID: number): boolean => {
   if (baseStore.prevAverages.length === 0 || baseStore.currentAverages.length === 0) {
     return false;
   }
-  if (Number(baseStore.currentAverages[arrayID].moves ?? 0) >
-    Number(baseStore.prevAverages[arrayID].moves ?? 0)) {
-    return true;
-  }
-  return false;
+  return (Number(baseStore.currentAverages[arrayID].moves ?? 0) > Number(baseStore.prevAverages[arrayID].moves ?? 0));
 };
 const checkDownMoves = (arrayID: number): boolean => {
   if (baseStore.prevAverages.length === 0 || baseStore.currentAverages.length === 0) {
     return false;
   }
-  if (Number(baseStore.currentAverages[arrayID].moves ?? 0) <
-    Number(baseStore.prevAverages[arrayID].moves ?? 0)) {
-    return true;
-  }
-  return false;
+  return (Number(baseStore.currentAverages[arrayID].moves ?? 0) < Number(baseStore.prevAverages[arrayID].moves ?? 0));
 };
 const checkUpTPS = (arrayID: number): boolean => {
   if (baseStore.prevAverages.length === 0 || baseStore.currentAverages.length === 0) {
     return false;
   }
-  if (Number(baseStore.currentAverages[arrayID].tps ?? 0) >
-    Number(baseStore.prevAverages[arrayID].tps ?? 0)) {
-    return true;
-  }
-  return false;
+  return (Number(baseStore.currentAverages[arrayID].tps ?? 0) > Number(baseStore.prevAverages[arrayID].tps ?? 0));
 };
 const checkDownTPS = (arrayID: number): boolean => {
   if (baseStore.prevAverages.length === 0 || baseStore.currentAverages.length === 0) {
     return false;
   }
-  if (Number(baseStore.currentAverages[arrayID].tps ?? 0) <
-    Number(baseStore.prevAverages[arrayID].tps ?? 0)) {
-    return true;
-  }
-  return false;
+  return (Number(baseStore.currentAverages[arrayID].tps ?? 0) < Number(baseStore.prevAverages[arrayID].tps ?? 0));
 };
 const checkIfWasRecord = (type: string, field: string): boolean => {
   const r = baseStore.wasAvgRecords.find(value => {
