@@ -98,7 +98,7 @@ const jsonToCSV = (data: GameData[]): string => {
     if (puzzleSize.value === 3) {
       optMoves = `${item.opt_moves},`;
     }
-    // eslint-disable-next-line vue/max-len
+
     csvStr += `${publicId},${createdAt},${consecutiveSolves},${time},${moves},${optMoves}${tps},${scramble},${solvePath}\n`;
   });
   return csvStr;

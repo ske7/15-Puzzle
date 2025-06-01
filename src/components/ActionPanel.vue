@@ -85,21 +85,18 @@ const closeImageGallery = (): void => {
   }
 };
 const stopWalk = ref(false);
-const doReplay = async(walkTime?: number, walkMode = false): Promise<void> => {
+const doReplay = async (walkTime?: number, walkMode = false): Promise<void> => {
   if (!walkMode) {
     doRestart('fromMain');
     await sleep(100);
     savedStep.value = 0;
   }
   baseStore.inReplay = true;
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
   const control = ControlTypeReverseMap.get(baseStore.repGame.control_type[0])!;
-  let moveTime = walkTime;
-  if (moveTime == null) {
-    moveTime = Math.round(baseStore.repGame.time / (baseStore.repGame.moves));
-  }
+  const moveTime = (walkTime ?? Math.round(baseStore.repGame.time / baseStore.repGame.moves)) || 0;
   baseStore.replaySpeed = moveTime;
-  // eslint-disable-next-line @typescript-eslint/prefer-for-of
+
   for (let i = savedStep.value; i < baseStore.repGame.solve_path.length; i++) {
     baseStore.wasReplay = true;
     const move = baseStore.repGame.solve_path[i];

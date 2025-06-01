@@ -30,4 +30,4 @@ coverage
 todo.txt
 .env
 .env.production
-screens/
+tempdata/
