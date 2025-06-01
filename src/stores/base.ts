@@ -239,7 +239,7 @@ export const useBaseStore = defineStore('base', {
             return false;
           }
           if (res.scramble !== undefined) {
-            this.mixedOrders = res.scramble.split(',').map(x => +x);
+            this.mixedOrders = res.scramble.split(',').map(x => Number(x));
           }
           this.consecutiveSolves = res.id!;
           return true;
@@ -255,7 +255,7 @@ export const useBaseStore = defineStore('base', {
         if (this.marathonReplay) {
           scramble = this.repGame.scramble.split(';')[0];
         }
-        this.mixedOrders = scramble.split(',').map(x => +x);
+        this.mixedOrders = scramble.split(',').map(x => Number(x));
       } else if (this.playgroundMode && this.savedOrders.length > 0) {
         this.mixedOrders = this.savedOrders;
       } else if (this.playgroundMode && this.savedOrders.length === 0) {
@@ -688,7 +688,7 @@ export const useBaseStore = defineStore('base', {
       }
       if (this.consecutiveSolves === 1) {
         const rand = generateRand().toString().slice(-4);
-        this.sessionId = `${this.userName.slice(0, 2)}${rand}_${btoa(new Date().getTime().toString())}`.toLowerCase().replace(/=/g, '');
+        this.sessionId = (`${this.userName.slice(0, 2)}${rand}_${btoa(Date.now().toString())}`).toLowerCase().split('=').join('');
       }
       if (!this.g1000Mode && this.keepSession) {
         if (this.sessionId !== undefined) {

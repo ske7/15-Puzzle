@@ -40,13 +40,9 @@ const isLocked = computed(() => {
   }
   return !baseStore.unlockedCages.has(currentIndex.value);
 });
-const loadedNotLocked = computed(() => {
-  return !loaded.value && !isLocked.value &&
-  (time.value > 5 || (currentIndex.value === 0 && time.value > 2));
-});
-
 const showImg = ref(false);
 const loaded = ref(false);
+const time = ref(0);
 const onCageImgLoad = (): void => {
   loaded.value = true;
   if (!isLocked.value) {
@@ -59,6 +55,10 @@ const loadedCageImg = computed(() => {
   } else {
     return `/cages/${CAGES_PATH_ARR[getRealIndex.value]}/complete.jpg`;
   }
+});
+const loadedNotLocked = computed(() => {
+  return !loaded.value && !isLocked.value &&
+    (time.value > 5 || (currentIndex.value === 0 && time.value > 2));
 });
 const checkIsLocked = (): void => {
   if (isLocked.value) {
@@ -102,7 +102,6 @@ const loadPrev = async (): Promise<void> => {
 };
 
 const interval = ref(0);
-const time = ref(0);
 watch(loaded, (newValue, oldValue) => {
   if (!newValue && (oldValue ?? (currentIndex.value === 0))) {
     time.value = 0;

@@ -4,7 +4,7 @@ import {
   type GameData, type AverageStats, type WasAvgRecord,
   type UserScrambleData, type FMCBlitzData, type Response
 } from '@/types';
-import { usePostFetchAPI, usePatchFetchAPI } from '../composables/useFetchAPI';
+import { usePostFetchAPI, usePatchFetchAPI } from './useFetchAPI';
 import { FMC_BLITZ_TIME } from '@/const';
 
 const prepare = (): Record<string, Ref<string | boolean>> => {
@@ -12,6 +12,24 @@ const prepare = (): Record<string, Ref<string | boolean>> => {
   const isFetching = ref(false);
 
   return { errorMsg, isFetching };
+};
+
+export const postFMCBlitz = (data: FMCBlitzData): void => {
+  const baseStore = useBaseStore();
+  const { errorMsg, isFetching } = prepare();
+  errorMsg.value = '';
+  if (isFetching.value as boolean) {
+    return;
+  }
+  isFetching.value = true;
+  usePostFetchAPI('fmc_blitz', JSON.stringify({ data }) as BodyInit, baseStore.token)
+    .then((_res) => {
+      isFetching.value = false;
+    })
+    .catch((error: unknown) => {
+      errorMsg.value = error as string;
+      isFetching.value = false;
+    });
 };
 
 export const postGame = (game: GameData, keyH: string): void => {
@@ -81,24 +99,6 @@ export const patchUserScramble = (user_scramble: UserScrambleData): void => {
   }
   isFetching.value = true;
   usePatchFetchAPI('user_scramble', JSON.stringify({ user_scramble }) as BodyInit, baseStore.token)
-    .then((_res) => {
-      isFetching.value = false;
-    })
-    .catch((error: unknown) => {
-      errorMsg.value = error as string;
-      isFetching.value = false;
-    });
-};
-
-export const postFMCBlitz = (data: FMCBlitzData): void => {
-  const baseStore = useBaseStore();
-  const { errorMsg, isFetching } = prepare();
-  errorMsg.value = '';
-  if (isFetching.value as boolean) {
-    return;
-  }
-  isFetching.value = true;
-  usePostFetchAPI('fmc_blitz', JSON.stringify({ data }) as BodyInit, baseStore.token)
     .then((_res) => {
       isFetching.value = false;
     })

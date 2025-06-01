@@ -61,16 +61,16 @@ export function isSolvable(array: readonly number[]): boolean {
 }
 
 export function randArrayItem(array: readonly string[], af: readonly string[]): string {
-  const a = array.filter(n => !af.includes(n));
-  return a[Math.floor(generateRand() * a.length)];
+  const tArr = array.filter(n => !af.includes(n));
+  return tArr[Math.floor(generateRand() * tArr.length)];
 }
 
 export function getElementCol(el: number, numLines: number): number {
-  const c = el % numLines;
-  if (c === 0) {
+  const col = el % numLines;
+  if (col === 0) {
     return numLines;
   }
-  return c;
+  return col;
 }
 
 export function getElementRow(el: number, numLines: number): number {
@@ -83,7 +83,7 @@ export function calculateMD(array: readonly number[] | string[]): number {
     return -1;
   }
   const n = Math.sqrt(length);
-  if (Math.floor(n) !== +n) {
+  if (Math.floor(n) !== Number(n)) {
     return -1;
   }
   let md = 0;

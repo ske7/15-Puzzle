@@ -46,6 +46,17 @@ const bgColor = computed(() => {
   return getTileColor(baseStore.numLines, currentOrder.value);
 });
 const { width: windowWidth } = useWindowSize();
+const fontSizeM = computed(() => {
+  if (baseStore.numLines === 6) {
+    return '29px';
+  } else if (baseStore.numLines === 7) {
+    return '25px';
+  } else if (baseStore.numLines === 8) {
+    return '24px';
+  } else {
+    return '33px';
+  }
+});
 const fontSizeD = computed(() => {
   if (windowWidth.value < 401) {
     return fontSizeM.value;
@@ -60,18 +71,6 @@ const fontSizeD = computed(() => {
     return '45px';
   }
 });
-const fontSizeM = computed(() => {
-  if (baseStore.numLines === 6) {
-    return '29px';
-  } else if (baseStore.numLines === 7) {
-    return '25px';
-  } else if (baseStore.numLines === 8) {
-    return '24px';
-  } else {
-    return '33px';
-  }
-});
-
 const calculatedLeft = ref(0);
 const calculatedTop = ref(0);
 const initPosition = (): void => {
@@ -153,6 +152,15 @@ watch(currentOrder, (newValue, oldValue) => {
 }, {
   immediate: false
 });
+const context = ref<CanvasRenderingContext2D | null>(null);
+const clearCanvas = (): void => {
+  context.value!.clearRect(0, 0, props.squareSize, props.squareSize);
+};
+const setCanvasBg = (value: string): void => {
+  clearCanvas();
+  context.value!.fillStyle = value;
+  context.value!.fillRect(0, 0, props.squareSize, props.squareSize);
+};
 watch(currentOrder, (newValue) => {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (newValue === undefined) {
@@ -166,16 +174,7 @@ watch(currentOrder, (newValue) => {
 });
 
 const squareCanvas = ref<HTMLCanvasElement | null>(null);
-const context = ref<CanvasRenderingContext2D | null>(null);
 
-const clearCanvas = (): void => {
-  context.value!.clearRect(0, 0, props.squareSize, props.squareSize);
-};
-const setCanvasBg = (value: string): void => {
-  clearCanvas();
-  context.value!.fillStyle = value;
-  context.value!.fillRect(0, 0, props.squareSize, props.squareSize);
-};
 onMounted(() => {
   initPosition();
   if (squareCanvas.value !== null) {

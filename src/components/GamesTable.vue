@@ -73,11 +73,11 @@ const doSort = (newSortField: string): void => {
   sort(newSortField);
 };
 const download = (content: string, fileName: string, contentType: string): void => {
-  const a = document.createElement('a');
+  const anchor = document.createElement('a');
   const file = new Blob([content], { type: contentType });
-  a.href = URL.createObjectURL(file);
-  a.download = fileName;
-  a.click();
+  anchor.href = URL.createObjectURL(file);
+  anchor.download = fileName;
+  anchor.click();
 };
 const jsonToCSV = (data: GameData[]): string => {
   const fields = ['public_id', 'created_at', 'consecutive_solves', 'time', 'moves', 'tps', 'scramble', 'solve_path'];
@@ -126,7 +126,7 @@ const doExport = (): void => {
     <PuzzleModeGroup
       v-model="puzzleMode"
       :choices="puzzleModeChoices"
-      :header="'Puzzle Mode'"
+      header="Puzzle Mode"
     />
     <div class="export-link-wrapper">
       <a class="link-item" @click="doExport">Export last session</a>

@@ -5,7 +5,7 @@ import { useBaseStore } from '../stores/base';
 import { displayedTime, convertScramble, calculateMD } from '@/utils';
 import { baseUrl } from '@/const';
 const CopyButton = defineAsyncComponent({
-  loader: async () => await import('../components/CopyButton.vue') as unknown as AsyncComponentLoader,
+  loader: async () => await import('./CopyButton.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 

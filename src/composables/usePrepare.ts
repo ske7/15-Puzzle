@@ -1,10 +1,10 @@
 import { onMounted, computed, type ComputedRef } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
-import { useKeyDown } from '../composables/useKeyDown';
+import { useKeyDown } from './useKeyDown';
 import { CORE_NUM, CAGES_PATH_ARR, cores, baseUrl } from '@/const';
 import { type RepGame, type UserScrambleData, type Response } from '@/types';
-import { useGetFetchAPI } from '../composables/useFetchAPI';
+import { useGetFetchAPI } from './useFetchAPI';
 
 function getNumLinesFromLocalStorage(): number {
   let numLines: number;
@@ -76,7 +76,7 @@ const initPlayground = (res: Response, publicId: string): void => {
   if (res.stats != null) {
     const stats = res.stats as unknown as UserScrambleData;
     if (stats.scramble !== undefined) {
-      baseStore.savedOrders = stats.scramble.split(',').map(x => +x);
+      baseStore.savedOrders = stats.scramble.split(',').map(x => Number(x));
     }
     baseStore.playgroundBestTime = stats.best_time!;
     baseStore.playgroundBestTimeMoves = stats.best_time_moves!;
@@ -133,7 +133,7 @@ const checkPlaygroundMode = (locationStr: string, initNumLines: number): void =>
     baseStore.fmcBlitz = false;
     const sharedPlaygroundScramble = localStorage.getItem('sharedPlaygroundScramble');
     if (sharedPlaygroundScramble !== null) {
-      baseStore.savedOrders = sharedPlaygroundScramble.split(',').map(x => +x);
+      baseStore.savedOrders = sharedPlaygroundScramble.split(',').map(x => Number(x));
       baseStore.checkUserScrambleInDB = true;
       numLines = Math.sqrt(baseStore.savedOrders.length);
       localStorage.removeItem('sharedPlaygroundScramble');

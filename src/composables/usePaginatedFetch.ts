@@ -1,7 +1,7 @@
 import { ref, onMounted, onUnmounted, type Ref } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useDateFormat } from '@vueuse/core';
-import { useGetFetchAPI } from '../composables/useFetchAPI';
+import { useGetFetchAPI } from './useFetchAPI';
 import { type Response } from '@/types';
 import { OrderDirection } from '@/const';
 

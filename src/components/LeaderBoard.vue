@@ -215,7 +215,7 @@ const tbodyHeightMobile = computed(() => {
       <PuzzleModeGroup
         v-model="puzzleMode"
         :choices="['standard', 'marathon']"
-        :header="'Puzzle Mode'"
+        header="Puzzle Mode"
       />
       <PuzzleModeGroup
         v-model="bestType"
@@ -229,7 +229,7 @@ const tbodyHeightMobile = computed(() => {
         v-if="!isDefault"
         v-model="bestAverage"
         :choices="['time', 'moves', 'TPS']"
-        :header="'Best Factor'"
+        header="Best Factor"
       />
       <div class="table-container" :class="{ 'table-container-ml-8': isDefault }">
         <table v-if="isDefault" class="items-table" aria-describedby="leaderboard-caption">

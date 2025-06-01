@@ -5,23 +5,23 @@ import { sleep, createLinkAndClick } from '@/utils';
 import { useBaseStore } from '../stores/base';
 import { useEventBus, useWindowSize } from '@vueuse/core';
 const ConfigModal = defineAsyncComponent({
-  loader: async () => await import('../components/ConfigModal.vue') as unknown as AsyncComponentLoader,
+  loader: async () => await import('./ConfigModal.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 const InfoModal = defineAsyncComponent({
-  loader: async () => await import('../components/InfoModal.vue') as unknown as AsyncComponentLoader,
+  loader: async () => await import('./InfoModal.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 const ImageGallery = defineAsyncComponent({
-  loader: async () => await import('../components/ImageGallery.vue') as unknown as AsyncComponentLoader,
+  loader: async () => await import('./ImageGallery.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 const AddScramble = defineAsyncComponent({
-  loader: async () => await import('../components/AddScramble.vue') as unknown as AsyncComponentLoader,
+  loader: async () => await import('./AddScramble.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 const ScrambleList = defineAsyncComponent({
-  loader: async () => await import('../components/ScrambleList.vue') as unknown as AsyncComponentLoader,
+  loader: async () => await import('./ScrambleList.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 
@@ -29,7 +29,7 @@ const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
 
 const wasPausedBeforeOpenModal = ref(false);
-
+const stopWalk = ref(false);
 const savedStep = ref(0);
 const doRestart = (initRestartPath: string): void => {
   if (!baseStore.afterDoneAnimationEnd ||
@@ -84,7 +84,6 @@ const closeImageGallery = (): void => {
     baseStore.invertPaused();
   }
 };
-const stopWalk = ref(false);
 const doReplay = async (walkTime?: number, walkMode = false): Promise<void> => {
   if (!walkMode) {
     doRestart('fromMain');
@@ -187,7 +186,18 @@ const disableButton = computed(() => {
 const disableDuringMarathon = computed(() => {
   return baseStore.marathonMode && baseStore.time > 0 && !baseStore.isDone;
 });
-
+const closeScrambleList = (): void => {
+  baseStore.showScrambleList = false;
+  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
+    baseStore.invertPaused();
+  }
+};
+const closeAddScramble = (): void => {
+  baseStore.showAddScramble = false;
+  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
+    baseStore.invertPaused();
+  }
+};
 const setScramble = (scramble: number[]): void => {
   baseStore.numLines = Math.sqrt(scramble.length);
   localStorage.setItem('numLines', baseStore.numLines.toString());
@@ -203,21 +213,9 @@ const setScramble = (scramble: number[]): void => {
     closeScrambleList();
   }
 };
-const closeAddScramble = (): void => {
-  baseStore.showAddScramble = false;
-  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
-    baseStore.invertPaused();
-  }
-};
 const doTryToImprove = (): void => {
   localStorage.setItem('sharedPlaygroundScramble', String(baseStore.mixedOrders));
   createLinkAndClick(`${baseUrl}?playground`, true);
-};
-const closeScrambleList = (): void => {
-  baseStore.showScrambleList = false;
-  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
-    baseStore.invertPaused();
-  }
 };
 const showScrambleList = (): void => {
   wasPausedBeforeOpenModal.value = baseStore.paused;

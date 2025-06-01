@@ -1,7 +1,7 @@
 import { computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
-import { postGame, postUserScramble, patchUserScramble } from '../composables/useFetching';
+import { postGame, postUserScramble, patchUserScramble } from './useFetching';
 import { FMC_BLITZ_TIME } from '@/const';
 
 export const useWatchGameState = (): void => {

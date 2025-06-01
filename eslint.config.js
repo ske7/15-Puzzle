@@ -32,6 +32,11 @@ export default typescriptEslint.config(
     rules: {
       "camelcase": "off",
       "no-void": "off",
+      "no-implicit-coercion": ["error", {
+        "boolean": true,
+        "number": true,
+        "string": true
+      }],
       "@stylistic/generator-star-spacing": [
         "error",
         {

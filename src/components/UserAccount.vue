@@ -7,13 +7,14 @@ import { type UserStats } from '@/types';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
 const GamesTable = defineAsyncComponent({
-  loader: async () => await import('../components/GamesTable.vue') as unknown as AsyncComponentLoader,
+  loader: async () => await import('./GamesTable.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 
 const emit = defineEmits<{ close: [] }>();
 
 const userAccount = ref<HTMLElement>();
+const showGamesTable = ref(false);
 onClickOutside(userAccount, (event) => {
   if (showGamesTable.value) {
     return;
@@ -95,7 +96,6 @@ const averagesRecords = computed(() => {
       return (getTypeIndex(a.record_type) - getTypeIndex(b.record_type));
     });
 });
-const showGamesTable = ref(false);
 const closeGamesTable = (): void => {
   showGamesTable.value = false;
 };
@@ -117,7 +117,7 @@ const closeGamesTable = (): void => {
         <p><strong>Play time:</strong> {{ formatPlayTime }}</p>
       </div>
       <PuzzleSizeSlider v-model="puzzleSize" />
-      <PuzzleModeGroup v-model="puzzleMode" :choices="['standard', 'marathon']" :header="'Puzzle Mode'" />
+      <PuzzleModeGroup v-model="puzzleMode" :choices="['standard', 'marathon']" header="Puzzle Mode" />
       <div class="table-container">
         <table class="items-table" aria-describedby="user-account-caption">
           <thead>

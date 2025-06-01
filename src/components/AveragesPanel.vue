@@ -3,7 +3,7 @@ import { ref, computed, defineAsyncComponent, type AsyncComponentLoader } from '
 import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 const LeaderBoard = defineAsyncComponent({
-  loader: async () => await import('../components/LeaderBoard.vue') as unknown as AsyncComponentLoader,
+  loader: async () => await import('./LeaderBoard.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 
@@ -53,15 +53,15 @@ const checkDownTPS = (arrayID: number): boolean => {
   return (Number(baseStore.currentAverages[arrayID].tps ?? 0) < Number(baseStore.prevAverages[arrayID].tps ?? 0));
 };
 const checkIfWasRecord = (type: string, field: string): boolean => {
-  const r = baseStore.wasAvgRecords.find(value => {
+  const record = baseStore.wasAvgRecords.find(value => {
     return value.type === type;
   });
   if (field === 'time') {
-    return r?.record_time ?? false;
+    return record?.record_time ?? false;
   } else if (field === 'moves') {
-    return r?.record_moves ?? false;
+    return record?.record_moves ?? false;
   } else if (field === 'tps') {
-    return r?.record_tps ?? false;
+    return record?.record_tps ?? false;
   }
   return false;
 };
@@ -268,7 +268,7 @@ const closeLeaderBoard = (): void => {
     </p>
     <LeaderBoard
       v-if="baseStore.showLeaderBoard && showAveragesLeaderBoard"
-      :form-type="'averages'"
+      form-type="averages"
       @close="closeLeaderBoard"
     />
   </div>

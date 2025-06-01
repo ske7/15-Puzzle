@@ -14,6 +14,11 @@ onClickOutside(regModal, (event) => {
   event.stopPropagation();
 });
 
+// Remember about useKeyDown
+const user: UserData = reactive({} as unknown as UserData);
+const errorMsg = ref<string[]>([]);
+const isFetching = ref(false);
+
 const registerForm = computed(() => {
   return props.formType === 'register';
 });
@@ -67,11 +72,49 @@ const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
 };
 const resetPasswordMode = ref<boolean>(false);
 const sentResetEmail = ref<boolean>(false);
+const invalidFields = reactive({
+  name: false,
+  email: false,
+  password: false
+} as unknown as InvalidFields);
+const resetInvalidFields = (): void => {
+  invalidFields.email = false;
+  invalidFields.name = false;
+  invalidFields.password = false;
+};
+const checkFields = (): boolean => {
+  resetInvalidFields();
+  if (registerForm.value) {
+    if (user.name.trim() === '') {
+      invalidFields.name = true;
+    }
+    if (!(/^[a-z-_0-9]+$/gi).test(user.name)) {
+      errorMsg.value.push('Allowed characters for username: letters (a-z), numbers, underscores(_) and hyphens(-)');
+      invalidFields.name = true;
+    }
+  }
+  if (user.email.trim() === '') {
+    invalidFields.email = true;
+  }
+  if (!resetPasswordMode.value) {
+    if (user.password.trim() === '') {
+      invalidFields.password = true;
+    }
+    if (!(/^[\w-.]+@([\w-]+\.)+[\w-.]{2,20}$/g).test(user.email)) {
+      errorMsg.value.push('Invalid email address');
+      invalidFields.email = true;
+    }
+    if (user.password.trim().length < 6) {
+      invalidFields.password = true;
+    }
+  }
+  if (invalidFields.name || invalidFields.email || invalidFields.password) {
+    return false;
+  }
+  resetInvalidFields();
+  return true;
+};
 
-// Remember about useKeyDown
-const user: UserData = reactive({} as unknown as UserData);
-const errorMsg = ref<string[]>([]);
-const isFetching = ref(false);
 const fetch = (endpoint: string): void => {
   errorMsg.value = [];
   if (isFetching.value) {
@@ -129,49 +172,6 @@ const doSubmit = (): void => {
   } else {
     fetch('login');
   }
-};
-
-const invalidFields = reactive({
-  name: false,
-  email: false,
-  password: false
-} as unknown as InvalidFields);
-const resetInvalidFields = (): void => {
-  invalidFields.email = false;
-  invalidFields.name = false;
-  invalidFields.password = false;
-};
-const checkFields = (): boolean => {
-  resetInvalidFields();
-  if (registerForm.value) {
-    if (user.name.trim() === '') {
-      invalidFields.name = true;
-    }
-    if (!(/^[a-z-_0-9]+$/gi).test(user.name)) {
-      errorMsg.value.push('Allowed characters for username: letters (a-z), numbers, underscores(_) and hyphens(-)');
-      invalidFields.name = true;
-    }
-  }
-  if (user.email.trim() === '') {
-    invalidFields.email = true;
-  }
-  if (!resetPasswordMode.value) {
-    if (user.password.trim() === '') {
-      invalidFields.password = true;
-    }
-    if (!(/^[\w-.]+@([\w-]+\.)+[\w-.]{2,20}$/g).test(user.email)) {
-      errorMsg.value.push('Invalid email address');
-      invalidFields.email = true;
-    }
-    if (user.password.trim().length < 6) {
-      invalidFields.password = true;
-    }
-  }
-  if (invalidFields.name || invalidFields.email || invalidFields.password) {
-    return false;
-  }
-  resetInvalidFields();
-  return true;
 };
 const doSetResetPasswordMode = (): void => {
   errorMsg.value = [];

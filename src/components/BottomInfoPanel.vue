@@ -11,19 +11,19 @@ import {
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 import { postUserScramble } from '../composables/useFetching';
 const CopyButton = defineAsyncComponent({
-  loader: async () => await import('../components/CopyButton.vue') as unknown as AsyncComponentLoader,
+  loader: async () => await import('./CopyButton.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 const RegModal = defineAsyncComponent({
-  loader: async () => await import('../components/RegModal.vue') as unknown as AsyncComponentLoader,
+  loader: async () => await import('./RegModal.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 const UserAccount = defineAsyncComponent({
-  loader: async () => await import('../components/UserAccount.vue') as unknown as AsyncComponentLoader,
+  loader: async () => await import('./UserAccount.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 const LeaderBoard = defineAsyncComponent({
-  loader: async () => await import('../components/LeaderBoard.vue') as unknown as AsyncComponentLoader,
+  loader: async () => await import('./LeaderBoard.vue') as unknown as AsyncComponentLoader,
   delay: 150
 });
 
@@ -31,6 +31,12 @@ const baseStore = useBaseStore();
 const eventBus = useEventBus<string>('event-bus');
 const formType = ref<string>('');
 
+const disableDuringMarathon = computed(() => {
+  return baseStore.marathonMode && baseStore.time > 0 && !baseStore.isDone;
+});
+const cannotClick = computed(() => {
+  return baseStore.showModal || disableDuringMarathon.value || baseStore.inReplay;
+});
 const wasPausedBeforeOpenModal = ref(false);
 const doShowRegModal = (type: string): void => {
   if (cannotClick.value) {
@@ -96,12 +102,6 @@ const doShowImageGallery = (): void => {
   }
   eventBus.emit('show-image-gallery');
 };
-const disableDuringMarathon = computed(() => {
-  return baseStore.marathonMode && baseStore.time > 0 && !baseStore.isDone;
-});
-const cannotClick = computed(() => {
-  return baseStore.showModal || disableDuringMarathon.value || baseStore.inReplay;
-});
 
 const resetToken = ref<string | null>(null);
 const email = ref<string | null>(null);
@@ -421,7 +421,7 @@ const setWalkMode = (fastWalkMode: boolean): void => {
     <UserAccount v-if="baseStore.showUserAccount" @close="closeUserAccount" />
     <LeaderBoard
       v-if="baseStore.showLeaderBoard && showDefaultLeaderBoard"
-      :form-type="'default'"
+      form-type="default"
       @close="closeLeaderBoard"
     />
   </div>
