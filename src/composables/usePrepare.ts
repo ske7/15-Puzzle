@@ -9,7 +9,7 @@ import { useGetFetchAPI } from './useFetchAPI';
 function getNumLinesFromLocalStorage(): number {
   let numLines: number;
   const storageNumLines = localStorage.getItem('numLines');
-  if (storageNumLines === null || isNaN(Number(storageNumLines)) || !cores.includes(Number(storageNumLines))) {
+  if (storageNumLines === null || Number.isNaN(Number(storageNumLines)) || !cores.includes(Number(storageNumLines))) {
     localStorage.setItem('numLines', CORE_NUM.toString());
     numLines = CORE_NUM;
   } else {
@@ -24,7 +24,7 @@ function setStartParams(locationStr: string): void {
     baseStore.darkMode = true;
     localStorage.setItem('darkMode', 'true');
   }
-  document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');
+  document.documentElement.dataset.theme = baseStore.darkMode ? 'dark' : 'light';
   if (locationStr.includes('pro') || locationStr.includes('playground')) {
     baseStore.proMode = true;
     if (localStorage.getItem('proMode') === null) {
@@ -48,13 +48,18 @@ const initStore = (numLines: number): void => {
 const checkCurrentUser = (gameId: string): void => {
   const baseStore = useBaseStore();
 
-  if (baseStore.token != null) {
+  if (baseStore.token == null) {
+    void useGetFetchAPI('version');
+    if (baseStore.fmcBlitz) {
+      baseStore.fmcBlitz = false;
+    }
+  } else {
     useGetFetchAPI('get_current_user', baseStore.token)
       .then((res) => {
         baseStore.token = res.token;
         localStorage.setItem('token', String(baseStore.token));
         baseStore.userName = res.name;
-        if (gameId === '0' && !baseStore.playgroundMode) {
+        if (gameId === '0' && !baseStore.playgroundMode && !baseStore.g1000Mode) {
           baseStore.loadAverages();
         }
       })
@@ -62,11 +67,6 @@ const checkCurrentUser = (gameId: string): void => {
         baseStore.fmcBlitz = false;
         console.log(error as string);
       });
-  } else {
-    void useGetFetchAPI('version');
-    if (baseStore.fmcBlitz) {
-      baseStore.fmcBlitz = false;
-    }
   }
 };
 
@@ -76,7 +76,7 @@ const initPlayground = (res: Response, publicId: string): void => {
   if (res.stats != null) {
     const stats = res.stats as unknown as UserScrambleData;
     if (stats.scramble !== undefined) {
-      baseStore.savedOrders = stats.scramble.split(',').map(x => Number(x));
+      baseStore.savedOrders = stats.scramble.split(',').map(Number);
     }
     baseStore.playgroundBestTime = stats.best_time!;
     baseStore.playgroundBestTimeMoves = stats.best_time_moves!;
@@ -99,7 +99,9 @@ const checkPublicID = (initNumLines: number): void => {
     const searchParams = new URLSearchParams(location.search);
     const publicId = searchParams.get('public_id');
     if (publicId != null) {
-      if (baseStore.token != null) {
+      if (baseStore.token == null) {
+        initStore(numLines);
+      } else {
         void useGetFetchAPI(`user_scramble?public_id=${publicId}`, baseStore.token)
           .then((res) => {
             if (res.stats != null) {
@@ -111,8 +113,6 @@ const checkPublicID = (initNumLines: number): void => {
           .catch((error: unknown) => {
             console.log(error as string);
           });
-      } else {
-        initStore(numLines);
       }
     }
   } else {
@@ -133,7 +133,7 @@ const checkPlaygroundMode = (locationStr: string, initNumLines: number): void =>
     baseStore.fmcBlitz = false;
     const sharedPlaygroundScramble = localStorage.getItem('sharedPlaygroundScramble');
     if (sharedPlaygroundScramble !== null) {
-      baseStore.savedOrders = sharedPlaygroundScramble.split(',').map(x => Number(x));
+      baseStore.savedOrders = sharedPlaygroundScramble.split(',').map(Number);
       baseStore.checkUserScrambleInDB = true;
       numLines = Math.sqrt(baseStore.savedOrders.length);
       localStorage.removeItem('sharedPlaygroundScramble');
@@ -182,7 +182,9 @@ const checkGameLink = (gameId: string): void => {
     baseStore.g1000Mode = false;
     useGetFetchAPI(`game?game_id=${gameId}`, baseStore.token)
       .then((res) => {
-        if (res.stats != null) {
+        if (res.stats == null) {
+          location.href = baseUrl;
+        } else {
           if (!baseStore.proMode) {
             baseStore.proMode = true;
             baseStore.hoverOnControl = true;
@@ -194,8 +196,6 @@ const checkGameLink = (gameId: string): void => {
           baseStore.marathonReplay = (res.stats as unknown as RepGame).puzzle_type === 'marathon';
           baseStore.fmcBlitz = false;
           initStore(baseStore.repGame.puzzle_size);
-        } else {
-          location.href = baseUrl;
         }
       })
       .catch((error: unknown) => {

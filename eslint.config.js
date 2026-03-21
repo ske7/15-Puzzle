@@ -2,10 +2,12 @@ import eslint from '@eslint/js';
 import eslintPluginVue from 'eslint-plugin-vue';
 import globals from 'globals';
 import typescriptEslint from 'typescript-eslint';
+import { defineConfig } from "eslint/config";
 import neostandard from 'neostandard';
 import stylistic from '@stylistic/eslint-plugin';
+import sonarjs from "eslint-plugin-sonarjs";
 
-export default typescriptEslint.config(
+export default defineConfig(
   { ignores: ['*.d.ts', '**/dist'] },
   {
     extends: [
@@ -16,7 +18,8 @@ export default typescriptEslint.config(
       ...eslintPluginVue.configs['flat/recommended'],
     ],
     plugins: {
-      '@stylistic': stylistic
+      '@stylistic': stylistic,
+      sonarjs
     },
     files: ['**/*.{ts,vue}'],
     languageOptions: {
@@ -30,6 +33,7 @@ export default typescriptEslint.config(
       },
     },
     rules: {
+      ...sonarjs.configs.recommended.rules,
       "camelcase": "off",
       "no-void": "off",
       "no-implicit-coercion": ["error", {

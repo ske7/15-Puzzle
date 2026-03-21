@@ -28,7 +28,9 @@ export function usePaginatedFetch<T>(
     orderDirection: OrderDirection
   ) => string,
   extractRecords: (response: Response) => T[],
-  scrollElementId: string
+  scrollElementId: string,
+  atachScroll = true,
+  doLocalSort = false
 ): PaginatedFetchResult<T> {
   const baseStore = useBaseStore();
   const limit = 50;
@@ -63,7 +65,7 @@ export function usePaginatedFetch<T>(
       })
       .catch((error: unknown) => {
         errorMsg.value = error as string;
-        if (String(errorMsg.value).toLowerCase().includes('networkerror')) {
+        if (errorMsg.value.toLowerCase().includes('networkerror')) {
           baseStore.isNetworkError = true;
         }
         isFetching.value = false;
@@ -78,6 +80,24 @@ export function usePaginatedFetch<T>(
     fetch();
   };
 
+  const localSort = (): void => {
+    const field = sortField.value as keyof T;
+    const direction = orderDirection.value;
+
+    records.value.sort((a: T, b: T) => {
+      const aValue = a?.[field];
+      const bValue = b?.[field];
+
+      if (aValue == null && bValue == null) return 0;
+      if (aValue == null) return direction === OrderDirection.Asc ? -1 : 1;
+      if (bValue == null) return direction === OrderDirection.Asc ? 1 : -1;
+
+      if (Number(aValue) < Number(bValue)) return direction === OrderDirection.Asc ? -1 : 1;
+      if (Number(aValue) > Number(bValue)) return direction === OrderDirection.Asc ? 1 : -1;
+      return 0;
+    });
+  };
+
   const sort = (newSortField: string): void => {
     if (newSortField !== sortField.value) {
       sortField.value = newSortField;
@@ -87,7 +107,11 @@ export function usePaginatedFetch<T>(
     } else {
       orderDirection.value = OrderDirection.Asc;
     }
-    reset();
+    if (doLocalSort) {
+      localSort();
+    } else {
+      reset();
+    }
   };
 
   const formatDate = (date?: string): string => {
@@ -113,7 +137,9 @@ export function usePaginatedFetch<T>(
     const el = document.getElementById(scrollElementId);
     if (el != null) {
       fetch();
-      detachScroll = attachScrollListener(el);
+      if (atachScroll) {
+        detachScroll = attachScrollListener(el);
+      }
     }
   });
   onUnmounted(() => {

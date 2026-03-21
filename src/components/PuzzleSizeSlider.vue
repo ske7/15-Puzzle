@@ -8,7 +8,7 @@ const props = withDefaults(defineProps<{ modelValue: number; disabled?: boolean 
 const emit = defineEmits<{ 'update:modelValue': [number] }>();
 
 const setValue = (value: number): void => {
-  if (!isNaN(value) && cores.includes(value)) {
+  if (!Number.isNaN(value) && cores.includes(value)) {
     emit('update:modelValue', value);
   } else {
     emit('update:modelValue', CORE_NUM);

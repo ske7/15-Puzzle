@@ -33,12 +33,12 @@ export const useCanMove = (refValue: ComputedRef<number>,
       (baseStore.freeElementIndex + 1) > refValue.value;
   });
   const calculatedLeft = computed(() => {
-    return (Number(elementCol.value) - 1) * baseStore.spaceBetween +
-      baseStore.spaceBetween + squareSize * (Number(elementCol.value) - 1);
+    return (elementCol.value - 1) * baseStore.spaceBetween +
+      baseStore.spaceBetween + squareSize * (elementCol.value - 1);
   });
   const calculatedTop = computed(() => {
-    return (Number(elementRow.value) - 1) * baseStore.spaceBetween +
-      baseStore.spaceBetween + squareSize * (Number(elementRow.value) - 1);
+    return (elementRow.value - 1) * baseStore.spaceBetween +
+      baseStore.spaceBetween + squareSize * (elementRow.value - 1);
   });
   const canMove = computed(() => {
     return [canMoveRight.value, canMoveLeft.value, canMoveUp.value, canMoveDown.value].some(Boolean);

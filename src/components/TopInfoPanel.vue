@@ -75,7 +75,7 @@ const formatDate = (date?: string): string => {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  font-family: 'consolas', sans-serif;
+  font-family: consolas, sans-serif;
   contain: layout style;
 }
 .info-wrapper {

@@ -60,7 +60,7 @@ const setNoBordersInCageMode = (): void => {
 const setDarkMode = (): void => {
   baseStore.darkMode = !baseStore.darkMode;
   localStorage.setItem('darkMode', baseStore.darkMode.toString());
-  document.documentElement.setAttribute('data-theme', baseStore.darkMode ? 'dark' : 'light');
+  document.documentElement.dataset.theme = baseStore.darkMode ? 'dark' : 'light';
 };
 const setDisableWinMessage = (): void => {
   baseStore.disableWinMessage = !baseStore.disableWinMessage;
@@ -351,7 +351,7 @@ watch(marathonMode, () => {
 }
 .info-header {
   text-align: center;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   margin-top: 5px;
 }
 .info-header span {
@@ -360,7 +360,7 @@ watch(marathonMode, () => {
 }
 .options {
   margin: 0 auto;
-  margin-top: 0px;
+  margin-top: 0;
 }
 .option {
   display: flex;
@@ -369,7 +369,7 @@ watch(marathonMode, () => {
   gap: 10px;
   margin-bottom: 10px;
 }
-input[type=checkbox] {
+input[type="checkbox"] {
   height: 16px;
   margin-top: 1px;
 }
@@ -389,7 +389,7 @@ label {
   opacity: 0.8;
   cursor: pointer;
 }
-.option:hover > input[type=checkbox]:hover:not(:disabled){
+.option:hover > input[type="checkbox"]:hover:not(:disabled){
   cursor: pointer;
 }
 .buttons {

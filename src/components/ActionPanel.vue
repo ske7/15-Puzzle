@@ -247,7 +247,7 @@ onUnmounted(() => {
         v-if="!baseStore.sharedPlaygroundMode && !baseStore.marathonReplay"
         type="button"
         class="tool-button"
-        :disabled="disableButton || baseStore.paused"
+        :disabled="disableButton || baseStore.paused || baseStore.noPlayMode"
         @click="doRestart('fromMain')"
       >
         Restart
@@ -360,7 +360,7 @@ onUnmounted(() => {
           !baseStore.sharedPlaygroundMode && !baseStore.marathonReplay"
         type="button"
         class="tool-button"
-        :disabled="disableButton || baseStore.paused"
+        :disabled="disableButton || baseStore.paused || baseStore.noPlayMode"
         @click="doRestart('fromMain')"
       >
         Restart
@@ -442,7 +442,7 @@ onUnmounted(() => {
         v-if="!(baseStore.replayMode || baseStore.playgroundMode) && !baseStore.sharedPlaygroundMode"
         type="button"
         class="tool-button mobile"
-        :disabled="disableButton || baseStore.paused"
+        :disabled="disableButton || baseStore.paused || baseStore.noPlayMode"
         @click="doRestart('fromMain')"
       >
         Restart
@@ -482,7 +482,7 @@ onUnmounted(() => {
   position: relative;
   margin-top: 10px;
   width: 100%;
-  font-family: 'consolas', sans-serif;
+  font-family: consolas, sans-serif;
   line-height: 27px;
 }
 .action-panel .first-row {

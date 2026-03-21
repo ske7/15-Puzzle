@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, defineAsyncComponent, watch, type AsyncComponentLoader, onMounted } from 'vue';
 import { onClickOutside } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
@@ -7,12 +7,20 @@ import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
 import { type UserRecord } from '@/types';
 import { baseUrl, fmcBlitzCores } from '@/const';
+const GamesTable = defineAsyncComponent({
+  loader: async () => await import('./GamesTable.vue') as unknown as AsyncComponentLoader,
+  delay: 150
+});
 
 const props = defineProps<{ formType: string }>();
 const emit = defineEmits<{ close: [] }>();
 
 const leaderBoard = ref<HTMLElement>();
+const showGamesTable = ref(false);
 onClickOutside(leaderBoard, (event) => {
+  if (showGamesTable.value) {
+    return;
+  }
   event.stopPropagation();
   emit('close');
 });
@@ -38,7 +46,7 @@ const fetch = (endpoint: string): void => {
     })
     .catch((error: unknown) => {
       errorMsg.value = error as string;
-      if (String(errorMsg.value).toLowerCase().includes('networkerror')) {
+      if (errorMsg.value.toLowerCase().includes('networkerror')) {
         baseStore.isNetworkError = true;
       }
       baseStore.isFetching = false;
@@ -137,7 +145,7 @@ const filteredRecords = computed(() => {
     return [];
   }
   return userRecords.value.filter((value) => {
-    return value.puzzle_size === Number(puzzleSize.value) &&
+    return value.puzzle_size === puzzleSize.value &&
            value.puzzle_type === puzzleMode.value &&
            value.record_type === bestType.value;
   }).sort((a, b) => {
@@ -149,10 +157,12 @@ const filteredRecords = computed(() => {
   });
 });
 let scrollbarWidth = 17;
-const tbody = document.getElementById('records-tbody');
-if (tbody !== null) {
-  scrollbarWidth = tbody.offsetWidth - tbody.clientWidth;
-}
+onMounted(() => {
+  const tbody = document.querySelector<HTMLElement>('.records-tbody');
+  if (tbody) {
+    scrollbarWidth = tbody.offsetWidth - tbody.clientWidth;
+  }
+});
 const scrollWidth = computed(() => {
   if (filteredRecords.value.length > (isDefault.value ? 10 : 5)) {
     return `${scrollbarWidth}px`;
@@ -201,6 +211,23 @@ const tbodyHeightMobile = computed(() => {
   }
   return '116.5px';
 });
+const recordId = ref(0);
+const avgType = ref('');
+const recordFormType = ref('');
+const doShowAvgGames = (id: number, type: string): void => {
+  recordId.value = id;
+  recordFormType.value = 'avgGames';
+  avgType.value = type;
+  showGamesTable.value = true;
+};
+const doShowFMCBlitzGames = (id: number): void => {
+  recordId.value = id;
+  recordFormType.value = 'fmcBlitzGames';
+  showGamesTable.value = true;
+};
+const closeGamesTable = (): void => {
+  showGamesTable.value = false;
+};
 </script>
 
 <template>
@@ -212,11 +239,7 @@ const tbodyHeightMobile = computed(() => {
         </span>
       </p>
       <PuzzleSizeSlider v-model="puzzleSize" />
-      <PuzzleModeGroup
-        v-model="puzzleMode"
-        :choices="['standard', 'marathon']"
-        header="Puzzle Mode"
-      />
+      <PuzzleModeGroup v-model="puzzleMode" :choices="['standard', 'marathon']" header="Puzzle Mode" />
       <PuzzleModeGroup
         v-model="bestType"
         :choices="factorChoices"
@@ -255,8 +278,8 @@ const tbodyHeightMobile = computed(() => {
               </th>
             </tr>
           </thead>
-          <tbody id="records-tbody">
-            <tr v-for="(item, index) in filteredRecords.slice(0, 100)" :key="item.id">
+          <tbody class="records-tbody">
+            <tr v-for="(item, index) in filteredRecords.slice(0, 1000)" :key="item.id">
               <td class="w-30">
                 {{ index + 1 }}
               </td>
@@ -271,13 +294,20 @@ const tbodyHeightMobile = computed(() => {
                   {{ item.time / 1000 }}
                 </span>
               </td>
-              <td v-if="bestType === 'moves' || bestType === 'fmc_blitz_moves'" class="min-width w-70">
-                <a v-if="item.scramble && bestType !== 'fmc_blitz_moves'" :href="`${baseUrl}?game_id=${item.public_id}`" class="link-item">
+              <td v-if="bestType === 'moves'" class="min-width w-70">
+                <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.public_id}`" class="link-item">
                   {{ item.moves }}
                 </a>
                 <span v-else>
                   {{ item.moves }}
                 </span>
+              </td>
+              <td
+                v-if="bestType === 'fmc_blitz_moves'"
+                class="min-width w-70 link-item"
+                @click="doShowFMCBlitzGames(item.record_id)"
+              >
+                {{ item.moves }}
               </td>
               <td class="min-width w-60">
                 {{ bestType === 'fmc_blitz_moves' ? Number(item.moves / Number(item.tps)).toFixed(3) : item.tps }}
@@ -291,7 +321,7 @@ const tbodyHeightMobile = computed(() => {
         <table v-if="!isDefault" class="items-table items-avg" aria-describedby="leaderboard-caption">
           <thead>
             <tr>
-              <th class="w-30">
+              <th class="w-35">
                 #
               </th>
               <th class="w-160">
@@ -308,21 +338,33 @@ const tbodyHeightMobile = computed(() => {
               </th>
             </tr>
           </thead>
-          <tbody id="records-tbody">
-            <tr v-for="(item, index) in filteredRecords.slice(0, 100)" :key="item.id">
-              <td class="w-30">
+          <tbody class="records-tbody">
+            <tr v-for="(item, index) in filteredRecords.slice(0, 1000)" :key="item.id">
+              <td class="w-35">
                 {{ index + 1 }}
               </td>
               <td class="w-160 t-overflow">
                 {{ item.name }}
               </td>
-              <td v-if="bestAverage === 'time'" class="min-width">
+              <td
+                v-if="bestAverage === 'time'"
+                class="min-width link-item"
+                @click="doShowAvgGames(item.record_id, 'time')"
+              >
                 {{ item.avg_time }}
               </td>
-              <td v-if="bestAverage === 'moves'" class="min-width">
+              <td
+                v-if="bestAverage === 'moves'"
+                class="min-width link-item"
+                @click="doShowAvgGames(item.record_id, 'moves')"
+              >
                 {{ item.avg_moves }}
               </td>
-              <td v-if="bestAverage === 'TPS'" class="min-width">
+              <td
+                v-if="bestAverage === 'TPS'"
+                class="min-width link-item"
+                @click="doShowAvgGames(item.record_id, 'tps')"
+              >
                 {{ item.avg_tps }}
               </td>
             </tr>
@@ -335,6 +377,14 @@ const tbodyHeightMobile = computed(() => {
         </button>
       </div>
     </div>
+    <GamesTable
+      v-if="showGamesTable"
+      :form-type="recordFormType"
+      :record-id="recordId"
+      :avg-type="avgType"
+      :record-puzzle-size="puzzleSize"
+      @close="closeGamesTable"
+    />
   </Teleport>
 </template>
 
@@ -386,7 +436,7 @@ const tbodyHeightMobile = computed(() => {
   border-collapse: collapse;
   border-spacing: 0;
   margin-bottom: 10px;
-  font-family: 'consolas', sans-serif;
+  font-family: consolas, sans-serif;
   line-height: 1.1;
 }
 .items-avg {
@@ -422,9 +472,9 @@ const tbodyHeightMobile = computed(() => {
   scrollbar-width: auto;
 }
 .items-table td {
-  padding: 3px 4px 3px 4px;
+  padding: 3px 4px;
   border: 1px solid var(--table-border-color);
-  border-top: 0px;
+  border-top: 0;
 }
 .min-width {
   min-width: 67px;
@@ -434,6 +484,9 @@ const tbodyHeightMobile = computed(() => {
 }
 .w-30 {
   width: 30px;
+}
+.w-35 {
+  width: 35px;
 }
 .w-120 {
   width: 120px;

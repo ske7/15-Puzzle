@@ -225,7 +225,7 @@ const doSort = (newSortField: string): void => {
   width: var(--modal-width);
   position: fixed;
   z-index: 2005;
-  top: 0px;
+  top: 0;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
   box-shadow: 0 8px 16px var(--shadow-color);
@@ -254,11 +254,11 @@ const doSort = (newSortField: string): void => {
 }
 .nice-hr {
   max-width: 95%;
-  margin: 4px auto 4px auto;
+  margin: 4px auto;
   width: 100%;
   border: none;
   border-top: 1px solid var(--table-border-color);
-  height: 0px;
+  height: 0;
 }
 .table-wrapper {
   display: block;
@@ -405,8 +405,8 @@ const doSort = (newSortField: string): void => {
     display: flex;
     flex-flow: row wrap;
     margin-bottom: 12px;
-    border-bottom: 0px;
-    border-left: 0px;
+    border-bottom: 0;
+    border-left: 0;
     justify-content: center;
   }
   .flex-row {
@@ -417,7 +417,7 @@ const doSort = (newSortField: string): void => {
     min-width: 180px;
     min-height: 52px;
     border-top: solid 1px var(--table-border-color);
-    border-bottom: solid 0px var(--table-border-color);
+    border-bottom: solid 0 var(--table-border-color);
   }
   .flex-row:last-of-type {
     border-bottom: solid 1px var(--table-border-color);

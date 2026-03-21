@@ -457,19 +457,19 @@ const setWalkMode = (fastWalkMode: boolean): void => {
   --vh-font-size: 14px;
 }
 .copy-button-wrapper .copy-button {
-  margin-top: 0px;
+  margin-top: 0;
 }
 .copy-button-wrapper span {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 250px;
   font-size: 12px;
-  padding: 0px;
+  padding: 0;
   display: block;
   white-space: nowrap;
 }
 .records-row, .info-row, .reg-wrapper {
-  font-family: 'consolas', sans-serif;
+  font-family: consolas, sans-serif;
 }
 .center {
   justify-content: center;
@@ -520,8 +520,7 @@ const setWalkMode = (fastWalkMode: boolean): void => {
 .best-solution {
   display: flex;
   gap: 5px;
-  justify-content: center;
-  align-content: center;
+  place-content: center center;
   align-items: center;
 }
 .best-moves {
@@ -529,7 +528,7 @@ const setWalkMode = (fastWalkMode: boolean): void => {
 }
 .save-button {
   cursor: auto;
-  border: 0px;
+  border: 0;
   font-style: normal;
   height: 24px;
   width: 24px;

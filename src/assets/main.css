@@ -1,5 +1,5 @@
 :root {
-  --c-white: #ffffff;
+  --c-white: #fff;
   --c-black: #121212;
   --c-navy: #000080;
   --c-vivid: gold;
@@ -88,6 +88,19 @@ body {
   transition: all 0.3s ease;
   -webkit-tap-highlight-color: transparent;
 }
+.speed-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  place-content: center center;
+  align-items: center;
+}
+.speed-buttons .tool-button {
+  width: 12px !important;
+  height: 12px !important;
+  font-size: 8px;
+  font-style: normal;
+}
 .tool-button:disabled {
   cursor: auto;
   opacity: 0.5;
@@ -137,18 +150,4 @@ body {
 }
 .fade2-leave-to {
   opacity: 0.7;
-}
-.speed-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  justify-content: center;
-  align-content: center;
-  align-items: center;
-}
-.speed-buttons .tool-button {
-  width: 12px !important;
-  height: 12px !important;
-  font-size: 8px;
-  font-style: normal;
 }

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, watch, reactive, type ComputedRef } from 'vue';
+import { computed, ref, watch, reactive } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { getSquareSize } from '../composables/usePrepare';
-import { useCanMove } from '../composables/useCanMove';
+import { canMoveStatic } from '../composables/useCanMoveStatic';
 import { cores, fmcBlitzCores, ControlType, Direction } from '@/const';
 import Square from './Square.vue';
 import ProSquare from './ProSquare.vue';
@@ -43,7 +43,7 @@ const onCageCompleteImgLoaded = (): void => {
 };
 const hideWhenCageShowCageCompleteImg = computed(() => {
   return baseStore.cageMode && baseStore.isDone &&
-         baseStore.afterDoneAnimationEnd && baseStore.cageCompleteImgLoaded;
+    baseStore.afterDoneAnimationEnd && baseStore.cageCompleteImgLoaded;
 });
 const { finishLoadingAllCageImages } = storeToRefs(baseStore);
 watch(finishLoadingAllCageImages, value => {
@@ -52,24 +52,12 @@ watch(finishLoadingAllCageImages, value => {
   }
 });
 
-const getSid = (clientX: number, clientY: number): null | ComputedRef<number> => {
+const getSid = (clientX: number, clientY: number): number | null => {
   let element = document.elementFromPoint(clientX, clientY);
-  if (element === null) {
-    return null;
-  }
-  let sid = element.getAttribute('sid');
-  while (sid === null) {
+  while (element && !element.hasAttribute('sid')) {
     element = element.parentElement;
-    if (element !== null) {
-      sid = element.getAttribute('sid');
-    } else {
-      break;
-    }
   }
-  const sidValue = computed(() => {
-    return Number(sid);
-  });
-  return sidValue;
+  return element ? Number(element.getAttribute('sid')) : null;
 };
 
 const touchMoveLeft = (clientX: number, clientY: number, posX: number, posY: number,
@@ -89,9 +77,9 @@ const touchMoveLeft = (clientX: number, clientY: number, posX: number, posY: num
 const touchMoveRight = (clientX: number, clientY: number, posX: number, posY: number,
   elementRow: number, sid: number): boolean => {
   if (baseStore.freeElementIndex > sid - 1 && clientX >= posX && clientX < posX + squareSize.value &&
-      clientY >= posY && clientY < posY + squareSize.value &&
-      clientY <= baseStore.boardPos.bottom - baseStore.boardPos.top &&
-      elementRow === baseStore.freeElementRow) {
+    clientY >= posY && clientY < posY + squareSize.value &&
+    clientY <= baseStore.boardPos.bottom - baseStore.boardPos.top &&
+    elementRow === baseStore.freeElementRow) {
     if (!baseStore.checkDiffBetweenElementsAndMove(sid, Direction.Right, ControlType.Touch)) {
       baseStore.moveRight(ControlType.Touch);
     }
@@ -128,44 +116,61 @@ const touchMoveDown = (clientX: number, clientY: number, posX: number, posY: num
   }
   return false;
 };
-const touchMove = (e: TouchEvent): void => {
-  if (!(baseStore.hoverOnControl && baseStore.proMode) || baseStore.isMoving || baseStore.inReplay ||
-    baseStore.sharedPlaygroundMode || baseStore.marathonReplay || baseStore.paused ||
-    baseStore.isDone || baseStore.isTimeFailed) {
+
+let cachedSquareSize = 0;
+let cachedBoardPos = { left: 0, top: 0 };
+
+const onTouchStart = () => {
+  cachedSquareSize = squareSize.value;
+  cachedBoardPos = { ...baseStore.boardPos };
+};
+
+const handleTouchMove = (e: TouchEvent) => {
+  if (!(baseStore.hoverOnControl && baseStore.proMode) ||
+    baseStore.isMoving || baseStore.inReplay ||
+    baseStore.sharedPlaygroundMode || baseStore.marathonReplay ||
+    baseStore.paused || baseStore.isDone || baseStore.isTimeFailed ||
+    baseStore.noPlayMode) {
     return;
   }
+
   const sid = getSid(e.touches[0].clientX, e.touches[0].clientY);
   if (sid === null) {
     return;
   }
-  const { canMove, isFreeElement, elementRow, elementCol, calculatedLeft, calculatedTop } =
-  useCanMove(sid, squareSize.value);
-  if (!(canMove.value as boolean) || (isFreeElement.value as boolean)) {
+
+  const moveData = canMoveStatic(sid, cachedSquareSize);
+  if (!moveData.canMove || moveData.isFreeElement) {
     return;
   }
+
   baseStore.isMoving = true;
-  const clientX = e.touches[0].clientX - baseStore.boardPos.left;
-  const clientY = e.touches[0].clientY - baseStore.boardPos.top;
-  const posX = Number(calculatedLeft.value);
-  const posY = Number(calculatedTop.value);
-  if (touchMoveLeft(clientX, clientY, posX, posY, Number(elementRow.value), sid.value)) {
-    return;
-  }
-  if (touchMoveRight(clientX, clientY, posX, posY, Number(elementRow.value), sid.value)) {
-    return;
-  }
-  if (touchMoveUp(clientX, clientY, posX, posY, Number(elementCol.value), sid.value)) {
-    return;
-  }
-  if (touchMoveDown(clientX, clientY, posX, posY, Number(elementCol.value), sid.value)) {
-    return;
-  }
+
+  const clientX = e.touches[0].clientX - cachedBoardPos.left;
+  const clientY = e.touches[0].clientY - cachedBoardPos.top;
+
+  if (touchMoveLeft(clientX, clientY, moveData.calculatedLeft, moveData.calculatedTop, moveData.elementRow, sid)) return;
+  if (touchMoveRight(clientX, clientY, moveData.calculatedLeft, moveData.calculatedTop, moveData.elementRow, sid)) return;
+  if (touchMoveUp(clientX, clientY, moveData.calculatedLeft, moveData.calculatedTop, moveData.elementCol, sid)) return;
+  if (touchMoveDown(clientX, clientY, moveData.calculatedLeft, moveData.calculatedTop, moveData.elementCol, sid)) return;
+
   baseStore.isMoving = false;
+};
+
+let ticking = false;
+const touchMove = (e: TouchEvent) => {
+  if (!ticking) {
+    ticking = true;
+    globalThis.requestAnimationFrame(() => {
+      handleTouchMove(e);
+      ticking = false;
+    });
+  }
 };
 
 const showProSquare = computed(() => {
   return baseStore.proMode && !(baseStore.replayMode || baseStore.sharedPlaygroundMode ||
-  baseStore.marathonReplay || baseStore.playgroundMode);
+    baseStore.marathonReplay || baseStore.playgroundMode);
 });
 
 const changePuzzleSize = (puzzleSize: number): void => {
@@ -195,8 +200,10 @@ const filteredCores = computed(() => {
       v-if="(baseStore.paused && !baseStore.isDone) ||
         (baseStore.cageMode && !baseStore.finishLoadingAllCageImages)"
       class="paused-veil"
-      :class="{ 'cur-auto': baseStore.showModal ||
-        (baseStore.cageMode && !baseStore.finishLoadingAllCageImages) }"
+      :class="{
+        'cur-auto': baseStore.showModal ||
+          (baseStore.cageMode && !baseStore.finishLoadingAllCageImages)
+      }"
       @click="baseStore.invertPaused"
     >
       <div v-if="baseStore.cageMode && !baseStore.finishLoadingAllCageImages">
@@ -222,6 +229,7 @@ const filteredCores = computed(() => {
     <div
       v-if="!showProSquare && !hideWhenCageShowCageCompleteImg"
       class="p-container"
+      @touchstart="onTouchStart"
       @touchmove.prevent="touchMove"
     >
       <Square
@@ -230,14 +238,17 @@ const filteredCores = computed(() => {
         :square-size="squareSize"
         :order="index"
         :mixed-order="value"
-        :class="{ 'board-veil': baseStore.paused && !baseStore.isDone,
-                  'loading-veil': baseStore.cageMode && !baseStore.finishLoadingAllCageImages }"
+        :class="{
+          'board-veil': baseStore.paused && !baseStore.isDone,
+          'loading-veil': baseStore.cageMode && !baseStore.finishLoadingAllCageImages
+        }"
       />
     </div>
     <div
       v-if="showProSquare && baseStore.currentOrders.length > 0"
       :key="baseStore.mixedOrders.length"
       class="p-container"
+      @touchstart="onTouchStart"
       @touchmove.prevent="touchMove"
     >
       <Pro-Square

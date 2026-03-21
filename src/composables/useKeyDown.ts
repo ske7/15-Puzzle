@@ -49,10 +49,10 @@ export const useKeyDown = (): void => {
   };
 
   const checkPageUp = (): boolean => {
-    if (baseStore.numLines === cores.slice(-1)[0]) {
+    if (baseStore.numLines === cores.at(-1)) {
       return false;
     }
-    if (baseStore.fmcBlitz && baseStore.numLines === fmcBlitzCores.slice(-1)[0]) {
+    if (baseStore.fmcBlitz && baseStore.numLines === fmcBlitzCores.at(-1)) {
       return false;
     }
     baseStore.numLines += 1;
@@ -121,13 +121,13 @@ export const useKeyDown = (): void => {
   };
 
   onMounted(() => {
-    window.addEventListener('keydown', (event) => {
+    globalThis.addEventListener('keydown', (event) => {
       void onKeyDown(event);
     });
   });
 
   onBeforeUnmount(() => {
-    window.removeEventListener('keydown', (event) => {
+    globalThis.removeEventListener('keydown', (event) => {
       void onKeyDown(event);
     });
   });

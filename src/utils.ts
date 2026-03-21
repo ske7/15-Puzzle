@@ -16,7 +16,7 @@ export function shuffle(array: readonly number[]): number[] {
 }
 
 export function generateRand(): number {
-  const value = window.crypto.getRandomValues(new Uint32Array(1))[0];
+  const value = globalThis.crypto.getRandomValues(new Uint32Array(1))[0];
   return value / (Math.pow(2, 32) - 1);
 }
 
@@ -39,7 +39,7 @@ export function getArrayKeyByValue(array: readonly number[], value: number): num
 
 export function isSolvable(array: readonly number[]): boolean {
   const rowCount: number = Math.sqrt(array.length);
-  const freeElement = array.findIndex((x) => x === 0) + 1;
+  const freeElement = array.indexOf(0) + 1;
   const freeElementRow = Math.ceil(freeElement / rowCount);
   let parity = 0;
   for (let i = 0; i < array.length; i++) {
@@ -83,7 +83,7 @@ export function calculateMD(array: readonly number[] | string[]): number {
     return -1;
   }
   const n = Math.sqrt(length);
-  if (Math.floor(n) !== Number(n)) {
+  if (Math.floor(n) !== n) {
     return -1;
   }
   let md = 0;
@@ -166,9 +166,9 @@ export function expandSolutionStr(str: string): string {
   for (let i = 0; i < str.length; i = i + (skipNext ? 2 : 1)) {
     const currentChar = str[i];
     const nextChar = str[i + 1];
-    const nn = parseInt(nextChar, 10);
+    const nn = Number.parseInt(nextChar, 10);
     skipNext = false;
-    if (!isNaN(nn)) {
+    if (!Number.isNaN(nn)) {
       count = nn;
       skipNext = true;
     }
@@ -215,12 +215,12 @@ export function convertScramble(str?: string): string {
 }
 
 export function convertToNumbersArray(str: string): number[] {
-  const arr = str.replace(/[/\s]/g, ',').split(',');
+  const arr = str.replaceAll(/[/\s]/g, ',').split(',');
   let incorrectArray = false;
   const numArray: number[] = [];
   for (const item of arr) {
     const n = Number(item);
-    if (isNaN(n)) {
+    if (Number.isNaN(n)) {
       incorrectArray = true;
       break;
     }
@@ -248,7 +248,7 @@ export function createLinkAndClick(path: string, openOnNewPage = false): void {
   }
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
+  link.remove();
 }
 
 export function swapArrayElements(array: number[], index1: number, index2: number): void {

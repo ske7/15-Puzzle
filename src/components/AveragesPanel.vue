@@ -282,7 +282,7 @@ const closeLeaderBoard = (): void => {
   left: v-bind(positionLeft);
   flex-direction: column;
   font-size: 16px;
-  font-family: 'consolas', sans-serif;
+  font-family: consolas, sans-serif;
   width: 295px;
   height: 300px;
   contain: layout paint size;

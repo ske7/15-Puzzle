@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { postGame, postUserScramble, patchUserScramble } from './useFetching';
 import { FMC_BLITZ_TIME } from '@/const';
+import { get_key_h } from '@/utils_x';
 
 export const useWatchGameState = (): void => {
   const baseStore = useBaseStore();
@@ -23,14 +24,14 @@ export const useWatchGameState = (): void => {
     if (baseStore.token != null) {
       let scramble;
       let solvePath;
-      if (!baseStore.marathonMode) {
-        scramble = baseStore.mixedOrders.join(',');
-        solvePath = baseStore.solvePath.join('');
-      } else {
+      if (baseStore.marathonMode) {
         scramble = baseStore.marathonScrambles.slice(0, -1);
         solvePath = baseStore.marathonSolves.slice(0, -1);
+      } else {
+        scramble = baseStore.mixedOrders.join(',');
+        solvePath = baseStore.solvePath.join('');
       }
-      const keyH = String(time + baseStore.movesCount * import.meta.env.VITE_GAME_KEY);
+      const keyH = get_key_h(time, baseStore.movesCount);
       const gtId = baseStore.g1000Mode ? baseStore.consecutiveSolves - 1 : null;
       postGame({
         user_name: baseStore.userName,

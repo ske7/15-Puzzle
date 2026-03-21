@@ -73,6 +73,8 @@ export interface GameData {
   gt_id?: number | null;
   session_id?: string | null;
   opt_moves?: number;
+  md?: number;
+  excluded_from_avg?: string | null;
 }
 
 export interface RepGame {
@@ -84,7 +86,6 @@ export interface RepGame {
   consecutive_solves: number;
   scramble: string;
   solve_path: string;
-  user_id: number;
   name: string;
   tps: string;
   created_at: string;
@@ -107,6 +108,7 @@ export interface UserRecord {
   avg_tps?: string;
   public_id?: string;
   scramble?: string;
+  record_id: number;
 }
 
 export interface UserStats {

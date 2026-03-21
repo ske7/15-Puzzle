@@ -40,7 +40,7 @@ const fetch = (endpoint: string): void => {
     })
     .catch((error: unknown) => {
       errorMsg.value = error as string;
-      if (String(errorMsg.value).toLowerCase().includes('networkerror')) {
+      if (errorMsg.value.toLowerCase().includes('networkerror')) {
         baseStore.isNetworkError = true;
       }
       baseStore.isFetching = false;
@@ -76,7 +76,7 @@ const puzzleSize = ref<number>(baseStore.numLines);
 const puzzleMode = ref<string>(baseStore.marathonMode ? 'marathon' : 'standard');
 const filteredRecords = computed(() => {
   return userData.value?.user_records.filter((value) => {
-    return value.puzzle_size === Number(puzzleSize.value) && value.puzzle_type === puzzleMode.value;
+    return value.puzzle_size === puzzleSize.value && value.puzzle_type === puzzleMode.value;
   });
 });
 const bestRecords = computed(() => {
@@ -189,7 +189,7 @@ const closeGamesTable = (): void => {
       </div>
     </div>
   </Teleport>
-  <GamesTable v-if="showGamesTable" @close="closeGamesTable" />
+  <GamesTable v-if="showGamesTable" form-type="userGames" @close="closeGamesTable" />
 </template>
 
 <style scoped>
@@ -242,7 +242,7 @@ const closeGamesTable = (): void => {
   border-collapse: collapse;
   border-spacing: 0;
   margin-bottom: 10px;
-  font-family: 'consolas', sans-serif;
+  font-family: consolas, sans-serif;
   line-height: 1.1;
 }
 .items-table thead {
@@ -271,7 +271,7 @@ const closeGamesTable = (): void => {
   padding: 5px 0 5px 5px;
   min-width: 55px;
   border: 1px solid var(--table-border-color);
-  border-top: 0px;
+  border-top: 0;
 }
 .items-table .w-28 {
   min-width: 28px;
@@ -318,7 +318,7 @@ const closeGamesTable = (): void => {
 }
 @media screen and (max-height: 650px) and (max-width: 950px) {
   .user-account {
-    top: 0px;
+    top: 0;
   }
   .items-table tbody {
     max-height: 57px;

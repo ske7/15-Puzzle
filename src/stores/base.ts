@@ -118,7 +118,8 @@ export const useBaseStore = defineStore('base', {
     clearDisplay: false,
     marathonFirstMove: false,
     fastWalkMode: localStorage.getItem('fastWalkMode') === 'true',
-    proBeforeCage: localStorage.getItem('proBeforeCage') === 'true'
+    proBeforeCage: localStorage.getItem('proBeforeCage') === 'true',
+    noPlayMode: false
   }),
   actions: {
     initStore() {
@@ -191,7 +192,14 @@ export const useBaseStore = defineStore('base', {
       }
     },
     updatePlaygroundStats(res: Response) {
-      if (res.stats != null) {
+      if (res.stats == null) {
+        this.playgroundBestTime = 0;
+        this.playgroundBestTimeMoves = 0;
+        this.playgroundBestMoves = 0;
+        this.playgroundSolvePath = [];
+        this.publicId = '';
+        this.userScrambleId = 0;
+      } else {
         const stats = res.stats as unknown as UserScrambleData;
         if (stats.id != null) {
           this.userScrambleId = stats.id;
@@ -203,13 +211,6 @@ export const useBaseStore = defineStore('base', {
           this.playgroundSolvePath = stats.solve_path.split('');
         }
         this.publicId = stats.public_id ?? '';
-      } else {
-        this.playgroundBestTime = 0;
-        this.playgroundBestTimeMoves = 0;
-        this.playgroundBestMoves = 0;
-        this.playgroundSolvePath = [];
-        this.publicId = '';
-        this.userScrambleId = 0;
       }
     },
     playgroundModeRenew() {
@@ -234,15 +235,14 @@ export const useBaseStore = defineStore('base', {
     async getNextG1000() {
       await useGetFetchAPI('next_gt', this.token)
         .then((res) => {
-          if (res.id === 1000) {
-            location.href = import.meta.env.VITE_BASE_URL;
-            return false;
-          }
           if (res.scramble !== undefined) {
-            this.mixedOrders = res.scramble.split(',').map(x => Number(x));
+            this.mixedOrders = res.scramble.split(',').map(Number);
           }
           this.consecutiveSolves = res.id!;
-          return true;
+          this.loadAverages();
+          if (res.id === 1000) {
+            this.noPlayMode = true;
+          }
         })
         .catch((error: unknown) => {
           console.log(error as string);
@@ -255,7 +255,7 @@ export const useBaseStore = defineStore('base', {
         if (this.marathonReplay) {
           scramble = this.repGame.scramble.split(';')[0];
         }
-        this.mixedOrders = scramble.split(',').map(x => Number(x));
+        this.mixedOrders = scramble.split(',').map(Number);
       } else if (this.playgroundMode && this.savedOrders.length > 0) {
         this.mixedOrders = this.savedOrders;
       } else if (this.playgroundMode && this.savedOrders.length === 0) {
@@ -628,29 +628,25 @@ export const useBaseStore = defineStore('base', {
         time: stats?.aoSt,
         moves: stats?.aoSm,
         tps: stats?.aoStps
-      });
-      this.currentAverages.push({
+      }, {
         code: 5,
         puzzle_size: this.numLines,
         time: stats?.ao5t,
         moves: stats?.ao5m,
         tps: stats?.ao5tps
-      });
-      this.currentAverages.push({
+      }, {
         code: 12,
         puzzle_size: this.numLines,
         time: stats?.ao12t,
         moves: stats?.ao12m,
         tps: stats?.ao12tps
-      });
-      this.currentAverages.push({
+      }, {
         code: 50,
         puzzle_size: this.numLines,
         time: stats?.ao50t,
         moves: stats?.ao50m,
         tps: stats?.ao50tps
-      });
-      this.currentAverages.push({
+      }, {
         code: 100,
         puzzle_size: this.numLines,
         time: stats?.ao100t,
@@ -757,7 +753,7 @@ export const useBaseStore = defineStore('base', {
   },
   getters: {
     freeElementIndex(): number {
-      return this.currentOrders.findIndex((x) => x === 0);
+      return this.currentOrders.indexOf(0);
     },
     cagesCount(): number {
       return CAGES_PATH_ARR.length;
@@ -775,6 +771,9 @@ export const useBaseStore = defineStore('base', {
       return count;
     },
     isDone(): boolean {
+      if (this.noPlayMode) {
+        return false;
+      }
       return this.inPlaceCount === this.arrayLength - 1;
     },
     afterDoneAnimationEnd(): boolean {
@@ -818,7 +817,7 @@ export const useBaseStore = defineStore('base', {
       ].some(Boolean);
     },
     cageImgIndex(): number {
-      return CAGES_PATH_ARR.indexOf(this.cagePath.toString());
+      return CAGES_PATH_ARR.indexOf(this.cagePath);
     },
     unlockedCagesSortedArr(): number[] {
       return [...this.unlockedCages].sort((a, b) => a - b);

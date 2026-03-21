@@ -31,3 +31,5 @@ todo.txt
 .env
 .env.production
 tempdata/
+.scannerwork
+sonar-project.properties

@@ -87,16 +87,15 @@ const clearDisplay = (): void => {
 }
 @media (min-height: 800px), screen and (max-width: 820px) {
   .wrapper {
-    padding-top: 0px;
-    align-content: center;
-    justify-content: center;
+    padding-top: 0;
+    place-content: center center;
     height: 100%;
     margin-top: -10%;
   }
 }
 @media (max-height: 720px) {
   .wrapper {
-    margin-top: 0px;
+    margin-top: 0;
   }
 }
 .header {

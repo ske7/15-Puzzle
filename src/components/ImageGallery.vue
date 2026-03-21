@@ -413,7 +413,7 @@ label {
 .disabled-label {
   opacity: 0.3;
 }
-input[type=checkbox] {
+input[type="checkbox"] {
   margin-top: 1px;
 }
 </style>

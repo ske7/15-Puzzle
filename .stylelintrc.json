@@ -1,3 +1,36 @@
 {
-  "extends": ["stylelint-config-recommended-vue"]
+  "extends": ["stylelint-config-standard", "stylelint-config-html"],
+  "rules": {
+    "alpha-value-notation": "number",
+    "color-function-alias-notation": "with-alpha",
+    "color-function-notation": "legacy",
+    "font-family-name-quotes": "always-where-recommended",
+    "media-feature-range-notation": "prefix",
+    "declaration-empty-line-before": "never",
+    "rule-empty-line-before": "never",
+    "at-rule-empty-line-before": "never",
+    "custom-property-empty-line-before": "never",
+    "at-rule-no-unknown": null,
+    "selector-class-pattern": null,
+    "value-keyword-case": null,
+    "property-no-vendor-prefix": null,
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": ["deep", "global", "slotted"]
+      }
+    ],
+    "selector-pseudo-element-no-unknown": [
+      true,
+      {
+        "ignorePseudoElements": ["v-deep", "v-global", "v-slotted"]
+      }
+    ],
+    "declaration-property-value-no-unknown": [
+      true,
+      {
+        "ignoreProperties": { "/.*/": "/v-bind\\(.+\\)/" }
+      }
+    ]
+  }
 }

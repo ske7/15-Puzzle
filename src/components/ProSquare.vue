@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, watchEffect } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { Direction, ControlType } from '@/const';
 import { useWindowSize } from '@vueuse/core';
@@ -103,7 +103,7 @@ const moveDirection = computed(() => {
   return Direction.None;
 });
 const cannotMove = computed(() => {
-  return isDoneAll.value || baseStore.paused || currentOrder.value === 0 || !(canMove.value as boolean);
+  return isDoneAll.value || baseStore.paused || baseStore.noPlayMode || currentOrder.value === 0 || !(canMove.value as boolean);
 });
 const move = (control: ControlType): void => {
   if (baseStore.isMoving || cannotMove.value) {
@@ -161,16 +161,21 @@ const setCanvasBg = (value: string): void => {
   context.value!.fillStyle = value;
   context.value!.fillRect(0, 0, props.squareSize, props.squareSize);
 };
-watch(currentOrder, (newValue) => {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (newValue === undefined) {
-    return;
-  }
+
+watchEffect(() => {
+  const ctx = context.value;
+  const value = currentOrder.value;
+
+  if (!ctx) return;
+
   setCanvasBg(bgColor.value);
-  context.value!.fillStyle = '#0a0a23';
-  context.value!.fillText(newValue === 0 ? '' : newValue.toString(), props.squareSize / 2, props.squareSize / 2);
-}, {
-  immediate: false, flush: 'sync'
+
+  ctx.fillStyle = '#0a0a23';
+  ctx.fillText(
+    value === 0 ? '' : value.toString(),
+    props.squareSize / 2,
+    props.squareSize / 2
+  );
 });
 
 const squareCanvas = ref<HTMLCanvasElement | null>(null);

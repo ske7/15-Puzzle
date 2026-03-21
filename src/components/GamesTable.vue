@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { onClickOutside, useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
@@ -11,6 +11,7 @@ import { shortenSolutionStr, convertScrambles } from '@/utils';
 import CopyButton from './CopyButton.vue';
 import { usePaginatedFetch } from '../composables/usePaginatedFetch';
 
+const props = defineProps<{ formType: string; recordId?: number; avgType?: string; recordPuzzleSize?: number }>();
 const emit = defineEmits<{ close: [] }>();
 
 const gamesTable = ref<HTMLElement>();
@@ -27,7 +28,7 @@ if (baseStore.g1000Mode) {
   puzzleMode.value = 'g1000';
 }
 
-const buildScrambleUrl = (
+const userGamesUrl = (
   offset: number,
   limit: number,
   sortField: string,
@@ -37,6 +38,24 @@ const buildScrambleUrl = (
   // eslint-disable-next-line vue/max-len
   return `user_games?puzzle_size=${puzzleSize.value}&puzzle_type=${puzzleMode.value}&offset=${offset}&limit=${limit}&order_field=${sortField}&order_direction=${direction}`;
 };
+const avgGamesUrl = (): string => {
+  return `avg_record_games?avg_record_id=${props.recordId}&avg_type=${props.avgType}`;
+};
+const fmcBlitzGamesUrl = (): string => {
+  return `fmc_blitz_record_games?fmc_blitz_record_id=${props.recordId}`;
+};
+
+let fetchUrl = userGamesUrl;
+if (props.formType === 'avgGames' || props.formType === 'fmcBlitzGames') {
+  if (props.recordPuzzleSize) {
+    puzzleSize.value = props.recordPuzzleSize;
+  }
+  if (props.formType === 'avgGames') {
+    fetchUrl = avgGamesUrl;
+  } else {
+    fetchUrl = fmcBlitzGamesUrl;
+  }
+}
 
 const {
   records: gameRecords,
@@ -47,7 +66,13 @@ const {
   sort,
   sortField,
   orderDirection
-} = usePaginatedFetch<GameData>(buildScrambleUrl, (res) => res.game_records ?? [], 'game-list-table');
+} = usePaginatedFetch<GameData>(
+  fetchUrl,
+  (res) => res.game_records ?? [],
+  'game-list-table',
+  props.formType === 'userGames',
+  props.formType === 'avgGames' || props.formType === 'fmcBlitzGames'
+);
 
 const puzzleModeChoices = ref(baseStore.numLines === 3 ? ['standard', 'marathon', 'g1000'] : ['standard', 'marathon']);
 watch(puzzleSize, (newValue) => {
@@ -80,30 +105,39 @@ const download = (content: string, fileName: string, contentType: string): void 
   anchor.click();
 };
 const jsonToCSV = (data: GameData[]): string => {
-  const fields = ['public_id', 'created_at', 'consecutive_solves', 'time', 'moves', 'tps', 'scramble', 'solve_path'];
+  let fields = ['game_link', 'created_at', 'consecutive_solves', 'time', 'moves', 'tps', 'scramble', 'md', 'solve_path'];
   if (puzzleSize.value === 3) {
-    fields.splice(5, 0, 'opt_moves');
+    fields = ['game_link', 'created_at', 'consecutive_solves', 'time', 'moves', 'opt_moves', 'opt_diff', 'tps', 'scramble', 'md', 'solve_path'];
   }
   let csvStr = `${fields.join(',')}\n`;
   data.forEach(item => {
-    const publicId = item.public_id;
+    const publicId = `${baseUrl}?game_id=${item.public_id}`;
     const createdAt = formatDate(item.created_at);
     const consecutiveSolves = item.consecutive_solves;
-    const time = (item.time / 1000.0).toString();
+    const time = (item.time / 1000).toString();
     const moves = item.moves;
     const tps = item.tps;
     const scramble = convertScrambles(item.scramble, puzzleMode.value);
+    const md = item.md;
     const solvePath = shortenSolutionStr(item.solve_path);
-    let optMoves = '';
+    let optMovesAndDiff = '';
     if (puzzleSize.value === 3) {
-      optMoves = `${item.opt_moves},`;
+      optMovesAndDiff = `${item.opt_moves},${item.opt_diff},`;
     }
 
-    csvStr += `${publicId},${createdAt},${consecutiveSolves},${time},${moves},${optMoves}${tps},${scramble},${solvePath}\n`;
+    csvStr += `${publicId},${createdAt},${consecutiveSolves},${time},${moves},${optMovesAndDiff}${tps},${scramble},${md},${solvePath}\n`;
   });
   return csvStr;
 };
 const doExport = (): void => {
+  if (props.formType === 'avgGames') {
+    download(jsonToCSV(gameRecords.value), 'avg_record_games.csv', 'text/plain');
+    return;
+  }
+  if (props.formType === 'fmcBlitzGames') {
+    download(jsonToCSV(gameRecords.value), 'fmc_blitz_record_games.csv', 'text/plain');
+    return;
+  }
   useGetFetchAPI(`session_games?puzzle_size=${puzzleSize.value}&puzzle_type=${puzzleMode.value}`, baseStore.token)
     .then(res => {
       download(jsonToCSV(res.game_records!), 'games.csv', 'text/plain');
@@ -113,26 +147,42 @@ const doExport = (): void => {
       console.log(errorMsg.value);
     });
 };
+const tableTitle = computed(() => {
+  if (props.formType === 'userGames') {
+    return 'Your Games';
+  } else if (props.formType === 'avgGames') {
+    return 'Average Record Games';
+  } else if (props.formType === 'fmcBlitzGames') {
+    return 'FMC Blitz Games';
+  }
+  return 'Your Games';
+});
 </script>
 
 <template>
   <div ref="gamesTable" class="games-table">
     <p class="header">
       <span>
-        Your Games
+        {{ tableTitle }}
       </span>
     </p>
-    <PuzzleSizeSlider v-model="puzzleSize" />
+    <PuzzleSizeSlider v-if="props.formType === 'userGames'" v-model="puzzleSize" />
     <PuzzleModeGroup
+      v-if="props.formType === 'userGames'"
       v-model="puzzleMode"
       :choices="puzzleModeChoices"
       header="Puzzle Mode"
     />
-    <div class="export-link-wrapper">
-      <a class="link-item" @click="doExport">Export last session</a>
+    <div v-if="!errorMsg" class="export-link-wrapper">
+      <a class="link-item" @click="doExport">
+        {{ props.formType === 'userGames' ? 'Export last session' : 'Export games' }}
+      </a>
     </div>
     <hr class="nice-hr">
-    <div id="game-list-table" class="table-wrapper">
+    <p v-if="errorMsg" class="table-error-msg">
+      {{ errorMsg }}
+    </p>
+    <div v-if="!errorMsg" id="game-list-table" class="table-wrapper">
       <div class="flex-table table-header">
         <div class="flex-row w-70">
           ID
@@ -236,16 +286,25 @@ const doExport = (): void => {
             <div class="flex-row w-49">
               <span> {{ item.consecutive_solves }}</span>
             </div>
-            <div class="flex-row w-85">
+            <div
+              class="flex-row w-85"
+              :class="{ 'green': item.excluded_from_avg === 'best' && props.avgType === 'time', 'red': item.excluded_from_avg === 'worst' && props.avgType === 'time' }"
+            >
               <span>{{ item.time / 1000 }}</span>
             </div>
-            <div class="flex-row w-85">
+            <div
+              class="flex-row w-85"
+              :class="{ 'green': item.excluded_from_avg === 'best' && props.avgType === 'moves', 'red': item.excluded_from_avg === 'worst' && props.avgType === 'moves' }"
+            >
               <span>{{ item.moves }}</span>
             </div>
             <div v-if="puzzleSize === 3" class="flex-row w-85">
               <span v-if="(item.opt_diff || 0) >= 0">+{{ item.opt_diff || 0 }}</span>
             </div>
-            <div class="flex-row w-70">
+            <div
+              class="flex-row w-70"
+              :class="{ 'green': item.excluded_from_avg === 'best' && props.avgType === 'tps', 'red': item.excluded_from_avg === 'worst' && props.avgType === 'tps' }"
+            >
               <span>{{ item.tps }}</span>
             </div>
             <div class="flex-row smaller-font" :class="{ 'w-85': windowWidth <= 1100 }">
@@ -265,18 +324,14 @@ const doExport = (): void => {
             <div class="flex-row smaller-font" :class="{ 'w-85': windowWidth <= 1100 }">
               <div class="copy-button-wrapper">
                 <span class="long-span">{{ shortenSolutionStr(item.solve_path) }}</span>
-                <CopyButton
-                  v-if="item.solve_path"
-                  :item-to-copy="String(item.solve_path)"
-                  :is-solve-path="true"
-                />
+                <CopyButton v-if="item.solve_path" :item-to-copy="String(item.solve_path)" :is-solve-path="true" />
               </div>
             </div>
           </div>
         </div>
       </template>
     </div>
-    <div v-if="fetched" class="buttons">
+    <div v-if="fetched || errorMsg" class="buttons">
       <button type="button" class="tool-button" @click="emit('close')">
         OK
       </button>
@@ -296,7 +351,7 @@ const doExport = (): void => {
   width: var(--modal-width);
   position: fixed;
   z-index: 2005;
-  top: 0px;
+  top: 0;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
   box-shadow: 0 8px 16px var(--shadow-color);
@@ -337,15 +392,15 @@ const doExport = (): void => {
 }
 .nice-hr {
   max-width: 95%;
-  margin: 4px auto 4px auto;
+  margin: 4px auto;
   width: 100%;
   border: none;
   border-top: 1px solid var(--table-border-color);
-  height: 0px;
+  height: 0;
 }
 .table-wrapper {
   display: block;
-  margin: 0px auto;
+  margin: 0 auto;
   width: 100%;
   max-width: 95%;
   overflow: auto;
@@ -371,6 +426,12 @@ const doExport = (): void => {
   text-align: center;
   border-right: solid 1px var(--table-border-color);
   border-bottom: solid 1px var(--table-border-color);
+}
+.green {
+  background-color: green;
+}
+.red {
+  background-color: red;
 }
 .w-49 {
   max-width: 49px;
@@ -424,11 +485,19 @@ const doExport = (): void => {
   --vd-font-size: 13px;
   --vh-font-size: 14px;
 }
+.green span,
+.red span {
+  color: white;
+}
 .link-item {
   color: var(--link-color);
   text-decoration: underline;
   font-size: 14px;
   font-weight: 600;
+}
+.green .link-item,
+.red .link-item {
+  color: white;
 }
 .link-item:hover:not(.paused) {
   text-decoration: underline;
@@ -450,6 +519,11 @@ const doExport = (): void => {
 }
 .white-space-normal {
   white-space: normal !important;
+}
+.table-error-msg {
+  display: flex;
+  place-content: center;
+  font-size: 20px;
 }
 @media screen and (max-width: 1100px) {
   .games-table {
@@ -506,8 +580,8 @@ const doExport = (): void => {
     display: flex;
     flex-flow: row wrap;
     margin-bottom: 20px;
-    border-bottom: 0px;
-    border-left: 0px;
+    border-bottom: 0;
+    border-left: 0;
     justify-content: center;
   }
   .flex-row {
@@ -518,7 +592,7 @@ const doExport = (): void => {
     min-width: 180px;
     min-height: 60px;
     border-top: solid 1px var(--table-border-color);
-    border-bottom: solid 0px var(--table-border-color);
+    border-bottom: solid 0 var(--table-border-color);
   }
   .flex-row:last-of-type {
     border-bottom: solid 1px var(--table-border-color);

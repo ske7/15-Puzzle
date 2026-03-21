@@ -35,7 +35,7 @@ const copyText = computed(() => {
 }
 .copy-button {
   cursor: auto;
-  border: 0px;
+  border: 0;
   font-style: normal;
   height: 24px;
   width: 24px;

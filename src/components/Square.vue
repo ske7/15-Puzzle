@@ -354,7 +354,7 @@ onUnmounted(() => {
   font-size: v-bind(fontSizeD);
   font-weight: 600;
   color: #0a0a23;
-  font-family: 'consolas', sans-serif;
+  font-family: consolas, sans-serif;
 }
 .item-img {
   width: 100%;
@@ -395,7 +395,7 @@ onUnmounted(() => {
   font-size: v-bind(fontSizeD);
   font-weight: 600;
   color: #0a0a23;
-  font-family: 'consolas', sans-serif;
+  font-family: consolas, sans-serif;
 }
 @media screen and (max-width: 401px) {
   .square, .square span {
