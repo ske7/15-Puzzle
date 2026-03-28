@@ -29,7 +29,7 @@ const LeaderBoard = defineAsyncComponent({
 
 const baseStore = useBaseStore();
 const eventBus = useEventBus<string>('event-bus');
-const formType = ref<string>('');
+const formType = ref('');
 
 const disableDuringMarathon = computed(() => {
   return baseStore.marathonMode && baseStore.time > 0 && !baseStore.isDone;

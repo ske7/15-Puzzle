@@ -42,7 +42,7 @@ export function usePaginatedFetch<T>(
   const fetched = ref(false);
   const isDone = ref(false);
   const sortField = ref('id');
-  const orderDirection = ref<OrderDirection>(OrderDirection.Desc);
+  const orderDirection = ref(OrderDirection.Desc);
 
   const fetch = (): void => {
     if (isFetching.value || isDone.value) return;

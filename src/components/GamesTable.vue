@@ -22,8 +22,8 @@ onClickOutside(gamesTable, (event) => {
 
 const baseStore = useBaseStore();
 const { width: windowWidth } = useWindowSize();
-const puzzleSize = ref<number>(baseStore.numLines);
-const puzzleMode = ref<string>(baseStore.marathonMode ? 'marathon' : 'standard');
+const puzzleSize = ref(baseStore.numLines);
+const puzzleMode = ref(baseStore.marathonMode ? 'marathon' : 'standard');
 if (baseStore.g1000Mode) {
   puzzleMode.value = 'g1000';
 }

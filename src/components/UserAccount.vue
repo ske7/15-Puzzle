@@ -72,8 +72,8 @@ const formatPlayTime = computed(() => {
   return `${hour}h ${min}m ${sec}s ${ms}ms`;
 });
 
-const puzzleSize = ref<number>(baseStore.numLines);
-const puzzleMode = ref<string>(baseStore.marathonMode ? 'marathon' : 'standard');
+const puzzleSize = ref(baseStore.numLines);
+const puzzleMode = ref(baseStore.marathonMode ? 'marathon' : 'standard');
 const filteredRecords = computed(() => {
   return userData.value?.user_records.filter((value) => {
     return value.puzzle_size === puzzleSize.value && value.puzzle_type === puzzleMode.value;

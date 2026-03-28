@@ -18,7 +18,7 @@ onClickOutside(scrambleList, (event) => {
 });
 
 const baseStore = useBaseStore();
-const puzzleSize = ref<number>(baseStore.numLines);
+const puzzleSize = ref(baseStore.numLines);
 
 const buildScrambleUrl = (
   offset: number,

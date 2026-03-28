@@ -16,7 +16,7 @@ onClickOutside(configModal, (event) => {
   event.stopPropagation();
   emit('close');
 });
-const puzzleSize = ref<number>(baseStore.numLines);
+const puzzleSize = ref(baseStore.numLines);
 const disabledCageMode = computed(() => {
   return !baseStore.enableCageMode || baseStore.marathonMode ||
   baseStore.proMode || baseStore.numLines !== CORE_NUM;

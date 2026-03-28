@@ -70,8 +70,8 @@ const syncUserRecordsAfterLogin = (stats?: UserStats): void => {
   }
   baseStore.setRecords();
 };
-const resetPasswordMode = ref<boolean>(false);
-const sentResetEmail = ref<boolean>(false);
+const resetPasswordMode = ref(false);
+const sentResetEmail = ref(false);
 const invalidFields = reactive({
   name: false,
   email: false,

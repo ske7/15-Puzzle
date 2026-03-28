@@ -54,10 +54,10 @@ const fetch = (endpoint: string): void => {
 };
 fetch(props.formType === 'default' ? 'stats' : 'stats?avg=1');
 
-const puzzleSize = ref<number>(baseStore.numLines);
-const puzzleMode = ref<string>(baseStore.marathonMode ? 'marathon' : 'standard');
-const bestType = ref<string>(props.formType === 'default' ? 'time' : 'ao5');
-const bestAverage = ref<string>('time');
+const puzzleSize = ref(baseStore.numLines);
+const puzzleMode = ref(baseStore.marathonMode ? 'marathon' : 'standard');
+const bestType = ref(props.formType === 'default' ? 'time' : 'ao5');
+const bestAverage = ref('time');
 
 watch(puzzleSize, (newValue) => {
   if (!fmcBlitzCores.includes(newValue) && bestType.value === 'fmc_blitz_moves') {
