@@ -121,13 +121,13 @@ export const useKeyDown = (): void => {
   };
 
   onMounted(() => {
-    globalThis.addEventListener('keydown', (event) => {
+    addEventListener('keydown', (event) => {
       void onKeyDown(event);
     });
   });
 
   onBeforeUnmount(() => {
-    globalThis.removeEventListener('keydown', (event) => {
+    removeEventListener('keydown', (event) => {
       void onKeyDown(event);
     });
   });

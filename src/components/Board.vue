@@ -161,7 +161,7 @@ let ticking = false;
 const touchMove = (e: TouchEvent) => {
   if (!ticking) {
     ticking = true;
-    globalThis.requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
       handleTouchMove(e);
       ticking = false;
     });

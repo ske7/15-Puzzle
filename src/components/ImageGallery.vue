@@ -105,7 +105,7 @@ const interval = ref(0);
 watch(loaded, (newValue, oldValue) => {
   if (!newValue && (oldValue ?? (currentIndex.value === 0))) {
     time.value = 0;
-    interval.value = window.setInterval(() => {
+    interval.value = setInterval(() => {
       time.value += 1;
     }, 100);
   }

@@ -321,7 +321,7 @@ export const useBaseStore = defineStore('base', {
     },
     restartInterval() {
       this.startTime = Date.now();
-      this.interval = window.setInterval(() => {
+      this.interval = setInterval(() => {
         this.time = Date.now() - this.startTime + this.savedTime;
       }, 5);
     },
@@ -406,7 +406,7 @@ export const useBaseStore = defineStore('base', {
       }
       if (this.fmcBlitz && this.blitzInterval === 0 && this.solvedPuzzlesInMarathon === 0) {
         this.startBlitzTime = Date.now();
-        this.blitzInterval = window.setInterval(() => {
+        this.blitzInterval = setInterval(() => {
           this.blitzTime = FMC_BLITZ_TIME * 1000 - (Date.now() - this.startBlitzTime);
         }, 5);
       }

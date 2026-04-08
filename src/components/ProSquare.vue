@@ -185,7 +185,7 @@ onMounted(() => {
   if (squareCanvas.value !== null) {
     squareCanvas.value.style.width = sizeVar.value;
     squareCanvas.value.style.height = sizeVar.value;
-    const scale = window.devicePixelRatio;
+    const scale = devicePixelRatio;
     squareCanvas.value.width = Math.floor(props.squareSize * scale);
     squareCanvas.value.height = Math.floor(props.squareSize * scale);
     context.value = squareCanvas.value.getContext('2d');

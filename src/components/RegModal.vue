@@ -143,7 +143,7 @@ const fetch = (endpoint: string): void => {
         localStorage.setItem('token', String(baseStore.token));
         syncUserRecordsAfterLogin(res.stats);
         baseStore.initAfterNewPuzzleSize();
-        if (globalThis.location.search !== '') {
+        if (location.search !== '') {
           isFetching.value = false;
           emit('close');
           location.reload();

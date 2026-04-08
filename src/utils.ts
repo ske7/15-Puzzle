@@ -16,7 +16,7 @@ export function shuffle(array: readonly number[]): number[] {
 }
 
 export function generateRand(): number {
-  const value = globalThis.crypto.getRandomValues(new Uint32Array(1))[0];
+  const value = crypto.getRandomValues(new Uint32Array(1))[0];
   return value / (Math.pow(2, 32) - 1);
 }
 
