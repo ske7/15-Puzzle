@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
+import { useAppEventBus } from '../composables/useAppEventBus';
 import { useBaseStore } from '../stores/base';
 import { Direction, ControlType } from '@/const';
 import { storeToRefs } from 'pinia';
-import { useEventBus } from '@vueuse/core';
+
 import { useCanMove } from '../composables/useCanMove';
 import { getTileColor } from '@/colors';
 import { getArrayKeyByValue } from '@/utils';
@@ -22,8 +23,8 @@ const currentElementIndex = computed(() => {
 const currentOrder = computed(() => {
   return baseStore.currentOrders[props.order];
 });
-const { elementCol, elementRow, canMoveRight, canMoveLeft, canMoveUp, canMoveDown } =
-  useCanMove(currentElementIndex, props.squareSize);
+const { elementCol, elementRow, calculatedLeft, calculatedTop, moveDirection } =
+  useCanMove(currentElementIndex, () => props.squareSize);
 
 const sizeVar = computed(() => {
   return `${props.squareSize}px`;
@@ -100,20 +101,6 @@ const inPlaceColor = computed(() => {
   return 'var(--square-in-place-color)';
 });
 
-const calculatedLeft = computed(() => {
-  return (
-    (Number(elementCol.value) - 1) * baseStore.spaceBetween +
-    baseStore.spaceBetween +
-    props.squareSize * (Number(elementCol.value) - 1)
-  );
-});
-const calculatedTop = computed(() => {
-  return (
-    (Number(elementRow.value) - 1) * baseStore.spaceBetween +
-    baseStore.spaceBetween +
-    props.squareSize * (Number(elementRow.value) - 1)
-  );
-});
 const calculatedTopBind = computed(() => {
   return `${calculatedTop.value}px`;
 });
@@ -131,18 +118,6 @@ const isDoneAll = computed(() => {
   return baseStore.isDone;
 });
 
-const moveDirection = computed(() => {
-  if (canMoveRight.value as boolean) {
-    return Direction.Right;
-  } else if (canMoveLeft.value as boolean) {
-    return Direction.Left;
-  } else if (canMoveUp.value as boolean) {
-    return Direction.Up;
-  } else if (canMoveDown.value as boolean) {
-    return Direction.Down;
-  }
-  return Direction.None;
-});
 const cannotMove = computed(() => {
   return isDoneAll.value || baseStore.paused || moveDirection.value === Direction.None;
 });
@@ -167,6 +142,12 @@ const moveByMouse = (event: MouseEvent): void => {
   move(ControlType.Mouse);
 };
 
+const onMouseDown = (): void => {
+  if (baseStore.hoverOnControl && baseStore.proMode) {
+    return;
+  }
+  move(ControlType.Mouse);
+};
 const getCursor = computed(() => {
   if (baseStore.hoverOnControl && baseStore.proMode || cannotMove.value) {
     return 'auto';
@@ -176,21 +157,32 @@ const getCursor = computed(() => {
 
 const isCaptured = ref(false);
 const isNoBorder = ref(false);
+let revealTimeout = 0;
+const cancelReveal = (): void => {
+  clearTimeout(revealTimeout);
+  revealTimeout = 0;
+};
+const resetReveal = (): void => {
+  cancelReveal();
+  isCaptured.value = false;
+  isNoBorder.value = false;
+};
 watch(
   isDoneAll,
   (newValue) => {
+    cancelReveal();
     if (newValue && !isFreeElement.value) {
       if (baseStore.proMode) {
         baseStore.afterDoneCount += 1;
         return;
       }
       if (baseStore.cageMode) {
-        setTimeout(() => {
+        revealTimeout = setTimeout(() => {
           isNoBorder.value = true;
           baseStore.afterDoneCount += 1;
         }, currentElementIndex.value * 200);
       } else {
-        setTimeout(() => {
+        revealTimeout = setTimeout(() => {
           isCaptured.value = true;
           baseStore.afterDoneCount += 1;
         }, currentElementIndex.value * 70);
@@ -212,14 +204,10 @@ watch(currentOrder, (newValue, oldValue) => {
   immediate: false
 });
 const loadedImg = computed(() => {
-  let imgNum = props.mixedOrder.toString().padStart(2, '0');
-  if (isFreeElement.value) {
-    imgNum = baseStore.arrayLength.toString();
-  }
-  return `/cages/${baseStore.cagePath}/${imgNum}.jpg`;
+  return baseStore.cageImageUrl(props.mixedOrder);
 });
 const onImgLoad = (): void => {
-  baseStore.cageImageLoadedCount += 1;
+  baseStore.markCageImageLoaded(loadedImg.value);
 };
 
 const { doResetList } = storeToRefs(baseStore);
@@ -227,17 +215,15 @@ watch(
   doResetList,
   (value) => {
     if (value) {
-      isCaptured.value = false;
-      isNoBorder.value = false;
+      resetReveal();
     }
   },
   { immediate: true }
 );
-const eventBus = useEventBus<string>('event-bus');
+const eventBus = useAppEventBus();
 const listener = (event: string, payload: unknown): void => {
   if (event === 'restart' && ['fromConfig', 'fromKeyboard'].includes(payload as string)) {
-    isCaptured.value = false;
-    isNoBorder.value = false;
+    resetReveal();
   }
 };
 
@@ -246,6 +232,7 @@ onMounted(() => {
 });
 onUnmounted(() => {
   eventBus.off(listener);
+  cancelReveal();
 });
 </script>
 
@@ -262,7 +249,7 @@ onUnmounted(() => {
       'no-border': isNoBorder ||
         (baseStore.cageMode && baseStore.noBordersInCageMode) || baseStore.proMode
     }"
-    @mousedown.left="move(ControlType.Mouse)"
+    @mousedown.left="onMouseDown"
     @touchstart.prevent="move(ControlType.Touch)"
     @mousemove.prevent="moveByMouse"
   >
@@ -286,7 +273,7 @@ onUnmounted(() => {
       >
         {{ props.mixedOrder }}
       </span>
-      <Transition :name="baseStore.proMode ? '' : 'bounce'">
+      <Transition name="bounce">
         <span
           v-if="!baseStore.processingReInit && !baseStore.cageMode && !isFreeElement"
         >
@@ -346,7 +333,7 @@ onUnmounted(() => {
   box-sizing: border-box;
   box-shadow: 0 0 4px inset rgba(0, 0, 0, 0.2);
   -webkit-tap-highlight-color: transparent;
-  z-index: 2;
+  z-index: var(--z-tile);
   cursor: v-bind(getCursor);
   top: v-bind(calculatedTopBind);
   left: v-bind(calculatedLeftBind);
@@ -389,7 +376,7 @@ onUnmounted(() => {
   background: transparent;
   box-shadow: none;
   border: 1px solid var(--background-color);
-  z-index: 1;
+  z-index: var(--z-tile-blank);
 }
 .square span {
   font-size: v-bind(fontSizeD);

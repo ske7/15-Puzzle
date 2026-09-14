@@ -1,10 +1,11 @@
 import { onMounted, computed, type ComputedRef } from 'vue';
-import { useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { useKeyDown } from './useKeyDown';
-import { CORE_NUM, CAGES_PATH_ARR, cores, baseUrl } from '@/const';
-import { type RepGame, type UserScrambleData, type Response } from '@/types';
+import { CORE_NUM, CAGES_PATH_ARR, cores, fmcBlitzCores, baseUrl } from '@/const';
+import { type RepGame, type UserScrambleData } from '@/types';
 import { useGetFetchAPI } from './useFetchAPI';
+import { useWindowWidth } from './useWindowWidth';
+import { redirectTo } from '@/utils';
 
 function getNumLinesFromLocalStorage(): number {
   let numLines: number;
@@ -18,13 +19,26 @@ function getNumLinesFromLocalStorage(): number {
   return numLines;
 }
 
+function checkModeSize(initNumLines: number): number {
+  const baseStore = useBaseStore();
+
+  if (baseStore.enableCageMode) {
+    return CORE_NUM;
+  }
+  if (baseStore.fmcBlitz && !fmcBlitzCores.includes(initNumLines)) {
+    localStorage.setItem('numLines', CORE_NUM.toString());
+    return CORE_NUM;
+  }
+  return initNumLines;
+}
+
 function setStartParams(locationStr: string): void {
   const baseStore = useBaseStore();
   if (locationStr.includes('dark')) {
     baseStore.darkMode = true;
     localStorage.setItem('darkMode', 'true');
   }
-  document.documentElement.dataset.theme = baseStore.darkMode ? 'dark' : 'light';
+  document.documentElement.dataset['theme'] = baseStore.darkMode ? 'dark' : 'light';
   if (locationStr.includes('pro') || locationStr.includes('playground')) {
     baseStore.proMode = true;
     if (localStorage.getItem('proMode') === null) {
@@ -33,7 +47,14 @@ function setStartParams(locationStr: string): void {
     }
     localStorage.setItem('proMode', 'true');
     baseStore.enableCageMode = false;
-    localStorage.setItem('enableCageMode', 'false');
+    if (locationStr.includes('pro')) {
+      localStorage.setItem('enableCageMode', 'false');
+    }
+  } else if (localStorage.getItem('proMode') === null) {
+    baseStore.proMode = true;
+    localStorage.setItem('proMode', 'true');
+    baseStore.hoverOnControl = true;
+    localStorage.setItem('hoverOnControl', 'true');
   }
 }
 
@@ -65,30 +86,28 @@ const checkCurrentUser = (gameId: string): void => {
       })
       .catch((error: unknown) => {
         baseStore.fmcBlitz = false;
-        console.log(error as string);
+        baseStore.lastError = 'Could not load your account';
+        console.log(error);
       });
   }
 };
 
-const initPlayground = (res: Response, publicId: string): void => {
+const initPlayground = (stats: UserScrambleData, publicId: string): void => {
   const baseStore = useBaseStore();
 
-  if (res.stats != null) {
-    const stats = res.stats as unknown as UserScrambleData;
-    if (stats.scramble !== undefined) {
-      baseStore.savedOrders = stats.scramble.split(',').map(Number);
-    }
-    baseStore.playgroundBestTime = stats.best_time!;
-    baseStore.playgroundBestTimeMoves = stats.best_time_moves!;
-    baseStore.playgroundBestMoves = stats.best_moves!;
-    baseStore.playgroundCreatedAt = stats.created_at!;
-    if (stats.solve_path != null) {
-      baseStore.playgroundSolvePath = stats.solve_path.split('');
-    }
-    baseStore.userScrambleId = stats.id!;
-    baseStore.otherUserName = stats.name!;
-    baseStore.publicId = publicId;
+  if (stats.scramble !== undefined) {
+    baseStore.savedOrders = stats.scramble.split(',').map(Number);
   }
+  baseStore.playgroundBestTime = stats.best_time ?? 0;
+  baseStore.playgroundBestTimeMoves = stats.best_time_moves ?? 0;
+  baseStore.playgroundBestMoves = stats.best_moves ?? 0;
+  baseStore.playgroundCreatedAt = stats.created_at;
+  if (stats.solve_path != null) {
+    baseStore.playgroundSolvePath = stats.solve_path.split('');
+  }
+  baseStore.userScrambleId = stats.id ?? 0;
+  baseStore.otherUserName = stats.name ?? '';
+  baseStore.publicId = publicId;
 };
 
 const checkPublicID = (initNumLines: number): void => {
@@ -102,16 +121,18 @@ const checkPublicID = (initNumLines: number): void => {
       if (baseStore.token == null) {
         initStore(numLines);
       } else {
-        void useGetFetchAPI(`user_scramble?public_id=${publicId}`, baseStore.token)
+        void useGetFetchAPI<UserScrambleData>(`user_scramble?public_id=${publicId}`, baseStore.token)
           .then((res) => {
             if (res.stats != null) {
-              initPlayground(res, publicId);
+              initPlayground(res.stats, publicId);
               numLines = Math.sqrt(baseStore.savedOrders.length);
             }
             initStore(numLines);
           })
           .catch((error: unknown) => {
-            console.log(error as string);
+            baseStore.lastError = 'Could not load the shared scramble';
+            console.log(error);
+            initStore(numLines);
           });
       }
     }
@@ -180,10 +201,10 @@ const checkGameLink = (gameId: string): void => {
 
   if (gameId !== '0') {
     baseStore.g1000Mode = false;
-    useGetFetchAPI(`game?game_id=${gameId}`, baseStore.token)
+    useGetFetchAPI<RepGame>(`game?game_id=${gameId}`, baseStore.token)
       .then((res) => {
         if (res.stats == null) {
-          location.href = baseUrl;
+          redirectTo(baseUrl);
         } else {
           if (!baseStore.proMode) {
             baseStore.proMode = true;
@@ -192,14 +213,16 @@ const checkGameLink = (gameId: string): void => {
             baseStore.cageMode = false;
           }
           baseStore.replayMode = true;
-          baseStore.repGame = res.stats as unknown as RepGame;
-          baseStore.marathonReplay = (res.stats as unknown as RepGame).puzzle_type === 'marathon';
+          baseStore.repGame = res.stats;
+          baseStore.marathonReplay = res.stats.puzzle_type === 'marathon';
           baseStore.fmcBlitz = false;
           initStore(baseStore.repGame.puzzle_size);
         }
       })
       .catch((error: unknown) => {
-        console.log(error as string);
+        baseStore.lastError = 'Could not load the game replay';
+        console.log(error);
+        initStore(baseStore.numLines);
       });
   }
 };
@@ -244,62 +267,26 @@ export const usePrepare = (): void => {
             }
           }, 1000);
         }
-        initStore(numLines);
+        initStore(checkModeSize(numLines));
       }
     });
   }
 };
 
-export const getSquareSize = (): Record<string, ComputedRef<number>> => {
+const CAGE_ADD_PRO: Record<number, number> = { 3: 56, 4: 22, 5: 1, 6: -12, 7: -20, 8: -28 };
+const CAGE_ADD_DEFAULT: Record<number, number> = { 3: 45, 4: 12, 5: -8, 6: -21, 7: -31, 8: -38 };
+
+export const getSquareSize = (): { squareSize: ComputedRef<number> } => {
   const baseStore = useBaseStore();
 
-  const { width: windowWidth } = useWindowSize();
+  const windowWidth = useWindowWidth();
 
   const squareSize = computed(() => {
     const spaces = baseStore.spaceBetween * 5;
-    let cageAdd = 0;
-    if (baseStore.proMode) {
-      cageAdd = 22;
-      switch (baseStore.numLines) {
-        case 3:
-          cageAdd += 34;
-          break;
-        case 5:
-          cageAdd -= 21;
-          break;
-        case 6:
-          cageAdd -= 34;
-          break;
-        case 7:
-          cageAdd -= 42;
-          break;
-        case 8:
-          cageAdd -= 50;
-          break;
-        default:
-      }
-    } else {
-      cageAdd = 12;
-      switch (baseStore.numLines) {
-        case 3:
-          cageAdd += 33;
-          break;
-        case 5:
-          cageAdd -= 20;
-          break;
-        case 6:
-          cageAdd -= 33;
-          break;
-        case 7:
-          cageAdd -= 43;
-          break;
-        case 8:
-          cageAdd -= 50;
-          break;
-        default:
-      }
-    }
-    let value = 0;
+    const cageAdd = baseStore.proMode
+      ? CAGE_ADD_PRO[baseStore.numLines]
+      : CAGE_ADD_DEFAULT[baseStore.numLines];
+    let value: number;
     if (windowWidth.value <= 370) {
       if (baseStore.proMode) {
         value = Math.floor((windowWidth.value - (spaces + 40)) / baseStore.numLines);

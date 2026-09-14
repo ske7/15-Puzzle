@@ -1,8 +1,32 @@
 import { useBaseStore } from '../stores/base';
-import { getElementCol, getElementRow } from '../utils';
+import { getElementCol, getElementRow, calcPosition } from '../utils';
 import { Direction } from '@/const';
 
-export const canMoveStatic = (sid: number, squareSize: number) => {
+export interface MoveData {
+  elementCol: number;
+  elementRow: number;
+  isFreeElement: boolean;
+  canMoveRight: boolean;
+  canMoveLeft: boolean;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  canMove: boolean;
+  calculatedLeft: number;
+  calculatedTop: number;
+  moveDirection: Direction;
+}
+
+export function getMoveDirection(
+  canMoveRight: boolean, canMoveLeft: boolean, canMoveUp: boolean, canMoveDown: boolean
+): Direction {
+  if (canMoveRight) return Direction.Right;
+  if (canMoveLeft) return Direction.Left;
+  if (canMoveUp) return Direction.Up;
+  if (canMoveDown) return Direction.Down;
+  return Direction.None;
+}
+
+export const canMoveStatic = (sid: number, squareSize: number): MoveData => {
   const baseStore = useBaseStore();
 
   const elementCol = getElementCol(sid, baseStore.numLines);
@@ -28,24 +52,13 @@ export const canMoveStatic = (sid: number, squareSize: number) => {
     baseStore.freeElementCol === elementCol &&
     baseStore.freeElementIndex + 1 > sid;
 
-  const calculatedLeft =
-    (elementCol - 1) * baseStore.spaceBetween +
-    baseStore.spaceBetween +
-    squareSize * (elementCol - 1);
-
-  const calculatedTop =
-    (elementRow - 1) * baseStore.spaceBetween +
-    baseStore.spaceBetween +
-    squareSize * (elementRow - 1);
+  const calculatedLeft = calcPosition(elementCol, baseStore.spaceBetween, squareSize);
+  const calculatedTop = calcPosition(elementRow, baseStore.spaceBetween, squareSize);
 
   const canMove =
     canMoveRight || canMoveLeft || canMoveUp || canMoveDown;
 
-  let moveDirection = Direction.None;
-  if (canMoveRight) moveDirection = Direction.Right;
-  else if (canMoveLeft) moveDirection = Direction.Left;
-  else if (canMoveUp) moveDirection = Direction.Up;
-  else if (canMoveDown) moveDirection = Direction.Down;
+  const moveDirection = getMoveDirection(canMoveRight, canMoveLeft, canMoveUp, canMoveDown);
 
   return {
     elementCol,

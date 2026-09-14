@@ -1,18 +1,9 @@
-export interface PreloadedImage {
-  url?: string;
-  item: string;
-}
+// g1000 is not a puzzle_type: those games are stored as 'standard' and identified by gt_id.
+export type PuzzleType = 'standard' | 'marathon' | 'cage_standard';
 
-export interface Record {
+export interface PersonalBest {
   record: number;
   adding: number;
-}
-
-export interface Position {
-  left: number;
-  top: number;
-  right: number;
-  bottom: number;
 }
 
 export interface UserData {
@@ -49,18 +40,12 @@ export interface FMCBlitzData {
   session_id: string;
 }
 
-export interface InvalidFields {
-  name: boolean;
-  email: boolean;
-  password: boolean;
-}
-
 export interface GameData {
   user_name?: string;
   time: number;
   moves: number;
   puzzle_size?: number;
-  puzzle_type?: string;
+  puzzle_type?: PuzzleType;
   control_type: string;
   consecutive_solves: number;
   scramble?: string;
@@ -81,7 +66,7 @@ export interface RepGame {
   time: number;
   moves: number;
   puzzle_size: number;
-  puzzle_type: string;
+  puzzle_type: PuzzleType;
   control_type: string;
   consecutive_solves: number;
   scramble: string;
@@ -91,24 +76,41 @@ export interface RepGame {
   created_at: string;
   opt_moves: number;
 }
-export interface UserRecord {
+interface UserRecordBase {
   id: number;
   name?: string;
-  record_type: string;
-  puzzle_type: string;
+  puzzle_type: PuzzleType;
   puzzle_size: number;
-  time: number;
-  moves: number;
-  tps: string;
   created_at?: string;
   updated_at?: string | number | Date;
   control_type?: string;
-  avg_time?: string;
-  avg_moves?: string;
-  avg_tps?: string;
   public_id?: string;
   scramble?: string;
   record_id: number;
+}
+
+export interface SingleUserRecord extends UserRecordBase {
+  record_type: 'time' | 'moves' | 'fmc_blitz_moves';
+  time: number;
+  moves: number;
+  tps: string;
+}
+
+export interface AverageUserRecord extends UserRecordBase {
+  record_type: 'ao5' | 'ao12' | 'ao50' | 'ao100';
+  avg_time?: string;
+  avg_moves?: string;
+  avg_tps?: string;
+}
+
+export type UserRecord = SingleUserRecord | AverageUserRecord;
+
+export function isSingleUserRecord(record: UserRecord): record is SingleUserRecord {
+  return record.record_type === 'time' || record.record_type === 'moves' || record.record_type === 'fmc_blitz_moves';
+}
+
+export function isAverageUserRecord(record: UserRecord): record is AverageUserRecord {
+  return !isSingleUserRecord(record);
 }
 
 export interface UserStats {
@@ -122,26 +124,9 @@ export interface UserStats {
   user_records: UserRecord[];
 }
 
-export interface AverageStats {
-  aoSt?: string;
-  aoSm?: string;
-  aoStps?: string;
-  ao5t?: string;
-  ao5m?: string;
-  ao5tps?: string;
-  ao12t?: string;
-  ao12m?: string;
-  ao12tps?: string;
-  ao50t?: string;
-  ao50m?: string;
-  ao50tps?: string;
-  ao100t?: string;
-  ao100m?: string;
-  ao100tps?: string;
-  ao1000t?: string;
-  ao1000m?: string;
-  ao1000tps?: string;
-}
+export type AveragePrefix = 'aoS' | 'ao5' | 'ao12' | 'ao50' | 'ao100' | 'ao1000';
+type AverageMetric = 't' | 'm' | 'tps';
+export type AverageStats = Partial<Record<`${AveragePrefix}${AverageMetric}`, string>>;
 
 export interface WasAvgRecord {
   type: string;
@@ -155,21 +140,21 @@ export interface ErrResponse {
   error?: string;
 }
 
-export interface Response {
+export interface Response<TStats = UserStats> {
   status: string;
   name?: string;
   token?: string;
-  stats?: UserStats;
+  stats?: TStats;
   records?: UserRecord[];
   game_records?: GameData[];
   scramble_records?: UserScrambleData[];
   was_avg_records?: WasAvgRecord[];
-  game_id?: number;
-  user_scramble_id?: number;
+  game_id: number;
   public_id?: string;
   opt_m?: number;
   scramble?: string;
   id?: number;
+  user_scramble_id?: number;
 }
 
 export interface AverageData {

@@ -10,13 +10,17 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('vue')) {
-              return 'vue';
-            }
-            return 'vendor';
+          if (!id.includes('node_modules')) {
+            return undefined;
           }
-          return undefined;
+          // Vue itself plus the @vue/* internals and the @vueuse/* helpers built on them.
+          // Matched on a package-name boundary rather than `id.includes('vue')`, which
+          // also caught @vueuse by accident and would catch any future dependency with
+          // "vue" anywhere in its path.
+          if (/[\\/]node_modules[\\/](vue|vue-demi|@vue[\\/]|@vueuse[\\/])/.test(id)) {
+            return 'vue';
+          }
+          return 'vendor';
         }
       },
     },

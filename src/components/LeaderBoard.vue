@@ -1,29 +1,24 @@
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent, watch, type AsyncComponentLoader, onMounted } from 'vue';
-import { onClickOutside } from '@vueuse/core';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useBaseStore } from '../stores/base';
-import { useGetFetchAPI } from '../composables/useFetchAPI';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
-import { type UserRecord } from '@/types';
+import {
+  type UserRecord, type SingleUserRecord, type AverageUserRecord,
+  isSingleUserRecord, isAverageUserRecord
+} from '@/types';
 import { baseUrl, fmcBlitzCores } from '@/const';
-const GamesTable = defineAsyncComponent({
-  loader: async () => await import('./GamesTable.vue') as unknown as AsyncComponentLoader,
-  delay: 150
-});
+import { useLazyComponent } from '../composables/useLazyComponent';
+import { useCloseOnClickOutside } from '../composables/useCloseOnClickOutside';
+import { useSingleFetch } from '../composables/useSingleFetch';
+const GamesTable = useLazyComponent(() => import('./GamesTable.vue'));
 
 const props = defineProps<{ formType: string }>();
 const emit = defineEmits<{ close: [] }>();
 
 const leaderBoard = ref<HTMLElement>();
 const showGamesTable = ref(false);
-onClickOutside(leaderBoard, (event) => {
-  if (showGamesTable.value) {
-    return;
-  }
-  event.stopPropagation();
-  emit('close');
-});
+useCloseOnClickOutside(leaderBoard, () => emit('close'), () => showGamesTable.value);
 
 const baseStore = useBaseStore();
 
@@ -31,31 +26,15 @@ const isDefault = computed(() => {
   return props.formType === 'default';
 });
 
-const errorMsg = ref('');
-const userRecords = ref<UserRecord[]>();
-const fetch = (endpoint: string): void => {
-  errorMsg.value = '';
-  if (baseStore.isFetching) {
-    return;
-  }
-  baseStore.isFetching = true;
-  useGetFetchAPI(endpoint, baseStore.token)
-    .then(res => {
-      baseStore.isFetching = false;
-      userRecords.value = res.records;
-    })
-    .catch((error: unknown) => {
-      errorMsg.value = error as string;
-      if (errorMsg.value.toLowerCase().includes('networkerror')) {
-        baseStore.isNetworkError = true;
-      }
-      baseStore.isFetching = false;
-    });
-};
-fetch(props.formType === 'default' ? 'stats' : 'stats?avg=1');
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const { data: userRecords } = useSingleFetch(
+  props.formType === 'default' ? 'stats' : 'stats?avg=1',
+  (res) => res.records
+);
 
 const puzzleSize = ref(baseStore.numLines);
 const puzzleMode = ref(baseStore.marathonMode ? 'marathon' : 'standard');
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
 const bestType = ref(props.formType === 'default' ? 'time' : 'ao5');
 const bestAverage = ref('time');
 
@@ -76,13 +55,7 @@ const infNumber = (n: undefined | string, isDesc = false): number => {
   }
   return Number(n);
 };
-const compare = (x: undefined | number, y: undefined | number): number => {
-  if (x == null) {
-    return 1;
-  }
-  if (y == null) {
-    return -1;
-  }
+const compare = (x: number, y: number): number => {
   if (x === y) {
     return 0;
   } else {
@@ -90,7 +63,7 @@ const compare = (x: undefined | number, y: undefined | number): number => {
   }
 };
 
-const sortSingleRecords = (a: UserRecord, b: UserRecord): number => {
+const sortSingleRecords = (a: SingleUserRecord, b: SingleUserRecord): number => {
   if (bestType.value === 'time') {
     if (a.time === b.time) {
       if (Number(b.tps) === Number(a.tps)) {
@@ -109,28 +82,28 @@ const sortSingleRecords = (a: UserRecord, b: UserRecord): number => {
     return a.moves - b.moves;
   }
 };
-const sortTimeAverages = (a: UserRecord, b: UserRecord): number => {
+const sortTimeAverages = (a: AverageUserRecord, b: AverageUserRecord): number => {
   const diff = compare(infNumber(b.avg_time), infNumber(a.avg_time));
   if (diff !== 0) {
     return diff;
   }
   return compare(new Date(b.updated_at!).getTime(), new Date(a.updated_at!).getTime());
 };
-const sortMovesAverages = (a: UserRecord, b: UserRecord): number => {
+const sortMovesAverages = (a: AverageUserRecord, b: AverageUserRecord): number => {
   const diff = compare(infNumber(b.avg_moves), infNumber(a.avg_moves));
   if (diff !== 0) {
     return diff;
   }
   return compare(new Date(b.updated_at!).getTime(), new Date(a.updated_at!).getTime());
 };
-const sortTPSAverages = (a: UserRecord, b: UserRecord): number => {
+const sortTPSAverages = (a: AverageUserRecord, b: AverageUserRecord): number => {
   const diff = compare(infNumber(a.avg_tps, true), infNumber(b.avg_tps, true));
   if (diff !== 0) {
     return diff;
   }
   return compare(new Date(b.updated_at!).getTime(), new Date(a.updated_at!).getTime());
 };
-const sortAveragesRecords = (a: UserRecord, b: UserRecord): number => {
+const sortAveragesRecords = (a: AverageUserRecord, b: AverageUserRecord): number => {
   if (bestAverage.value === 'time') {
     return sortTimeAverages(a, b);
   } else if (bestAverage.value === 'moves') {
@@ -140,21 +113,30 @@ const sortAveragesRecords = (a: UserRecord, b: UserRecord): number => {
   }
   return Number(a.avg_time) - Number(b.avg_time);
 };
-const filteredRecords = computed(() => {
-  if ((userRecords.value == null) || userRecords.value.length === 0) {
+const singleRecords = computed(() => {
+  if (userRecords.value == null || userRecords.value.length === 0) {
     return [];
   }
-  return userRecords.value.filter((value) => {
-    return value.puzzle_size === puzzleSize.value &&
-           value.puzzle_type === puzzleMode.value &&
-           value.record_type === bestType.value;
-  }).sort((a, b) => {
-    if (isDefault.value) {
-      return sortSingleRecords(a, b);
-    } else {
-      return sortAveragesRecords(a, b);
-    }
-  });
+  return userRecords.value.filter((value): value is SingleUserRecord => {
+    return isSingleUserRecord(value) &&
+      value.puzzle_size === puzzleSize.value &&
+      value.puzzle_type === puzzleMode.value &&
+      value.record_type === bestType.value;
+  }).sort(sortSingleRecords);
+});
+const averageRecords = computed(() => {
+  if (userRecords.value == null || userRecords.value.length === 0) {
+    return [];
+  }
+  return userRecords.value.filter((value): value is AverageUserRecord => {
+    return isAverageUserRecord(value) &&
+      value.puzzle_size === puzzleSize.value &&
+      value.puzzle_type === puzzleMode.value &&
+      value.record_type === bestType.value;
+  }).sort(sortAveragesRecords);
+});
+const filteredRecords = computed((): UserRecord[] => {
+  return isDefault.value ? singleRecords.value : averageRecords.value;
 });
 let scrollbarWidth = 17;
 onMounted(() => {
@@ -232,8 +214,8 @@ const closeGamesTable = (): void => {
 
 <template>
   <Teleport to="body">
-    <div v-if="!baseStore.isFetching" ref="leaderBoard" class="leaderboard">
-      <p class="header">
+    <div v-if="!baseStore.isFetching" ref="leaderBoard" class="leaderboard modal-shell">
+      <p class="header modal-header">
         <span id="leaderboard-caption">
           {{ isDefault ? 'Leaderboard' : 'Best Averages' }}
         </span>
@@ -279,7 +261,7 @@ const closeGamesTable = (): void => {
             </tr>
           </thead>
           <tbody class="records-tbody">
-            <tr v-for="(item, index) in filteredRecords.slice(0, 1000)" :key="item.id">
+            <tr v-for="(item, index) in singleRecords.slice(0, 1000)" :key="item.id">
               <td class="w-30">
                 {{ index + 1 }}
               </td>
@@ -339,7 +321,7 @@ const closeGamesTable = (): void => {
             </tr>
           </thead>
           <tbody class="records-tbody">
-            <tr v-for="(item, index) in filteredRecords.slice(0, 1000)" :key="item.id">
+            <tr v-for="(item, index) in averageRecords.slice(0, 1000)" :key="item.id">
               <td class="w-35">
                 {{ index + 1 }}
               </td>
@@ -391,30 +373,14 @@ const closeGamesTable = (): void => {
 <style scoped>
 .leaderboard {
   --modal-width: 400px;
-  display: flex;
   justify-content: center;
-  flex-direction: column;
-  background-color: var(--background-modal-color);
-  color: var(--text-color);
-  border-radius: 8px;
   height: auto;
   min-height: v-bind(minHeight);
   width: var(--modal-width);
-  position: fixed;
-  z-index: 2000;
+  z-index: var(--z-modal);
   top: calc(50% - 310px);
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
-  box-shadow: 0 8px 16px var(--shadow-color);
-}
-.header {
-  text-align: center;
-  margin-bottom: 5px;
-  margin-top: 5px;
-}
-.header span {
-  font-weight: 600;
-  font-size: 21px;
 }
 .buttons {
   margin-top: 15px;
@@ -509,15 +475,6 @@ const closeGamesTable = (): void => {
 }
 .puzzle-mode-container {
   max-width: 350px;
-}
-.link-item {
-  color: var(--link-color);
-  text-decoration: underline;
-}
-.link-item:hover:not(.paused) {
-  text-decoration: underline;
-  color: var(--text-color);
-  cursor: pointer;
 }
 @media screen and (max-width: 840px) {
   .table-container .items-table thead tr {

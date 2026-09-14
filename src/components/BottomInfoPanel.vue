@@ -1,77 +1,58 @@
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
+import { ref, computed } from 'vue';
+import { useAppEventBus } from '../composables/useAppEventBus';
 import { useBaseStore } from '../stores/base';
 import { CORE_NUM, baseUrl } from '@/const';
 import { type RepGame } from '@/types';
-import { useEventBus, useClipboard } from '@vueuse/core';
+import { useClipboard } from '@vueuse/core';
 import {
   convertScrambles, calculateTPS, displayedTime,
   shortenSolutionStr, createLinkAndClick, calculateMD
 } from '@/utils';
 import { useGetFetchAPI } from '../composables/useFetchAPI';
 import { postUserScramble } from '../composables/useFetching';
-const CopyButton = defineAsyncComponent({
-  loader: async () => await import('./CopyButton.vue') as unknown as AsyncComponentLoader,
-  delay: 150
-});
-const RegModal = defineAsyncComponent({
-  loader: async () => await import('./RegModal.vue') as unknown as AsyncComponentLoader,
-  delay: 150
-});
-const UserAccount = defineAsyncComponent({
-  loader: async () => await import('./UserAccount.vue') as unknown as AsyncComponentLoader,
-  delay: 150
-});
-const LeaderBoard = defineAsyncComponent({
-  loader: async () => await import('./LeaderBoard.vue') as unknown as AsyncComponentLoader,
-  delay: 150
-});
+import { useLazyComponent } from '../composables/useLazyComponent';
+import { useModalPause } from '../composables/useModalPause';
+const CopyButton = useLazyComponent(() => import('./CopyButton.vue'));
+const RegModal = useLazyComponent(() => import('./RegModal.vue'));
+const UserAccount = useLazyComponent(() => import('./UserAccount.vue'));
+const LeaderBoard = useLazyComponent(() => import('./LeaderBoard.vue'));
 
 const baseStore = useBaseStore();
-const eventBus = useEventBus<string>('event-bus');
+const eventBus = useAppEventBus();
 const formType = ref('');
 
-const disableDuringMarathon = computed(() => {
-  return baseStore.marathonMode && baseStore.time > 0 && !baseStore.isDone;
-});
-const cannotClick = computed(() => {
-  return baseStore.showModal || disableDuringMarathon.value || baseStore.inReplay;
-});
-const wasPausedBeforeOpenModal = ref(false);
+const regModalPause = useModalPause();
 const doShowRegModal = (type: string): void => {
-  if (cannotClick.value) {
+  if (baseStore.cannotClick) {
     return;
   }
-  wasPausedBeforeOpenModal.value = baseStore.paused;
-  if (!baseStore.paused && !baseStore.isDone) {
-    baseStore.invertPaused();
-  }
+  regModalPause.open();
   baseStore.showRegModal = true;
   formType.value = type;
 };
+const userAccountPause = useModalPause();
 const doShowUserAccount = (): void => {
-  if (cannotClick.value) {
+  if (baseStore.cannotClick) {
     return;
   }
-  wasPausedBeforeOpenModal.value = baseStore.paused;
-  if (!baseStore.paused && !baseStore.isDone) {
-    baseStore.invertPaused();
-  }
+  userAccountPause.open();
   baseStore.showUserAccount = true;
 };
 const showDefaultLeaderBoard = ref(false);
+const leaderBoardPause = useModalPause();
 const doShowLeaderBoard = (): void => {
-  if (cannotClick.value) {
+  if (baseStore.cannotClick) {
     return;
   }
-  wasPausedBeforeOpenModal.value = baseStore.paused;
-  if (!baseStore.paused && !baseStore.isDone) {
-    baseStore.invertPaused();
-  }
+  leaderBoardPause.open();
   showDefaultLeaderBoard.value = true;
   baseStore.showLeaderBoard = true;
 };
 const goMain = (): void => {
+  if (baseStore.cannotClick) {
+    return;
+  }
   createLinkAndClick(baseUrl, false);
 };
 const goPlayground = (): void => {
@@ -79,25 +60,19 @@ const goPlayground = (): void => {
 };
 const closeRegModal = (): void => {
   baseStore.showRegModal = false;
-  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
-    baseStore.invertPaused();
-  }
+  regModalPause.close();
 };
 const closeUserAccount = (): void => {
   baseStore.showUserAccount = false;
-  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
-    baseStore.invertPaused();
-  }
+  userAccountPause.close();
 };
 const closeLeaderBoard = (): void => {
   showDefaultLeaderBoard.value = false;
   baseStore.showLeaderBoard = false;
-  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
-    baseStore.invertPaused();
-  }
+  leaderBoardPause.close();
 };
 const doShowImageGallery = (): void => {
-  if (cannotClick.value) {
+  if (baseStore.cannotClick) {
     return;
   }
   eventBus.emit('show-image-gallery');
@@ -136,7 +111,8 @@ const doShare = (): void => {
       }
     })
     .catch((error: unknown) => {
-      console.log(error as string);
+      baseStore.lastError = 'Could not create the share link';
+      console.log(error);
     });
 };
 const doSaveOriginal = async (): Promise<void> => {
@@ -353,7 +329,7 @@ const setWalkMode = (fastWalkMode: boolean): void => {
         v-if="baseStore.enableCageMode &&
           !(baseStore.marathonMode || baseStore.proMode) && baseStore.numLines === CORE_NUM"
       >
-        <span class="link-item" :class="{ paused: cannotClick }" @click="doShowImageGallery">
+        <span class="link-item" :class="{ paused: baseStore.cannotClick }" @click="doShowImageGallery">
           Completed</span> <span class="italic">
           {{ baseStore.unlockedCages.size }}
         </span> out of {{ baseStore.cagesCount }} "Cages"
@@ -371,7 +347,7 @@ const setWalkMode = (fastWalkMode: boolean): void => {
             baseStore.blitzMovesCount : baseStore.blitzMovesCount + baseStore.movesCount }}
       </p>
     </div>
-    <div v-show="!baseStore.clearDisplay" class="reg-wrapper" :class="{ paused: cannotClick }">
+    <div v-show="!baseStore.clearDisplay" class="reg-wrapper" :class="{ paused: baseStore.cannotClick }">
       <p v-if="baseStore.isNetworkError" class="no-connect">
         Local mode (no server connection)
       </p>
@@ -381,41 +357,47 @@ const setWalkMode = (fastWalkMode: boolean): void => {
             <span
               v-if="baseStore.playgroundMode || baseStore.replayMode || baseStore.g1000Mode"
               class="link-item"
-              :class="{ paused: cannotClick }"
+              :class="{ paused: baseStore.cannotClick }"
               @click="goMain"
             >Main</span>
             <span
               v-if="!baseStore.playgroundMode && !baseStore.replayMode && !baseStore.g1000Mode"
               class="link-item"
-              :class="{ paused: cannotClick }"
+              :class="{ paused: baseStore.cannotClick }"
               @click="goPlayground"
             >Playground</span>
             <span> | </span>
-            <span class="link-item" :class="{ paused: cannotClick }" @click="doShowLeaderBoard">Leaderboard</span>
+            <span class="link-item" :class="{ paused: baseStore.cannotClick }" @click="doShowLeaderBoard">Leaderboard</span>
             <span> | </span>
             <span v-if="!baseStore.registered">
               <span
                 class="link-item"
-                :class="{ paused: cannotClick }"
+                :class="{ paused: baseStore.cannotClick }"
                 @click="doShowRegModal('register')"
               >Register</span> or
-              <span class="link-item" :class="{ paused: cannotClick }" @click="doShowRegModal('login')">login</span>
+              <span class="link-item" :class="{ paused: baseStore.cannotClick }" @click="doShowRegModal('login')">login</span>
             </span>
             <span
               v-if="baseStore.registered"
               class="link-item"
-              :class="{ paused: cannotClick }"
+              :class="{ paused: baseStore.cannotClick }"
               @click="doShowUserAccount"
             >Profile</span>
           </div>
         </Transition>
       </div>
     </div>
+    <p
+      v-if="!baseStore.isNetworkError && baseStore.lastError && !baseStore.clearDisplay"
+      class="last-error"
+    >
+      {{ baseStore.lastError }}
+    </p>
     <RegModal
       v-if="baseStore.showRegModal"
       :form-type="formType"
-      :reset-token="resetToken"
-      :email="email"
+      :reset-token="resetToken ?? undefined"
+      :email="email ?? undefined"
       @close="closeRegModal"
     />
     <UserAccount v-if="baseStore.showUserAccount" @close="closeUserAccount" />
@@ -477,15 +459,6 @@ const setWalkMode = (fastWalkMode: boolean): void => {
 .improved-user {
   color: var(--link-color);
   font-weight: 600;
-}
-.link-item {
-  color: var(--link-color);
-  text-decoration: underline;
-}
-.link-item:hover:not(.paused) {
-  text-decoration: underline;
-  color: var(--text-color);
-  cursor: pointer;
 }
 .link-item.paused {
   opacity: 0.5;
@@ -581,5 +554,13 @@ const setWalkMode = (fastWalkMode: boolean): void => {
 .no-connect {
   opacity: 0.8;
   font-size: 12px;
+}
+.last-error {
+  color: var(--error-color);
+  opacity: 0.9;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 5px;
+  text-align: center;
 }
 </style>

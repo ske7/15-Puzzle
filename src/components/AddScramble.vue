@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { type ScrambleData } from '../types';
-import { onClickOutside } from '@vueuse/core';
 import { convertToNumbersArray, isSolvable, isSorted, sumArrayElements } from '@/utils';
 import { cores } from '@/const';
+import { useCloseOnClickOutside } from '../composables/useCloseOnClickOutside';
 
 const emit = defineEmits<{ close: []; set: [scramble: number[]] }>();
 
 const addScramble = ref<HTMLElement>();
-onClickOutside(addScramble, (event) => {
-  event.stopPropagation();
-  emit('close');
-});
+useCloseOnClickOutside(addScramble, () => emit('close'));
 
 const errorText = ref('');
-const formData: ScrambleData = reactive({} as unknown as ScrambleData);
+const formData: ScrambleData = reactive({ scramble: '' });
 const doSubmit = (): void => {
   errorText.value = 'null';
   const scramble = convertToNumbersArray(formData.scramble);
@@ -40,8 +37,8 @@ const doSubmit = (): void => {
 </script>
 
 <template>
-  <div ref="addScramble" class="add-scramble">
-    <p class="header">
+  <div ref="addScramble" class="add-scramble modal-shell">
+    <p class="header modal-header">
       <span>Add Scramble</span>
     </p>
     <form @submit.prevent="doSubmit">
@@ -85,29 +82,13 @@ const doSubmit = (): void => {
 <style scoped>
 .add-scramble {
   --modal-width: 340px;
-  display: flex;
   justify-content: center;
-  flex-direction: column;
-  background-color: var(--background-modal-color);
-  color: var(--text-color);
-  border-radius: 8px;
   height: auto;
   width: var(--modal-width);
-  position: fixed;
-  z-index: 2000;
+  z-index: var(--z-modal);
   top: 135px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
-  box-shadow: 0 8px 16px var(--shadow-color);
-}
-.header {
-  text-align: center;
-  margin-bottom: 5px;
-  margin-top: 5px;
-}
-.header span {
-  font-weight: 600;
-  font-size: 21px;
 }
 .fields {
   display: flex;

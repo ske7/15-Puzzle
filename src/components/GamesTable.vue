@@ -1,27 +1,25 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import { onClickOutside, useWindowSize } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
-import { useGetFetchAPI } from '../composables/useFetchAPI';
+import { getErrorMessage, useGetFetchAPI } from '../composables/useFetchAPI';
 import { type GameData } from '@/types';
 import { baseUrl, OrderDirection, OrderDirectionMap } from '@/const';
 import { shortenSolutionStr, convertScrambles } from '@/utils';
 import CopyButton from './CopyButton.vue';
 import { usePaginatedFetch } from '../composables/usePaginatedFetch';
+import { useCloseOnClickOutside } from '../composables/useCloseOnClickOutside';
+import { useWindowWidth } from '../composables/useWindowWidth';
 
 const props = defineProps<{ formType: string; recordId?: number; avgType?: string; recordPuzzleSize?: number }>();
 const emit = defineEmits<{ close: [] }>();
 
 const gamesTable = ref<HTMLElement>();
-onClickOutside(gamesTable, (event) => {
-  event.stopPropagation();
-  emit('close');
-});
+useCloseOnClickOutside(gamesTable, () => emit('close'));
 
 const baseStore = useBaseStore();
-const { width: windowWidth } = useWindowSize();
+const windowWidth = useWindowWidth();
 const puzzleSize = ref(baseStore.numLines);
 const puzzleMode = ref(baseStore.marathonMode ? 'marathon' : 'standard');
 if (baseStore.g1000Mode) {
@@ -64,8 +62,9 @@ const {
   reset,
   formatDate,
   sort,
-  sortField,
-  orderDirection
+  sortArrow,
+  sortField
+  // eslint-disable-next-line vue/no-setup-props-reactivity-loss
 } = usePaginatedFetch<GameData>(
   fetchUrl,
   (res) => res.game_records ?? [],
@@ -97,6 +96,29 @@ watch(puzzleMode, () => {
 const doSort = (newSortField: string): void => {
   sort(newSortField);
 };
+
+interface TableColumn {
+  label: string;
+  sortField?: string;
+  widthClass?: string;
+  invert?: boolean;
+}
+const columns = computed((): TableColumn[] => {
+  const wideCellClass = windowWidth.value <= 1100 ? 'w-85' : '';
+  return [
+    { label: 'ID', widthClass: 'w-70' },
+    { label: 'Date', sortField: 'id', widthClass: 'w-95' },
+    { label: 'CS', widthClass: 'w-49' },
+    { label: 'Time', sortField: 'time', widthClass: 'w-85' },
+    { label: 'Moves', sortField: 'moves', widthClass: 'w-85' },
+    ...(puzzleSize.value === 3
+      ? [{ label: 'Opt.diff', sortField: 'opt_diff', widthClass: 'w-85' }]
+      : []),
+    { label: 'TPS', sortField: 'tps', widthClass: 'w-70', invert: true },
+    { label: 'Scramble', widthClass: wideCellClass },
+    { label: 'Solution', widthClass: wideCellClass }
+  ];
+});
 const download = (content: string, fileName: string, contentType: string): void => {
   const anchor = document.createElement('a');
   const file = new Blob([content], { type: contentType });
@@ -143,7 +165,7 @@ const doExport = (): void => {
       download(jsonToCSV(res.game_records!), 'games.csv', 'text/plain');
     })
     .catch((error: unknown) => {
-      errorMsg.value = error as string;
+      errorMsg.value = getErrorMessage(error);
       console.log(errorMsg.value);
     });
 };
@@ -160,8 +182,8 @@ const tableTitle = computed(() => {
 </script>
 
 <template>
-  <div ref="gamesTable" class="games-table">
-    <p class="header">
+  <div ref="gamesTable" class="games-table modal-shell">
+    <p class="header modal-header">
       <span>
         {{ tableTitle }}
       </span>
@@ -184,93 +206,26 @@ const tableTitle = computed(() => {
     </p>
     <div v-if="!errorMsg" id="game-list-table" class="table-wrapper">
       <div class="flex-table table-header">
-        <div class="flex-row w-70">
-          ID
-        </div>
-        <div class="flex-row w-95">
-          Date
-          <span class="pro-sort" @click="doSort('id')">
-            {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+        <div
+          v-for="column in columns"
+          :key="column.label"
+          class="flex-row"
+          :class="column.widthClass"
+        >
+          {{ column.label }}
+          <span v-if="column.sortField" class="pro-sort" @click="doSort(column.sortField)">
+            {{ sortArrow(column.sortField, column.invert) }}
           </span>
-        </div>
-        <div class="flex-row w-49">
-          CS
-        </div>
-        <div class="flex-row w-85">
-          Time
-          <span class="pro-sort" @click="doSort('time')">
-            {{ sortField !== 'time' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-          </span>
-        </div>
-        <div class="flex-row w-85">
-          Moves
-          <span class="pro-sort" @click="doSort('moves')">
-            {{ sortField !== 'moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-          </span>
-        </div>
-        <div v-if="puzzleSize === 3" class="flex-row w-85">
-          Opt.diff
-          <span class="pro-sort" @click="doSort('opt_diff')">
-            {{ sortField !== 'opt_diff' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-          </span>
-        </div>
-        <div class="flex-row w-70">
-          TPS
-          <span class="pro-sort" @click="doSort('tps')">
-            {{ sortField !== 'tps' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↓' : '↑') }}
-          </span>
-        </div>
-        <div class="flex-row" :class="{ 'w-85': windowWidth <= 1100 }">
-          Scramble
-        </div>
-        <div class="flex-row" :class="{ 'w-85': windowWidth <= 1100 }">
-          Solution
         </div>
       </div>
       <template v-if="fetched">
         <div v-for="(item) in gameRecords" :key="item.id" class="flex-table">
           <div class="table-header-mobile">
-            <div class="flex-row">
-              ID
-            </div>
-            <div class="flex-row">
-              Date
-              <span class="pro-sort" @click="doSort('id')">
-                {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+            <div v-for="column in columns" :key="column.label" class="flex-row">
+              {{ column.label }}
+              <span v-if="column.sortField" class="pro-sort" @click="doSort(column.sortField)">
+                {{ sortArrow(column.sortField, column.invert) }}
               </span>
-            </div>
-            <div class="flex-row">
-              CS
-            </div>
-            <div class="flex-row">
-              Time
-              <span class="pro-sort" @click="doSort('time')">
-                {{ sortField !== 'time' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-              </span>
-            </div>
-            <div class="flex-row">
-              Moves
-              <span class="pro-sort" @click="doSort('moves')">
-                {{ sortField !== 'moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-              </span>
-            </div>
-            <div v-if="puzzleSize === 3" class="flex-row">
-              Opt.diff
-              <span class="pro-sort" @click="doSort('opt_diff')">
-                {{ sortField !== 'opt_diff' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-              </span>
-            </div>
-            <div class="flex-row">
-              TPS
-              <span class="pro-sort" @click="doSort('tps')">
-                {{ sortField !== 'tps' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↓' : '↑') }}
-              </span>
-            </div>
-            <div class="flex-row">
-              Scramble
-            </div>
-            <div class="flex-row">
-              Solution
             </div>
           </div>
           <div class="items">
@@ -342,29 +297,13 @@ const tableTitle = computed(() => {
 <style scoped>
 .games-table {
   --modal-width: 1100px;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--background-modal-color);
-  color: var(--text-color);
-  border-radius: 8px;
   height: 100vh;
   width: var(--modal-width);
-  position: fixed;
-  z-index: 2005;
+  z-index: var(--z-modal-table);
   top: 0;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
-  box-shadow: 0 8px 16px var(--shadow-color);
   line-height: 1.3;
-}
-.header {
-  text-align: center;
-  margin-bottom: 5px;
-  margin-top: 5px;
-}
-.header span {
-  font-weight: 600;
-  font-size: 21px;
 }
 .buttons {
   margin-top: 15px;
@@ -490,19 +429,12 @@ const tableTitle = computed(() => {
   color: white;
 }
 .link-item {
-  color: var(--link-color);
-  text-decoration: underline;
   font-size: 14px;
   font-weight: 600;
 }
 .green .link-item,
 .red .link-item {
   color: white;
-}
-.link-item:hover:not(.paused) {
-  text-decoration: underline;
-  color: var(--text-color);
-  cursor: pointer;
 }
 .pro-sort {
   cursor: pointer;

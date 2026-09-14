@@ -1,4 +1,11 @@
 :root {
+  --z-tile-blank: 1;
+  --z-tile: 2;
+  --z-board-veil: 1000;
+  --z-board-overlay: 1001;
+  --z-modal: 2000;
+  --z-modal-above: 2001;
+  --z-modal-table: 2005;
   --c-white: #fff;
   --c-black: #121212;
   --c-navy: #000080;
@@ -120,6 +127,24 @@ body {
 }
 .center {
   text-align: center;
+}
+.modal-header {
+  text-align: center;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+.modal-header span {
+  font-weight: 600;
+  font-size: 21px;
+}
+.modal-shell {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-modal-color);
+  color: var(--text-color);
+  border-radius: 8px;
+  position: fixed;
+  box-shadow: 0 8px 16px var(--shadow-color);
 }
 @media screen and (min-width: 600px) {
   .tool-button:hover:not([disabled]) {

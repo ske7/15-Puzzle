@@ -12,10 +12,16 @@ node_modules
 dist
 dist-ssr
 coverage
+.vitest
+*.tsbuildinfo
 *.local
 
 /cypress/videos/
 /cypress/screenshots/
+
+/playwright-report/
+/test-results/
+/blob-report/
 
 # Editor directories and files
 .vscode/*
@@ -33,3 +39,4 @@ todo.txt
 tempdata/
 .scannerwork
 sonar-project.properties
+.ncurc.js

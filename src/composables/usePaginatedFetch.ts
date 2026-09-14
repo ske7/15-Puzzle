@@ -1,7 +1,7 @@
 import { ref, onMounted, onUnmounted, type Ref } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useDateFormat } from '@vueuse/core';
-import { useGetFetchAPI } from './useFetchAPI';
+import { getErrorMessage, useGetFetchAPI } from './useFetchAPI';
 import { type Response } from '@/types';
 import { OrderDirection } from '@/const';
 
@@ -15,6 +15,7 @@ interface PaginatedFetchResult<T> {
   reset: () => void;
   formatDate: (date?: string) => string;
   sort: (newSortField: string) => void;
+  sortArrow: (field: string, invert?: boolean) => string;
   sortField: Ref<string>;
   orderDirection: Ref<OrderDirection>;
   attachScrollListener: (el: HTMLElement) => () => void;
@@ -64,7 +65,7 @@ export function usePaginatedFetch<T>(
         fetched.value = true;
       })
       .catch((error: unknown) => {
-        errorMsg.value = error as string;
+        errorMsg.value = getErrorMessage(error);
         if (errorMsg.value.toLowerCase().includes('networkerror')) {
           baseStore.isNetworkError = true;
         }
@@ -114,6 +115,13 @@ export function usePaginatedFetch<T>(
     }
   };
 
+  const sortArrow = (field: string, invert = false): string => {
+    if (sortField.value !== field) {
+      return '↑↓';
+    }
+    return (orderDirection.value === OrderDirection.Asc) !== invert ? '↑' : '↓';
+  };
+
   const formatDate = (date?: string): string => {
     if (date == null) {
       return '';
@@ -159,6 +167,7 @@ export function usePaginatedFetch<T>(
     reset,
     formatDate,
     sort,
+    sortArrow,
     sortField,
     orderDirection,
     attachScrollListener

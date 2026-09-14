@@ -1,3 +1,5 @@
+const UINT32_MAX = 2 ** 32 - 1;
+
 export function shuffle(array: readonly number[]): number[] {
   const length = array.length;
   if (length === 0) {
@@ -6,8 +8,9 @@ export function shuffle(array: readonly number[]): number[] {
   let index = -1;
   const lastIndex = length - 1;
   const result = [...array];
+  const randoms = crypto.getRandomValues(new Uint32Array(length));
   while (++index < length) {
-    const rand = index + Math.floor(generateRand() * (lastIndex - index + 1));
+    const rand = index + Math.floor(randoms[index] / UINT32_MAX * (lastIndex - index + 1));
     const value = result[rand];
     result[rand] = result[index];
     result[index] = value;
@@ -17,7 +20,7 @@ export function shuffle(array: readonly number[]): number[] {
 
 export function generateRand(): number {
   const value = crypto.getRandomValues(new Uint32Array(1))[0];
-  return value / (Math.pow(2, 32) - 1);
+  return value / UINT32_MAX;
 }
 
 export function* sequenceGenerator(minVal: number, maxVal: number): Generator<number> {
@@ -25,16 +28,17 @@ export function* sequenceGenerator(minVal: number, maxVal: number): Generator<nu
   while (currVal < maxVal) yield currVal++;
 }
 
-export function generateAndShuffle(length: number, fromZero = true): number[] {
-  return shuffle([...sequenceGenerator(fromZero ? 0 : 1, length)]);
-}
-
 export function generate(length: number, fromZero = true): number[] {
   return [...sequenceGenerator(fromZero ? 0 : 1, length)];
 }
 
+export function generateAndShuffle(length: number, fromZero = true): number[] {
+  return shuffle(generate(length, fromZero));
+}
+
 export function getArrayKeyByValue(array: readonly number[], value: number): number {
-  return Number(Object.keys(array).find((key) => array[Number(key)] === value));
+  const index = array.indexOf(value);
+  return index === -1 ? NaN : index;
 }
 
 export function isSolvable(array: readonly number[]): boolean {
@@ -77,6 +81,25 @@ export function getElementRow(el: number, numLines: number): number {
   return Math.ceil(el / numLines);
 }
 
+export function calcPosition(index: number, spaceBetween: number, squareSize: number): number {
+  return (index - 1) * spaceBetween + spaceBetween + squareSize * (index - 1);
+}
+
+export function cellFromPoint(
+  offsetX: number, offsetY: number, numLines: number, squareSize: number, spaceBetween: number
+): number | null {
+  const pitch = squareSize + spaceBetween;
+  if (pitch <= 0) {
+    return null;
+  }
+  const col = Math.floor((offsetX - spaceBetween) / pitch) + 1;
+  const row = Math.floor((offsetY - spaceBetween) / pitch) + 1;
+  if (col < 1 || col > numLines || row < 1 || row > numLines) {
+    return null;
+  }
+  return (row - 1) * numLines + col;
+}
+
 export function calculateMD(array: readonly number[] | string[]): number {
   const length = array.length;
   if (length === 0) {
@@ -90,7 +113,7 @@ export function calculateMD(array: readonly number[] | string[]): number {
   let currentCol, currentRow, inPlaceCol, inPlaceRow;
   array.forEach((value, i) => {
     if (Number(value) === 0) {
-      return; // same as continue here
+      return;
     }
     currentCol = getElementCol(Number(value), n);
     currentRow = getElementRow(Number(value), n);
@@ -162,7 +185,7 @@ export function shortenSolutionStr(str?: string): string {
 export function expandSolutionStr(str: string): string {
   let result = '';
   let count = 1;
-  let skipNext = false;
+  let skipNext: boolean;
   for (let i = 0; i < str.length; i = i + (skipNext ? 2 : 1)) {
     const currentChar = str[i];
     const nextChar = str[i + 1];
@@ -238,6 +261,14 @@ export async function sleep(delay: number): Promise<void> {
 
 export function sumArrayElements(array: number[]): number {
   return array.reduce((a, b) => a + b, 0);
+}
+
+export function redirectTo(url: string): void {
+  location.href = url;
+}
+
+export function reloadPage(): void {
+  location.reload();
 }
 
 export function createLinkAndClick(path: string, openOnNewPage = false): void {

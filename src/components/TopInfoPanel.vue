@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { defineAsyncComponent, type AsyncComponentLoader } from 'vue';
 import { useDateFormat } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
 import { displayedTime, convertScramble, calculateMD } from '@/utils';
 import { baseUrl } from '@/const';
-const CopyButton = defineAsyncComponent({
-  loader: async () => await import('./CopyButton.vue') as unknown as AsyncComponentLoader,
-  delay: 150
-});
+import { useLazyComponent } from '../composables/useLazyComponent';
+const CopyButton = useLazyComponent(() => import('./CopyButton.vue'));
 
 const baseStore = useBaseStore();
 

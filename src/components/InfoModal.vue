@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { onClickOutside } from '@vueuse/core';
+import { useCloseOnClickOutside } from '../composables/useCloseOnClickOutside';
 
 const emit = defineEmits<{ close: [] }>();
 
 const infoModal = ref<HTMLElement>();
-onClickOutside(infoModal, (event) => {
-  event.stopPropagation();
-  emit('close');
-});
+useCloseOnClickOutside(infoModal, () => emit('close'));
 
 const getYear = computed(() => {
   const currentYear = new Date().getFullYear();
@@ -21,7 +18,7 @@ const getYear = computed(() => {
 
 <template>
   <Teleport to="body">
-    <div ref="infoModal" class="info-modal">
+    <div ref="infoModal" class="info-modal modal-shell">
       <p class="info-header">
         <span>About the game</span>
       </p>
@@ -50,20 +47,13 @@ const getYear = computed(() => {
 <style scoped>
 .info-modal {
   --modal-width: 340px;
-  display: flex;
   justify-content: center;
-  flex-direction: column;
-  background-color: var(--background-modal-color);
-  color: var(--text-color);
-  border-radius: 8px;
   height: auto;
   width: var(--modal-width);
-  position: fixed;
-  z-index: 2000;
+  z-index: var(--z-modal);
   top: 135px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
-  box-shadow: 0 8px 16px var(--shadow-color);
 }
 .info-header {
   text-align: center;

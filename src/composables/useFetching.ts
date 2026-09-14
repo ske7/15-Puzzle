@@ -1,59 +1,47 @@
-import { ref, type Ref } from 'vue';
 import { useBaseStore } from '../stores/base';
 import {
-  type GameData, type AverageStats, type WasAvgRecord,
-  type UserScrambleData, type FMCBlitzData, type Response
+  type GameData, type AverageStats, type UserScrambleData, type FMCBlitzData, type Response
 } from '@/types';
-import { usePostFetchAPI, usePatchFetchAPI } from './useFetchAPI';
+import { getErrorMessage, usePostFetchAPI, usePatchFetchAPI } from './useFetchAPI';
 import { FMC_BLITZ_TIME } from '@/const';
 
-const prepare = (): Record<string, Ref<string | boolean>> => {
-  const errorMsg = ref('');
-  const isFetching = ref(false);
-
-  return { errorMsg, isFetching };
+const reportFailure = (failureMessage: string, request: Promise<unknown>): Promise<void> => {
+  return request
+    .then(() => undefined)
+    .catch((error: unknown) => {
+      useBaseStore().lastError = failureMessage;
+      console.log(getErrorMessage(error));
+    });
 };
 
 export const postFMCBlitz = (data: FMCBlitzData): void => {
   const baseStore = useBaseStore();
-  const { errorMsg, isFetching } = prepare();
-  errorMsg.value = '';
-  if (isFetching.value as boolean) {
-    return;
-  }
-  isFetching.value = true;
-  usePostFetchAPI('fmc_blitz', JSON.stringify({ data }) as BodyInit, baseStore.token)
-    .then((_res) => {
-      isFetching.value = false;
-    })
-    .catch((error: unknown) => {
-      errorMsg.value = error as string;
-      isFetching.value = false;
-    });
+  void reportFailure('Could not save your blitz result',
+    usePostFetchAPI('fmc_blitz', JSON.stringify({ data }), baseStore.token));
 };
 
 export const postGame = (game: GameData, keyH: string): void => {
   const baseStore = useBaseStore();
-  const { errorMsg, isFetching } = prepare();
-  errorMsg.value = '';
-  if (isFetching.value as boolean) {
-    return;
-  }
-  isFetching.value = true;
-  usePostFetchAPI('game', JSON.stringify({ game }) as BodyInit, baseStore.token, keyH)
-    .then((res: Response): void => {
-      baseStore.lastGameID = res.public_id!;
-      if (baseStore.proMode) {
+  void reportFailure('Could not save your last solve',
+    usePostFetchAPI('game', JSON.stringify({ game }), baseStore.token, keyH)
+      .then((res: Response): void => {
+        if (res.public_id != null) {
+          baseStore.lastGameID = res.public_id;
+        }
+        if (!baseStore.proMode) {
+          return;
+        }
         if (baseStore.numLines === 3 && res.opt_m != null) {
           baseStore.opt_m = res.opt_m;
         }
-        usePostFetchAPI('update_stats', JSON.stringify({ game_id: res.game_id }) as BodyInit, baseStore.token, keyH)
-          .then((res) => {
-            baseStore.setCurrentAverages(res.stats as unknown as AverageStats);
-            baseStore.setWasAvgRecords(res.was_avg_records as unknown as WasAvgRecord[]);
-          }).catch((error: unknown) => {
-            errorMsg.value = error as string;
-            isFetching.value = false;
+        void usePostFetchAPI<AverageStats>('update_stats', JSON.stringify({ game_id: res.game_id }), baseStore.token, keyH)
+          .then((statsRes) => {
+            baseStore.setCurrentAverages(statsRes.stats);
+            baseStore.setWasAvgRecords(statsRes.was_avg_records);
+          })
+          .catch((error: unknown) => {
+            baseStore.lastError = 'Could not update your averages';
+            console.log(getErrorMessage(error));
           });
         if (baseStore.fmcBlitz && baseStore.solvedPuzzlesInMarathon === baseStore.blitzScrambleCount) {
           postFMCBlitz({
@@ -62,48 +50,20 @@ export const postGame = (game: GameData, keyH: string): void => {
             session_id: String(game.session_id)
           });
         }
-      }
-      isFetching.value = false;
-    })
-    .catch((error: unknown) => {
-      errorMsg.value = error as string;
-      isFetching.value = false;
-    });
+      }));
 };
 
 export const postUserScramble = async (user_scramble: UserScrambleData): Promise<void> => {
   const baseStore = useBaseStore();
-  const { errorMsg, isFetching } = prepare();
-  errorMsg.value = '';
-  if (isFetching.value as boolean) {
-    return;
-  }
-  isFetching.value = true;
-  await usePostFetchAPI('user_scramble', JSON.stringify({ user_scramble }) as BodyInit, baseStore.token)
-    .then((res) => {
-      baseStore.userScrambleId = res.user_scramble_id!;
-      isFetching.value = false;
-    })
-    .catch((error: unknown) => {
-      errorMsg.value = error as string;
-      isFetching.value = false;
-    });
+  await reportFailure('Could not save the scramble',
+    usePostFetchAPI('user_scramble', JSON.stringify({ user_scramble }), baseStore.token)
+      .then((res: Response) => {
+        baseStore.userScrambleId = res.user_scramble_id ?? 0;
+      }));
 };
 
 export const patchUserScramble = (user_scramble: UserScrambleData): void => {
   const baseStore = useBaseStore();
-  const { errorMsg, isFetching } = prepare();
-  errorMsg.value = '';
-  if (isFetching.value as boolean) {
-    return;
-  }
-  isFetching.value = true;
-  usePatchFetchAPI('user_scramble', JSON.stringify({ user_scramble }) as BodyInit, baseStore.token)
-    .then((_res) => {
-      isFetching.value = false;
-    })
-    .catch((error: unknown) => {
-      errorMsg.value = error as string;
-      isFetching.value = false;
-    });
+  void reportFailure('Could not update the scramble',
+    usePatchFetchAPI('user_scramble', JSON.stringify({ user_scramble }), baseStore.token));
 };

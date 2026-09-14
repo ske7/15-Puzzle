@@ -1,56 +1,57 @@
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
-import { useWindowSize } from '@vueuse/core';
+import { ref, computed } from 'vue';
 import { useBaseStore } from '../stores/base';
-const LeaderBoard = defineAsyncComponent({
-  loader: async () => await import('./LeaderBoard.vue') as unknown as AsyncComponentLoader,
-  delay: 150
-});
+import { useLazyComponent } from '../composables/useLazyComponent';
+import { useModalPause } from '../composables/useModalPause';
+import { useWindowWidth } from '../composables/useWindowWidth';
+const LeaderBoard = useLazyComponent(() => import('./LeaderBoard.vue'));
 
 const baseStore = useBaseStore();
 
-const { width: windowWidth } = useWindowSize();
+const windowWidth = useWindowWidth();
 const positionTop = computed(() => {
   return `${baseStore.boardPos.top + 100}px`;
 });
 const positionLeft = computed(() => {
   return `${baseStore.boardPos.left - 300}px`;
 });
-const checkUpTime = (arrayID: number): boolean => {
+type AverageField = 'time' | 'moves' | 'tps';
+
+interface AverageRow {
+  id: number;
+  type: string;
+  hasRecordCheck: boolean;
+  g1000Only: boolean;
+}
+interface AverageColumn {
+  field: AverageField;
+  upClass: string;
+  downClass: string;
+}
+const averageRows: AverageRow[] = [
+  { id: 1, type: 'ao5', hasRecordCheck: true, g1000Only: false },
+  { id: 2, type: 'ao12', hasRecordCheck: true, g1000Only: false },
+  { id: 3, type: 'ao50', hasRecordCheck: true, g1000Only: false },
+  { id: 4, type: 'ao100', hasRecordCheck: true, g1000Only: false },
+  { id: 5, type: 'ao1000', hasRecordCheck: true, g1000Only: true },
+  { id: 0, type: 'aoS', hasRecordCheck: false, g1000Only: false }
+];
+const averageColumns: AverageColumn[] = [
+  { field: 'time', upClass: 'red', downClass: 'green' },
+  { field: 'moves', upClass: 'red', downClass: 'green' },
+  { field: 'tps', upClass: 'green', downClass: 'red' }
+];
+const visibleAverageRows = computed(() => {
+  return averageRows.filter((row) => !row.g1000Only || baseStore.g1000Mode);
+});
+
+const checkDirection = (arrayID: number, field: AverageField, direction: 'up' | 'down'): boolean => {
   if (baseStore.prevAverages.length === 0 || baseStore.currentAverages.length === 0) {
     return false;
   }
-  return (Number(baseStore.currentAverages[arrayID].time ?? 0) > Number(baseStore.prevAverages[arrayID].time ?? 0));
-};
-const checkDownTime = (arrayID: number): boolean => {
-  if (baseStore.prevAverages.length === 0 || baseStore.currentAverages.length === 0) {
-    return false;
-  }
-  return (Number(baseStore.currentAverages[arrayID].time ?? 0) < Number(baseStore.prevAverages[arrayID].time ?? 0));
-};
-const checkUpMoves = (arrayID: number): boolean => {
-  if (baseStore.prevAverages.length === 0 || baseStore.currentAverages.length === 0) {
-    return false;
-  }
-  return (Number(baseStore.currentAverages[arrayID].moves ?? 0) > Number(baseStore.prevAverages[arrayID].moves ?? 0));
-};
-const checkDownMoves = (arrayID: number): boolean => {
-  if (baseStore.prevAverages.length === 0 || baseStore.currentAverages.length === 0) {
-    return false;
-  }
-  return (Number(baseStore.currentAverages[arrayID].moves ?? 0) < Number(baseStore.prevAverages[arrayID].moves ?? 0));
-};
-const checkUpTPS = (arrayID: number): boolean => {
-  if (baseStore.prevAverages.length === 0 || baseStore.currentAverages.length === 0) {
-    return false;
-  }
-  return (Number(baseStore.currentAverages[arrayID].tps ?? 0) > Number(baseStore.prevAverages[arrayID].tps ?? 0));
-};
-const checkDownTPS = (arrayID: number): boolean => {
-  if (baseStore.prevAverages.length === 0 || baseStore.currentAverages.length === 0) {
-    return false;
-  }
-  return (Number(baseStore.currentAverages[arrayID].tps ?? 0) < Number(baseStore.prevAverages[arrayID].tps ?? 0));
+  const current = Number(baseStore.currentAverages[arrayID][field] ?? 0);
+  const prev = Number(baseStore.prevAverages[arrayID][field] ?? 0);
+  return direction === 'up' ? current > prev : current < prev;
 };
 const checkIfWasRecord = (type: string, field: string): boolean => {
   const record = baseStore.wasAvgRecords.find(value => {
@@ -65,31 +66,20 @@ const checkIfWasRecord = (type: string, field: string): boolean => {
   }
   return false;
 };
-const disableDuringMarathon = computed(() => {
-  return baseStore.marathonMode && baseStore.time > 0 && !baseStore.isDone;
-});
-const cannotClick = computed(() => {
-  return baseStore.showModal || disableDuringMarathon.value;
-});
 const showAveragesLeaderBoard = ref(false);
-const wasPausedBeforeOpenModal = ref(false);
+const leaderBoardPause = useModalPause();
 const doShowLeaderBoard = (): void => {
-  if (cannotClick.value) {
+  if (baseStore.cannotClick) {
     return;
   }
-  wasPausedBeforeOpenModal.value = baseStore.paused;
-  if (!baseStore.paused && !baseStore.isDone) {
-    baseStore.invertPaused();
-  }
+  leaderBoardPause.open();
   showAveragesLeaderBoard.value = true;
   baseStore.showLeaderBoard = true;
 };
 const closeLeaderBoard = (): void => {
   showAveragesLeaderBoard.value = false;
   baseStore.showLeaderBoard = false;
-  if (baseStore.paused && !wasPausedBeforeOpenModal.value) {
-    baseStore.invertPaused();
-  }
+  leaderBoardPause.close();
 };
 </script>
 
@@ -104,7 +94,7 @@ const closeLeaderBoard = (): void => {
         <span
           v-show="!baseStore.clearDisplay"
           class="best-averages-mobile link-item"
-          :class="{ paused: cannotClick }"
+          :class="{ paused: baseStore.cannotClick }"
           @click="doShowLeaderBoard"
         >
           Best
@@ -115,148 +105,14 @@ const closeLeaderBoard = (): void => {
       <span>TPS</span>
     </div>
     <div v-show="windowWidth >= 1050 || (baseStore.isDone || baseStore.time === 0)" class="avg-rows">
-      <div class="avg-row">
-        <span class="avg-type">ao5</span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao5', 'time') }">
-            {{ baseStore.currentAverages[1].time || 'tbd' }}
+      <div v-for="row in visibleAverageRows" :key="row.type" class="avg-row">
+        <span class="avg-type">{{ row.type }}</span>
+        <span v-for="column in averageColumns" :key="column.field">
+          <span :class="{ 'purple': row.hasRecordCheck && checkIfWasRecord(row.type, column.field) }">
+            {{ baseStore.currentAverages[row.id][column.field] || 'tbd' }}
           </span>
-          <span v-if="checkUpTime(1)" class="red">↑</span>
-          <span v-if="checkDownTime(1)" class="green">↓</span>
-        </span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao5', 'moves') }">
-            {{ baseStore.currentAverages[1].moves || 'tbd' }}
-          </span>
-          <span v-if="checkUpMoves(1)" class="red">↑</span>
-          <span v-if="checkDownMoves(1)" class="green">↓</span>
-        </span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao5', 'tps') }">
-            {{ baseStore.currentAverages[1].tps || 'tbd' }}
-          </span>
-          <span v-if="checkUpTPS(1)" class="green">↑</span>
-          <span v-if="checkDownTPS(1)" class="red">↓</span>
-        </span>
-      </div>
-      <div class="avg-row">
-        <span class="avg-type">ao12</span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao12', 'time') }">
-            {{ baseStore.currentAverages[2].time || 'tbd' }}
-          </span>
-          <span v-if="checkDownTime(2)" class="green">↓</span>
-          <span v-if="checkUpTime(2)" class="red">↑</span>
-        </span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao12', 'moves') }">
-            {{ baseStore.currentAverages[2].moves || 'tbd' }}
-          </span>
-          <span v-if="checkUpMoves(2)" class="red">↑</span>
-          <span v-if="checkDownMoves(2)" class="green">↓</span>
-        </span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao12', 'tps') }">
-            {{ baseStore.currentAverages[2].tps || 'tbd' }}
-          </span>
-          <span v-if="checkUpTPS(2)" class="green">↑</span>
-          <span v-if="checkDownTPS(2)" class="red">↓</span>
-        </span>
-      </div>
-      <div class="avg-row">
-        <span class="avg-type">ao50</span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao50', 'time') }">
-            {{ baseStore.currentAverages[3].time || 'tbd' }}
-          </span>
-          <span v-if="checkDownTime(3)" class="green">↓</span>
-          <span v-if="checkUpTime(3)" class="red">↑</span>
-        </span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao50', 'moves') }">
-            {{ baseStore.currentAverages[3].moves || 'tbd' }}
-          </span>
-          <span v-if="checkUpMoves(3)" class="red">↑</span>
-          <span v-if="checkDownMoves(3)" class="green">↓</span>
-        </span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao50', 'tps') }">
-            {{ baseStore.currentAverages[3].tps || 'tbd' }}
-          </span>
-          <span v-if="checkUpTPS(3)" class="green">↑</span>
-          <span v-if="checkDownTPS(3)" class="red">↓</span>
-        </span>
-      </div>
-      <div class="avg-row">
-        <span class="avg-type">ao100</span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao100', 'time') }">
-            {{ baseStore.currentAverages[4].time || 'tbd' }}
-          </span>
-          <span v-if="checkDownTime(4)" class="green">↓</span>
-          <span v-if="checkUpTime(4)" class="red">↑</span>
-        </span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao100', 'moves') }">
-            {{ baseStore.currentAverages[4].moves || 'tbd' }}
-          </span>
-          <span v-if="checkUpMoves(4)" class="red">↑</span>
-          <span v-if="checkDownMoves(4)" class="green">↓</span>
-        </span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao100', 'tps') }">
-            {{ baseStore.currentAverages[4].tps || 'tbd' }}
-          </span>
-          <span v-if="checkUpTPS(4)" class="green">↑</span>
-          <span v-if="checkDownTPS(4)" class="red">↓</span>
-        </span>
-      </div>
-      <div v-if="baseStore.g1000Mode" class="avg-row">
-        <span class="avg-type">ao1000</span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao1000', 'time') }">
-            {{ baseStore.currentAverages[5].time || 'tbd' }}
-          </span>
-          <span v-if="checkDownTime(5)" class="green">↓</span>
-          <span v-if="checkUpTime(5)" class="red">↑</span>
-        </span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao1000', 'moves') }">
-            {{ baseStore.currentAverages[5].moves || 'tbd' }}
-          </span>
-          <span v-if="checkUpMoves(5)" class="red">↑</span>
-          <span v-if="checkDownMoves(5)" class="green">↓</span>
-        </span>
-        <span>
-          <span :class="{ 'purple': checkIfWasRecord('ao1000', 'tps') }">
-            {{ baseStore.currentAverages[5].tps || 'tbd' }}
-          </span>
-          <span v-if="checkUpTPS(5)" class="green">↑</span>
-          <span v-if="checkDownTPS(5)" class="red">↓</span>
-        </span>
-      </div>
-      <div class="avg-row">
-        <span class="avg-type">aoS</span>
-        <span>
-          <span>
-            {{ baseStore.currentAverages[0].time || 'tbd' }}
-          </span>
-          <span v-if="checkUpTime(0)" class="red">↑</span>
-          <span v-if="checkDownTime(0)" class="green">↓</span>
-        </span>
-        <span>
-          <span>
-            {{ baseStore.currentAverages[0].moves || 'tbd' }}
-          </span>
-          <span v-if="checkUpMoves(0)" class="red">↑</span>
-          <span v-if="checkDownMoves(0)" class="green">↓</span>
-        </span>
-        <span>
-          <span>
-            {{ baseStore.currentAverages[0].tps || 'tbd' }}
-          </span>
-          <span v-if="checkUpTPS(0)" class="green">↑</span>
-          <span v-if="checkDownTPS(0)" class="red">↓</span>
+          <span v-if="checkDirection(row.id, column.field, 'up')" :class="column.upClass">↑</span>
+          <span v-if="checkDirection(row.id, column.field, 'down')" :class="column.downClass">↓</span>
         </span>
       </div>
     </div>
@@ -264,7 +120,7 @@ const closeLeaderBoard = (): void => {
       Consecutive solves: {{ baseStore.consecutiveSolves }}
     </p>
     <p class="best-averages">
-      <span class="link-item" :class="{ paused: cannotClick }" @click="doShowLeaderBoard">Best Averages</span>
+      <span class="link-item" :class="{ paused: baseStore.cannotClick }" @click="doShowLeaderBoard">Best Averages</span>
     </p>
     <LeaderBoard
       v-if="baseStore.showLeaderBoard && showAveragesLeaderBoard"
@@ -314,15 +170,6 @@ const closeLeaderBoard = (): void => {
 }
 .best-averages-mobile {
   display: none;
-}
-.link-item {
-  color: var(--link-color);
-  text-decoration: underline;
-}
-.link-item:hover:not(.paused) {
-  text-decoration: underline;
-  color: var(--text-color);
-  cursor: pointer;
 }
 .link-item.paused {
   opacity: 0.5;

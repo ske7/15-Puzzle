@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, watch, reactive, nextTick, onMounted } from 'vue';
+import { ref, computed, watch, reactive, nextTick, onMounted, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
-import { onClickOutside } from '@vueuse/core';
 import { CAGES_PATH_ARR, LoadImageMode } from '@/const';
 import { getSquareSize } from '../composables/usePrepare';
+import { useCloseOnClickOutside } from '../composables/useCloseOnClickOutside';
 
 const emit = defineEmits<{ close: [] }>();
 const baseStore = useBaseStore();
@@ -15,10 +15,7 @@ const boardSize = computed(() => {
 });
 
 const imageGallery = ref<HTMLElement>();
-onClickOutside(imageGallery, (event) => {
-  event.stopPropagation();
-  emit('close');
-});
+useCloseOnClickOutside(imageGallery, () => emit('close'));
 
 const currentIndex = ref(0);
 const { showOnlyUnlockedItems } = storeToRefs(baseStore);
@@ -109,11 +106,15 @@ watch(loaded, (newValue, oldValue) => {
       time.value += 1;
     }, 100);
   }
-  if (newValue && !(oldValue ?? false)) {
+  if (newValue && !oldValue) {
     clearInterval(interval.value);
   }
 },
 { immediate: true });
+
+onUnmounted(() => {
+  clearInterval(interval.value);
+});
 
 const tolerance = ref(30);
 const gesture = reactive({ x: [] as number[] });
@@ -163,7 +164,7 @@ watch(showOnlyUnlockedItems, async (newValue, oldValue) => {
       showImg.value = true;
     }
     currentIndex.value = baseStore.unlockedCagesSortedArr.indexOf(oldCurrentIndex.value);
-  } else if (!newValue && oldValue) {
+  } else {
     currentIndex.value = oldCurrentIndex.value;
   }
 });
@@ -189,7 +190,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
 
 <template>
   <Teleport to="body">
-    <div ref="imageGallery" class="image-gallery" @wheel.prevent="wheel">
+    <div ref="imageGallery" class="image-gallery modal-shell" @wheel.prevent="wheel">
       <h2>Cage Image Gallery</h2>
       <div class="controls">
         <div
@@ -281,22 +282,15 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
   --v-width: 440px;
 }
 .image-gallery {
-  display: flex;
   justify-content: start;
   align-items: center;
-  flex-direction: column;
-  background-color: var(--background-modal-color);
-  color: var(--text-color);
-  border-radius: 8px;
   height: 100%;
   max-height: calc(var(--v-width) + 137px);
   width: var(--v-width);
-  position: fixed;
-  z-index: 2000;
+  z-index: var(--z-modal);
   top: 45px;
   left: calc(50% - var(--v-width) / 2);
   padding: 10px;
-  box-shadow: 0 8px 16px var(--shadow-color);
 }
 @media (min-height: 800px), screen and (max-width: 820px) {
   * {

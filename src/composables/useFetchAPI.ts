@@ -1,10 +1,14 @@
-import { type ErrResponse, type Response } from '@/types';
+import { type ErrResponse, type Response, type UserStats } from '@/types';
 import { useBaseStore } from '../stores/base';
 
 const baseUrl: string = import.meta.env.VITE_BASE_API_URL;
 
-const api = async (endpoint: string, method: string, body?: BodyInit,
-  token?: string, keyH?: string): Promise<Response> => {
+export function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+const api = async <TStats = UserStats>(endpoint: string, method: string, body?: BodyInit,
+  token?: string, keyH?: string): Promise<Response<TStats>> => {
   const baseStore = useBaseStore();
 
   let error;
@@ -31,6 +35,7 @@ const api = async (endpoint: string, method: string, body?: BodyInit,
       body
     });
     baseStore.isNetworkError = false;
+    baseStore.lastError = '';
     if (!response.ok) {
       if (response.status === 401 || response.status === 404) {
         baseStore.token = undefined;
@@ -41,29 +46,29 @@ const api = async (endpoint: string, method: string, body?: BodyInit,
       error = new Error((await res).error ?? response.statusText);
       throw error;
     }
-    return await (response.json() as Promise<Response>);
+    return await (response.json() as Promise<Response<TStats>>);
   } catch (err) {
     if (String(err).toLowerCase().includes('networkerror')) {
       baseStore.isNetworkError = true;
     }
     if (error == null) {
-      throw new Error(err as string);
+      throw err instanceof Error ? err : new Error(String(err), { cause: err });
     } else {
       throw error;
     }
   }
 };
 
-export const usePostFetchAPI = async (endpoint: string, body?: BodyInit,
-  token?: string, keyH?: string): Promise<Response> => {
-  return await api(endpoint, 'POST', body, token, keyH);
+export const usePostFetchAPI = async <TStats = UserStats>(endpoint: string, body?: BodyInit,
+  token?: string, keyH?: string): Promise<Response<TStats>> => {
+  return await api<TStats>(endpoint, 'POST', body, token, keyH);
 };
 
-export const useGetFetchAPI = async (endpoint: string, token?: string): Promise<Response> => {
-  return await api(endpoint, 'GET', undefined, token);
+export const useGetFetchAPI = async <TStats = UserStats>(endpoint: string, token?: string): Promise<Response<TStats>> => {
+  return await api<TStats>(endpoint, 'GET', undefined, token);
 };
 
-export const usePatchFetchAPI = async (endpoint: string, body?: BodyInit,
-  token?: string, keyH?: string): Promise<Response> => {
-  return await api(endpoint, 'PATCH', body, token, keyH);
+export const usePatchFetchAPI = async <TStats = UserStats>(endpoint: string, body?: BodyInit,
+  token?: string, keyH?: string): Promise<Response<TStats>> => {
+  return await api<TStats>(endpoint, 'PATCH', body, token, keyH);
 };

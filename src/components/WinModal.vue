@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { ref, onUnmounted } from 'vue';
+import { useAppEventBus } from '../composables/useAppEventBus';
 import { useBaseStore } from '../stores/base';
-import { onClickOutside, useEventBus } from '@vueuse/core';
+
+import { useCloseOnClickOutside } from '../composables/useCloseOnClickOutside';
 
 const emit = defineEmits<{ close: [] }>();
 const winModal = ref<HTMLElement>();
-onClickOutside(winModal, (event) => {
-  event.stopPropagation();
-  emit('close');
-});
+useCloseOnClickOutside(winModal, () => emit('close'));
 
 const baseStore = useBaseStore();
-const eventBus = useEventBus<string>('event-bus');
+const eventBus = useAppEventBus();
 
 const closeAndRestart = (): void => {
   emit('close');
@@ -25,7 +24,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="winModal" class="win-modal">
+  <div ref="winModal" class="win-modal modal-shell">
     <div class="finish-message">
       <p>Congrats! You've done it. 🏆</p>
       <p v-if="baseStore.newTimeRecord || baseStore.newMovesRecord" class="unlock-message mb-5 mt-5">
@@ -52,20 +51,13 @@ onUnmounted(() => {
 
 <style scoped>
 .win-modal {
-  display: flex;
   justify-content: center;
-  flex-direction: column;
-  background-color: var(--background-modal-color);
-  color: var(--text-color);
-  border-radius: 8px;
   height: auto;
   width: 320px;
-  position: fixed;
-  z-index: 2000;
+  z-index: var(--z-modal);
   top: calc(50% - 160px);
   left: calc(50% - 160px);
   padding: 20px;
-  box-shadow: 0 8px 16px var(--shadow-color);
 }
 @media screen and (max-width: 360px) {
   .win-modal {

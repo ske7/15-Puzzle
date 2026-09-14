@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { postGame, postUserScramble, patchUserScramble } from './useFetching';
 import { FMC_BLITZ_TIME } from '@/const';
+import { type PuzzleType } from '@/types';
 import { get_key_h } from '@/utils_x';
 
 export const useWatchGameState = (): void => {
@@ -11,7 +12,7 @@ export const useWatchGameState = (): void => {
   const isDoneAll = computed(() => {
     return baseStore.isDone;
   });
-  const setRecords = (puzzleType: string): void => {
+  const setRecords = (puzzleType: PuzzleType): void => {
     const time = baseStore.getTime;
     if (baseStore.movesRecord === 0 || baseStore.movesCount <= baseStore.movesRecord) {
       baseStore.setMovesRecord(baseStore.movesCount, time,
@@ -49,6 +50,7 @@ export const useWatchGameState = (): void => {
     }
   };
   const playgroundWatch = (): void => {
+    baseStore.stopInterval();
     const time = baseStore.getTime;
     if (baseStore.playgroundBestTime === 0 || time < baseStore.playgroundBestTime) {
       baseStore.playgroundBestTime = time;
@@ -82,7 +84,6 @@ export const useWatchGameState = (): void => {
         });
       }
     }
-    baseStore.stopInterval();
   };
   const marathonWatch = (): void => {
     baseStore.solvedPuzzlesInMarathon += 1;

@@ -2,20 +2,22 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { onClickOutside } from '@vueuse/core';
-import { usePostFetchAPI } from '../composables/useFetchAPI';
+import { getErrorMessage, usePostFetchAPI } from '../composables/useFetchAPI';
 import { cores } from '@/const';
-import { type Record, type UserData, type UserStats, type InvalidFields } from '@/types';
+import { reloadPage } from '@/utils';
+import { type PersonalBest, type SingleUserRecord, type UserData, type UserStats, isSingleUserRecord } from '@/types';
 
 const props = defineProps<{ formType: string; resetToken?: string; email?: string }>();
 const emit = defineEmits<{ close: [] }>();
 const baseStore = useBaseStore();
 const regModal = ref<HTMLElement>();
+// Closes only via its own buttons, so an outside click cannot lose a half-filled form.
 onClickOutside(regModal, (event) => {
   event.stopPropagation();
 });
 
 // Remember about useKeyDown
-const user: UserData = reactive({} as unknown as UserData);
+const user: UserData = reactive({ name: '', email: '', password: '', password_confirmation: '' });
 const errorMsg = ref<string[]>([]);
 const isFetching = ref(false);
 
@@ -28,9 +30,10 @@ const setPasswordForm = computed(() => {
 
 const updateLocalRecord = (stats: UserStats, puzzleSize: number, puzzleType: string): void => {
   const marathonMode = puzzleType === 'marathon';
-  let record: Record = { record: 0, adding: 0 };
-  let filtered = stats.user_records.filter(item => {
-    return item.puzzle_size === puzzleSize && item.puzzle_type === puzzleType && item.record_type === 'time';
+  let record: PersonalBest;
+  let filtered = stats.user_records.filter((item): item is SingleUserRecord => {
+    return isSingleUserRecord(item) && item.puzzle_size === puzzleSize &&
+      item.puzzle_type === puzzleType && item.record_type === 'time';
   });
   if (filtered.length !== 0) {
     record = baseStore.loadTimeRecord(marathonMode, puzzleSize);
@@ -39,8 +42,9 @@ const updateLocalRecord = (stats: UserStats, puzzleSize: number, puzzleType: str
       baseStore.setTimeRecord(filtered[0].time, filtered[0].moves, puzzleSize, marathonMode, true);
     }
   }
-  filtered = stats.user_records.filter(item => {
-    return item.puzzle_size === puzzleSize && item.puzzle_type === puzzleType && item.record_type === 'moves';
+  filtered = stats.user_records.filter((item): item is SingleUserRecord => {
+    return isSingleUserRecord(item) && item.puzzle_size === puzzleSize &&
+      item.puzzle_type === puzzleType && item.record_type === 'moves';
   });
   if (filtered.length !== 0) {
     record = baseStore.loadMovesRecord(marathonMode, puzzleSize);
@@ -49,8 +53,9 @@ const updateLocalRecord = (stats: UserStats, puzzleSize: number, puzzleType: str
       baseStore.setMovesRecord(filtered[0].moves, filtered[0].time, puzzleSize, marathonMode, true);
     }
   }
-  filtered = stats.user_records.filter(item => {
-    return item.puzzle_size === puzzleSize && item.puzzle_type === puzzleType && item.record_type === 'fmc_blitz_moves';
+  filtered = stats.user_records.filter((item): item is SingleUserRecord => {
+    return isSingleUserRecord(item) && item.puzzle_size === puzzleSize &&
+      item.puzzle_type === puzzleType && item.record_type === 'fmc_blitz_moves';
   });
   if (filtered.length !== 0) {
     record = baseStore.loadFMCBlitzMovesRecord(puzzleSize);
@@ -76,7 +81,7 @@ const invalidFields = reactive({
   name: false,
   email: false,
   password: false
-} as unknown as InvalidFields);
+});
 const resetInvalidFields = (): void => {
   invalidFields.email = false;
   invalidFields.name = false;
@@ -125,19 +130,17 @@ const fetch = (endpoint: string): void => {
   }
   isFetching.value = true;
   if (resetPasswordMode.value) {
-    usePostFetchAPI(endpoint, JSON.stringify({ email: user.email }) as BodyInit)
+    usePostFetchAPI(endpoint, JSON.stringify({ email: user.email }))
       .then(_res => {
         sentResetEmail.value = true;
         isFetching.value = false;
       })
       .catch((error: unknown) => {
-        errorMsg.value.push(error as string);
+        errorMsg.value.push(getErrorMessage(error));
         isFetching.value = false;
       });
   } else {
-    usePostFetchAPI(endpoint, JSON.stringify(
-      { user, reset_token: props.resetToken }
-    ) as BodyInit)
+    usePostFetchAPI(endpoint, JSON.stringify({ user, reset_token: props.resetToken }))
       .then(res => {
         baseStore.token = res.token;
         localStorage.setItem('token', String(baseStore.token));
@@ -146,7 +149,7 @@ const fetch = (endpoint: string): void => {
         if (location.search !== '') {
           isFetching.value = false;
           emit('close');
-          location.reload();
+          reloadPage();
           return;
         }
         baseStore.userName = res.name;
@@ -155,7 +158,7 @@ const fetch = (endpoint: string): void => {
         emit('close');
       })
       .catch((error: unknown) => {
-        errorMsg.value.push(error as string);
+        errorMsg.value.push(getErrorMessage(error));
         isFetching.value = false;
       });
   }
@@ -203,8 +206,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="regModal" class="reg-modal">
-    <p class="header">
+  <div ref="regModal" class="reg-modal modal-shell">
+    <p class="header modal-header">
       <span>{{ headerText }}</span>
     </p>
     <div v-if="sentResetEmail">
@@ -304,20 +307,13 @@ onMounted(() => {
 
 <style scoped>
 .reg-modal {
-  display: flex;
   justify-content: center;
-  flex-direction: column;
-  background-color: var(--background-modal-color);
-  color: var(--text-color);
-  border-radius: 8px;
   height: auto;
   width: 370px;
-  position: fixed;
-  z-index: 2001;
+  z-index: var(--z-modal-above);
   top: calc(40% - 160px);
   left: calc(50% - 185px);
   padding: 20px;
-  box-shadow: 0 8px 16px var(--shadow-color);
 }
 @media screen and (max-width: 420px) {
   .reg-modal {
@@ -326,13 +322,7 @@ onMounted(() => {
   }
 }
 .header {
-  text-align: center;
   margin-bottom: 20px;
-  margin-top: 5px;
-}
-.header span {
-  font-weight: 600;
-  font-size: 21px;
 }
 .fields {
   display: flex;

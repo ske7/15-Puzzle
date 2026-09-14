@@ -1,27 +1,22 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
-import { useWindowSize } from '@vueuse/core';
+import { computed } from 'vue';
 import { useBaseStore } from './stores/base';
 import { usePrepare } from './composables/usePrepare';
 import { useWatchGameState } from './composables/useWatchGameState';
+import { useLazyComponent } from './composables/useLazyComponent';
+import { provideWindowWidth } from './composables/useWindowWidth';
 import Board from './components/Board.vue';
 import TopInfoPanel from './components/TopInfoPanel.vue';
 import BottomInfoPanel from './components/BottomInfoPanel.vue';
 import ActionPanel from './components/ActionPanel.vue';
-const AveragesPanel = defineAsyncComponent({
-  loader: async () => await import('./components/AveragesPanel.vue') as unknown as AsyncComponentLoader,
-  delay: 150
-});
-const WinModal = defineAsyncComponent({
-  loader: async () => await import('./components/WinModal.vue') as unknown as AsyncComponentLoader,
-  delay: 150
-});
+const AveragesPanel = useLazyComponent(() => import('./components/AveragesPanel.vue'));
+const WinModal = useLazyComponent(() => import('./components/WinModal.vue'));
 
 const baseStore = useBaseStore();
 usePrepare();
 useWatchGameState();
 
-const { width: windowWidth } = useWindowSize();
+const windowWidth = provideWindowWidth();
 const cageImgSize = computed(() => {
   if (windowWidth.value <= 420) {
     return 32;
@@ -29,9 +24,7 @@ const cageImgSize = computed(() => {
   return 42;
 });
 const touchMove = (e: TouchEvent): void => {
-  if (baseStore.clearDisplay) {
-    e.preventDefault();
-  }
+  e.preventDefault();
 };
 const clearDisplay = (): void => {
   baseStore.clearDisplay = !baseStore.clearDisplay;

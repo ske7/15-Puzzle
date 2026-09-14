@@ -1,52 +1,24 @@
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent, type AsyncComponentLoader } from 'vue';
-import { onClickOutside, useDateFormat } from '@vueuse/core';
+import { ref, computed } from 'vue';
+import { useDateFormat } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
-import { useGetFetchAPI } from '../composables/useFetchAPI';
-import { type UserStats } from '@/types';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
-const GamesTable = defineAsyncComponent({
-  loader: async () => await import('./GamesTable.vue') as unknown as AsyncComponentLoader,
-  delay: 150
-});
+import { useLazyComponent } from '../composables/useLazyComponent';
+import { useCloseOnClickOutside } from '../composables/useCloseOnClickOutside';
+import { useSingleFetch } from '../composables/useSingleFetch';
+import { isSingleUserRecord, isAverageUserRecord } from '@/types';
+const GamesTable = useLazyComponent(() => import('./GamesTable.vue'));
 
 const emit = defineEmits<{ close: [] }>();
 
 const userAccount = ref<HTMLElement>();
 const showGamesTable = ref(false);
-onClickOutside(userAccount, (event) => {
-  if (showGamesTable.value) {
-    return;
-  }
-  event.stopPropagation();
-  emit('close');
-});
+useCloseOnClickOutside(userAccount, () => emit('close'), () => showGamesTable.value);
 
 const baseStore = useBaseStore();
 
-const errorMsg = ref('');
-const userData = ref<UserStats>();
-const fetch = (endpoint: string): void => {
-  errorMsg.value = '';
-  if (baseStore.isFetching) {
-    return;
-  }
-  baseStore.isFetching = true;
-  useGetFetchAPI(endpoint, baseStore.token)
-    .then(res => {
-      baseStore.isFetching = false;
-      userData.value = res.stats;
-    })
-    .catch((error: unknown) => {
-      errorMsg.value = error as string;
-      if (errorMsg.value.toLowerCase().includes('networkerror')) {
-        baseStore.isNetworkError = true;
-      }
-      baseStore.isFetching = false;
-    });
-};
-fetch('current_user_stats');
+const { data: userData } = useSingleFetch('current_user_stats', (res) => res.stats);
 
 const formatDate = (date: string): string => {
   return useDateFormat(date, 'MMM D, YYYY').value;
@@ -80,14 +52,10 @@ const filteredRecords = computed(() => {
   });
 });
 const bestRecords = computed(() => {
-  return filteredRecords.value?.filter((value) => {
-    return ['time', 'moves', 'fmc_blitz_moves'].includes(value.record_type);
-  });
+  return filteredRecords.value?.filter(isSingleUserRecord);
 });
 const averagesRecords = computed(() => {
-  return filteredRecords.value?.filter((value) => {
-    return ['ao5', 'ao12', 'ao50', 'ao100'].includes(value.record_type);
-  })
+  return filteredRecords.value?.filter(isAverageUserRecord)
     .sort((a, b) => {
       const avgTypeOrder = ['ao5', 'ao12', 'ao50', 'ao100'];
       const getTypeIndex = (record_type: string): number => {
@@ -103,8 +71,8 @@ const closeGamesTable = (): void => {
 
 <template>
   <Teleport to="body">
-    <div v-if="!baseStore.isFetching && userData" ref="userAccount" class="user-account">
-      <p class="header">
+    <div v-if="!baseStore.isFetching && userData" ref="userAccount" class="user-account modal-shell">
+      <p class="header modal-header">
         <span id="user-account-caption">Your personal records</span>
       </p>
       <div v-if="!baseStore.isFetching && userData" class="user-info">
@@ -195,32 +163,16 @@ const closeGamesTable = (): void => {
 <style scoped>
 .user-account {
   --modal-width: 390px;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--background-modal-color);
-  color: var(--text-color);
-  border-radius: 8px;
   height: auto;
   min-height: 500px;
   width: var(--modal-width);
-  position: fixed;
-  z-index: 2000;
+  z-index: var(--z-modal);
   top: 40px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
-  box-shadow: 0 8px 16px var(--shadow-color);
 }
 .user-account strong {
   font-weight: 600;
-}
-.header {
-  text-align: center;
-  margin-bottom: 5px;
-  margin-top: 5px;
-}
-.header span {
-  font-weight: 600;
-  font-size: 21px;
 }
 .buttons {
   margin-top: 15px;

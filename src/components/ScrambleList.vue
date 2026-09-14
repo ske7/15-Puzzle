@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { onClickOutside } from '@vueuse/core';
+import { ref, watch, computed } from 'vue';
 import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import { type UserScrambleData } from '@/types';
@@ -8,14 +7,12 @@ import { baseUrl, OrderDirection, OrderDirectionMap } from '@/const';
 import { convertScramble, convertToNumbersArray } from '@/utils';
 import CopyButton from './CopyButton.vue';
 import { usePaginatedFetch } from '../composables/usePaginatedFetch';
+import { useCloseOnClickOutside } from '../composables/useCloseOnClickOutside';
 
 const emit = defineEmits<{ close: []; set: [scramble: number[]] }>();
 
 const scrambleList = ref<HTMLElement>();
-onClickOutside(scrambleList, (event) => {
-  event.stopPropagation();
-  emit('close');
-});
+useCloseOnClickOutside(scrambleList, () => emit('close'));
 
 const baseStore = useBaseStore();
 const puzzleSize = ref(baseStore.numLines);
@@ -36,8 +33,8 @@ const {
   reset,
   formatDate,
   sort,
-  sortField,
-  orderDirection
+  sortArrow,
+  sortField
 } = usePaginatedFetch<UserScrambleData>(buildScrambleUrl, (res) => res.scramble_records ?? [], 'scramble-list-table');
 
 watch(puzzleSize, (newValue) => {
@@ -57,11 +54,34 @@ const doSort = (newSortField: string): void => {
   sort(newSortField);
 };
 
+interface TableColumn {
+  label: string;
+  sortField?: string;
+  widthClass?: string;
+}
+const columns = computed((): TableColumn[] => {
+  return [
+    { label: 'ID', widthClass: 'w-70' },
+    { label: 'Date', sortField: 'id', widthClass: 'w-150' },
+    { label: 'Time', sortField: 'best_time', widthClass: 'w-130' },
+    { label: 'Moves', sortField: 'best_moves', widthClass: 'w-80' },
+    ...(puzzleSize.value === 3
+      ? [
+          { label: 'Opt.', sortField: 'optimal_moves', widthClass: 'w-80' },
+          { label: 'Diff', sortField: 'opt_diff', widthClass: 'w-80' }
+        ]
+      : []),
+    { label: 'Scramble' },
+    { label: 'Solution', widthClass: 'w-85' },
+    { label: 'Public ID', widthClass: 'w-120' }
+  ];
+});
+
 </script>
 
 <template>
-  <div ref="scrambleList" class="scramble-list">
-    <p class="header">
+  <div ref="scrambleList" class="scramble-list modal-shell">
+    <p class="header modal-header">
       <span>
         Saved Scrambles
       </span>
@@ -70,93 +90,26 @@ const doSort = (newSortField: string): void => {
     <hr class="nice-hr">
     <div id="scramble-list-table" class="table-wrapper">
       <div class="flex-table table-header">
-        <div class="flex-row w-70">
-          ID
-        </div>
-        <div class="flex-row w-150">
-          Date
-          <span class="pro-sort" @click="doSort('id')">
-            {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+        <div
+          v-for="column in columns"
+          :key="column.label"
+          class="flex-row"
+          :class="column.widthClass"
+        >
+          {{ column.label }}
+          <span v-if="column.sortField" class="pro-sort" @click="doSort(column.sortField)">
+            {{ sortArrow(column.sortField) }}
           </span>
-        </div>
-        <div class="flex-row w-130">
-          Time
-          <span class="pro-sort" @click="doSort('best_time')">
-            {{ sortField !== 'best_time' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-          </span>
-        </div>
-        <div class="flex-row w-80">
-          Moves
-          <span class="pro-sort" @click="doSort('best_moves')">
-            {{ sortField !== 'best_moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-          </span>
-        </div>
-        <div v-if="puzzleSize === 3" class="flex-row w-80">
-          Opt.
-          <span class="pro-sort" @click="doSort('optimal_moves')">
-            {{ sortField !== 'optimal_moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-          </span>
-        </div>
-        <div v-if="puzzleSize === 3" class="flex-row w-80">
-          Diff
-          <span class="pro-sort" @click="doSort('opt_diff')">
-            {{ sortField !== 'opt_diff' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-          </span>
-        </div>
-        <div class="flex-row">
-          Scramble
-        </div>
-        <div class="flex-row w-85">
-          Solution
-        </div>
-        <div class="flex-row w-120">
-          Public ID
         </div>
       </div>
       <template v-if="fetched">
         <div v-for="(item) in scrambleRecords" :key="item.id" class="flex-table">
           <div class="table-header-mobile">
-            <div class="flex-row">
-              ID
-            </div>
-            <div class="flex-row">
-              Date
-              <span class="pro-sort" @click="doSort('id')">
-                {{ sortField !== 'id' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
+            <div v-for="column in columns" :key="column.label" class="flex-row">
+              {{ column.label }}
+              <span v-if="column.sortField" class="pro-sort" @click="doSort(column.sortField)">
+                {{ sortArrow(column.sortField) }}
               </span>
-            </div>
-            <div class="flex-row">
-              Time
-              <span class="pro-sort" @click="doSort('best_time')">
-                {{ sortField !== 'best_time' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-              </span>
-            </div>
-            <div class="flex-row">
-              Moves
-              <span class="pro-sort" @click="doSort('best_moves')">
-                {{ sortField !== 'best_moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-              </span>
-            </div>
-            <div v-if="puzzleSize === 3" class="flex-row">
-              Opt.
-              <span class="pro-sort" @click="doSort('optimal_moves')">
-                {{ sortField !== 'optimal_moves' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-              </span>
-            </div>
-            <div v-if="puzzleSize === 3" class="flex-row">
-              Diff
-              <span class="pro-sort" @click="doSort('opt_diff')">
-                {{ sortField !== 'opt_diff' ? '↑↓' : (orderDirection === OrderDirection.Asc ? '↑' : '↓') }}
-              </span>
-            </div>
-            <div class="flex-row">
-              Scramble
-            </div>
-            <div class="flex-row">
-              Solution
-            </div>
-            <div class="flex-row">
-              Public ID
             </div>
           </div>
           <div class="items">
@@ -180,7 +133,7 @@ const doSort = (newSortField: string): void => {
               <span>{{ item.optimal_moves }}</span>
             </div>
             <div v-if="puzzleSize === 3" class="flex-row w-80">
-              <span v-if="item.opt_diff || 0 > 0">+{{ item.opt_diff }}</span>
+              <span v-if="(item.opt_diff ?? 0) > 0">+{{ item.opt_diff }}</span>
             </div>
             <div class="flex-row smaller-font">
               <em v-if="puzzleSize === 3">om:{{ item.optimal_moves }};</em>
@@ -216,29 +169,13 @@ const doSort = (newSortField: string): void => {
 <style scoped>
 .scramble-list {
   --modal-width: 1100px;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--background-modal-color);
-  color: var(--text-color);
-  border-radius: 8px;
   height: 100vh;
   width: var(--modal-width);
-  position: fixed;
-  z-index: 2005;
+  z-index: var(--z-modal-table);
   top: 0;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
-  box-shadow: 0 8px 16px var(--shadow-color);
   line-height: 1.3;
-}
-.header {
-  text-align: center;
-  margin-bottom: 5px;
-  margin-top: 5px;
-}
-.header span {
-  font-weight: 600;
-  font-size: 21px;
 }
 .buttons {
   margin-top: 15px;
@@ -354,15 +291,8 @@ const doSort = (newSortField: string): void => {
   --vh-font-size: 14px;
 }
 .link-item {
-  color: var(--link-color);
-  text-decoration: underline;
   font-size: 14px;
   font-weight: 600;
-}
-.link-item:hover:not(.paused) {
-  text-decoration: underline;
-  color: var(--text-color);
-  cursor: pointer;
 }
 .pro-sort {
   cursor: pointer;

@@ -1,41 +1,53 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import { useAppEventBus } from '../composables/useAppEventBus';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
-import { onClickOutside, useEventBus } from '@vueuse/core';
+
 import { CORE_NUM, fmcBlitzCores } from '@/const';
-import { sleep } from '@/utils';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
+import { useCloseOnClickOutside } from '../composables/useCloseOnClickOutside';
 
 const baseStore = useBaseStore();
 const emit = defineEmits<{ close: [] }>();
-const eventBus = useEventBus<string>('event-bus');
-
+const eventBus = useAppEventBus();
 const configModal = ref<HTMLElement>();
-onClickOutside(configModal, (event) => {
-  event.stopPropagation();
-  emit('close');
-});
+useCloseOnClickOutside(configModal, () => emit('close'));
 const puzzleSize = ref(baseStore.numLines);
 const disabledCageMode = computed(() => {
   return !baseStore.enableCageMode || baseStore.marathonMode ||
   baseStore.proMode || baseStore.numLines !== CORE_NUM;
 });
-const setEnableCageMode = async (): Promise<void> => {
-  baseStore.enableCageMode = !baseStore.enableCageMode;
-  localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
-  baseStore.marathonMode = false;
-  localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
-  baseStore.fmcBlitz = false;
-  localStorage.setItem('fmcBlitz', baseStore.fmcBlitz.toString());
+type PersistedSetting =
+  | 'cageHardcoreMode' | 'noBordersInCageMode' | 'darkMode' | 'disableWinMessage'
+  | 'resetUnsolvedPuzzleWithEsc' | 'hideCurrentAverages' | 'hoverOnControl' | 'keepSession'
+  | 'enableCageMode' | 'marathonMode' | 'fmcBlitz' | 'proMode' | 'proBeforeCage';
+const setSetting = (key: PersistedSetting, value: boolean): void => {
+  baseStore[key] = value;
+  localStorage.setItem(key, value.toString());
+};
+const toggleSetting = (key: PersistedSetting): void => {
+  setSetting(key, !baseStore[key]);
+};
+const disableCageMode = (): void => {
+  setSetting('enableCageMode', false);
+  baseStore.cageMode = false;
+};
+const resetExclusiveModes = (): void => {
+  disableCageMode();
+  baseStore.clearStoredSession();
+  baseStore.resetConsecutiveSolves();
+};
+const setEnableCageMode = (): void => {
+  toggleSetting('enableCageMode');
+  setSetting('marathonMode', false);
+  setSetting('fmcBlitz', false);
   puzzleSize.value = CORE_NUM;
   if (baseStore.enableCageMode) {
-    baseStore.proBeforeCage = baseStore.proMode;
-    localStorage.setItem('proBeforeCage', baseStore.proBeforeCage.toString());
-    baseStore.proMode = false;
-    localStorage.setItem('proMode', baseStore.proMode.toString());
+    baseStore.numLines = CORE_NUM;
+    setSetting('proBeforeCage', baseStore.proMode);
+    setSetting('proMode', false);
     baseStore.initAfterNewPuzzleSize();
-    await sleep(100);
     baseStore.loadUnlockedCagesFromLocalStorage();
     baseStore.cageMode = true;
     baseStore.doPrepareCageMode();
@@ -43,114 +55,82 @@ const setEnableCageMode = async (): Promise<void> => {
   } else {
     baseStore.cageMode = false;
     if (baseStore.proBeforeCage) {
-      baseStore.proMode = baseStore.proBeforeCage;
-      localStorage.setItem('proMode', baseStore.proMode.toString());
+      setSetting('proMode', baseStore.proBeforeCage);
     }
     eventBus.emit('restart', 'fromConfig');
   }
 };
 const setCageHardcoreMode = (): void => {
-  baseStore.cageHardcoreMode = !baseStore.cageHardcoreMode;
-  localStorage.setItem('cageHardcoreMode', baseStore.cageHardcoreMode.toString());
+  toggleSetting('cageHardcoreMode');
 };
 const setNoBordersInCageMode = (): void => {
-  baseStore.noBordersInCageMode = !baseStore.noBordersInCageMode;
-  localStorage.setItem('noBordersInCageMode', baseStore.noBordersInCageMode.toString());
+  toggleSetting('noBordersInCageMode');
 };
 const setDarkMode = (): void => {
-  baseStore.darkMode = !baseStore.darkMode;
-  localStorage.setItem('darkMode', baseStore.darkMode.toString());
-  document.documentElement.dataset.theme = baseStore.darkMode ? 'dark' : 'light';
+  toggleSetting('darkMode');
+  document.documentElement.dataset['theme'] = baseStore.darkMode ? 'dark' : 'light';
 };
 const setDisableWinMessage = (): void => {
-  baseStore.disableWinMessage = !baseStore.disableWinMessage;
-  localStorage.setItem('disableWinMessage', baseStore.disableWinMessage.toString());
+  toggleSetting('disableWinMessage');
 };
 const setResetUnsolvedPuzzleWithEsc = (): void => {
-  baseStore.resetUnsolvedPuzzleWithEsc = !baseStore.resetUnsolvedPuzzleWithEsc;
-  localStorage.setItem('resetUnsolvedPuzzleWithEsc', baseStore.resetUnsolvedPuzzleWithEsc.toString());
+  toggleSetting('resetUnsolvedPuzzleWithEsc');
 };
 const setHideAverages = (): void => {
-  baseStore.hideCurrentAverages = !baseStore.hideCurrentAverages;
-  localStorage.setItem('hideCurrentAverages', baseStore.hideCurrentAverages.toString());
+  toggleSetting('hideCurrentAverages');
 };
 const setHoverOnControl = (): void => {
-  baseStore.hoverOnControl = !baseStore.hoverOnControl;
-  localStorage.setItem('hoverOnControl', baseStore.hoverOnControl.toString());
+  toggleSetting('hoverOnControl');
 };
 const setProMode = (): void => {
-  baseStore.proMode = !baseStore.proMode;
-  localStorage.setItem('proMode', baseStore.proMode.toString());
+  toggleSetting('proMode');
   if (baseStore.proMode) {
-    baseStore.hoverOnControl = true;
-    localStorage.setItem('hoverOnControl', 'true');
+    setSetting('hoverOnControl', true);
   }
-  baseStore.enableCageMode = false;
-  localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
-  baseStore.cageMode = false;
+  resetExclusiveModes();
   baseStore.setSpaceBetween();
-  localStorage.removeItem('_xss');
-  localStorage.removeItem('_xcs');
-  baseStore.resetConsecutiveSolves();
   if (baseStore.token != null) {
     baseStore.loadAverages();
   }
   eventBus.emit('restart', 'fromConfig');
 };
 const setMarathonMode = (): void => {
-  baseStore.marathonMode = !baseStore.marathonMode;
-  localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
-  baseStore.fmcBlitz = false;
-  localStorage.setItem('fmcBlitz', baseStore.fmcBlitz.toString());
-  baseStore.enableCageMode = false;
-  localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
-  baseStore.cageMode = false;
-  localStorage.removeItem('_xss');
-  localStorage.removeItem('_xcs');
-  baseStore.resetConsecutiveSolves();
+  if (!baseStore.proMode) {
+    setProMode();
+  }
+  toggleSetting('marathonMode');
+  setSetting('fmcBlitz', false);
+  resetExclusiveModes();
   eventBus.emit('restart', 'fromConfig');
 };
 const setFMCBlitzMode = (): void => {
   if (!baseStore.proMode) {
     setProMode();
   }
-  baseStore.fmcBlitz = !baseStore.fmcBlitz;
-  localStorage.setItem('fmcBlitz', baseStore.fmcBlitz.toString());
-  baseStore.marathonMode = false;
-  localStorage.setItem('marathonMode', baseStore.marathonMode.toString());
-  baseStore.enableCageMode = false;
-  localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
-  baseStore.cageMode = false;
-  localStorage.removeItem('_xss');
-  localStorage.removeItem('_xcs');
-  baseStore.resetConsecutiveSolves();
+  toggleSetting('fmcBlitz');
+  setSetting('marathonMode', false);
+  resetExclusiveModes();
   if (!fmcBlitzCores.includes(puzzleSize.value)) {
     puzzleSize.value = CORE_NUM;
   }
   baseStore.initAfterNewPuzzleSize();
 };
 const setKeepSession = (): void => {
-  baseStore.keepSession = !baseStore.keepSession;
-  localStorage.setItem('keepSession', baseStore.keepSession.toString());
+  toggleSetting('keepSession');
   if (!baseStore.keepSession) {
-    localStorage.removeItem('_xss');
-    localStorage.removeItem('_xcs');
+    baseStore.clearStoredSession();
   }
 };
 watch(puzzleSize, (newValue) => {
   if (newValue !== 0) {
     if (newValue !== CORE_NUM) {
-      baseStore.enableCageMode = false;
-      localStorage.setItem('enableCageMode', baseStore.enableCageMode.toString());
-      baseStore.cageMode = false;
+      disableCageMode();
       if (baseStore.proBeforeCage) {
-        baseStore.proMode = baseStore.proBeforeCage;
-        localStorage.setItem('proMode', baseStore.proMode.toString());
+        setSetting('proMode', baseStore.proBeforeCage);
       }
     }
     if (!fmcBlitzCores.includes(newValue)) {
-      baseStore.fmcBlitz = false;
-      localStorage.setItem('fmcBlitz', baseStore.fmcBlitz.toString());
+      setSetting('fmcBlitz', false);
     }
     baseStore.numLines = newValue;
     localStorage.setItem('numLines', baseStore.numLines.toString());
@@ -167,7 +147,7 @@ watch(marathonMode, () => {
 
 <template>
   <Teleport to="body">
-    <div ref="configModal" class="config-modal">
+    <div ref="configModal" class="config-modal modal-shell">
       <p class="info-header">
         <span>Game config</span>
       </p>
@@ -334,20 +314,13 @@ watch(marathonMode, () => {
 
 <style scoped>
 .config-modal {
-  display: flex;
   justify-content: center;
-  flex-direction: column;
-  background-color: var(--background-modal-color);
-  color: var(--text-color);
-  border-radius: 8px;
   height: auto;
   width: 290px;
-  position: fixed;
-  z-index: 2000;
+  z-index: var(--z-modal);
   top: calc(50% - 235px);
   left: calc(50% - 145px);
   padding: 20px;
-  box-shadow: 0 8px 16px var(--shadow-color);
 }
 .info-header {
   text-align: center;

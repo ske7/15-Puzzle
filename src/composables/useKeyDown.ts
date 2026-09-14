@@ -1,12 +1,13 @@
 import { onMounted, onBeforeUnmount } from 'vue';
+import { useAppEventBus } from './useAppEventBus';
 import { useBaseStore } from '../stores/base';
-import { useEventBus } from '@vueuse/core';
+
 import { ControlType, cores, fmcBlitzCores } from '@/const';
 import { convertToNumbersArray } from '@/utils';
 
 export const useKeyDown = (): void => {
   const baseStore = useBaseStore();
-  const eventBus = useEventBus<string>('event-bus');
+  const eventBus = useAppEventBus();
 
   const listenEscKey = (code: string): boolean => {
     if (baseStore.resetUnsolvedPuzzleWithEsc && code === 'Escape' && !baseStore.paused && !baseStore.g1000Mode) {
@@ -64,9 +65,6 @@ export const useKeyDown = (): void => {
     if (baseStore.numLines === cores[0]) {
       return false;
     }
-    if (baseStore.fmcBlitz && baseStore.numLines === fmcBlitzCores[0]) {
-      return false;
-    }
     baseStore.numLines -= 1;
     baseStore.initAfterNewPuzzleSize();
     return true;
@@ -120,15 +118,15 @@ export const useKeyDown = (): void => {
     listenMovementKeys(event.code);
   };
 
+  const handleKeyDown = (event: Event): void => {
+    void onKeyDown(event as KeyboardEvent);
+  };
+
   onMounted(() => {
-    addEventListener('keydown', (event) => {
-      void onKeyDown(event);
-    });
+    addEventListener('keydown', handleKeyDown);
   });
 
   onBeforeUnmount(() => {
-    removeEventListener('keydown', (event) => {
-      void onKeyDown(event);
-    });
+    removeEventListener('keydown', handleKeyDown);
   });
 };
