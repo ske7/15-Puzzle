@@ -54,17 +54,6 @@ export function useCageState(arrayLength: ComputedRef<number>) {
     loadedCageImages.value.add(url);
   }
 
-  function preloadImage(item: string, isPlaceholder = false) {
-    const img = new Image();
-    let url: string;
-    if (isPlaceholder) {
-      url = '/cages/placeholder.jpg';
-    } else {
-      url = `/cages/${item}/complete.jpg`;
-    }
-    img.src = url;
-  }
-
   const cagesCount = computed((): number => {
     return CAGES_PATH_ARR.length;
   });
@@ -116,4 +105,15 @@ export function useCageState(arrayLength: ComputedRef<number>) {
     unlockedCagesValues,
     finishLoadingAllCageImages
   };
+}
+
+function preloadImage(item: string, isPlaceholder = false) {
+  const img = new Image();
+  let url: string;
+  if (isPlaceholder) {
+    url = '/cages/placeholder.jpg';
+  } else {
+    url = `/cages/${item}/complete.jpg`;
+  }
+  img.src = url;
 }

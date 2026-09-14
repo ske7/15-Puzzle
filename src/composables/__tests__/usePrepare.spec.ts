@@ -432,6 +432,17 @@ describe('usePrepare', () => {
       unmount();
     });
 
+    it.each([
+      ['jpj0synad5tn', 'user_scramble?public_id=jpj0synad5tn'],
+      ['abc%26id%3D1%23x', 'user_scramble?public_id=abc%26id%3D1%23x']
+    ])('sends public_id %s to the API as a single encoded value', (linkValue, endpoint) => {
+      localStorage.setItem('token', 'tok');
+      setLocation(`http://localhost:3000/?playground&public_id=${linkValue}`);
+      const unmount = mount();
+      expect(useGetFetchAPI).toHaveBeenCalledWith(endpoint, 'tok');
+      unmount();
+    });
+
     it('never initializes the puzzle when the URL only contains "public_id" as a substring', () => {
       setLocation('http://localhost:3000/?playground&public_idx=abc');
       const store = useBaseStore();
@@ -512,6 +523,16 @@ describe('usePrepare', () => {
       expect(useGetFetchAPI).not.toHaveBeenCalledWith(expect.stringContaining('game?game_id'), expect.anything());
       expect(store.replayMode).toBe(false);
       expect(store.puzzleLoaded).toBe(true);
+      unmount();
+    });
+
+    it.each([
+      ['jpj0synad5tn', 'game?game_id=jpj0synad5tn'],
+      ['42%26puzzle_type%3Dx%23y', 'game?game_id=42%26puzzle_type%3Dx%23y']
+    ])('sends game_id %s to the API as a single encoded value', (linkValue, endpoint) => {
+      setLocation(`http://localhost:3000/?game_id=${linkValue}`);
+      const unmount = mount();
+      expect(useGetFetchAPI).toHaveBeenCalledWith(endpoint, undefined);
       unmount();
     });
 

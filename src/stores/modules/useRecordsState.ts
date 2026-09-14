@@ -15,13 +15,6 @@ export function useRecordsState(marathonMode: Ref<boolean>, numLines: Ref<number
   const newPlaygroundMovesRecord = ref(false);
   const newPlaygroundTimeRecord = ref(false);
 
-  function storeRecord(kind: RecordKind, primary: number, secondary: number, puzzleSize: number, marathonMode: boolean) {
-    localStorage.setItem(
-      recordStorageKey(kind, puzzleSize, marathonMode),
-      encodeRecord(primary, secondary, recordCodeWord(kind))
-    );
-  }
-
   function setTimeRecord(record: number, moves: number, puzzleSize: number,
     marathonMode: boolean, onlySetToStorage = false) {
     if (record === timeRecord.value && moves >= timeRecordMoves.value) {
@@ -155,4 +148,11 @@ export function useRecordsState(marathonMode: Ref<boolean>, numLines: Ref<number
     setRecords,
     timeMRecord
   };
+}
+
+function storeRecord(kind: RecordKind, primary: number, secondary: number, puzzleSize: number, marathonMode: boolean) {
+  localStorage.setItem(
+    recordStorageKey(kind, puzzleSize, marathonMode),
+    encodeRecord(primary, secondary, recordCodeWord(kind))
+  );
 }

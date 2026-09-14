@@ -121,7 +121,7 @@ const checkPublicID = (initNumLines: number): void => {
       if (baseStore.token == null) {
         initStore(numLines);
       } else {
-        void useGetFetchAPI<UserScrambleData>(`user_scramble?public_id=${publicId}`, baseStore.token)
+        void useGetFetchAPI<UserScrambleData>(`user_scramble?public_id=${encodeURIComponent(publicId)}`, baseStore.token)
           .then((res) => {
             if (res.stats != null) {
               initPlayground(res.stats, publicId);
@@ -201,7 +201,7 @@ const checkGameLink = (gameId: string): void => {
 
   if (gameId !== '0') {
     baseStore.g1000Mode = false;
-    useGetFetchAPI<RepGame>(`game?game_id=${gameId}`, baseStore.token)
+    useGetFetchAPI<RepGame>(`game?game_id=${encodeURIComponent(gameId)}`, baseStore.token)
       .then((res) => {
         if (res.stats == null) {
           redirectTo(baseUrl);

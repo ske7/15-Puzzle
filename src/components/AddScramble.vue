@@ -44,7 +44,7 @@ const doSubmit = (): void => {
     <form @submit.prevent="doSubmit">
       <fieldset class="fields">
         <label for="scramble">
-          <legend class="label-text">Scramble (format: 1,2,3... or 1 2 3 4/5 6...)</legend>
+          <span class="label-text">Scramble (format: 1,2,3... or 1 2 3 4/5 6...)</span>
           <input
             id="scramble"
             v-model.trim="formData.scramble"
@@ -119,6 +119,7 @@ label input {
 }
 .label-text {
   font-size: 14px;
+  padding: 0 2px;
 }
 .buttons {
   margin-top: 10px;

@@ -38,7 +38,7 @@ export function generateAndShuffle(length: number, fromZero = true): number[] {
 
 export function getArrayKeyByValue(array: readonly number[], value: number): number {
   const index = array.indexOf(value);
-  return index === -1 ? NaN : index;
+  return index === -1 ? Number.NaN : index;
 }
 
 export function isSolvable(array: readonly number[]): boolean {

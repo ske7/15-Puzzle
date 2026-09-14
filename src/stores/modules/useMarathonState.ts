@@ -21,22 +21,6 @@ export function useMarathonState() {
     marathonSolves.value = '';
   }
 
-  function getFMCBlitzScrambleCount(numLines: number): number {
-    let res: number;
-    switch (numLines) {
-      case 3:
-        res = 50;
-        break;
-      case 5:
-        res = 5;
-        break;
-      default:
-        res = 12;
-        break;
-    }
-    return res;
-  }
-
   function stopBlitzInterval() {
     clearInterval(blitzInterval.value);
     blitzInterval.value = 0;
@@ -73,4 +57,20 @@ export function useMarathonState() {
     stopBlitzInterval,
     blitzTimeStr
   };
+}
+
+function getFMCBlitzScrambleCount(numLines: number): number {
+  let res: number;
+  switch (numLines) {
+    case 3:
+      res = 50;
+      break;
+    case 5:
+      res = 5;
+      break;
+    default:
+      res = 12;
+      break;
+  }
+  return res;
 }

@@ -22,7 +22,7 @@ export function useSessionState(g1000Mode: Ref<boolean>) {
     }
     if (consecutiveSolves.value === 1) {
       const rand = generateRand().toString().slice(-4);
-      sessionId.value = (`${userName.value.slice(0, 2)}${rand}_${btoa(Date.now().toString())}`).toLowerCase().split('=').join('');
+      sessionId.value = (`${userName.value.slice(0, 2)}${rand}_${btoa(Date.now().toString())}`).toLowerCase().replaceAll('=', '');
     }
     if (canKeepSession.value) {
       if (sessionId.value !== undefined) {
