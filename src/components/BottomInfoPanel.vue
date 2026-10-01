@@ -17,6 +17,7 @@ const CopyButton = useLazyComponent(() => import('./CopyButton.vue'));
 const RegModal = useLazyComponent(() => import('./RegModal.vue'));
 const UserAccount = useLazyComponent(() => import('./UserAccount.vue'));
 const LeaderBoard = useLazyComponent(() => import('./LeaderBoard.vue'));
+const LiveRecords = useLazyComponent(() => import('./LiveRecords.vue'));
 
 const baseStore = useBaseStore();
 const eventBus = useAppEventBus();
@@ -49,6 +50,14 @@ const doShowLeaderBoard = (): void => {
   showDefaultLeaderBoard.value = true;
   baseStore.showLeaderBoard = true;
 };
+const liveRecordsPause = useModalPause();
+const doShowLiveRecords = (): void => {
+  if (baseStore.cannotClick) {
+    return;
+  }
+  liveRecordsPause.open();
+  baseStore.showLiveRecords = true;
+};
 const goMain = (): void => {
   if (baseStore.cannotClick) {
     return;
@@ -70,6 +79,10 @@ const closeLeaderBoard = (): void => {
   showDefaultLeaderBoard.value = false;
   baseStore.showLeaderBoard = false;
   leaderBoardPause.close();
+};
+const closeLiveRecords = (): void => {
+  baseStore.showLiveRecords = false;
+  liveRecordsPause.close();
 };
 const doShowImageGallery = (): void => {
   if (baseStore.cannotClick) {
@@ -249,7 +262,7 @@ const setWalkMode = (fastWalkMode: boolean): void => {
         </div>
         <CopyButton :item-to-copy="String(baseStore.solvePath.join(''))" :is-solve-path="true" />
         <button
-          v-if="baseStore.registered"
+          v-if="baseStore.registered && !baseStore.marathonReplay"
           type="button"
           class="tool-button save-button"
           :disabled="disableSave"
@@ -369,6 +382,8 @@ const setWalkMode = (fastWalkMode: boolean): void => {
             <span> | </span>
             <span class="link-item" :class="{ paused: baseStore.cannotClick }" @click="doShowLeaderBoard">Leaderboard</span>
             <span> | </span>
+            <span class="link-item" :class="{ paused: baseStore.cannotClick }" @click="doShowLiveRecords">Live</span>
+            <span> | </span>
             <span v-if="!baseStore.registered">
               <span
                 class="link-item"
@@ -388,10 +403,10 @@ const setWalkMode = (fastWalkMode: boolean): void => {
       </div>
     </div>
     <p
-      v-if="!baseStore.isNetworkError && baseStore.lastError && !baseStore.clearDisplay"
+      v-if="!baseStore.isNetworkError && (baseStore.lastError || baseStore.linkError) && !baseStore.clearDisplay"
       class="last-error"
     >
-      {{ baseStore.lastError }}
+      {{ baseStore.lastError || baseStore.linkError }}
     </p>
     <RegModal
       v-if="baseStore.showRegModal"
@@ -406,6 +421,7 @@ const setWalkMode = (fastWalkMode: boolean): void => {
       form-type="default"
       @close="closeLeaderBoard"
     />
+    <LiveRecords v-if="baseStore.showLiveRecords" @close="closeLiveRecords" />
   </div>
 </template>
 
@@ -425,33 +441,26 @@ const setWalkMode = (fastWalkMode: boolean): void => {
   display: flex;
   align-items: center;
   gap: 3px;
-  flex-direction: row;
   line-height: 1;
 }
 .solution-label {
-  display: flex;
   color: var(--link-color);
   font-weight: 600;
 }
 .copy-button-wrapper :deep(.copy-button) {
-  display: inline;
-  --vd-font-size: 12px;
   --vh-font-size: 14px;
-}
-.copy-button-wrapper .copy-button {
-  margin-top: 0;
 }
 .copy-button-wrapper span {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 250px;
   font-size: 12px;
-  padding: 0;
   display: block;
   white-space: nowrap;
 }
 .records-row, .info-row, .reg-wrapper {
-  font-family: consolas, sans-serif;
+  font-family: var(--font-mono);
+  font-kerning: none;
 }
 .center {
   justify-content: center;
@@ -462,6 +471,13 @@ const setWalkMode = (fastWalkMode: boolean): void => {
 }
 .link-item.paused {
   opacity: 0.5;
+}
+@media (pointer: coarse) {
+  .link-item {
+    position: relative;
+    padding: 5px 4px;
+    margin: 0 -4px;
+  }
 }
 .red {
   color: red;
@@ -505,14 +521,13 @@ const setWalkMode = (fastWalkMode: boolean): void => {
   font-style: normal;
   height: 24px;
   width: 24px;
-  min-width:24px;
+  min-width: 24px;
   transition: 1ms all ease-out;
   font-size: 12px;
   background-color: transparent;
   display: inline;
 }
 .save-button:disabled {
-  cursor: auto;
   opacity: 0.5;
 }
 .save-button:hover, .save-button:active {

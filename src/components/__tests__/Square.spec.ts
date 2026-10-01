@@ -167,6 +167,19 @@ describe('Square', () => {
       const wrapper = mountSquare(0);
       expect(internals(wrapper).blockTransition).toBe('all 0.2s ease 0s');
     });
+
+    it('has no transition in cage mode with hover control on, and keeps it with hover off', () => {
+      const store = setup3x3Solved();
+      store.cageMode = true;
+      store.hoverOnControl = true;
+      const wrapper = mountSquare(0);
+      // A tile still sliding under the pointer would be hovered again and sent straight back.
+      expect(internals(wrapper).blockTransition).toBe('none');
+      wrapper.unmount();
+
+      store.hoverOnControl = false;
+      expect(internals(mountSquare(0)).blockTransition).toBe('all 0.2s ease 0s');
+    });
   });
 
   describe('inPlaceColor', () => {
@@ -260,6 +273,14 @@ describe('Square', () => {
       store.hoverOnControl = true;
       store.proMode = true;
       const wrapper = mountSquare(7); // adjacent to the blank
+      expect(internals(wrapper).getCursor).toBe('auto');
+    });
+
+    it('is auto while hover control is enabled in cage mode too', () => {
+      const store = setup3x3Solved();
+      store.hoverOnControl = true;
+      store.cageMode = true;
+      const wrapper = mountSquare(7);
       expect(internals(wrapper).getCursor).toBe('auto');
     });
 
@@ -382,12 +403,14 @@ describe('Square', () => {
       expect(store.movesCount).toBe(0);
     });
 
-    it('does nothing during a marathon replay', async () => {
+    it('lets the viewer play a marathon replay by hand, like a single replay', async () => {
       const store = setup3x3Solved();
+      store.replayMode = true;
       store.marathonReplay = true;
       const wrapper = mountSquare(7);
       await wrapper.find('.square').trigger('mousedown', { button: 0 });
-      expect(store.movesCount).toBe(0);
+      expect(store.movesCount).toBe(1);
+      expect(store.currentOrders).toEqual([1, 2, 3, 4, 5, 6, 7, 0, 8]);
     });
 
     it('does nothing while a move is already in flight', async () => {
@@ -425,6 +448,17 @@ describe('Square', () => {
       const wrapper = mountSquare(7);
       await wrapper.find('.square').trigger('mousemove', { ctrlKey: true });
       expect(store.movesCount).toBe(0);
+    });
+
+    it('moves on hover in cage mode, and then ignores the click so the tile is not moved twice', async () => {
+      const store = setup3x3Solved();
+      store.hoverOnControl = true;
+      store.cageMode = true;
+      const wrapper = mountSquare(7);
+      await wrapper.find('.square').trigger('mousedown', { button: 0 });
+      expect(store.movesCount).toBe(0);
+      await wrapper.find('.square').trigger('mousemove');
+      expect(store.movesCount).toBe(1);
     });
   });
 

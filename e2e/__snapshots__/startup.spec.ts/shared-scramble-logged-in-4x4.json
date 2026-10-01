@@ -1,0 +1,59 @@
+{
+  "url": "/?playground&public_id=shared-1",
+  "theme": "light",
+  "errorLine": null,
+  "board": "15 squares",
+  "store": {
+    "puzzleLoaded": true,
+    "numLines": 4,
+    "proMode": true,
+    "hoverOnControl": true,
+    "darkMode": false,
+    "spaceBetween": 0,
+    "enableCageMode": false,
+    "cageMode": false,
+    "unlockedCages": [],
+    "marathonMode": false,
+    "fmcBlitz": false,
+    "blitzScrambleCount": 0,
+    "g1000Mode": false,
+    "noPlayMode": false,
+    "consecutiveSolves": 0,
+    "opt_m": 0,
+    "playgroundMode": true,
+    "sharedPlaygroundMode": true,
+    "checkUserScrambleInDB": false,
+    "publicId": "shared-1",
+    "userScrambleId": 1,
+    "otherUserName": "other_gamer",
+    "playgroundBestTime": 0,
+    "playgroundBestMoves": 0,
+    "playgroundSolvePath": [
+      "R",
+      "U",
+      "L",
+      "D"
+    ],
+    "replayMode": false,
+    "marathonReplay": false,
+    "token": "fake-token",
+    "userName": "tester",
+    "lastError": "",
+    "linkError": "",
+    "isNetworkError": false,
+    "savedOrders": "15,1,9,4,6,10,2,13,14,0,11,3,12,5,8,7",
+    "mixedOrders": "15,1,9,4,6,10,2,13,14,0,11,3,12,5,8,7"
+  },
+  "localStorage": {
+    "hoverOnControl": "true",
+    "marathonMode": "false",
+    "numLines": "4",
+    "proMode": "true",
+    "recordVer": "1",
+    "token": "fake-token"
+  },
+  "requests": [
+    "GET /get_current_user",
+    "GET /user_scramble?public_id=shared-1"
+  ]
+}

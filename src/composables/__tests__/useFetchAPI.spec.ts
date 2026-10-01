@@ -1,7 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useBaseStore } from '../../stores/base';
-import { getErrorMessage, useGetFetchAPI, usePatchFetchAPI, usePostFetchAPI } from '../useFetchAPI';
+import { getErrorMessage, ServerError, useGetFetchAPI, usePatchFetchAPI, usePostFetchAPI } from '../useFetchAPI';
 
 function okResponse(body: unknown, status = 200) {
   return {
@@ -96,6 +96,13 @@ describe('useFetchAPI', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(errResponse(500)));
     await expect(useGetFetchAPI('broken', 'still-valid')).rejects.toThrow('boom');
     expect(store.token).toBe('still-valid');
+  });
+
+  it('marks an error the server answered with as a ServerError, unlike a failed connection', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(errResponse(400, { status: 'error', error: 'Wrong public_id' })));
+    await expect(useGetFetchAPI('user_scramble?public_id=k1bz8cogliwgy', 'tok')).rejects.toThrow(ServerError);
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+    await expect(useGetFetchAPI('user_scramble?public_id=k1bz8cogliwgy', 'tok')).rejects.not.toThrow(ServerError);
   });
 
   it('falls back to statusText when the error body has no error field', async () => {

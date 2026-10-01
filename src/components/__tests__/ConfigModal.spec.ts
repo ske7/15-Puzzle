@@ -68,7 +68,6 @@ describe('ConfigModal', () => {
     currentWrapper?.unmount();
     currentWrapper = undefined;
     document.body.innerHTML = '';
-    document.documentElement.dataset['theme'] = '';
   });
 
   it('closes when clicking outside the modal', async () => {
@@ -137,12 +136,15 @@ describe('ConfigModal', () => {
       expect(localStorage.getItem('_xcs')).toBeNull();
     });
 
-    it('switches the document theme when toggling dark mode', async () => {
+    it('toggles and persists dark mode, which useTheme turns into the page theme', async () => {
+      const store = useBaseStore();
       mountModal();
       await toggleCheckbox('dark-mode');
-      expect(document.documentElement.dataset['theme']).toBe('dark');
+      expect(store.darkMode).toBe(true);
+      expect(localStorage.getItem('darkMode')).toBe('true');
       await toggleCheckbox('dark-mode');
-      expect(document.documentElement.dataset['theme']).toBe('light');
+      expect(store.darkMode).toBe(false);
+      expect(localStorage.getItem('darkMode')).toBe('false');
     });
 
     it('disables "hover on control" only while pro mode is off, and "disable win message" only while fmc blitz is off', async () => {
@@ -155,6 +157,15 @@ describe('ConfigModal', () => {
       await nextTick();
       expect(getInput('hover-on').disabled).toBe(false);
       expect(getInput('disable-win-message').disabled).toBe(true);
+    });
+
+    it('enables "hover on control" in cage mode too', async () => {
+      const store = useBaseStore();
+      mountModal();
+      expect(getInput('hover-on').disabled).toBe(true);
+      store.cageMode = true;
+      await nextTick();
+      expect(getInput('hover-on').disabled).toBe(false);
     });
 
     it('disables "hide averages" while unregistered, offline pro mode, or on a network error', async () => {
@@ -255,8 +266,23 @@ describe('ConfigModal', () => {
     });
   });
 
-  describe('setProMode', () => {
-    it('turning it on enables hover control, disables cage mode, resets the session, and loads averages when registered', async () => {
+  describe('casual mode option', () => {
+    it('is ticked exactly when pro mode is off', () => {
+      const store = useBaseStore();
+      store.proMode = true;
+      mountModal();
+      expect(document.querySelector<HTMLInputElement>('#casual-mode')?.checked).toBe(false);
+      expect(document.querySelector('label[for="casual-mode"]')?.textContent?.trim()).toBe('Casual Mode (animated tiles)');
+    });
+
+    it('is ticked in casual play', () => {
+      const store = useBaseStore();
+      store.proMode = false;
+      mountModal();
+      expect(document.querySelector<HTMLInputElement>('#casual-mode')?.checked).toBe(true);
+    });
+
+    it('unticking it turns pro mode on, enables hover control, disables cage mode, resets the session, and loads averages when registered', async () => {
       const store = useBaseStore();
       store.token = 'real-session-token';
       store.enableCageMode = true;
@@ -265,7 +291,7 @@ describe('ConfigModal', () => {
       localStorage.setItem('_xcs', 'stale-count');
       store.consecutiveSolves = 5;
       mountModal();
-      await toggleCheckbox('pro-mode');
+      await toggleCheckbox('casual-mode');
 
       expect(store.proMode).toBe(true);
       expect(store.hoverOnControl).toBe(true);
@@ -280,12 +306,12 @@ describe('ConfigModal', () => {
       });
     });
 
-    it('turning it off does not force hover control on or fetch averages', async () => {
+    it('ticking it turns pro mode off without forcing hover control on or fetching averages', async () => {
       const store = useBaseStore();
       store.proMode = true;
       store.hoverOnControl = false;
       mountModal();
-      await toggleCheckbox('pro-mode');
+      await toggleCheckbox('casual-mode');
       expect(store.proMode).toBe(false);
       expect(store.hoverOnControl).toBe(false);
       expect(useGetFetchAPI).not.toHaveBeenCalled();
@@ -449,7 +475,7 @@ describe('ConfigModal', () => {
       store.g1000Mode = true;
       mountModal();
       expect(exists('enable-cage-mode')).toBe(false);
-      expect(exists('pro-mode')).toBe(false);
+      expect(exists('casual-mode')).toBe(false);
       expect(exists('marathon-mode')).toBe(false);
       expect(exists('fmc-blitz-mode-mode')).toBe(false);
       expect(exists('keep-session')).toBe(false);

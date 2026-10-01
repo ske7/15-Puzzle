@@ -34,6 +34,7 @@ interface BottomInfoPanelInternals {
   closeRegModal: () => void;
   closeUserAccount: () => void;
   closeLeaderBoard: () => void;
+  closeLiveRecords: () => void;
 }
 
 function internals(wrapper: VueWrapper): BottomInfoPanelInternals {
@@ -78,6 +79,7 @@ function realRepGame(overrides: Partial<RepGame> = {}): RepGame {
 beforeAll(async () => {
   await Promise.all([
     import('../LeaderBoard.vue'),
+    import('../LiveRecords.vue'),
     import('../RegModal.vue')
   ]);
 });
@@ -268,6 +270,48 @@ describe('BottomInfoPanel', () => {
       expect(store.paused).toBe(true);
       internals(wrapper).closeLeaderBoard();
       expect(store.paused).toBe(true);
+    });
+
+    it('shows the Live link right after Leaderboard', () => {
+      setup3x3();
+      const wrapper = mountPanel();
+      const links = wrapper.findAll('.registered-block .link-item').map(el => el.text());
+      expect(links.slice(links.indexOf('Leaderboard'), links.indexOf('Leaderboard') + 2)).toEqual(['Leaderboard', 'Live']);
+    });
+
+    it('pauses on opening Live records, shows the list, then unpauses on close', async () => {
+      const store = setup3x3();
+      store.paused = false;
+      const wrapper = mountPanel();
+      const live = wrapper.findAll('.link-item').find(el => el.text() === 'Live')!;
+      await live.trigger('click');
+      expect(store.paused).toBe(true);
+      expect(store.showLiveRecords).toBe(true);
+      await vi.waitFor(() => {
+        expect(document.querySelector('.live-records')).not.toBeNull();
+      });
+      internals(wrapper).closeLiveRecords();
+      expect(store.showLiveRecords).toBe(false);
+      expect(store.paused).toBe(false);
+    });
+
+    it('does not unpause Live records when it was already paused before opening', async () => {
+      const store = setup3x3();
+      store.paused = true;
+      const wrapper = mountPanel();
+      const live = wrapper.findAll('.link-item').find(el => el.text() === 'Live')!;
+      await live.trigger('click');
+      internals(wrapper).closeLiveRecords();
+      expect(store.paused).toBe(true);
+    });
+
+    it('does nothing when Live is clicked while blocked', async () => {
+      const store = setup3x3();
+      store.showInfo = true;
+      const wrapper = mountPanel();
+      const live = wrapper.findAll('.link-item').find(el => el.text() === 'Live')!;
+      await live.trigger('click');
+      expect(store.showLiveRecords).toBe(false);
     });
   });
 
@@ -726,6 +770,22 @@ describe('BottomInfoPanel', () => {
       });
     });
 
+    it('shows a marathon replay\'s new solution without any save button', async () => {
+      const store = setup3x3();
+      store.replayMode = true;
+      store.marathonReplay = true;
+      store.token = 'tok';
+      store.userName = 'gamer_01';
+      store.repGame = realRepGame({ name: 'gamer_01' });
+      const wrapper = mountPanel();
+      store.solvePath = ['R', 'U', ';', 'L'];
+      await wrapper.vm.$nextTick();
+      expect(store.registered).toBe(true);
+      expect(wrapper.text()).toContain('New solution');
+      expect(wrapper.text()).toContain('RU;L');
+      expect(wrapper.findAll('.save-button')).toHaveLength(0);
+    });
+
     it('credits the real viewer when improving on someone else\'s original', async () => {
       const store = setup3x3();
       store.replayMode = true;
@@ -905,6 +965,22 @@ describe('BottomInfoPanel', () => {
       store.clearDisplay = true;
       const wrapper = mountPanel();
       expect(wrapper.find('.last-error').exists()).toBe(false);
+    });
+
+    it('shows why the opened link could not load, which later requests never clear', () => {
+      const store = setup3x3();
+      store.linkError = 'Wrong public_id';
+      const wrapper = mountPanel();
+      expect(wrapper.find('.last-error').text()).toBe('Wrong public_id');
+    });
+
+    it('shows a newer failed request ahead of the link error', () => {
+      const store = setup3x3();
+      store.linkError = 'Wrong public_id';
+      store.lastError = 'Could not save your last solve';
+      const wrapper = mountPanel();
+      expect(wrapper.findAll('.last-error')).toHaveLength(1);
+      expect(wrapper.find('.last-error').text()).toBe('Could not save your last solve');
     });
 
     it('shows nothing when the last request succeeded', () => {

@@ -82,7 +82,7 @@ const setInputValue = (event: Event): void => {
     margin-top: 5px;
   }
   .slider-marks {
-    margin-bottom: 3px
+    margin-bottom: 3px;
   }
 }
 </style>

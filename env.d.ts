@@ -18,5 +18,6 @@ interface Window {
     getMixedOrders: () => number[];
     getCurrentOrders: () => number[];
     getNumLines: () => number;
+    readStore: (keys: string[]) => Record<string, unknown>;
   };
 }

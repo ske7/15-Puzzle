@@ -77,6 +77,10 @@ const doReplay = async (walkTime?: number, walkMode = false): Promise<void> => {
   for (let i = savedStep.value; i < baseStore.repGame.solve_path.length; i++) {
     baseStore.wasReplay = true;
     const move = baseStore.repGame.solve_path[i];
+    if (move === ';' && (baseStore.inReplay || stopWalk.value)) {
+      await showNextMarathonPuzzle(moveTime);
+      continue;
+    }
     if (!baseStore.inReplay) {
       if (stopWalk.value) {
         baseStore.saveTime();
@@ -102,6 +106,12 @@ const doReplay = async (walkTime?: number, walkMode = false): Promise<void> => {
     await sleep(moveTime);
   }
   baseStore.inReplay = false;
+};
+const showNextMarathonPuzzle = async (moveTime: number): Promise<void> => {
+  baseStore.replaySpeed = 0;
+  baseStore.nextMarathonReplayPuzzle();
+  await sleep(moveTime);
+  baseStore.replaySpeed = moveTime;
 };
 const doWalk = async (): Promise<void> => {
   const solveLen = baseStore.solvePath.length;
@@ -207,7 +217,7 @@ const isMobile = computed(() => windowWidth.value < 820);
 const buttonsByKey = computed((): Record<string, PanelButton> => {
   const inReplayOrPlayground = baseStore.replayMode || baseStore.playgroundMode;
   const isPlayground = baseStore.playgroundMode && !baseStore.sharedPlaygroundMode;
-  const isReplay = baseStore.replayMode && !baseStore.marathonReplay;
+  const isReplay = baseStore.replayMode;
   const busy = disableButton.value || baseStore.inReplay;
   const restartDisabled = disableButton.value || baseStore.paused || baseStore.noPlayMode;
   const restartOnClick = (): void => { doRestart('fromMain') };
@@ -216,8 +226,7 @@ const buttonsByKey = computed((): Record<string, PanelButton> => {
     restart: {
       key: 'restart',
       label: 'Restart',
-      show: !baseStore.sharedPlaygroundMode && !baseStore.marathonReplay &&
-        (!isMobile.value || inReplayOrPlayground),
+      show: !baseStore.sharedPlaygroundMode && (!isMobile.value || inReplayOrPlayground),
       disabled: restartDisabled,
       onClick: restartOnClick
     },
@@ -346,7 +355,8 @@ onUnmounted(() => {
   position: relative;
   margin-top: 10px;
   width: 100%;
-  font-family: consolas, sans-serif;
+  font-family: var(--font-mono);
+  font-kerning: none;
   line-height: 27px;
 }
 .action-panel .first-row {
@@ -362,11 +372,10 @@ onUnmounted(() => {
   font-weight: 600;
 }
 @media screen and (max-width: 820px) {
-.action-panel .first-row {
-  justify-content: space-around;
-  align-items: center;
-  gap: 5px;
-}
+  .action-panel .first-row {
+    align-items: center;
+    gap: 5px;
+  }
 }
 @media screen and (max-width: 420px) {
   .tool-button {

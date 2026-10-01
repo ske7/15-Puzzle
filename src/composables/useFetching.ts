@@ -3,7 +3,6 @@ import {
   type GameData, type AverageStats, type UserScrambleData, type FMCBlitzData, type Response
 } from '@/types';
 import { getErrorMessage, usePostFetchAPI, usePatchFetchAPI } from './useFetchAPI';
-import { FMC_BLITZ_TIME } from '@/const';
 
 const reportFailure = (failureMessage: string, request: Promise<unknown>): Promise<void> => {
   return request
@@ -20,7 +19,7 @@ export const postFMCBlitz = (data: FMCBlitzData): void => {
     usePostFetchAPI('fmc_blitz', JSON.stringify({ data }), baseStore.token));
 };
 
-export const postGame = (game: GameData, keyH: string): void => {
+export const postGame = (game: GameData, keyH: string, blitzResult?: FMCBlitzData): void => {
   const baseStore = useBaseStore();
   void reportFailure('Could not save your last solve',
     usePostFetchAPI('game', JSON.stringify({ game }), baseStore.token, keyH)
@@ -43,12 +42,8 @@ export const postGame = (game: GameData, keyH: string): void => {
             baseStore.lastError = 'Could not update your averages';
             console.log(getErrorMessage(error));
           });
-        if (baseStore.fmcBlitz && baseStore.solvedPuzzlesInMarathon === baseStore.blitzScrambleCount) {
-          postFMCBlitz({
-            moves: baseStore.blitzMovesCount,
-            time: FMC_BLITZ_TIME * 1000 - baseStore.blitzTime,
-            session_id: String(game.session_id)
-          });
+        if (blitzResult !== undefined) {
+          postFMCBlitz(blitzResult);
         }
       }));
 };

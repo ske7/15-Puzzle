@@ -363,17 +363,6 @@ describe('GamesTable', () => {
       expect(ids).toEqual(['2', '1']); // ascending by moves: 40 before 50
     });
 
-    it('re-requests from the real mobile sort control too', async () => {
-      respondWith([gameRecord()]);
-      const wrapper = mountTable({ formType: 'userGames' });
-      await waitFetched(wrapper);
-      vi.mocked(useGetFetchAPI).mockClear();
-      respondWith([]);
-      const mobileMovesSort = wrapper.findAll('.table-header-mobile .pro-sort')[2];
-      await mobileMovesSort.trigger('click');
-      expect(useGetFetchAPI).toHaveBeenCalledWith(expect.stringContaining('order_field=moves'), undefined);
-    });
-
     it.each([
       ['id', 0, '↑', '↓'],
       ['time', 1, '↑', '↓'],
@@ -392,25 +381,6 @@ describe('GamesTable', () => {
       expect(sortEl.text()).toBe(secondArrow);
     });
 
-    it.each([
-      ['id', 0],
-      ['time', 1],
-      ['moves', 2],
-      ['opt_diff', 3],
-      ['tps', 4]
-    ])('toggles the real %s sort direction from repeated mobile clicks', async (_field, index) => {
-      respondWith([gameRecord()]);
-      const store = useBaseStore();
-      store.numLines = 3;
-      const wrapper = mountTable({ formType: 'userGames' });
-      await waitFetched(wrapper);
-      await wrapper.findAll('.table-header-mobile .pro-sort')[index].trigger('click');
-      await waitFetched(wrapper);
-      expect(wrapper.findAll('.table-header-mobile .pro-sort')[index].text()).not.toBe('↑↓');
-      await wrapper.findAll('.table-header-mobile .pro-sort')[index].trigger('click');
-      await waitFetched(wrapper);
-      expect(wrapper.findAll('.table-header-mobile .pro-sort')[index].text()).not.toBe('↑↓');
-    });
   });
 
   describe('doExport / jsonToCSV', () => {
@@ -479,6 +449,52 @@ describe('GamesTable', () => {
         expect(wrapper.find('.table-error-msg').text()).toBe('export failed');
       });
       expect(consoleSpy).toHaveBeenCalledWith('export failed');
+    });
+  });
+
+  describe('phone layout', () => {
+    const columnOf = (cell: { classes: () => string[] }): string | undefined => {
+      return cell.classes().find((name) => name.startsWith('col-'));
+    };
+
+    it('has one header row for every screen size, each cell sharing its column class with the cells below', async () => {
+      const store = useBaseStore();
+      store.numLines = 3;
+      respondWith([gameRecord()]);
+      const wrapper = mountTable({ formType: 'userGames' });
+      await waitFetched(wrapper);
+      expect(wrapper.findAll('.table-header')).toHaveLength(1);
+      const header = wrapper.findAll('.table-header .flex-row').map(columnOf);
+      expect(header).toEqual([
+        'col-id', 'col-date', 'col-cs', 'col-time', 'col-moves', 'col-opt-diff', 'col-tps', 'col-scramble', 'col-solution'
+      ]);
+      expect(wrapper.findAll('.items .flex-row').map(columnOf)).toEqual(header);
+    });
+
+    it('keeps a day-first short date alongside the full one', async () => {
+      respondWith([gameRecord()]);
+      const wrapper = mountTable({ formType: 'userGames' });
+      await waitFetched(wrapper);
+      expect(wrapper.find('.date-full').text()).toMatch(/^2024-06-01 /);
+      expect(wrapper.find('.date-short').text()).toMatch(/^01\/06\/24 \d{2}:\d{2}:\d{2}$/);
+    });
+
+    it('carries the optimal-moves difference on the moves, for phones where its column is hidden', async () => {
+      const store = useBaseStore();
+      store.numLines = 3;
+      respondWith([gameRecord()]);
+      const wrapper = mountTable({ formType: 'userGames' });
+      await waitFetched(wrapper);
+      expect(wrapper.find('.col-moves .opt-moves').text()).toBe('+5');
+    });
+
+    it('has no difference to carry away from the 3x3, the only size with optimal moves', async () => {
+      const store = useBaseStore();
+      store.numLines = 4;
+      respondWith([gameRecord({ puzzle_size: 4 })]);
+      const wrapper = mountTable({ formType: 'userGames' });
+      await waitFetched(wrapper);
+      expect(wrapper.find('.opt-moves').exists()).toBe(false);
     });
   });
 

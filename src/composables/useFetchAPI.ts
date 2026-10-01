@@ -1,14 +1,16 @@
-import { type ErrResponse, type Response, type UserStats } from '@/types';
+import { type ErrResponse, type Response, type UserRecord, type UserStats } from '@/types';
 import { useBaseStore } from '../stores/base';
 
 const baseUrl: string = import.meta.env.VITE_BASE_API_URL;
+
+export class ServerError extends Error {}
 
 export function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-const api = async <TStats = UserStats>(endpoint: string, method: string, body?: BodyInit,
-  token?: string, keyH?: string): Promise<Response<TStats>> => {
+const api = async <TStats = UserStats, TRecord = UserRecord>(endpoint: string, method: string, body?: BodyInit,
+  token?: string, keyH?: string): Promise<Response<TStats, TRecord>> => {
   const baseStore = useBaseStore();
 
   let error;
@@ -43,10 +45,10 @@ const api = async <TStats = UserStats>(endpoint: string, method: string, body?: 
         baseStore.userName = undefined;
       }
       const res = await response.json() as Promise<ErrResponse>;
-      error = new Error((await res).error ?? response.statusText);
+      error = new ServerError((await res).error ?? response.statusText);
       throw error;
     }
-    return await (response.json() as Promise<Response<TStats>>);
+    return await (response.json() as Promise<Response<TStats, TRecord>>);
   } catch (err) {
     if (String(err).toLowerCase().includes('networkerror')) {
       baseStore.isNetworkError = true;
@@ -64,8 +66,9 @@ export const usePostFetchAPI = async <TStats = UserStats>(endpoint: string, body
   return await api<TStats>(endpoint, 'POST', body, token, keyH);
 };
 
-export const useGetFetchAPI = async <TStats = UserStats>(endpoint: string, token?: string): Promise<Response<TStats>> => {
-  return await api<TStats>(endpoint, 'GET', undefined, token);
+export const useGetFetchAPI = async <TStats = UserStats, TRecord = UserRecord>(
+  endpoint: string, token?: string): Promise<Response<TStats, TRecord>> => {
+  return await api<TStats, TRecord>(endpoint, 'GET', undefined, token);
 };
 
 export const usePatchFetchAPI = async <TStats = UserStats>(endpoint: string, body?: BodyInit,

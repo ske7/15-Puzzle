@@ -155,11 +155,35 @@ describe('useFetching', () => {
       expect(store.opt_m).toBe(0);
     });
 
-    it('also posts an FMC blitz record when the blitz scramble set just completed', async () => {
+    it('posts the blitz result it was given once the last scramble\'s game is saved', async () => {
       const fetchMock = vi.fn()
         .mockResolvedValueOnce(okResponse({ status: 'ok', game_id: 1, opt_m: 1 }))
         .mockResolvedValueOnce(okResponse({ status: 'ok', game_id: 1, stats: {}, was_avg_records: [] }))
         .mockResolvedValueOnce(okResponse({ status: 'ok', game_id: 2 }));
+      vi.stubGlobal('fetch', fetchMock);
+      const store = useBaseStore();
+      store.token = 'tok';
+      store.proMode = true;
+      store.numLines = 3;
+      store.fmcBlitz = true;
+      postGame({
+        time: 1000, moves: 10, control_type: 'mouse', consecutive_solves: 0, session_id: 'sess',
+      }, 'key', { moves: 612, time: 171000, session_id: 'sess' });
+      // The player restarts before the server answers, resetting the run in the store.
+      store.solvedPuzzlesInMarathon = 0;
+      store.blitzMovesCount = 0;
+      await vi.waitFor(() => {
+        expect(fetchMock).toHaveBeenCalledTimes(3);
+      });
+      const [blitzUrl, init] = fetchMock.mock.calls[2] as [string, RequestInit];
+      expect(blitzUrl).toContain('/fmc_blitz');
+      expect(JSON.parse(init.body as string)).toEqual({ data: { moves: 612, time: 171000, session_id: 'sess' } });
+    });
+
+    it('posts no blitz result for a game that did not finish the run, whatever the store says by then', async () => {
+      const fetchMock = vi.fn()
+        .mockResolvedValueOnce(okResponse({ status: 'ok', game_id: 1, opt_m: 1 }))
+        .mockResolvedValue(okResponse({ status: 'ok', game_id: 1, stats: {}, was_avg_records: [] }));
       vi.stubGlobal('fetch', fetchMock);
       const store = useBaseStore();
       store.token = 'tok';
@@ -172,10 +196,10 @@ describe('useFetching', () => {
         time: 1000, moves: 10, control_type: 'mouse', consecutive_solves: 0, session_id: 'sess',
       }, 'key');
       await vi.waitFor(() => {
-        expect(fetchMock).toHaveBeenCalledTimes(3);
+        expect(fetchMock).toHaveBeenCalledTimes(2);
       });
-      const [blitzUrl] = fetchMock.mock.calls[2] as [string];
-      expect(blitzUrl).toContain('/fmc_blitz');
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(fetchMock.mock.calls.map(([url]) => String(url))).not.toContainEqual(expect.stringContaining('/fmc_blitz'));
     });
 
     it('swallows a failed game post without throwing', async () => {

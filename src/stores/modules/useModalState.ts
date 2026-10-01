@@ -8,6 +8,7 @@ export function useModalState() {
   const showRegModal = ref(false);
   const showUserAccount = ref(false);
   const showLeaderBoard = ref(false);
+  const showLiveRecords = ref(false);
   const showAddScramble = ref(false);
   const showScrambleList = ref(false);
 
@@ -20,6 +21,7 @@ export function useModalState() {
       showRegModal.value,
       showUserAccount.value,
       showLeaderBoard.value,
+      showLiveRecords.value,
       showAddScramble.value,
       showScrambleList.value
     ].some(Boolean);
@@ -33,6 +35,7 @@ export function useModalState() {
     showRegModal,
     showUserAccount,
     showLeaderBoard,
+    showLiveRecords,
     showAddScramble,
     showScrambleList,
     showModal

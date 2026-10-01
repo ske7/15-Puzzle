@@ -13,6 +13,7 @@ export interface UseBoardPointerResult {
   onPointerDown: (event: PointerEvent) => void;
   onPointerMove: (event: PointerEvent) => void;
   onPointerUp: (event: PointerEvent) => void;
+  onPointerLeave: (event: PointerEvent) => void;
   onMouseDown: (event: MouseEvent) => void;
   onTouchStart: (event: TouchEvent) => void;
   beginAt: (clientX: number, clientY: number) => void;
@@ -47,7 +48,7 @@ export const useBoardPointer = (
   };
 
   const canPlay = (): boolean => {
-    return baseStore.hoverOnControl && baseStore.proMode &&
+    return baseStore.hoverOnControl && (baseStore.proMode || baseStore.cageMode) &&
       !(baseStore.inReplay || baseStore.sharedPlaygroundMode || baseStore.marathonReplay ||
         baseStore.paused || baseStore.isDone || baseStore.isTimeFailed || baseStore.noPlayMode);
   };
@@ -87,8 +88,12 @@ export const useBoardPointer = (
       return;
     }
     const cell = cellAt(clientX, clientY, origin);
+    if (cell === null) {
+      forgetLastSample();
+      return;
+    }
     const onlyOnEntry = (baseStore.marathonMode || baseStore.fmcBlitz) && !baseStore.marathonFirstMove;
-    if (cell === null || (cell === lastCell && (onlyOnEntry || baseStore.freeElementIndex === lastBlank))) {
+    if (cell === lastCell && (onlyOnEntry || baseStore.freeElementIndex === lastBlank)) {
       return;
     }
     baseStore.isMoving = true;
@@ -169,6 +174,10 @@ export const useBoardPointer = (
     endDrag();
   };
 
+  const onPointerLeave = (): void => {
+    forgetLastSample();
+  };
+
   const onMouseDown = (event: MouseEvent): void => {
     if (baseStore.hoverOnControl && baseStore.proMode) {
       return;
@@ -182,7 +191,7 @@ export const useBoardPointer = (
   };
 
   return {
-    onPointerDown, onPointerMove, onPointerUp, onMouseDown, onTouchStart,
+    onPointerDown, onPointerMove, onPointerUp, onPointerLeave, onMouseDown, onTouchStart,
     beginAt, moveTo, tapAt, endDrag
   };
 };

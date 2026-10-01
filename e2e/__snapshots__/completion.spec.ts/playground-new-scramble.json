@@ -1,0 +1,58 @@
+{
+  "winModal": false,
+  "errorLine": null,
+  "store": {
+    "isDone": true,
+    "isTimeFailed": false,
+    "showWinModal": false,
+    "consecutiveSolves": 0,
+    "solvedPuzzlesInMarathon": 0,
+    "blitzScrambleCount": 0,
+    "movesCount": "<all solves moves>",
+    "blitzMovesCount": 0,
+    "newTimeRecord": false,
+    "newMovesRecord": false,
+    "newFMCBlitzMovesRecord": false,
+    "movesRecord": 0,
+    "fmcBlitzMovesRecord": 0,
+    "timeRecord": 0,
+    "lastGameID": "0",
+    "opt_m": 0,
+    "userScrambleId": 77,
+    "publicId": "",
+    "playgroundBestTime": "<time>",
+    "playgroundBestMoves": "<a solve moves>",
+    "playgroundBestTimeMoves": "<a solve moves>",
+    "newPlaygroundTimeRecord": true,
+    "newPlaygroundMovesRecord": true,
+    "lastError": ""
+  },
+  "storageKeys": [
+    "hoverOnControl",
+    "marathonMode",
+    "numLines",
+    "proMode",
+    "recordVer",
+    "token"
+  ],
+  "requestCounts": {
+    "GET /get_current_user": 1,
+    "GET /user_scramble?…": 1,
+    "POST /user_scramble": 1
+  },
+  "lastBodyOfEach": [
+    {
+      "POST /user_scramble": {
+        "user_scramble": {
+          "user_name": "tester",
+          "puzzle_size": 3,
+          "best_time": "<time>",
+          "best_moves": "<solve 1> moves",
+          "best_time_moves": "<solve 1> moves",
+          "solve_path": "<solve 1> path",
+          "scramble": "<solve 1> scramble"
+        }
+      }
+    }
+  ]
+}

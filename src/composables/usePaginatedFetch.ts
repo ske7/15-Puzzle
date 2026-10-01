@@ -2,7 +2,7 @@ import { ref, onMounted, onUnmounted, type Ref } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useDateFormat } from '@vueuse/core';
 import { getErrorMessage, useGetFetchAPI } from './useFetchAPI';
-import { type Response } from '@/types';
+import { type Response, type UserRecord, type UserStats } from '@/types';
 import { OrderDirection } from '@/const';
 
 interface PaginatedFetchResult<T> {
@@ -14,6 +14,8 @@ interface PaginatedFetchResult<T> {
   fetch: () => void;
   reset: () => void;
   formatDate: (date?: string) => string;
+  formatShortDate: (date?: string) => string;
+  columnClass: (label: string) => string;
   sort: (newSortField: string) => void;
   sortArrow: (field: string, invert?: boolean) => string;
   sortField: Ref<string>;
@@ -21,20 +23,20 @@ interface PaginatedFetchResult<T> {
   attachScrollListener: (el: HTMLElement) => () => void;
 }
 
-export function usePaginatedFetch<T>(
+export function usePaginatedFetch<T, TRecord = UserRecord>(
   endpointBuilder: (
     offset: number,
     limit: number,
     sortField: string,
     orderDirection: OrderDirection
   ) => string,
-  extractRecords: (response: Response) => T[],
+  extractRecords: (response: Response<UserStats, TRecord>) => T[],
   scrollElementId: string,
   atachScroll = true,
-  doLocalSort = false
+  doLocalSort = false,
+  limit = 50
 ): PaginatedFetchResult<T> {
   const baseStore = useBaseStore();
-  const limit = 50;
   let offset = 0;
 
   const records = ref<T[]>([]) as Ref<T[]>;
@@ -52,7 +54,7 @@ export function usePaginatedFetch<T>(
 
     const endpoint = endpointBuilder(offset, limit, sortField.value, orderDirection.value);
 
-    useGetFetchAPI(endpoint, baseStore.token)
+    useGetFetchAPI<UserStats, TRecord>(endpoint, baseStore.token)
       .then(res => {
         isFetching.value = false;
         const newRecords = extractRecords(res);
@@ -61,6 +63,9 @@ export function usePaginatedFetch<T>(
         } else {
           records.value.push(...newRecords);
           offset += limit;
+          // A server ignoring offset/limit answers every page with the whole list, so stop
+          // after the first one instead of appending the same records again.
+          isDone.value = newRecords.length > limit;
         }
         fetched.value = true;
       })
@@ -123,10 +128,24 @@ export function usePaginatedFetch<T>(
   };
 
   const formatDate = (date?: string): string => {
+    return formatAs(date, 'YYYY-MM-DD HH:mm:ss');
+  };
+
+  // "29/09/26 18:15:25", which wraps into date over time in a phone's narrow date column.
+  const formatShortDate = (date?: string): string => {
+    return formatAs(date, 'DD/MM/YY HH:mm:ss');
+  };
+
+  function formatAs(date: string | undefined, pattern: string): string {
     if (date == null) {
       return '';
     }
-    return useDateFormat(date, 'YYYY-MM-DD HH:mm:ss').value;
+    return useDateFormat(date, pattern).value;
+  }
+
+  // "Opt.diff" -> "col-opt-diff", "Public ID" -> "col-public-id": styles a column's header and cells together.
+  const columnClass = (label: string): string => {
+    return `col-${label.toLowerCase().replace(/[^a-z]+/g, '-').replace(/-$/, '')}`;
   };
 
   function attachScrollListener(el: HTMLElement): () => void {
@@ -166,6 +185,8 @@ export function usePaginatedFetch<T>(
     fetch,
     reset,
     formatDate,
+    formatShortDate,
+    columnClass,
     sort,
     sortArrow,
     sortField,

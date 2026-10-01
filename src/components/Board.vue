@@ -3,7 +3,7 @@ import { computed, ref, watch, reactive } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useElementBounding } from '@vueuse/core';
 import { useBaseStore } from '../stores/base';
-import { getSquareSize } from '../composables/usePrepare';
+import { useSquareSize } from '../composables/useSquareSize';
 import { useBoardPointer } from '../composables/useBoardPointer';
 import { cores, fmcBlitzCores } from '@/const';
 import Square from './Square.vue';
@@ -11,7 +11,7 @@ import ProBoard from './ProBoard.vue';
 
 const baseStore = useBaseStore();
 
-const { squareSize } = getSquareSize();
+const { squareSize } = useSquareSize();
 const container = ref<HTMLElement>();
 const pointer = useBoardPointer(squareSize, container);
 const boardSize = computed(() => {
@@ -57,6 +57,18 @@ const showProBoard = computed(() => {
   return baseStore.proMode && !(baseStore.replayMode || baseStore.sharedPlaygroundMode ||
     baseStore.marathonReplay || baseStore.playgroundMode);
 });
+
+// Tiles handle taps and mouse hover themselves; a finger sliding across them is tracked here.
+const onTilePointerDown = (event: PointerEvent): void => {
+  if (event.pointerType !== 'mouse') {
+    pointer.onPointerDown(event);
+  }
+};
+const onTilePointerMove = (event: PointerEvent): void => {
+  if (event.pointerType !== 'mouse') {
+    pointer.onPointerMove(event);
+  }
+};
 
 const changePuzzleSize = (puzzleSize: number): void => {
   baseStore.numLines = puzzleSize;
@@ -114,6 +126,11 @@ const filteredCores = computed(() => {
     <div
       v-if="!showProBoard && !hideWhenCageShowCageCompleteImg"
       class="p-container"
+      @pointerdown="onTilePointerDown"
+      @pointermove="onTilePointerMove"
+      @pointerup="pointer.onPointerUp"
+      @pointercancel="pointer.onPointerUp"
+      @pointerleave="pointer.onPointerLeave"
     >
       <Square
         v-for="(value, index) in baseStore.mixedOrders"
@@ -134,6 +151,7 @@ const filteredCores = computed(() => {
       @pointermove="pointer.onPointerMove"
       @pointerup="pointer.onPointerUp"
       @pointercancel="pointer.onPointerUp"
+      @pointerleave="pointer.onPointerLeave"
       @mousedown.left="pointer.onMouseDown"
       @touchstart.prevent="pointer.onTouchStart"
     >
@@ -233,13 +251,18 @@ const filteredCores = computed(() => {
   cursor: pointer;
 }
 .puzzle-sizes span:hover {
-  cursor: pointer;
   color: var(--link-color);
   text-decoration: underline;
 }
 .puzzle-sizes .selected {
   color: var(--link-color);
   font-weight: 700;
+}
+@media (pointer: coarse) {
+  .puzzle-sizes span {
+    padding: 0 4px 0 5px;
+    margin: 0 -4px 0 -5px;
+  }
 }
 @media screen and (max-width: 601px) {
   .paused-veil .bigger {

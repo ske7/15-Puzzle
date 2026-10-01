@@ -1,0 +1,42 @@
+{
+  "winModal": true,
+  "errorLine": null,
+  "store": {
+    "isDone": true,
+    "isTimeFailed": false,
+    "showWinModal": true,
+    "consecutiveSolves": 1,
+    "solvedPuzzlesInMarathon": 0,
+    "blitzScrambleCount": 0,
+    "movesCount": "<all solves moves>",
+    "blitzMovesCount": 0,
+    "newTimeRecord": true,
+    "newMovesRecord": true,
+    "newFMCBlitzMovesRecord": false,
+    "movesRecord": "<a solve moves>",
+    "fmcBlitzMovesRecord": 0,
+    "timeRecord": "<time>",
+    "lastGameID": "0",
+    "opt_m": 0,
+    "userScrambleId": 0,
+    "publicId": "",
+    "playgroundBestTime": 0,
+    "playgroundBestMoves": 0,
+    "playgroundBestTimeMoves": 0,
+    "newPlaygroundTimeRecord": false,
+    "newPlaygroundMovesRecord": false,
+    "lastError": ""
+  },
+  "storageKeys": [
+    "hoverOnControl",
+    "movesRecord3",
+    "numLines",
+    "proMode",
+    "recordVer",
+    "timeRecord3"
+  ],
+  "requestCounts": {
+    "GET /version": 1
+  },
+  "lastBodyOfEach": []
+}

@@ -4,7 +4,7 @@ import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
 import PuzzleModeGroup from './PuzzleModeGroup.vue';
 import { getErrorMessage, useGetFetchAPI } from '../composables/useFetchAPI';
-import { type GameData } from '@/types';
+import { type GameData, type TableColumn } from '@/types';
 import { baseUrl, OrderDirection, OrderDirectionMap } from '@/const';
 import { shortenSolutionStr, convertScrambles } from '@/utils';
 import CopyButton from './CopyButton.vue';
@@ -61,6 +61,8 @@ const {
   errorMsg,
   reset,
   formatDate,
+  formatShortDate,
+  columnClass,
   sort,
   sortArrow,
   sortField
@@ -97,12 +99,6 @@ const doSort = (newSortField: string): void => {
   sort(newSortField);
 };
 
-interface TableColumn {
-  label: string;
-  sortField?: string;
-  widthClass?: string;
-  invert?: boolean;
-}
 const columns = computed((): TableColumn[] => {
   const wideCellClass = windowWidth.value <= 1100 ? 'w-85' : '';
   return [
@@ -112,7 +108,7 @@ const columns = computed((): TableColumn[] => {
     { label: 'Time', sortField: 'time', widthClass: 'w-85' },
     { label: 'Moves', sortField: 'moves', widthClass: 'w-85' },
     ...(puzzleSize.value === 3
-      ? [{ label: 'Opt.diff', sortField: 'opt_diff', widthClass: 'w-85' }]
+      ? [{ label: 'Opt.diff', sortField: 'opt_diff', widthClass: 'w-95' }]
       : []),
     { label: 'TPS', sortField: 'tps', widthClass: 'w-70', invert: true },
     { label: 'Scramble', widthClass: wideCellClass },
@@ -210,7 +206,7 @@ const tableTitle = computed(() => {
           v-for="column in columns"
           :key="column.label"
           class="flex-row"
-          :class="column.widthClass"
+          :class="[column.widthClass, columnClass(column.label)]"
         >
           {{ column.label }}
           <span v-if="column.sortField" class="pro-sort" @click="doSort(column.sortField)">
@@ -220,49 +216,45 @@ const tableTitle = computed(() => {
       </div>
       <template v-if="fetched">
         <div v-for="(item) in gameRecords" :key="item.id" class="flex-table">
-          <div class="table-header-mobile">
-            <div v-for="column in columns" :key="column.label" class="flex-row">
-              {{ column.label }}
-              <span v-if="column.sortField" class="pro-sort" @click="doSort(column.sortField)">
-                {{ sortArrow(column.sortField, column.invert) }}
-              </span>
-            </div>
-          </div>
           <div class="items">
-            <div class="flex-row w-70">
+            <div class="flex-row w-70 col-id">
               <a v-if="item.scramble " :href="`${baseUrl}?game_id=${item.public_id}`" class="link-item">
                 {{ item.id }}
               </a>
               <span v-else>{{ item.id }}</span>
             </div>
-            <div class="flex-row w-95">
-              <span class="white-space-normal date-smaller">{{ formatDate(item.created_at) }}</span>
+            <div class="flex-row w-95 col-date">
+              <span class="white-space-normal date-smaller date-full">{{ formatDate(item.created_at) }}</span>
+              <span class="date-short">{{ formatShortDate(item.created_at) }}</span>
             </div>
-            <div class="flex-row w-49">
+            <div class="flex-row w-49 col-cs">
               <span> {{ item.consecutive_solves }}</span>
             </div>
             <div
-              class="flex-row w-85"
+              class="flex-row w-85 col-time"
               :class="{ 'green': item.excluded_from_avg === 'best' && props.avgType === 'time', 'red': item.excluded_from_avg === 'worst' && props.avgType === 'time' }"
             >
               <span>{{ item.time / 1000 }}</span>
             </div>
             <div
-              class="flex-row w-85"
+              class="flex-row w-85 col-moves"
               :class="{ 'green': item.excluded_from_avg === 'best' && props.avgType === 'moves', 'red': item.excluded_from_avg === 'worst' && props.avgType === 'moves' }"
             >
-              <span>{{ item.moves }}</span>
+              <span>{{ item.moves }}<sup
+                v-if="puzzleSize === 3 && (item.opt_diff || 0) >= 0"
+                class="opt-moves"
+              >+{{ item.opt_diff || 0 }}</sup></span>
             </div>
-            <div v-if="puzzleSize === 3" class="flex-row w-85">
+            <div v-if="puzzleSize === 3" class="flex-row w-95 col-opt-diff">
               <span v-if="(item.opt_diff || 0) >= 0">+{{ item.opt_diff || 0 }}</span>
             </div>
             <div
-              class="flex-row w-70"
+              class="flex-row w-70 col-tps"
               :class="{ 'green': item.excluded_from_avg === 'best' && props.avgType === 'tps', 'red': item.excluded_from_avg === 'worst' && props.avgType === 'tps' }"
             >
               <span>{{ item.tps }}</span>
             </div>
-            <div class="flex-row smaller-font" :class="{ 'w-85': windowWidth <= 1100 }">
+            <div class="flex-row smaller-font col-scramble" :class="{ 'w-85': windowWidth <= 1100 }">
               <div class="copy-button-wrapper">
                 <span v-if="item.scramble" class="smaller-font long-span">
                   {{ convertScrambles(item.scramble, item.puzzle_type) }}
@@ -276,7 +268,7 @@ const tableTitle = computed(() => {
                 />
               </div>
             </div>
-            <div class="flex-row smaller-font" :class="{ 'w-85': windowWidth <= 1100 }">
+            <div class="flex-row smaller-font col-solution" :class="{ 'w-85': windowWidth <= 1100 }">
               <div class="copy-button-wrapper">
                 <span class="long-span">{{ shortenSolutionStr(item.solve_path) }}</span>
                 <CopyButton v-if="item.solve_path" :item-to-copy="String(item.solve_path)" :is-solve-path="true" />
@@ -297,7 +289,7 @@ const tableTitle = computed(() => {
 <style scoped>
 .games-table {
   --modal-width: 1100px;
-  height: 100vh;
+  height: 100dvh;
   width: var(--modal-width);
   z-index: var(--z-modal-table);
   top: 0;
@@ -320,11 +312,7 @@ const tableTitle = computed(() => {
 .puzzle-size-slider-container {
   max-width: 250px;
 }
-.games-wrapper {
-  position: relative;
-}
 .export-link-wrapper {
-  display: block;
   width: 100%;
   max-width: 95%;
   margin: 0 auto;
@@ -338,14 +326,10 @@ const tableTitle = computed(() => {
   height: 0;
 }
 .table-wrapper {
-  display: block;
   margin: 0 auto;
   width: 100%;
   max-width: 95%;
   overflow: auto;
-}
-.table-header-mobile {
-  display: none;
 }
 .flex-table {
   display: flex;
@@ -394,7 +378,7 @@ const tableTitle = computed(() => {
 .flex-table:first-of-type {
   border-top: solid 1px var(--table-border-color);
 }
-.table-header-mobile .flex-row, .flex-table:first-of-type .flex-row {
+.flex-table:first-of-type .flex-row {
   background: gold;
   color: black;
   font-size: 15px;
@@ -408,7 +392,6 @@ const tableTitle = computed(() => {
   max-width: 232px;
   font-size: 14px;
   padding: 0 5px;
-  display: block;
 }
 .copy-button-wrapper {
   display: flex;
@@ -432,10 +415,6 @@ const tableTitle = computed(() => {
   font-size: 14px;
   font-weight: 600;
 }
-.green .link-item,
-.red .link-item {
-  color: white;
-}
 .pro-sort {
   cursor: pointer;
   font-weight: 800;
@@ -452,6 +431,19 @@ const tableTitle = computed(() => {
 .white-space-normal {
   white-space: normal !important;
 }
+.date-short,
+.opt-moves {
+  display: none;
+}
+.opt-moves {
+  margin-left: 1px;
+  color: var(--link-color);
+  font-size: 10px;
+}
+.green .opt-moves,
+.red .opt-moves {
+  color: white;
+}
 .table-error-msg {
   display: flex;
   place-content: center;
@@ -459,7 +451,7 @@ const tableTitle = computed(() => {
 }
 @media screen and (max-width: 1100px) {
   .games-table {
-  --modal-width: 768px;
+    --modal-width: 768px;
   }
   .w-49, .w-70, .w-85, .w-95 {
     max-width: 100%;
@@ -473,10 +465,13 @@ const tableTitle = computed(() => {
   .long-span {
     display: none !important;
   }
+  .col-opt-diff {
+    flex-grow: 1.15;
+  }
 }
 @media screen and (max-width: 768px) {
   .games-table {
-  --modal-width: 100%;
+    --modal-width: 100%;
   }
   .date-smaller {
     min-width: 80px;
@@ -485,7 +480,8 @@ const tableTitle = computed(() => {
 }
 @media screen and (max-width: 600px) {
   .games-table {
-  --modal-width: 600px;
+    --modal-width: 100%;
+    padding: 15px 8px;
   }
   .nice-hr {
     display: none;
@@ -494,73 +490,79 @@ const tableTitle = computed(() => {
     width: auto;
     margin-bottom: 5px;
   }
-  .table-wrapper {
-    display: flex;
-    flex-direction: column;
-  }
-  .table-header-mobile, .items {
-    display: flex;
-    flex-direction: column;
-  }
-  .table-header-mobile {
-    width: 150px;
-  }
-  .items {
-    flex: 0;
-  }
-  .flex-table {
-    display: flex;
-    flex-flow: row wrap;
-    margin-bottom: 20px;
-    border-bottom: 0;
-    border-left: 0;
-    justify-content: center;
+  .table-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
   .flex-row {
-    display: flex;
-    flex-basis: 0;
-    flex-grow: 1;
-    max-width: 180px;
-    min-width: 180px;
-    min-height: 60px;
-    border-top: solid 1px var(--table-border-color);
-    border-bottom: solid 0 var(--table-border-color);
+    min-height: 40px;
+    padding: 4px 2px;
   }
-  .flex-row:last-of-type {
-    border-bottom: solid 1px var(--table-border-color);
-  }
-  .table-header-mobile > .flex-row {
-    width: 150px;
-    max-width: 150px;
-    min-width: 150px;
-  }
-  .table-header {
-    display: none;
-  }
-  .w-49, .w-70, .w-85, w-95 {
-    max-width: 180px;
-    min-width: 180px;
-  }
-  .flex-row span {
-    max-width: 180px;
-    min-width: 180px;
-    font-weight: 600;
-  }
-  .smaller-font span, .smaller-font .link-item {
+  .flex-table:first-of-type .flex-row {
+    flex-direction: column;
     font-size: 12px;
   }
-  .date-smaller {
-    font-size: 14px !important;
+  .flex-row span,
+  .link-item {
+    padding: 0;
+    font-size: 12px;
+  }
+  .pro-sort {
+    font-size: 12px !important;
+  }
+  .col-id {
+    flex: 0 0 50px;
+  }
+  .col-date {
+    flex: 0 0 58px;
+  }
+  .col-cs,
+  .col-opt-diff {
+    display: none;
+  }
+  .flex-row .opt-moves {
+    display: inline;
+  }
+  .col-scramble,
+  .col-solution {
+    flex: 0 0 34px;
+  }
+  .flex-table.table-header .flex-row.col-scramble,
+  .flex-table.table-header .flex-row.col-solution {
+    font-size: 0;
+  }
+  .table-header .col-scramble::after {
+    content: 'Scr';
+    font-size: 12px;
+  }
+  .table-header .col-solution::after {
+    content: 'Sol';
+    font-size: 12px;
+  }
+  .date-full {
+    display: none !important;
+  }
+  .flex-row .date-short {
+    display: inline;
+    white-space: normal;
   }
 }
 @media screen and (max-width: 350px) {
-  .table-header-mobile {
-    width: 120px;
+  .flex-table:first-of-type .flex-row,
+  .flex-row span,
+  .link-item {
+    font-size: 11px;
   }
-  .table-header-mobile > .flex-row {
-    width: 120px;
-    max-width: 120px;
-    min-width: 120px;
+  .col-id {
+    flex-basis: 42px;
+  }
+  .col-date {
+    flex-basis: 50px;
+  }
+  .col-scramble,
+  .col-solution {
+    flex-basis: 30px;
   }
 }
 </style>

@@ -5,16 +5,10 @@ import { withSetup } from '../../../tests/withSetup';
 import { CAGES_PATH_ARR } from '@/const';
 import type { Response } from '@/types';
 
-// useKeyDown is a whole separate composable with its own global keydown listener and its
-// own dedicated, thorough test suite (useKeyDown.spec.ts) - mock it here so usePrepare()
-// tests are isolated from it and just assert it gets wired up once.
-vi.mock('../useKeyDown', () => ({
-  useKeyDown: vi.fn()
-}));
-
 // The real network layer - mocked so every test controls exactly what each endpoint
 // resolves/rejects with, without going through fetch.
-vi.mock('../useFetchAPI', () => ({
+vi.mock('../useFetchAPI', async (importOriginal) => ({
+  ServerError: (await importOriginal<typeof import('../useFetchAPI')>()).ServerError,
   useGetFetchAPI: vi.fn()
 }));
 
@@ -26,9 +20,8 @@ vi.mock('@/utils', async (importOriginal) => {
 
 import { redirectTo } from '@/utils';
 import { baseUrl } from '@/const';
-import { getSquareSize, usePrepare } from '../usePrepare';
-import { useKeyDown } from '../useKeyDown';
-import { useGetFetchAPI } from '../useFetchAPI';
+import { usePrepare } from '../usePrepare';
+import { ServerError, useGetFetchAPI } from '../useFetchAPI';
 
 // Real navigation via jsdom's History API rather than swapping window.location for a
 // URL stand-in: the production code reads the genuine Location object, and nothing has
@@ -52,12 +45,6 @@ describe('usePrepare', () => {
     setActivePinia(createPinia());
     setLocation('http://localhost:3000/');
     vi.mocked(useGetFetchAPI).mockResolvedValue(response());
-  });
-
-  it('wires up useKeyDown exactly once', () => {
-    const unmount = mount();
-    expect(useKeyDown).toHaveBeenCalledTimes(1);
-    unmount();
   });
 
   describe('numLines from localStorage', () => {
@@ -182,31 +169,19 @@ describe('usePrepare', () => {
     });
   });
 
-  describe('theme and pro-mode start params', () => {
-    it('enables dark mode from the URL and persists it', () => {
-      setLocation('http://localhost:3000/?dark');
+  describe('pro-mode start params', () => {
+    it.each(['?dark', '?pro'])('ignores the retired %s link, keeping the stored settings', (search) => {
+      localStorage.setItem('proMode', 'false');
+      localStorage.setItem('enableCageMode', 'true');
+      setLocation(`http://localhost:3000/${search}`);
       const store = useBaseStore();
       const unmount = mount();
-      expect(store.darkMode).toBe(true);
-      expect(localStorage.getItem('darkMode')).toBe('true');
-      expect(document.documentElement.dataset['theme']).toBe('dark');
-      unmount();
-    });
-
-    it('defaults to the light theme without the dark flag', () => {
-      const unmount = mount();
-      expect(document.documentElement.dataset['theme']).toBe('light');
-      unmount();
-    });
-
-    it('enables pro mode and forces hoverOnControl off cage mode on a first-visit ?pro link', () => {
-      setLocation('http://localhost:3000/?pro');
-      const store = useBaseStore();
-      const unmount = mount();
-      expect(store.proMode).toBe(true);
-      expect(store.hoverOnControl).toBe(true);
-      expect(store.enableCageMode).toBe(false);
-      expect(localStorage.getItem('proMode')).toBe('true');
+      expect(store.darkMode).toBe(false);
+      expect(localStorage.getItem('darkMode')).toBeNull();
+      expect(store.proMode).toBe(false);
+      expect(store.enableCageMode).toBe(true);
+      expect(localStorage.getItem('proMode')).toBe('false');
+      expect(localStorage.getItem('enableCageMode')).toBe('true');
       unmount();
     });
 
@@ -262,6 +237,22 @@ describe('usePrepare', () => {
       expect(store.fmcBlitz).toBe(false);
       expect(store.numLines).toBe(3);
       expect(store.puzzleLoaded).toBe(true);
+      unmount();
+    });
+
+    it('stays in g1000 mode over a saved cage mode, turning cage off for the visit only', () => {
+      localStorage.setItem('token', 'tok');
+      localStorage.setItem('enableCageMode', 'true');
+      localStorage.setItem('proMode', 'false');
+      setLocation('http://localhost:3000/?g1000');
+      const store = useBaseStore();
+      const unmount = mount();
+      expect(store.g1000Mode).toBe(true);
+      expect(store.proMode).toBe(true);
+      expect(store.enableCageMode).toBe(false);
+      expect(store.cageMode).toBe(false);
+      expect(store.numLines).toBe(3);
+      expect(localStorage.getItem('enableCageMode')).toBe('true');
       unmount();
     });
 
@@ -443,25 +434,34 @@ describe('usePrepare', () => {
       unmount();
     });
 
-    it('never initializes the puzzle when the URL only contains "public_id" as a substring', () => {
-      setLocation('http://localhost:3000/?playground&public_idx=abc');
+    it.each([
+      'http://localhost:3000/?playground&public_idx=abc',
+      'http://localhost:3000/?playground&PUBLIC_ID=abc',
+      'http://localhost:3000/?playground#public_id=abc'
+    ])('opens a plain playground when %s carries no public_id parameter', (url) => {
+      localStorage.setItem('token', 'tok');
+      setLocation(url);
       const store = useBaseStore();
       const unmount = mount();
-      // searchParams.get('public_id') resolves to null since the actual key is
-      // 'public_idx', so neither branch inside checkPublicID's outer if ever runs.
-      expect(store.puzzleLoaded).toBe(false);
+      expect(store.puzzleLoaded).toBe(true);
+      expect(store.playgroundMode).toBe(true);
+      expect(store.publicId).toBe('');
+      expect(useGetFetchAPI).not.toHaveBeenCalledWith(expect.stringContaining('user_scramble?public_id'), expect.anything());
       unmount();
     });
 
     // App.vue renders nothing until puzzleLoaded, so failing to load the shared scramble
     // used to leave a blank page - this test previously asserted that as correct.
-    it('still lays out a board and says so when the public_id lookup fails', async () => {
+    it.each([
+      [new ServerError('Wrong public_id'), 'Wrong public_id'],
+      [new TypeError('Failed to fetch'), 'Could not load the shared scramble']
+    ])('still lays out a board and keeps a link error when the public_id lookup fails with %s', async (error, message) => {
       localStorage.setItem('token', 'tok');
-      setLocation('http://localhost:3000/?playground&public_id=abc');
-      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+      setLocation('http://localhost:3000/?playground&public_id=k1bz8cogliwgy');
+      vi.spyOn(console, 'log').mockImplementation(() => undefined);
       vi.mocked(useGetFetchAPI).mockImplementation((endpoint: string) => {
         if (endpoint.includes('user_scramble?public_id')) {
-          return Promise.reject(new Error('boom'));
+          return Promise.reject(error);
         }
         return Promise.resolve(response());
       });
@@ -469,10 +469,12 @@ describe('usePrepare', () => {
       const unmount = mount();
 
       await vi.waitFor(() => {
-        expect(logSpy).toHaveBeenCalled();
+        expect(store.linkError).toBe(message);
       });
       expect(store.puzzleLoaded).toBe(true);
-      expect(store.lastError).toBe('Could not load the shared scramble');
+      expect(store.playgroundMode).toBe(true);
+      expect(store.lastError).toBe('');
+      expect(redirectTo).not.toHaveBeenCalled();
       unmount();
     });
   });
@@ -661,6 +663,32 @@ describe('usePrepare', () => {
       expect(store.replayMode).toBe(false);
       unmount();
     });
+
+    it.each([
+      [{ numLines: '5' }, 5],
+      [{ numLines: '6', enableCageMode: 'true' }, 4],
+      [{ numLines: '6', fmcBlitz: 'true', token: 'tok' }, 4]
+    ])('falls back to the board the main page would open with %o when the game lookup fails', async (saved, size) => {
+      for (const [key, value] of Object.entries(saved)) {
+        localStorage.setItem(key, value);
+      }
+      setLocation('http://localhost:3000/?game_id=42');
+      vi.spyOn(console, 'log').mockImplementation(() => undefined);
+      vi.mocked(useGetFetchAPI).mockImplementation((endpoint: string) => {
+        if (endpoint.includes('game?game_id')) {
+          return Promise.reject(new Error('boom'));
+        }
+        return Promise.resolve(response());
+      });
+      const store = useBaseStore();
+      const unmount = mount();
+
+      await vi.waitFor(() => {
+        expect(store.puzzleLoaded).toBe(true);
+      });
+      expect(store.numLines).toBe(size);
+      unmount();
+    });
   });
 
   describe('current-user check', () => {
@@ -834,95 +862,5 @@ describe('usePrepare', () => {
       expect(preloadSpy).not.toHaveBeenCalled();
       unmount();
     });
-  });
-});
-
-describe('getSquareSize', () => {
-  function setWidth(width: number): void {
-    Object.defineProperty(window, 'innerWidth', { value: width, configurable: true });
-  }
-
-  beforeEach(() => {
-    setActivePinia(createPinia());
-  });
-
-  it.each([
-    { proMode: true, numLines: 3, cageAdd: 56 },
-    { proMode: true, numLines: 4, cageAdd: 22 },
-    { proMode: true, numLines: 5, cageAdd: 1 },
-    { proMode: true, numLines: 6, cageAdd: -12 },
-    { proMode: true, numLines: 7, cageAdd: -20 },
-    { proMode: true, numLines: 8, cageAdd: -28 },
-    { proMode: false, numLines: 3, cageAdd: 45 },
-    { proMode: false, numLines: 4, cageAdd: 12 },
-    { proMode: false, numLines: 5, cageAdd: -8 },
-    { proMode: false, numLines: 6, cageAdd: -21 },
-    { proMode: false, numLines: 7, cageAdd: -31 },
-    { proMode: false, numLines: 8, cageAdd: -38 }
-  ])('computes the fixed board size for proMode=$proMode, numLines=$numLines', ({ proMode, numLines, cageAdd }) => {
-    // Width outside [370, 820] window and >820 uses "80 + cageAdd" directly, making
-    // cageAdd (and therefore which switch case fired) directly observable in the result.
-    setWidth(900);
-    const store = useBaseStore();
-    store.proMode = proMode;
-    store.numLines = numLines;
-    const [{ squareSize }, unmount] = withSetup(() => getSquareSize());
-    expect(squareSize.value).toBe(80 + cageAdd);
-    unmount();
-  });
-
-  it('shrinks to fit a pro-mode board below 370px wide', () => {
-    setWidth(300);
-    const store = useBaseStore();
-    store.proMode = true;
-    store.numLines = 4;
-    store.spaceBetween = 8;
-    const [{ squareSize }, unmount] = withSetup(() => getSquareSize());
-    expect(squareSize.value).toBe(Math.floor((300 - (40 + 40)) / 4));
-    unmount();
-  });
-
-  it('shrinks to fit a non-pro-mode board below 370px wide, with extra margin', () => {
-    setWidth(300);
-    const store = useBaseStore();
-    store.proMode = false;
-    store.numLines = 4;
-    store.spaceBetween = 8;
-    const [{ squareSize }, unmount] = withSetup(() => getSquareSize());
-    expect(squareSize.value).toBe(Math.floor((300 - (40 + 70)) / 4));
-    unmount();
-  });
-
-  it('computes the mid-small-screen size between 371px and 480px wide', () => {
-    setWidth(450);
-    const store = useBaseStore();
-    store.numLines = 4;
-    store.spaceBetween = 8;
-    const [{ squareSize }, unmount] = withSetup(() => getSquareSize());
-    expect(squareSize.value).toBe(Math.floor((450 - (40 + 50)) / 4));
-    unmount();
-  });
-
-  it('uses the fixed tablet-range size between 600px and 820px wide', () => {
-    setWidth(700);
-    const store = useBaseStore();
-    store.proMode = false;
-    store.numLines = 4;
-    const [{ squareSize }, unmount] = withSetup(() => getSquareSize());
-    expect(squareSize.value).toBe(100 + 12);
-    unmount();
-  });
-
-  it('reacts to the puzzle size changing after the composable is created', () => {
-    setWidth(900);
-    const store = useBaseStore();
-    store.proMode = false;
-    store.numLines = 4;
-    const [{ squareSize }, unmount] = withSetup(() => getSquareSize());
-    expect(squareSize.value).toBe(80 + 12);
-
-    store.numLines = 3;
-    expect(squareSize.value).toBe(80 + 45);
-    unmount();
   });
 });

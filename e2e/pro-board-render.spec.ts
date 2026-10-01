@@ -16,7 +16,7 @@ async function openProBoard(page: Page, numLines: number): Promise<void> {
     localStorage.setItem('proMode', 'true');
   }, String(numLines));
 
-  await page.goto('/?pro');
+  await page.goto('/');
   await expect(page.locator('.p-container canvas')).toBeVisible();
 }
 

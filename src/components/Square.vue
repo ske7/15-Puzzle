@@ -46,7 +46,8 @@ const blockTransition = computed(() => {
   if (baseStore.inReplay) {
     return `all ${baseStore.replaySpeed / 1000}s ease 0s`;
   }
-  if (baseStore.proMode) {
+  // A tile still sliding under the pointer would be hovered again and sent straight back.
+  if (baseStore.proMode || (baseStore.cageMode && baseStore.hoverOnControl)) {
     return 'none';
   }
   return 'all 0.2s ease 0s';
@@ -122,8 +123,7 @@ const cannotMove = computed(() => {
   return isDoneAll.value || baseStore.paused || moveDirection.value === Direction.None;
 });
 const move = (control: ControlType): void => {
-  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode ||
-  baseStore.marathonReplay || cannotMove.value) {
+  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode || cannotMove.value) {
     return;
   }
   baseStore.isMoving = true;
@@ -133,7 +133,7 @@ const move = (control: ControlType): void => {
   baseStore.isMoving = false;
 };
 const moveByMouse = (event: MouseEvent): void => {
-  if (!(baseStore.hoverOnControl && baseStore.proMode)) {
+  if (!(baseStore.hoverOnControl && (baseStore.proMode || baseStore.cageMode))) {
     return;
   }
   if (event.ctrlKey) {
@@ -143,13 +143,13 @@ const moveByMouse = (event: MouseEvent): void => {
 };
 
 const onMouseDown = (): void => {
-  if (baseStore.hoverOnControl && baseStore.proMode) {
+  if (baseStore.hoverOnControl && (baseStore.proMode || baseStore.cageMode)) {
     return;
   }
   move(ControlType.Mouse);
 };
 const getCursor = computed(() => {
-  if (baseStore.hoverOnControl && baseStore.proMode || cannotMove.value) {
+  if (baseStore.hoverOnControl && (baseStore.proMode || baseStore.cageMode) || cannotMove.value) {
     return 'auto';
   }
   return 'pointer';
@@ -326,11 +326,9 @@ onUnmounted(() => {
   align-items: center;
   background-color: v-bind(bgColor);
   -webkit-user-select: none;
-  -moz-user-select: none;
   user-select: none;
   transition: v-bind(blockTransition);
   border-radius: v-bind(borderRadiusVar);
-  box-sizing: border-box;
   box-shadow: 0 0 4px inset rgba(0, 0, 0, 0.2);
   -webkit-tap-highlight-color: transparent;
   z-index: var(--z-tile);
@@ -341,7 +339,8 @@ onUnmounted(() => {
   font-size: v-bind(fontSizeD);
   font-weight: 600;
   color: #0a0a23;
-  font-family: consolas, sans-serif;
+  font-family: var(--font-mono);
+  font-kerning: none;
 }
 .item-img {
   width: 100%;
@@ -357,7 +356,6 @@ onUnmounted(() => {
   align-items: center;
   color: white;
   text-shadow: 0 3px 3px black;
-  opacity: 1;
 }
 .in-place {
   background-color: v-bind(inPlaceColor);
@@ -379,10 +377,8 @@ onUnmounted(() => {
   z-index: var(--z-tile-blank);
 }
 .square span {
-  font-size: v-bind(fontSizeD);
   font-weight: 600;
   color: #0a0a23;
-  font-family: consolas, sans-serif;
 }
 @media screen and (max-width: 401px) {
   .square, .square span {

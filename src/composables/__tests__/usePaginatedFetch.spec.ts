@@ -167,6 +167,43 @@ describe('usePaginatedFetch', () => {
     unmount();
   });
 
+  it('stops after a server ignores offset/limit and answers with the whole list', async () => {
+    const allRows = Array.from({ length: 120 }, (_, i) => ({ id: 120 - i }));
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ status: 'ok', game_id: 0, records: allRows }));
+    vi.stubGlobal('fetch', fetchMock);
+    const { result, unmount } = mount('missing-el');
+
+    result.fetch();
+    await vi.waitFor(() => {
+      expect(result.fetched.value).toBe(true);
+    });
+    expect(result.records.value).toEqual(allRows);
+    expect(result.isDone.value).toBe(true);
+
+    result.fetch();
+    expect(result.records.value).toEqual(allRows);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    unmount();
+  });
+
+  it('asks for the page size it was given', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ status: 'ok', game_id: 0, records: [{ id: 1 }] }));
+    vi.stubGlobal('fetch', fetchMock);
+    const endpointBuilder = vi.fn((offset: number, limit: number) => `records?offset=${offset}&limit=${limit}`);
+    const [result, unmount] = withSetup(() =>
+      usePaginatedFetch<Row>(endpointBuilder, (res) => res.records ?? [], 'missing-el', true, false, 100));
+    result.fetch();
+    await vi.waitFor(() => {
+      expect(result.fetched.value).toBe(true);
+    });
+    expect(endpointBuilder).toHaveBeenLastCalledWith(0, 100, 'id', OrderDirection.Desc);
+    result.fetch();
+    await vi.waitFor(() => {
+      expect(endpointBuilder).toHaveBeenLastCalledWith(100, 100, 'id', OrderDirection.Desc);
+    });
+    unmount();
+  });
+
   it('scrolling near the bottom triggers another fetch while not done', async () => {
     const el = document.createElement('div');
     el.id = 'scroll-el';
@@ -327,6 +364,26 @@ describe('usePaginatedFetch', () => {
     it('formats a given date string', () => {
       const { result, unmount } = mount('missing-el');
       expect(result.formatDate('2024-01-15T10:30:00Z')).toMatch(/^2024-01-15 \d{2}:\d{2}:\d{2}$/);
+      unmount();
+    });
+  });
+
+  describe('formatShortDate()', () => {
+    it('writes the day first with a two-digit year, to wrap into date over time on a phone', () => {
+      const { result, unmount } = mount('missing-el');
+      expect(result.formatShortDate('2024-01-15T10:30:00Z')).toMatch(/^15\/01\/24 \d{2}:\d{2}:\d{2}$/);
+      expect(result.formatShortDate(undefined)).toBe('');
+      unmount();
+    });
+  });
+
+  describe('columnClass()', () => {
+    it('turns a column label into a class its header and cells share', () => {
+      const { result, unmount } = mount('missing-el');
+      expect(result.columnClass('ID')).toBe('col-id');
+      expect(result.columnClass('Opt.diff')).toBe('col-opt-diff');
+      expect(result.columnClass('Opt.')).toBe('col-opt');
+      expect(result.columnClass('Public ID')).toBe('col-public-id');
       unmount();
     });
   });

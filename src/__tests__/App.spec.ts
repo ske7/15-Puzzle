@@ -1,24 +1,27 @@
 import { mount, type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { nextTick } from 'vue';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../App.vue';
 import { useBaseStore } from '../stores/base';
 import type { RepGame } from '@/types';
 
-// usePrepare and useWatchGameState each have their own dedicated, thorough test suites
-// (usePrepare.spec.ts, useWatchGameState.spec.ts) that fully exercise their real network/
-// localStorage/DOM side effects - mock the usePrepare() entry point here so App's own tests
-// are isolated to what App.vue itself is responsible for: wiring, the puzzleLoaded gate, and
-// its own template logic (header visibility, the clear-display toggle, WinModal's render
-// condition). getSquareSize is kept real - Board.vue calls it directly to size itself.
-vi.mock('../composables/usePrepare', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../composables/usePrepare')>();
-  return { ...actual, usePrepare: vi.fn() };
-});
+// useKeyDown, usePrepare and useWatchGameState each have their own dedicated, thorough test
+// suites that fully exercise their real network/localStorage/DOM side effects - mock them
+// here so App's own tests are isolated to what App.vue itself is responsible for: wiring,
+// the puzzleLoaded gate, and its own template logic (header visibility, the clear-display
+// toggle, WinModal's render condition). useTheme is small enough to keep real.
+vi.mock('../composables/useKeyDown', () => ({
+  useKeyDown: vi.fn()
+}));
+vi.mock('../composables/usePrepare', () => ({
+  usePrepare: vi.fn()
+}));
 vi.mock('../composables/useWatchGameState', () => ({
   useWatchGameState: vi.fn()
 }));
 
+import { useKeyDown } from '../composables/useKeyDown';
 import { usePrepare } from '../composables/usePrepare';
 import { useWatchGameState } from '../composables/useWatchGameState';
 
@@ -69,6 +72,7 @@ describe('App', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     setWidth(1024);
+    vi.mocked(useKeyDown).mockClear();
     vi.mocked(usePrepare).mockClear();
     vi.mocked(useWatchGameState).mockClear();
   });
@@ -76,13 +80,31 @@ describe('App', () => {
   afterEach(() => {
     currentWrapper?.unmount();
     currentWrapper = undefined;
+    document.documentElement.dataset['theme'] = '';
   });
 
-  it('wires up usePrepare and useWatchGameState exactly once', () => {
+  it('wires up useKeyDown, usePrepare and useWatchGameState exactly once', () => {
     setupLoadedPuzzle();
     mountApp();
+    expect(useKeyDown).toHaveBeenCalledTimes(1);
     expect(usePrepare).toHaveBeenCalledTimes(1);
     expect(useWatchGameState).toHaveBeenCalledTimes(1);
+  });
+
+  it('starts keyboard input before detecting the start mode, as it always has', () => {
+    setupLoadedPuzzle();
+    mountApp();
+    expect(vi.mocked(useKeyDown).mock.invocationCallOrder[0])
+      .toBeLessThan(vi.mocked(usePrepare).mock.invocationCallOrder[0]);
+  });
+
+  it('keeps the page theme in step with dark mode, as toggled from Config', async () => {
+    const store = setupLoadedPuzzle();
+    mountApp();
+    expect(document.documentElement.dataset['theme']).toBe('light');
+    store.darkMode = true;
+    await nextTick();
+    expect(document.documentElement.dataset['theme']).toBe('dark');
   });
 
   it('renders nothing while the puzzle has not finished loading', () => {
@@ -97,20 +119,12 @@ describe('App', () => {
     expect(wrapper.find('.board').exists()).toBe(true);
   });
 
-  describe('cageImgSize', () => {
-    it('shrinks the cage image at a narrow width', () => {
-      setWidth(400);
-      setupLoadedPuzzle();
-      const wrapper = mountApp();
-      expect(wrapper.find('.header img').attributes('width')).toBe('32');
-    });
-
-    it('uses the full cage image size above the narrow-width breakpoint', () => {
-      setWidth(1024);
-      setupLoadedPuzzle();
-      const wrapper = mountApp();
-      expect(wrapper.find('.header img').attributes('width')).toBe('42');
-    });
+  it.each([400, 1024])('shows the cage logo at 32px at width %i, matching its CSS size', (width) => {
+    setWidth(width);
+    setupLoadedPuzzle();
+    const wrapper = mountApp();
+    expect(wrapper.find('.header img').attributes('width')).toBe('32');
+    expect(wrapper.find('.header img').attributes('height')).toBe('32');
   });
 
   describe('header visibility', () => {

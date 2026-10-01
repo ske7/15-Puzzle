@@ -145,6 +145,12 @@ describe('useBaseStore - getters', () => {
     expect(store.showModal).toBe(true);
   });
 
+  it('showModal is true while the live records list is open', () => {
+    const store = useBaseStore();
+    store.showLiveRecords = true;
+    expect(store.showModal).toBe(true);
+  });
+
   it('disableDuringMarathon is true only during an active, unfinished marathon run', () => {
     const store = useBaseStore();
     expect(store.disableDuringMarathon).toBe(false);

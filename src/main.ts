@@ -13,7 +13,11 @@ if (import.meta.env.MODE === 'test') {
   window.__cage15Test__ = {
     getMixedOrders: () => store.mixedOrders,
     getCurrentOrders: () => store.currentOrders,
-    getNumLines: () => store.numLines
+    getNumLines: () => store.numLines,
+    readStore: (keys) => JSON.parse(JSON.stringify(
+      Object.fromEntries(keys.map((key) => [key, (store as unknown as Record<string, unknown>)[key]])),
+      (_key, value: unknown) => value instanceof Set ? [...(value as Set<unknown>)] : value
+    )) as Record<string, unknown>
   };
 }
 

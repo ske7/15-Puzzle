@@ -39,14 +39,13 @@ const copyText = computed(() => {
   font-style: normal;
   height: 24px;
   width: 24px;
-  min-width:24px;
+  min-width: 24px;
   transition: 1ms all ease-out;
   font-size: var(--vd-font-size);
   background-color: transparent;
   display: inline;
 }
 .copy-button:disabled {
-  cursor: auto;
   opacity: 1;
   font-style: italic;
 }

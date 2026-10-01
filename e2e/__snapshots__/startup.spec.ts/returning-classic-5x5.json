@@ -1,0 +1,49 @@
+{
+  "url": "/",
+  "theme": "light",
+  "errorLine": null,
+  "board": "24 squares",
+  "store": {
+    "puzzleLoaded": true,
+    "numLines": 5,
+    "proMode": false,
+    "hoverOnControl": false,
+    "darkMode": false,
+    "spaceBetween": 8,
+    "enableCageMode": false,
+    "cageMode": false,
+    "unlockedCages": [],
+    "marathonMode": false,
+    "fmcBlitz": false,
+    "blitzScrambleCount": 0,
+    "g1000Mode": false,
+    "noPlayMode": false,
+    "consecutiveSolves": 0,
+    "opt_m": 0,
+    "playgroundMode": false,
+    "sharedPlaygroundMode": false,
+    "checkUserScrambleInDB": false,
+    "publicId": "",
+    "userScrambleId": 0,
+    "otherUserName": "",
+    "playgroundBestTime": 0,
+    "playgroundBestMoves": 0,
+    "playgroundSolvePath": [],
+    "replayMode": false,
+    "marathonReplay": false,
+    "lastError": "",
+    "linkError": "",
+    "isNetworkError": false,
+    "savedOrders": "",
+    "mixedOrders": "25 random"
+  },
+  "localStorage": {
+    "hoverOnControl": "false",
+    "numLines": "5",
+    "proMode": "false",
+    "recordVer": "1"
+  },
+  "requests": [
+    "GET /version"
+  ]
+}

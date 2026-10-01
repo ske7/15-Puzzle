@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mockApi } from './fixtures/api';
-import { firstLegalMove } from './helpers/solver';
+import { driveMoves, firstLegalMove, solve } from './helpers/solver';
 
 // Pro mode's hover control moves a tile as the pointer passes over it, with no button ever
 // held. jsdom has no layout, so the unit suite can only check the cell arithmetic against a
@@ -19,11 +19,11 @@ async function openProBoard(page: Page, numLines: number, hover: boolean): Promi
     localStorage.setItem('numLines', size);
     localStorage.setItem('hoverOnControl', hoverOn);
     // A stored proMode is what marks this as a returning player. Without it, usePrepare
-    // treats a ?pro link as a first visit and forces hoverOnControl back on.
+    // treats the visit as a first one and forces hoverOnControl back on.
     localStorage.setItem('proMode', 'true');
   }, [String(numLines), String(hover)]);
 
-  await page.goto('/?pro');
+  await page.goto('/');
   await expect(page.locator('.p-container')).toBeVisible();
 
   const board = await readBoard(page);
@@ -182,6 +182,61 @@ test.describe('pro hover control', () => {
     expect((await readBoard(page)).orders.indexOf(0)).toBe(parked);
   });
 
+  // The reported path: a marathon scramble solved by hovering leaves the cursor on the last
+  // cell, and the next scramble appears with a movable tile under it. Before that scramble's
+  // first move a tile moves only when the cursor enters it, as the per-tile mouseenter always
+  // did, so leaving the board and coming back onto the tile has to move it.
+  test('in a marathon, re-entering the tile under the cursor from off the board moves it', async ({ page }) => {
+    test.setTimeout(120000);
+    const numLines = 3;
+    const restingCell = numLines * numLines - 1;
+    await mockApi(page);
+    await page.addInitScript(() => {
+      localStorage.setItem('numLines', '3');
+      localStorage.setItem('hoverOnControl', 'true');
+      localStorage.setItem('proMode', 'true');
+      localStorage.setItem('marathonMode', 'true');
+    });
+
+    const onlyEnteringMoves = (blank: number): boolean => {
+      const sameLine = Math.floor(blank / numLines) === Math.floor(restingCell / numLines) ||
+        blank % numLines === restingCell % numLines;
+      return sameLine && blank !== restingCell;
+    };
+
+    let found = false;
+    for (let attempt = 0; attempt < 40 && !found; attempt += 1) {
+      if (attempt % 4 === 0) {
+        await page.goto('/');
+        await expect(page.locator('.p-container canvas')).toBeVisible();
+      }
+      const start = await readBoard(page);
+      const startScramble = start.orders.join(',');
+      const moves = solve(start.orders, numLines);
+      await driveMoves(page, moves.slice(0, -1));
+      await hoverCell(page, restingCell, numLines);
+      await page.waitForFunction(
+        (previous) => window.__cage15Test__!.getMixedOrders().join(',') !== previous,
+        startScramble
+      );
+
+      const next = await readBoard(page);
+      if (!onlyEnteringMoves(next.orders.indexOf(0))) {
+        continue;
+      }
+      found = true;
+
+      const centre = await cellCentre(page, restingCell, numLines);
+      await page.mouse.move(centre.x + 3, centre.y + 3);
+      expect((await readBoard(page)).orders, 'a twitch inside the cell must not start the scramble').toEqual(next.orders);
+
+      await page.mouse.move(1, 1);
+      await page.mouse.move(centre.x, centre.y);
+      await expect.poll(async () => (await readBoard(page)).orders.indexOf(0)).toBe(restingCell);
+    }
+    expect(found, 'no scramble put a movable tile under the resting cursor').toBe(true);
+  });
+
   test('maps the pointer to the right cell after a puzzle-size change', async ({ page }) => {
     await openProBoard(page, 4, true);
 
@@ -225,6 +280,43 @@ test.describe('pro hover control', () => {
 
     const after = await readBoard(page);
     expect(after.orders.indexOf(0)).toBe(target.index);
+    await expect(movesLocator(page)).toHaveText(exactly(target.distance));
+  });
+});
+
+// Playground and replay draw one element per tile rather than the pro canvas. Each tile takes
+// its own taps, so a finger sliding across the board is the part that can quietly go missing.
+test.describe('finger slide on the tile board', () => {
+  test.use({ hasTouch: true });
+
+  test('slides every tile a finger crosses in the playground', async ({ page, context, browserName }) => {
+    // Chromium only by design: Playwright has no touch drag, so real touch input goes through its DevTools protocol.
+    test.skip(browserName !== 'chromium', 'a real touch drag can only be sent through the Chromium DevTools protocol');
+    await mockApi(page);
+    await page.addInitScript(() => {
+      localStorage.setItem('numLines', '4');
+      localStorage.setItem('hoverOnControl', 'true');
+      localStorage.setItem('proMode', 'true');
+    });
+    await page.goto('/?playground');
+    await expect(page.locator('.p-container .square').first()).toBeVisible();
+
+    const board = await readBoard(page);
+    const target = targetInBlankRow(board);
+    const from = await cellCentre(page, board.orders.indexOf(0), board.numLines);
+    const to = await cellCentre(page, target.index, board.numLines);
+    const cdp = await context.newCDPSession(page);
+    const touch = async (type: 'touchStart' | 'touchMove' | 'touchEnd', point?: { x: number; y: number }): Promise<void> => {
+      await cdp.send('Input.dispatchTouchEvent', { type, touchPoints: point ? [{ x: point.x, y: point.y }] : [] });
+    };
+
+    await touch('touchStart', from);
+    for (let step = 1; step <= 12; step++) {
+      await touch('touchMove', { x: from.x + (to.x - from.x) * step / 12, y: from.y });
+    }
+    await touch('touchEnd');
+
+    expect((await readBoard(page)).orders.indexOf(0)).toBe(target.index);
     await expect(movesLocator(page)).toHaveText(exactly(target.distance));
   });
 });

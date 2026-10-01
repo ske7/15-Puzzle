@@ -190,7 +190,7 @@ describe('UserAccount', () => {
     expect(movesRow[1].textContent).toBe('38');
     expect(movesRow[4].textContent).toBe('t');
 
-    expect(blitzRow[0].textContent).toBe('fmc_bl.');
+    expect(blitzRow[0].textContent).toBe('FMC');
     expect(blitzRow[1].textContent).toBe('25');
   });
 

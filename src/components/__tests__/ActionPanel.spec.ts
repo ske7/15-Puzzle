@@ -613,6 +613,118 @@ describe('ActionPanel', () => {
     });
   });
 
+  describe('marathon replay', () => {
+    // Two real one-move legs: sliding 8 left solves the first, sliding 6 up solves the second.
+    const firstLeg = [1, 2, 3, 4, 5, 6, 7, 0, 8];
+    const secondLeg = [1, 2, 3, 4, 5, 0, 7, 8, 6];
+    const solved = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+
+    function setupMarathonReplay(fastWalkMode: boolean) {
+      const store = setup3x3Board();
+      store.proMode = true;
+      store.replayMode = true;
+      store.marathonReplay = true;
+      store.fastWalkMode = fastWalkMode;
+      store.repGame = realRepGame({
+        puzzle_type: 'marathon',
+        scramble: `${firstLeg.join(',')};${secondLeg.join(',')}`,
+        solve_path: 'L;U'
+      });
+      store.initStore();
+      return store;
+    }
+
+    it('walks every leg in order, keeping one move count and path across puzzles', async () => {
+      const store = setupMarathonReplay(true);
+      const wrapper = mountPanel();
+      const mixedOrdersSeen = [store.mixedOrders.join(',')];
+      store.$subscribe(() => {
+        const current = store.mixedOrders.join(',');
+        if (mixedOrdersSeen.at(-1) !== current) {
+          mixedOrdersSeen.push(current);
+        }
+      }, { flush: 'sync' });
+
+      await internals(wrapper).doWalk();
+
+      expect(mixedOrdersSeen).toEqual([firstLeg.join(','), secondLeg.join(',')]);
+      expect(store.currentOrders).toEqual(solved);
+      expect(store.movesCount).toBe(2);
+      expect(store.solvePath).toEqual(['L', ';', 'U']);
+      expect(store.solvedPuzzlesInMarathon).toBe(1);
+      expect(store.inReplay).toBe(false);
+    });
+
+    it('shows the next scramble without animating the tiles, then moves at replay speed again', async () => {
+      const store = setupMarathonReplay(false);
+      const wrapper = mountPanel();
+      const walk = internals(wrapper).doWalk();
+
+      await vi.waitFor(() => {
+        expect(store.mixedOrders).toEqual(secondLeg);
+      }, { interval: 5 });
+      expect(store.replaySpeed).toBe(0);
+      expect(store.currentOrders).toEqual(secondLeg);
+
+      await walk;
+      expect(store.replaySpeed).toBe(store.walkSpeed);
+      expect(store.currentOrders).toEqual(solved);
+    });
+
+    it('stopped on a solved puzzle, resumes from the start of the next one', async () => {
+      const store = setupMarathonReplay(false);
+      const wrapper = mountPanel();
+      const first = internals(wrapper).doWalk();
+      await vi.waitFor(() => {
+        expect(store.movesCount).toBe(1);
+      }, { interval: 5 });
+      expect(store.currentOrders).toEqual(solved);
+
+      await internals(wrapper).doWalk(); // stop
+      await first;
+      expect(store.mixedOrders).toEqual(secondLeg);
+      expect(store.currentOrders).toEqual(secondLeg);
+      expect(store.movesCount).toBe(1);
+
+      await internals(wrapper).doWalk(); // resume
+      expect(store.movesCount).toBe(2);
+      expect(store.currentOrders).toEqual(solved);
+      expect(store.solvePath).toEqual(['L', ';', 'U']);
+    });
+
+    it('restarted on a solved puzzle, goes back to the first scramble instead of the next', async () => {
+      const store = setupMarathonReplay(false);
+      const wrapper = mountPanel();
+      const walk = internals(wrapper).doWalk();
+      await vi.waitFor(() => {
+        expect(store.movesCount).toBe(1);
+      }, { interval: 5 });
+
+      const restartButton = wrapper.findAll('button').find((b) => b.text() === 'Restart');
+      expect(restartButton).toBeDefined();
+      await restartButton!.trigger('click');
+      await walk;
+
+      expect(store.mixedOrders).toEqual(firstLeg);
+      expect(store.currentOrders).toEqual(firstLeg);
+      expect(store.solvedPuzzlesInMarathon).toBe(0);
+      expect(store.movesCount).toBe(0);
+    });
+
+    it.each([
+      [1024, ['Restart', 'Walk', 's', 'f', 'Replay']],
+      [400, ['Restart', 'Walk', 's', 'f', 'Replay']]
+    ])('shows the same controls as a single replay at width %i', (width, labels) => {
+      setWidth(width);
+      setupMarathonReplay(false);
+      const wrapper = mountPanel();
+      const shown = wrapper.findAll('button').map(b => b.text());
+      for (const label of labels) {
+        expect(shown).toContain(label);
+      }
+    });
+  });
+
   describe('eventBus listener', () => {
     it('runs doWalk on a walk event', async () => {
       const store = setup3x3Board();

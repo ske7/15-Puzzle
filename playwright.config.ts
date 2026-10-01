@@ -14,6 +14,9 @@ export default defineConfig({
   // One local retry absorbs that without masking a real, consistently-failing test.
   retries: process.env.CI ? 2 : 1,
   reporter: 'html',
+  // One baseline per snapshot for every browser and OS: startup.spec.ts records app state,
+  // not pixels, so all three browsers must reach the same result.
+  snapshotPathTemplate: '{testDir}/__snapshots__/{testFilePath}/{arg}{ext}',
   use: {
     baseURL: 'http://localhost:4173',
     trace: 'on-first-retry'

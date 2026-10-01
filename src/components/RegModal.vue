@@ -93,7 +93,7 @@ const checkFields = (): boolean => {
     if (user.name.trim() === '') {
       invalidFields.name = true;
     }
-    if (!(/^[a-z-_0-9]+$/gi).test(user.name)) {
+    if (!(/^[\w-]+$/i).test(user.name)) {
       errorMsg.value.push('Allowed characters for username: letters (a-z), numbers, underscores(_) and hyphens(-)');
       invalidFields.name = true;
     }
@@ -105,7 +105,9 @@ const checkFields = (): boolean => {
     if (user.password.trim() === '') {
       invalidFields.password = true;
     }
-    if (!(/^[\w-.]+@([\w-]+\.)+[\w-.]{2,20}$/g).test(user.email)) {
+    // Name parts allow + and ' with single dots between them; domain labels are letters and digits with
+    // inner hyphens; the ending starts with a letter, which also covers xn-- internationalised names.
+    if (!(/^[\w+'-]+(?:\.[\w+'-]+)*@(?:[a-z\d](?:[a-z\d-]*[a-z\d])?\.)+[a-z][a-z\d-]*[a-z\d]$/i).test(user.email)) {
       errorMsg.value.push('Invalid email address');
       invalidFields.email = true;
     }
@@ -308,7 +310,6 @@ onMounted(() => {
 <style scoped>
 .reg-modal {
   justify-content: center;
-  height: auto;
   width: 370px;
   z-index: var(--z-modal-above);
   top: calc(40% - 160px);
@@ -346,10 +347,8 @@ label {
 label input {
   max-width: 100%;
   width: 100%;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   background-color: var(--background-color);
-  color: var(--text-color);
-  height: auto;
   padding: 3px 7px;
   border-radius: 8px;
   line-height: 1.6;
@@ -392,7 +391,6 @@ a {
   cursor: pointer;
 }
 a:hover {
-  text-decoration: underline;
   color: var(--text-color);
 }
 .after-sent-email {

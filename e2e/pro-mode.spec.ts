@@ -2,11 +2,11 @@ import { expect, test } from '@playwright/test';
 import { mockApi } from './fixtures/api';
 
 test.describe('pro mode', () => {
-  test('?pro boots the canvas board and responds to real keyboard moves', async ({ page }) => {
+  test('a first visit boots pro mode, the default, with the canvas board responding to real keyboard moves', async ({ page }) => {
     await mockApi(page);
     await page.addInitScript(() => localStorage.setItem('numLines', '3'));
 
-    await page.goto('/?pro');
+    await page.goto('/');
     await expect(page.locator('.p-container')).toBeVisible();
 
     // Uses a leading-digit regex, not an exact match: this span also nests a hidden

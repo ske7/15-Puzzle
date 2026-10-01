@@ -1,0 +1,51 @@
+{
+  "url": "/?game_id=42",
+  "theme": "light",
+  "errorLine": null,
+  "board": "8 squares",
+  "store": {
+    "puzzleLoaded": true,
+    "numLines": 3,
+    "proMode": true,
+    "hoverOnControl": true,
+    "darkMode": false,
+    "spaceBetween": 0,
+    "enableCageMode": false,
+    "cageMode": false,
+    "unlockedCages": [],
+    "marathonMode": false,
+    "fmcBlitz": false,
+    "blitzScrambleCount": 0,
+    "g1000Mode": false,
+    "noPlayMode": false,
+    "consecutiveSolves": 0,
+    "opt_m": 0,
+    "playgroundMode": false,
+    "sharedPlaygroundMode": false,
+    "checkUserScrambleInDB": false,
+    "publicId": "",
+    "userScrambleId": 0,
+    "otherUserName": "",
+    "playgroundBestTime": 0,
+    "playgroundBestMoves": 0,
+    "playgroundSolvePath": [],
+    "replayMode": true,
+    "marathonReplay": true,
+    "lastError": "",
+    "linkError": "",
+    "isNetworkError": false,
+    "savedOrders": "",
+    "mixedOrders": "2,0,3,1,6,7,4,5,8"
+  },
+  "localStorage": {
+    "enableCageMode": "true",
+    "marathonMode": "false",
+    "numLines": "4",
+    "proMode": "false",
+    "recordVer": "1"
+  },
+  "requests": [
+    "GET /game?game_id=42",
+    "GET /version"
+  ]
+}

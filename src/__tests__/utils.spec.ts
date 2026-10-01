@@ -11,6 +11,7 @@ import {
   redirectTo,
   reloadPage,
   displayedTime,
+  timeAgo,
   expandSolutionStr,
   generate,
   generateAndShuffle,
@@ -249,6 +250,33 @@ describe('getSeconds / getMilliSeconds / displayedTime', () => {
   });
 });
 
+describe('timeAgo', () => {
+  const now = Date.parse('2026-09-18T06:20:23.072Z');
+
+  it('says "just now" under a minute', () => {
+    expect(timeAgo('2026-09-18T06:19:30.000Z', now)).toBe('just now');
+  });
+
+  it('counts minutes under an hour', () => {
+    expect(timeAgo('2026-09-18T06:15:05.418Z', now)).toBe('5m ago');
+    expect(timeAgo('2026-09-18T05:20:30.000Z', now)).toBe('59m ago');
+  });
+
+  it('counts hours under a day', () => {
+    expect(timeAgo('2026-09-18T05:20:23.072Z', now)).toBe('1h ago');
+    expect(timeAgo('2026-09-17T06:21:00.000Z', now)).toBe('23h ago');
+  });
+
+  it('counts days under thirty days', () => {
+    expect(timeAgo('2026-09-08T00:50:14.101Z', now)).toBe('10d ago');
+  });
+
+  it('shows the local date for anything older', () => {
+    const older = new Date(2023, 7, 30, 12, 54, 47).toISOString();
+    expect(timeAgo(older, now)).toBe('30/08/23');
+  });
+});
+
 describe('isSorted', () => {
   it('is true for an ascending array', () => {
     expect(isSorted([1, 2, 3])).toBe(true);
@@ -346,6 +374,28 @@ describe('convertToNumbersArray', () => {
   it('returns an empty array when any segment is not a number', () => {
     expect(convertToNumbersArray('1,a,3')).toEqual([]);
   });
+
+  it.each([
+    ['the app\'s own format', '1 2 3/4 5 6/7 8 0'],
+    ['plain commas', '1,2,3,4,5,6,7,8,0'],
+    ['a comma and a space', '1, 2, 3, 4, 5, 6, 7, 8, 0'],
+    ['a trailing newline, as copied text often has', '1,2,3,4,5,6,7,8,0\n'],
+    ['a double space', '1 2  3/4 5 6/7 8 0'],
+    ['one row per line', '1 2 3\n4 5 6\n7 8 0']
+  ])('reads a 3x3 scramble written with %s', (_case, text) => {
+    expect(convertToNumbersArray(text)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 0]);
+  });
+
+  it.each([
+    ['a decimal', '1.5,2,3,4,5,6,7,8,0'],
+    ['a negative', '-1,2,3,4,5,6,7,8,0'],
+    ['hex', '0x1,2,3,4,5,6,7,8,0'],
+    ['an exponent', '1e0,2,3,4,5,6,7,8,0'],
+    ['nothing at all', ''],
+    ['only spaces', '   ']
+  ])('rejects %s, since tiles are whole numbers', (_case, text) => {
+    expect(convertToNumbersArray(text)).toEqual([]);
+  });
 });
 
 describe('sleep', () => {
@@ -399,6 +449,21 @@ describe('createLinkAndClick', () => {
     expect(capturedHref).toBe('/some/path');
     expect(capturedTarget).toBeNull();
     expect(document.body.querySelector('a[href="/some/path"]')).toBeNull();
+  });
+
+  it('clicks the link from a given parent instead of the body', () => {
+    const parent = document.createElement('div');
+    document.body.appendChild(parent);
+    let parentAtClick: Node | null = null;
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      parentAtClick = this.parentNode;
+    });
+
+    createLinkAndClick('/some/path', true, parent);
+
+    expect(parentAtClick).toBe(parent);
+    expect(parent.querySelector('a')).toBeNull();
+    parent.remove();
   });
 
   it('sets target=_blank when openOnNewPage is true', () => {

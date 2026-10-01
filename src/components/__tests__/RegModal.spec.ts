@@ -146,6 +146,35 @@ describe('RegModal', () => {
       expect(internals(wrapper).errorMsg).toContain('Invalid email address');
     });
 
+    it.each([
+      ['plus addressing', 'leo+15puzzle@gmail.com'],
+      ['an apostrophe', "o'brien@example.ie"],
+      ['dots and hyphens', 'first.last-name@my-mail.co.uk'],
+      ['a long ending', 'leo@example.international'],
+      ['an internationalised ending', 'leo@example.xn--vermgensberatung-pwb']
+    ])('accepts a real address with %s', async (_case, email) => {
+      const wrapper = mountModal({ formType: 'login' });
+      await fillAndSubmit(wrapper, { email, password: 'secret1' });
+      expect(internals(wrapper).invalidFields.email).toBe(false);
+      expect(internals(wrapper).errorMsg).not.toContain('Invalid email address');
+    });
+
+    it.each([
+      ['a trailing dot', 'leo@gmail.com.'],
+      ['a doubled dot in the domain', 'leo@gmail..com'],
+      ['an ending made of dots', 'leo@gmail.c..'],
+      ['an underscore in the domain', 'leo@my_mail.com'],
+      ['a leading dot in the name', '.leo@gmail.com'],
+      ['a doubled dot in the name', 'le..o@gmail.com'],
+      ['a space', 'leo @gmail.com'],
+      ['no dot in the domain', 'leo@localhost']
+    ])('rejects a typo: %s', async (_case, email) => {
+      const wrapper = mountModal({ formType: 'login' });
+      await fillAndSubmit(wrapper, { email, password: 'secret1' });
+      expect(internals(wrapper).invalidFields.email).toBe(true);
+      expect(internals(wrapper).errorMsg).toContain('Invalid email address');
+    });
+
     it('rejects a password shorter than 6 characters', async () => {
       const wrapper = mountModal({ formType: 'login' });
       await fillAndSubmit(wrapper, { email: 'gamer@example.com', password: 'ab' });

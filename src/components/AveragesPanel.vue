@@ -137,8 +137,8 @@ const closeLeaderBoard = (): void => {
   top: v-bind(positionTop);
   left: v-bind(positionLeft);
   flex-direction: column;
-  font-size: 16px;
-  font-family: consolas, sans-serif;
+  font-family: var(--font-mono);
+  font-kerning: none;
   width: 295px;
   height: 300px;
   contain: layout paint size;
@@ -151,7 +151,6 @@ const closeLeaderBoard = (): void => {
 }
 .avg-row .avg-type {
   text-align: right;
-  width: 75px;
   padding-right: 20px;
   font-weight: 600;
 }
@@ -187,7 +186,7 @@ const closeLeaderBoard = (): void => {
     padding: 5px 0;
     font-size: 15px;
     line-height: 1.5;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     height: 100px;
   }
@@ -198,21 +197,12 @@ const closeLeaderBoard = (): void => {
   .avg-row span {
     width: 70px;
   }
-  .avg-row .avg-type {
-    text-align: right;
-    width: 70px;
-    padding-right: 20px;
-    font-weight: 600;
-  }
   .best-averages {
     display: none;
   }
   .best-averages-mobile {
     display: block;
     text-align: center;
-  }
-  .best-averages-mobile .link-item {
-    font-size: 14px;
   }
 }
 @media screen and (max-height: 650px) and (max-width: 1050px) {
@@ -224,10 +214,6 @@ const closeLeaderBoard = (): void => {
   }
   .avg-rows {
     max-height: 35px;
-    overflow-y: auto;
-  }
-  .avg-row span, .avg-row .avg-type {
-    width: 70px;
   }
 }
 </style>

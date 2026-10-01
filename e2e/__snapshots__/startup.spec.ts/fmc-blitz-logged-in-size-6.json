@@ -1,0 +1,53 @@
+{
+  "url": "/",
+  "theme": "light",
+  "errorLine": null,
+  "board": "canvas",
+  "store": {
+    "puzzleLoaded": true,
+    "numLines": 4,
+    "proMode": true,
+    "hoverOnControl": false,
+    "darkMode": false,
+    "spaceBetween": 0,
+    "enableCageMode": false,
+    "cageMode": false,
+    "unlockedCages": [],
+    "marathonMode": false,
+    "fmcBlitz": true,
+    "blitzScrambleCount": 12,
+    "g1000Mode": false,
+    "noPlayMode": false,
+    "consecutiveSolves": 0,
+    "opt_m": 0,
+    "playgroundMode": false,
+    "sharedPlaygroundMode": false,
+    "checkUserScrambleInDB": false,
+    "publicId": "",
+    "userScrambleId": 0,
+    "otherUserName": "",
+    "playgroundBestTime": 0,
+    "playgroundBestMoves": 0,
+    "playgroundSolvePath": [],
+    "replayMode": false,
+    "marathonReplay": false,
+    "token": "fake-token",
+    "userName": "tester",
+    "lastError": "",
+    "linkError": "",
+    "isNetworkError": false,
+    "savedOrders": "",
+    "mixedOrders": "16 random"
+  },
+  "localStorage": {
+    "fmcBlitz": "true",
+    "numLines": "4",
+    "proMode": "true",
+    "recordVer": "1",
+    "token": "fake-token"
+  },
+  "requests": [
+    "GET /get_current_user",
+    "GET /user_averages?cs_param=0&gt1000mode=false&puzzle_size=4&puzzle_type=standard&session_id=undefined"
+  ]
+}

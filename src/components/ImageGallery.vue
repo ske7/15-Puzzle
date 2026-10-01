@@ -3,13 +3,13 @@ import { ref, computed, watch, reactive, nextTick, onMounted, onUnmounted } from
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
 import { CAGES_PATH_ARR, LoadImageMode } from '@/const';
-import { getSquareSize } from '../composables/usePrepare';
+import { useSquareSize } from '../composables/useSquareSize';
 import { useCloseOnClickOutside } from '../composables/useCloseOnClickOutside';
 
 const emit = defineEmits<{ close: [] }>();
 const baseStore = useBaseStore();
 
-const { squareSize } = getSquareSize();
+const { squareSize } = useSquareSize();
 const boardSize = computed(() => {
   return baseStore.boardSize(squareSize.value);
 });
@@ -190,7 +190,7 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
 
 <template>
   <Teleport to="body">
-    <div ref="imageGallery" class="image-gallery modal-shell" @wheel.prevent="wheel">
+    <div ref="imageGallery" class="image-gallery modal-shell modal-centered" @wheel.prevent="wheel">
       <h2>Cage Image Gallery</h2>
       <div class="controls">
         <div
@@ -288,16 +288,12 @@ for (const [index, value] of CAGES_PATH_ARR.entries()) {
   max-height: calc(var(--v-width) + 137px);
   width: var(--v-width);
   z-index: var(--z-modal);
-  top: 45px;
   left: calc(50% - var(--v-width) / 2);
   padding: 10px;
 }
 @media (min-height: 800px), screen and (max-width: 820px) {
   * {
     --v-width: v-bind(boardSize);
-  }
-  .image-gallery {
-    top: calc(50% - (var(--v-width) + 147px) / 2);
   }
 }
 h2 {
@@ -323,7 +319,6 @@ h2 {
   height: calc(var(--v-width) - 40px);
   width: calc(var(--v-width) - 40px);
   -webkit-user-select: none;
-  -moz-user-select: none;
   user-select: none;
   border-radius: 8px;
 }
@@ -337,7 +332,6 @@ h2 {
   left: calc(50% - 115px);
   transform: rotate(45deg);
   -webkit-user-select: none;
-  -moz-user-select: none;
   user-select: none;
 }
 .cage-loading-txt {
@@ -350,7 +344,6 @@ h2 {
   top: calc(50% - 26px);
   left: calc(50% - 56px);
   -webkit-user-select: none;
-  -moz-user-select: none;
   user-select: none;
 }
 .wait {
@@ -375,7 +368,6 @@ h2 {
 .arrow-button {
   cursor: pointer;
   -webkit-user-select: none;
-  -moz-user-select: none;
   user-select: none;
   scale: 0.7;
 }
@@ -388,13 +380,11 @@ h2 {
   fill: var(--text-color);
 }
 .options {
-  margin: 0 auto;
-  margin-top: 5px;
+  margin: 5px auto 0;
 }
 .option {
   display: flex;
   justify-content: left;
-  align-items: normal;
   gap: 10px;
   margin-bottom: 5px;
 }
@@ -409,5 +399,15 @@ label {
 }
 input[type="checkbox"] {
   margin-top: 1px;
+}
+@media (pointer: coarse) {
+  label {
+    padding: 5px 8px 5px 24px;
+    margin: -5px -8px -5px -24px;
+  }
+  .arrow-button {
+    padding: 14px;
+    margin: -14px;
+  }
 }
 </style>

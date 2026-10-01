@@ -113,6 +113,21 @@ export function isAverageUserRecord(record: UserRecord): record is AverageUserRe
   return !isSingleUserRecord(record);
 }
 
+export interface LiveRecord {
+  record_id: number;
+  name: string;
+  record_type: UserRecord['record_type'] | 'ao1000';
+  puzzle_type: PuzzleType;
+  puzzle_size: number;
+  time: number | null;
+  moves: number | null;
+  avg_time: string | null;
+  avg_moves: string | null;
+  avg_tps: string | null;
+  effective_updated_at: string;
+  update_info: string;
+}
+
 export interface UserStats {
   user_data: {
     created_at: string;
@@ -140,12 +155,12 @@ export interface ErrResponse {
   error?: string;
 }
 
-export interface Response<TStats = UserStats> {
+export interface Response<TStats = UserStats, TRecord = UserRecord> {
   status: string;
   name?: string;
   token?: string;
   stats?: TStats;
-  records?: UserRecord[];
+  records?: TRecord[];
   game_records?: GameData[];
   scramble_records?: UserScrambleData[];
   was_avg_records?: WasAvgRecord[];
@@ -163,4 +178,11 @@ export interface AverageData {
   time?: string;
   moves?: string;
   tps?: string;
+}
+
+export interface TableColumn {
+  label: string;
+  sortField?: string;
+  widthClass?: string;
+  invert?: boolean;
 }

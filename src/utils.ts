@@ -140,6 +140,27 @@ export function displayedTime(time: number, longMode = false): string {
   return `${getSeconds(time)}${getMilliSeconds(time, longMode)}`;
 }
 
+export function timeAgo(date: string, now = Date.now()): string {
+  const minutes = Math.floor((now - Date.parse(date)) / 60000);
+  if (minutes < 1) {
+    return 'just now';
+  }
+  if (minutes < 60) {
+    return `${minutes}m ago`;
+  }
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    return `${hours}h ago`;
+  }
+  const days = Math.floor(hours / 24);
+  if (days < 30) {
+    return `${days}d ago`;
+  }
+  const day = new Date(date);
+  const pad = (n: number): string => n.toString().padStart(2, '0');
+  return `${pad(day.getDate())}/${pad(day.getMonth() + 1)}/${pad(day.getFullYear() % 100)}`;
+}
+
 export function isSorted(array: readonly number[]): boolean {
   return array.every((num, idx, arr) => {
     return (num <= arr[idx + 1]) || (idx === arr.length - 1) ? 1 : 0;
@@ -237,22 +258,13 @@ export function convertScramble(str?: string): string {
   return result;
 }
 
+// Any run of spaces, commas or slashes separates two tiles, and every tile must be a whole number.
 export function convertToNumbersArray(str: string): number[] {
-  const arr = str.replaceAll(/[/\s]/g, ',').split(',');
-  let incorrectArray = false;
-  const numArray: number[] = [];
-  for (const item of arr) {
-    const n = Number(item);
-    if (Number.isNaN(n)) {
-      incorrectArray = true;
-      break;
-    }
-    numArray.push(n);
-  }
-  if (incorrectArray) {
+  const parts = str.trim().split(/[\s,/]+/);
+  if (!parts.every((part) => /^\d+$/.test(part))) {
     return [];
   }
-  return numArray;
+  return parts.map(Number);
 }
 
 export async function sleep(delay: number): Promise<void> {
@@ -271,13 +283,15 @@ export function reloadPage(): void {
   location.reload();
 }
 
-export function createLinkAndClick(path: string, openOnNewPage = false): void {
+// `parent` matters inside a modal that closes on an outside click: a link clicked from the
+// body would count as such a click, so the modal passes its own element.
+export function createLinkAndClick(path: string, openOnNewPage = false, parent?: HTMLElement): void {
   const link = document.createElement('a');
   link.setAttribute('href', path);
   if (openOnNewPage) {
     link.setAttribute('target', '_blank');
   }
-  document.body.appendChild(link);
+  (parent ?? document.body).appendChild(link);
   link.click();
   link.remove();
 }

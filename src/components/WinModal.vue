@@ -24,7 +24,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="winModal" class="win-modal modal-shell">
+  <div ref="winModal" class="win-modal modal-shell modal-centered">
     <div class="finish-message">
       <p>Congrats! You've done it. 🏆</p>
       <p v-if="baseStore.newTimeRecord || baseStore.newMovesRecord" class="unlock-message mb-5 mt-5">
@@ -52,10 +52,8 @@ onUnmounted(() => {
 <style scoped>
 .win-modal {
   justify-content: center;
-  height: auto;
   width: 320px;
   z-index: var(--z-modal);
-  top: calc(50% - 160px);
   left: calc(50% - 160px);
   padding: 20px;
 }
@@ -85,7 +83,7 @@ onUnmounted(() => {
   color: var(--text-color);
   font-style: italic;
 }
-.unlock-message  span {
+.unlock-message span {
   font-weight: 600;
 }
 .buttons {

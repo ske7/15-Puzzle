@@ -190,6 +190,32 @@ describe('useBoardPointer', () => {
       store.stopBlitzInterval();
     });
 
+    it.each([
+      ['leaves the board element', (pointer: ReturnType<typeof useBoardPointer>) => {
+        pointer.onPointerLeave({} as PointerEvent);
+      }],
+      ['is sampled off the grid', (pointer: ReturnType<typeof useBoardPointer>) => {
+        pointer.moveTo(-40, at(1, 1).y);
+      }]
+    ])('counts coming back onto the same tile as entering it after the cursor %s', (_how, leave) => {
+      const store = setupBoard();
+      store.marathonMode = true;
+      store.marathonFirstMove = false;
+      const pointer = useBoardPointer(CELL, boardEl);
+      pointer.moveTo(at(1, 1).x, at(1, 1).y);
+
+      store.currentOrders = [1, 2, 3, 0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 4];
+      pointer.moveTo(at(1, 1).x + 3, at(1, 1).y + 3);
+      expect(store.movesCount).toBe(0);
+
+      leave(pointer);
+      pointer.moveTo(at(1, 1).x, at(1, 1).y);
+
+      expect(store.movesCount).toBe(3);
+      expect(store.freeElementIndex + 1).toBe(1);
+      store.stopInterval();
+    });
+
     it.each(['marathonMode', 'fmcBlitz'] as const)('in %s, moves the cell under a resting cursor once the scramble is under way', (mode) => {
       const store = setupBoard();
       store[mode] = true;

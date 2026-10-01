@@ -37,7 +37,7 @@ const doSubmit = (): void => {
 </script>
 
 <template>
-  <div ref="addScramble" class="add-scramble modal-shell">
+  <div ref="addScramble" class="add-scramble modal-shell modal-centered">
     <p class="header modal-header">
       <span>Add Scramble</span>
     </p>
@@ -83,10 +83,8 @@ const doSubmit = (): void => {
 .add-scramble {
   --modal-width: 340px;
   justify-content: center;
-  height: auto;
   width: var(--modal-width);
   z-index: var(--z-modal);
-  top: 135px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
 }
@@ -109,10 +107,8 @@ label {
 label input {
   max-width: 100%;
   width: 100%;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   background-color: var(--background-color);
-  color: var(--text-color);
-  height: auto;
   padding: 3px 7px;
   border-radius: 8px;
   line-height: 1.6;
@@ -139,7 +135,7 @@ label input {
 }
 @media screen and (max-width: 420px) {
   .add-scramble {
-  --modal-width: 300px;
+    --modal-width: 300px;
   }
 }
 </style>

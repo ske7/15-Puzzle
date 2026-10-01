@@ -303,6 +303,30 @@ describe('useKeyDown', () => {
     expect(store.movesCount).toBe(0);
   });
 
+  it('moves by keyboard while viewing a marathon replay, like a single replay', async () => {
+    store.replayMode = true;
+    store.marathonReplay = true;
+    store.numLines = 4;
+    store.currentOrders = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 1];
+    press('ArrowLeft');
+    await vi.waitFor(() => {
+      expect(store.movesCount).toBe(1);
+    });
+    store.stopInterval();
+  });
+
+  it('does not move while a replay walk is running', async () => {
+    store.replayMode = true;
+    store.marathonReplay = true;
+    store.inReplay = true;
+    store.numLines = 4;
+    store.currentOrders = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 1];
+    press('ArrowLeft');
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(store.movesCount).toBe(0);
+  });
+
   it('does not move while paused', () => {
     store.paused = true;
     store.numLines = 4;

@@ -24,7 +24,9 @@ describe('InfoModal', () => {
     const wrapper = mountModal();
     expect(document.querySelector('.info-header')?.textContent).toBe('About the game');
     expect(document.querySelector('.instruction')?.textContent)
-      .toContain('Move blocks until they are in regular order');
+      .toContain('Move the blocks until they are in order');
+    expect(document.querySelector('.instruction')?.textContent)
+      .toContain('Casual (animated tiles)');
     const link = document.querySelector('a');
     expect(link?.getAttribute('href')).toBe('https://github.com/ske7/15-Puzzle');
     wrapper.unmount();
@@ -59,6 +61,21 @@ describe('InfoModal', () => {
     document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await nextTick();
     expect(wrapper.emitted('close')).toHaveLength(1);
+    wrapper.unmount();
+  });
+
+  it('switches off its links and OK button while the cube flies, and back on once it lands', async () => {
+    vi.useFakeTimers();
+    const wrapper = mountModal();
+    const modal = document.querySelector<HTMLElement>('.info-modal')!;
+    Object.defineProperty(modal, 'clientWidth', { value: 340 });
+    Object.defineProperty(modal, 'scrollHeight', { value: 390 });
+    expect(modal.classList).not.toContain('cube-flying');
+    document.querySelector('.cube-scene')?.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    await nextTick();
+    expect(modal.classList).toContain('cube-flying');
+    await vi.advanceTimersByTimeAsync(20000);
+    expect(modal.classList).not.toContain('cube-flying');
     wrapper.unmount();
   });
 });

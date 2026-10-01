@@ -291,6 +291,33 @@ describe('useWatchGameState', () => {
       unmount();
     });
 
+    it.each([
+      [3, 1, undefined],
+      [1, 1, { moves: 12, time: 180000 - 9000, session_id: 'sess-1' }]
+    ])('with %i scrambles and %i solved, hands postGame the blitz result %o', async (count, _solved, result) => {
+      const store = useBaseStore();
+      store.token = 'tok';
+      store.fmcBlitz = true;
+      store.numLines = 3;
+      store.blitzScrambleCount = count;
+      store.solvedPuzzlesInMarathon = 0;
+      store.blitzMovesCount = 7;
+      store.movesCount = 5;
+      store.blitzTime = 9000;
+      vi.spyOn(store, 'setSessionId').mockImplementation(() => {
+        store.sessionId = 'sess-1';
+      });
+      vi.spyOn(store, 'stopBlitzInterval').mockImplementation(() => undefined);
+      const unmount = mount();
+
+      markDone(store);
+      await nextTick();
+
+      expect(postGame).toHaveBeenCalledTimes(1);
+      expect(vi.mocked(postGame).mock.calls[0][2]).toEqual(result);
+      unmount();
+    });
+
     it('finalizes the blitz run and records a new record on the last scramble', async () => {
       const store = useBaseStore();
       store.fmcBlitz = true;
@@ -366,6 +393,81 @@ describe('useWatchGameState', () => {
       expect(stopSpy).toHaveBeenCalledTimes(1);
       expect(postUserScramble).not.toHaveBeenCalled();
       unmount();
+    });
+
+    describe('marathon replay', () => {
+      const scrambles = [
+        '2,0,3,1,6,7,4,5,8', '0,1,4,6,5,3,8,2,7', '7,0,2,8,3,4,5,6,1', '0,7,1,8,4,2,3,6,5', '8,7,6,2,3,4,0,5,1'
+      ];
+
+      function setupMarathonReplay(solved: number) {
+        const store = useBaseStore();
+        store.replayMode = true;
+        store.marathonReplay = true;
+        store.repGame = {
+          time: 19275,
+          moves: 188,
+          puzzle_size: 3,
+          puzzle_type: 'marathon',
+          control_type: 'touch',
+          consecutive_solves: 1,
+          scramble: scrambles.join(';'),
+          solve_path: '',
+          name: 'Marcelo_Adrian777',
+          tps: '9.754',
+          created_at: '2026-09-13T17:41:42.402Z',
+          opt_moves: 112
+        };
+        store.solvedPuzzlesInMarathon = solved;
+        store.solvePath = ['L'];
+        store.time = 5000;
+        return store;
+      }
+
+      it.each([0, 3])('moves a hand solve of puzzle %i on to the next scramble with the clock still running', async (solved) => {
+        const store = setupMarathonReplay(solved);
+        const stopSpy = vi.spyOn(store, 'stopInterval');
+        const unmount = mount();
+
+        markDone(store);
+        await nextTick();
+
+        expect(stopSpy).not.toHaveBeenCalled();
+        expect(store.solvedPuzzlesInMarathon).toBe(solved + 1);
+        expect(store.mixedOrders.join(',')).toBe(scrambles[solved + 1]);
+        expect(store.solvePath).toEqual(['L', ';']);
+        expect(store.isDone).toBe(false);
+        unmount();
+      });
+
+      it('leaves the switch to the walk itself while one is running', async () => {
+        const store = setupMarathonReplay(1);
+        store.inReplay = true;
+        const stopSpy = vi.spyOn(store, 'stopInterval');
+        const unmount = mount();
+
+        markDone(store);
+        await nextTick();
+
+        expect(stopSpy).not.toHaveBeenCalled();
+        expect(store.solvedPuzzlesInMarathon).toBe(1);
+        expect(store.solvePath).toEqual(['L']);
+        unmount();
+      });
+
+      it('stops the clock once the last puzzle is solved', async () => {
+        const store = setupMarathonReplay(4);
+        const stopSpy = vi.spyOn(store, 'stopInterval');
+        const unmount = mount();
+
+        markDone(store);
+        await nextTick();
+
+        expect(stopSpy).toHaveBeenCalledTimes(1);
+        expect(store.solvedPuzzlesInMarathon).toBe(4);
+        expect(store.playgroundBestTime).toBe(5000);
+        unmount();
+      });
     });
 
     it('posts a new user scramble when none has been saved yet', async () => {

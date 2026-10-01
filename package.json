@@ -23,9 +23,9 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@vueuse/core": "^14.4.0",
+    "@vueuse/core": "^15.0.0",
     "pinia": "^4.0.3",
-    "vue": "^3.5.42"
+    "vue": "^3.5.43"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -33,27 +33,27 @@
     "@playwright/test": "^1.63.0",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@tsconfig/node24": "^24.0.5",
-    "@types/node": "^24.13.4",
-    "@vitejs/plugin-vue": "^6.0.8",
-    "@vitest/coverage-v8": "^5.0.0",
-    "@vue/test-utils": "^2.5.0",
+    "@types/node": "^24.19.0",
+    "@vitejs/plugin-vue": "^6.0.9",
+    "@vitest/coverage-v8": "^5.0.3",
+    "@vue/test-utils": "^2.5.1",
     "@vue/tsconfig": "^0.9.1",
-    "eslint": "^10.10.0",
-    "eslint-plugin-sonarjs": "^4.2.0",
-    "eslint-plugin-vue": "^10.11.0",
-    "globals": "^17.12.0",
-    "jsdom": "^30.0.1",
+    "eslint": "^10.11.0",
+    "eslint-plugin-sonarjs": "^4.2.2",
+    "eslint-plugin-vue": "^10.11.1",
+    "globals": "^17.13.0",
+    "jsdom": "^30.1.1",
     "npm-run-all2": "^9.0.3",
     "postcss-html": "^2.0.0",
-    "stylelint": "^17.15.0",
+    "stylelint": "^17.16.0",
     "stylelint-config-html": "^2.0.0",
     "stylelint-config-standard": "^40.0.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.70.0",
+    "typescript-eslint": "^8.71.0",
     "unplugin-inject-preload": "^3.0.0",
-    "vite": "^8.3.0",
+    "vite": "^8.3.2",
     "vite-plugin-preload": "^0.7.0",
-    "vitest": "^5.0.0",
+    "vitest": "^5.0.3",
     "vue-tsc": "^3.3.11"
   }
 }

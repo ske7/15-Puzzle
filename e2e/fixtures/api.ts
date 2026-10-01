@@ -1,7 +1,7 @@
 import type { Page, Route } from '@playwright/test';
 import type { GameData, RepGame, Response as ApiResponse, UserScrambleData } from '../../src/types';
 
-const API_BASE = 'http://localhost:3000';
+export const API_BASE = 'http://localhost:3000';
 
 type RouteHandler = (route: Route) => Promise<void> | void;
 
@@ -43,6 +43,24 @@ export function repGameFixture(overrides: Partial<RepGame> = {}): RepGame {
     opt_moves: 18,
     ...overrides
   };
+}
+
+// A real 3x3 marathon record: five scrambles and five solve paths, each separated by ';'.
+export function marathonRepGameFixture(overrides: Partial<RepGame> = {}): RepGame {
+  return repGameFixture({
+    time: 19275,
+    moves: 188,
+    puzzle_type: 'marathon',
+    control_type: 'touch',
+    consecutive_solves: 1,
+    scramble: '2,0,3,1,6,7,4,5,8;0,1,4,6,5,3,8,2,7;7,0,2,8,3,4,5,6,1;0,7,1,8,4,2,3,6,5;8,7,6,2,3,4,0,5,1',
+    solve_path: 'RUULLDRURDLULDRRULLDURDLU;LUULDDRURDLLUURDLDRULDRRULLURRDLLURDRULL;' +
+      'UULDRULDDRURDLLURDLURRDLLURDRULURDLURDLLURDRULL;LLURRDLLURRULDRDLULDRRULLURRDLLURRDLLURDRULL;' +
+      'LLDDRUULDDRURDLUURDLURDLLURDRULL',
+    tps: '9.754',
+    opt_moves: 112,
+    ...overrides
+  });
 }
 
 // A real shared-scramble record for the `user_scramble?public_id=X` endpoint.

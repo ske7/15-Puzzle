@@ -25,6 +25,7 @@ export const useBaseStore = defineStore('base', () => {
   const boardPos = ref({ left: 0, top: 0, right: 0, bottom: 0 });
   const isNetworkError = ref(false);
   const lastError = ref('');
+  const linkError = ref('');
   const isFetching = ref(false);
   const puzzleLoaded = ref(false);
   const lastGameID = ref('0');
@@ -109,6 +110,12 @@ export const useBaseStore = defineStore('base', () => {
     }
   }
 
+  function nextMarathonReplayPuzzle() {
+    puzzle.solvePath.value.push(';');
+    marathon.solvedPuzzlesInMarathon.value += 1;
+    renewPuzzle();
+  }
+
   async function getNextG1000(): Promise<boolean> {
     return await useGetFetchAPI('next_gt', session.token.value)
       .then((res) => {
@@ -133,7 +140,7 @@ export const useBaseStore = defineStore('base', () => {
     if (replay.replayMode.value) {
       let scramble = replay.repGame.value.scramble;
       if (replay.marathonReplay.value) {
-        scramble = replay.repGame.value.scramble.split(';')[0];
+        scramble = replay.repGame.value.scramble.split(';')[marathon.solvedPuzzlesInMarathon.value];
       }
       puzzle.mixedOrders.value = scramble.split(',').map(Number);
     } else if (playground.playgroundMode.value && playground.savedOrders.value.length > 0) {
@@ -256,6 +263,7 @@ export const useBaseStore = defineStore('base', () => {
     initStore,
     setPuzzleData,
     renewPuzzle,
+    nextMarathonReplayPuzzle,
     getNextG1000,
     mixAndCheckSolvable,
     setSpaceBetween,
@@ -269,6 +277,7 @@ export const useBaseStore = defineStore('base', () => {
     boardPos,
     isNetworkError,
     lastError,
+    linkError,
     isFetching,
     puzzleLoaded,
     lastGameID,

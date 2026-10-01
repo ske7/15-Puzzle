@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import { useBaseStore } from './stores/base';
+import { useKeyDown } from './composables/useKeyDown';
+import { useTheme } from './composables/useTheme';
 import { usePrepare } from './composables/usePrepare';
 import { useWatchGameState } from './composables/useWatchGameState';
 import { useLazyComponent } from './composables/useLazyComponent';
@@ -13,20 +14,16 @@ const AveragesPanel = useLazyComponent(() => import('./components/AveragesPanel.
 const WinModal = useLazyComponent(() => import('./components/WinModal.vue'));
 
 const baseStore = useBaseStore();
+useKeyDown();
+useTheme();
 usePrepare();
 useWatchGameState();
 
-const windowWidth = provideWindowWidth();
-const cageImgSize = computed(() => {
-  if (windowWidth.value <= 420) {
-    return 32;
-  }
-  return 42;
-});
+provideWindowWidth();
 const touchMove = (e: TouchEvent): void => {
   e.preventDefault();
 };
-const clearDisplay = (): void => {
+const toggleClearDisplay = (): void => {
   baseStore.clearDisplay = !baseStore.clearDisplay;
   if (baseStore.clearDisplay) {
     document.documentElement.addEventListener('touchmove', touchMove, { passive: false });
@@ -43,15 +40,15 @@ const clearDisplay = (): void => {
       <img
         src="./assets/cage.webp"
         alt="Nic.Cage"
-        :width="cageImgSize"
-        :height="cageImgSize"
+        width="32"
+        height="32"
         draggable="false"
       >
     </div>
     <div
       v-show="!baseStore.replayMode && !baseStore.playgroundMode"
       class="clear-field"
-      @click="clearDisplay"
+      @click="toggleClearDisplay"
     >
       {{ baseStore.clearDisplay ? '&#128316;' : '&#128317;' }}
     </div>
@@ -61,9 +58,7 @@ const clearDisplay = (): void => {
     <ActionPanel />
     <BottomInfoPanel />
     <WinModal
-      v-if="baseStore.isDone && !baseStore.replayMode &&
-        (baseStore.afterDoneAnimationEnd || baseStore.proMode) &&
-        baseStore.showWinModal"
+      v-if="baseStore.isDone && !baseStore.replayMode && baseStore.afterDoneAnimationEnd && baseStore.showWinModal"
       @close="baseStore.showWinModal = false"
     />
   </div>
@@ -80,9 +75,7 @@ const clearDisplay = (): void => {
 }
 @media (min-height: 800px), screen and (max-width: 820px) {
   .wrapper {
-    padding-top: 0;
-    place-content: center center;
-    height: 100%;
+    align-content: center;
     margin-top: -10%;
   }
 }
@@ -109,8 +102,6 @@ const clearDisplay = (): void => {
   font-weight: 500;
 }
 .header img {
-  width: 32px;
-  height: 32px;
   display: flex;
   align-items: center;
   border-radius: 8px;
@@ -145,10 +136,6 @@ const clearDisplay = (): void => {
   .header h1 {
     font-size: 27px;
     line-height: 27px;
-  }
-  .header img {
-    width: 32px;
-    height: 32px;
   }
 }
 </style>

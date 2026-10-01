@@ -112,7 +112,7 @@ export const useKeyDown = (): void => {
       return;
     }
     if (baseStore.isDone || baseStore.isTimeFailed || baseStore.paused || baseStore.inReplay ||
-      baseStore.sharedPlaygroundMode || baseStore.marathonReplay) {
+      baseStore.sharedPlaygroundMode) {
       return;
     }
     listenMovementKeys(event.code);

@@ -1,0 +1,81 @@
+{
+  "winModal": false,
+  "errorLine": null,
+  "store": {
+    "isDone": true,
+    "isTimeFailed": false,
+    "showWinModal": false,
+    "consecutiveSolves": 50,
+    "solvedPuzzlesInMarathon": 50,
+    "blitzScrambleCount": 50,
+    "movesCount": "<last solve moves>",
+    "blitzMovesCount": "<all solves moves>",
+    "newTimeRecord": true,
+    "newMovesRecord": true,
+    "newFMCBlitzMovesRecord": true,
+    "movesRecord": "<a solve moves>",
+    "fmcBlitzMovesRecord": "<all solves moves>",
+    "timeRecord": "<time>",
+    "lastGameID": "pub-50",
+    "opt_m": 17,
+    "userScrambleId": 0,
+    "publicId": "",
+    "playgroundBestTime": 0,
+    "playgroundBestMoves": 0,
+    "playgroundBestTimeMoves": 0,
+    "newPlaygroundTimeRecord": false,
+    "newPlaygroundMovesRecord": false,
+    "lastError": ""
+  },
+  "storageKeys": [
+    "fmcBlitz",
+    "fmcBlitzMovesRecord3",
+    "hoverOnControl",
+    "movesRecord3",
+    "numLines",
+    "proMode",
+    "recordVer",
+    "timeRecord3",
+    "token"
+  ],
+  "requestCounts": {
+    "GET /get_current_user": 1,
+    "GET /user_averages?…": 1,
+    "POST /game": 50,
+    "POST /update_stats": 50,
+    "POST /fmc_blitz": 1
+  },
+  "lastBodyOfEach": [
+    {
+      "POST /game": {
+        "game": {
+          "user_name": "tester",
+          "time": "<time>",
+          "moves": "<solve 50> moves",
+          "puzzle_size": 3,
+          "puzzle_type": "standard",
+          "control_type": "keyboard",
+          "consecutive_solves": 50,
+          "scramble": "<solve 50> scramble",
+          "solve_path": "<solve 50> path",
+          "gt_id": null,
+          "session_id": "<session>"
+        }
+      }
+    },
+    {
+      "POST /update_stats": {
+        "game_id": 50
+      }
+    },
+    {
+      "POST /fmc_blitz": {
+        "data": {
+          "moves": "<all solves> moves",
+          "time": "<time>",
+          "session_id": "<session>"
+        }
+      }
+    }
+  ]
+}

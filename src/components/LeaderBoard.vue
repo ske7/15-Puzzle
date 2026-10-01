@@ -214,7 +214,7 @@ const closeGamesTable = (): void => {
 
 <template>
   <Teleport to="body">
-    <div v-if="!baseStore.isFetching" ref="leaderBoard" class="leaderboard modal-shell">
+    <div v-if="!baseStore.isFetching" ref="leaderBoard" class="leaderboard modal-shell modal-centered">
       <p class="header modal-header">
         <span id="leaderboard-caption">
           {{ isDefault ? 'Leaderboard' : 'Best Averages' }}
@@ -374,11 +374,9 @@ const closeGamesTable = (): void => {
 .leaderboard {
   --modal-width: 400px;
   justify-content: center;
-  height: auto;
-  min-height: v-bind(minHeight);
+  min-height: min(v-bind(minHeight), 100dvh);
   width: var(--modal-width);
   z-index: var(--z-modal);
-  top: calc(50% - 310px);
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
 }
@@ -397,12 +395,11 @@ const closeGamesTable = (): void => {
 .items-table {
   max-width: 100%;
   width: 100%;
-  box-sizing: border-box;
-  background-color: transparent;
   border-collapse: collapse;
   border-spacing: 0;
   margin-bottom: 10px;
-  font-family: consolas, sans-serif;
+  font-family: var(--font-mono);
+  font-kerning: none;
   line-height: 1.1;
 }
 .items-avg {
@@ -435,7 +432,6 @@ const closeGamesTable = (): void => {
   display: block;
   max-height: v-bind(tbodyHeight);
   overflow-y: auto;
-  scrollbar-width: auto;
 }
 .items-table td {
   padding: 3px 4px;
@@ -470,6 +466,12 @@ const closeGamesTable = (): void => {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+@media (pointer: coarse) {
+  td > .link-item {
+    padding: 2px 6px;
+    margin: 0 -6px;
+  }
+}
 .puzzle-size-slider-container {
   max-width: 250px;
 }
@@ -479,9 +481,6 @@ const closeGamesTable = (): void => {
 @media screen and (max-width: 840px) {
   .table-container .items-table thead tr {
     width: 100%;
-  }
-  .table-container .items-table tbody {
-    max-height: v-bind(tbodyHeight);
   }
 }
 @media screen and (max-width: 420px) {
@@ -503,15 +502,13 @@ const closeGamesTable = (): void => {
 }
 @media screen and (max-height: 620px) {
   .leaderboard {
-    min-height: 488px;
-    top: 10px;
+    min-height: min(488px, 100dvh);
   }
   .table-container {
     min-height: 156.4px;
   }
   .table-container .items-table tbody {
     max-height: 117px;
-    overflow-y: auto;
   }
 }
 </style>

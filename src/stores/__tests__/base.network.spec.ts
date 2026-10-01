@@ -419,6 +419,31 @@ describe('useBaseStore - averages, session, network-backed actions', () => {
       expect(store.mixedOrders).toEqual([2, 1, 4, 3, 5, 6, 7, 8, 0]);
     });
 
+    it('replays the marathon leg after the ones already solved', () => {
+      const store = useBaseStore();
+      store.replayMode = true;
+      store.marathonReplay = true;
+      store.numLines = 3;
+      store.repGame = {
+        time: 19275,
+        moves: 188,
+        puzzle_size: 3,
+        puzzle_type: 'marathon',
+        control_type: 'touch',
+        consecutive_solves: 1,
+        scramble: '2,0,3,1,6,7,4,5,8;0,1,4,6,5,3,8,2,7;7,0,2,8,3,4,5,6,1',
+        solve_path: '',
+        name: '',
+        tps: '9.754',
+        created_at: '',
+        opt_moves: 0,
+      };
+      store.solvedPuzzlesInMarathon = 2;
+      store.renewPuzzle();
+      expect(store.mixedOrders).toEqual([7, 0, 2, 8, 3, 4, 5, 6, 1]);
+      expect(store.currentOrders).toEqual([7, 0, 2, 8, 3, 4, 5, 6, 1]);
+    });
+
     it('reuses savedOrders in playground mode when present', () => {
       const store = useBaseStore();
       store.playgroundMode = true;

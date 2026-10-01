@@ -1,0 +1,49 @@
+{
+  "url": "/?game_id=42",
+  "theme": "light",
+  "errorLine": "Could not load the game replay",
+  "board": "canvas",
+  "store": {
+    "puzzleLoaded": true,
+    "numLines": 5,
+    "proMode": true,
+    "hoverOnControl": false,
+    "darkMode": false,
+    "spaceBetween": 0,
+    "enableCageMode": false,
+    "cageMode": false,
+    "unlockedCages": [],
+    "marathonMode": false,
+    "fmcBlitz": false,
+    "blitzScrambleCount": 0,
+    "g1000Mode": false,
+    "noPlayMode": false,
+    "consecutiveSolves": 0,
+    "opt_m": 0,
+    "playgroundMode": false,
+    "sharedPlaygroundMode": false,
+    "checkUserScrambleInDB": false,
+    "publicId": "",
+    "userScrambleId": 0,
+    "otherUserName": "",
+    "playgroundBestTime": 0,
+    "playgroundBestMoves": 0,
+    "playgroundSolvePath": [],
+    "replayMode": false,
+    "marathonReplay": false,
+    "lastError": "Could not load the game replay",
+    "linkError": "",
+    "isNetworkError": false,
+    "savedOrders": "",
+    "mixedOrders": "25 random"
+  },
+  "localStorage": {
+    "numLines": "5",
+    "proMode": "true",
+    "recordVer": "1"
+  },
+  "requests": [
+    "GET /game?game_id=42",
+    "GET /version"
+  ]
+}

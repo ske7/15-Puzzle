@@ -95,6 +95,65 @@ export function solve(startBoard: number[], numLines: number): ArrowKey[] {
   throw new Error('No solution found - a real app-generated scramble should always be solvable.');
 }
 
+// For suites that solve many 3x3 scrambles: one breadth-first pass out from the solved state
+// records every reachable board's distance, after which each solve just steps downhill.
+let distances3x3: Map<string, number> | undefined;
+
+export function solve3x3(startBoard: number[]): ArrowKey[] {
+  distances3x3 ??= distancesFromGoal(3);
+  const moves: ArrowKey[] = [];
+  let board = startBoard;
+  let distance = distances3x3.get(board.join(','))!;
+  while (distance > 0) {
+    const freeIndex = board.indexOf(0);
+    for (const move of ARROW_KEYS) {
+      if (!isValidMove(move, freeIndex, 3)) {
+        continue;
+      }
+      const next = board.slice();
+      const target = targetIndex(move, freeIndex, 3);
+      next[freeIndex] = next[target];
+      next[target] = 0;
+      if (distances3x3.get(next.join(',')) === distance - 1) {
+        moves.push(move);
+        board = next;
+        distance -= 1;
+        break;
+      }
+    }
+  }
+  return moves;
+}
+
+function distancesFromGoal(numLines: number): Map<string, number> {
+  const goal = goalState(numLines);
+  const distances = new Map<string, number>([[goal.join(','), 0]]);
+  const queue: number[][] = [goal];
+  for (const board of queue) {
+    const distance = distances.get(board.join(','))!;
+    const freeIndex = board.indexOf(0);
+    for (const move of ARROW_KEYS) {
+      if (!isValidMove(move, freeIndex, numLines)) {
+        continue;
+      }
+      const next = board.slice();
+      const target = targetIndex(move, freeIndex, numLines);
+      next[freeIndex] = next[target];
+      next[target] = 0;
+      const key = next.join(',');
+      if (!distances.has(key)) {
+        distances.set(key, distance + 1);
+        queue.push(next);
+      }
+    }
+  }
+  return distances;
+}
+
+export const MOVE_LETTER: Record<ArrowKey, string> = {
+  ArrowLeft: 'L', ArrowRight: 'R', ArrowUp: 'U', ArrowDown: 'D'
+};
+
 export async function driveMoves(page: Page, moves: ArrowKey[]): Promise<void> {
   for (const move of moves) {
     await page.keyboard.press(move);

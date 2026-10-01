@@ -210,20 +210,6 @@ describe('ScrambleList', () => {
       expect(timeSort.text()).toBe('↓');
     });
 
-    it('re-requests with the mobile header\'s sort control too', async () => {
-      // the mobile header only exists per-row, so a fetched row is needed to find it
-      respondWith([record3x3]);
-      const wrapper = mountList();
-      await vi.waitFor(() => {
-        expect(wrapper.find('.buttons').exists()).toBe(true);
-      });
-      const mobileMovesSort = wrapper.findAll('.table-header-mobile .pro-sort')[2];
-      await mobileMovesSort.trigger('click');
-      expect(useGetFetchAPI).toHaveBeenCalledWith(
-        expect.stringContaining('order_field=best_moves&order_direction=asc'), undefined
-      );
-    });
-
     it('sorts by every desktop column in both directions, including the 3x3-only ones', async () => {
       const store = useBaseStore();
       store.numLines = 3;
@@ -241,23 +227,51 @@ describe('ScrambleList', () => {
       expect(useGetFetchAPI).toHaveBeenCalledWith(expect.stringContaining('order_field=best_moves'), undefined);
       expect(useGetFetchAPI).toHaveBeenCalledWith(expect.stringContaining('order_field=opt_diff'), undefined);
     });
+  });
 
-    it('sorts by every mobile column in both directions, including the 3x3-only ones', async () => {
+  describe('phone layout', () => {
+    const columnOf = (cell: { classes: () => string[] }): string | undefined => {
+      return cell.classes().find((name) => name.startsWith('col-'));
+    };
+
+    it('has one header row for every screen size, each cell sharing its column class with the cells below', async () => {
       const store = useBaseStore();
       store.numLines = 3;
-      respondWith([{ ...record3x3, puzzle_size: 3 }]);
+      respondWith([record3x3]);
       const wrapper = mountList();
       await waitFetched(wrapper);
-      for (const sortEl of wrapper.findAll('.table-header-mobile .pro-sort')) {
-        await sortEl.trigger('click');
-        await flushPromises();
-        await sortEl.trigger('click');
-        await flushPromises();
-      }
-      expect(useGetFetchAPI).toHaveBeenCalledWith(expect.stringContaining('order_field=id'), undefined);
-      expect(useGetFetchAPI).toHaveBeenCalledWith(expect.stringContaining('order_field=best_time'), undefined);
-      expect(useGetFetchAPI).toHaveBeenCalledWith(expect.stringContaining('order_field=optimal_moves'), undefined);
-      expect(useGetFetchAPI).toHaveBeenCalledWith(expect.stringContaining('order_field=opt_diff'), undefined);
+      expect(wrapper.findAll('.table-header')).toHaveLength(1);
+      const header = wrapper.findAll('.table-header .flex-row').map(columnOf);
+      expect(header).toEqual([
+        'col-id', 'col-date', 'col-time', 'col-moves', 'col-opt', 'col-diff', 'col-scramble', 'col-solution', 'col-public-id'
+      ]);
+      expect(wrapper.findAll('.items .flex-row').map(columnOf)).toEqual(header);
+    });
+
+    it('keeps a day-first short date alongside the full one', async () => {
+      respondWith([record3x3]);
+      const wrapper = mountList();
+      await waitFetched(wrapper);
+      expect(wrapper.find('.date-full').text()).toMatch(/^2024-06-01 /);
+      expect(wrapper.find('.date-short').text()).toMatch(/^01\/06\/24 \d{2}:\d{2}:\d{2}$/);
+    });
+
+    it('carries the optimal-moves difference on the moves, for phones where its column is hidden', async () => {
+      const store = useBaseStore();
+      store.numLines = 3;
+      respondWith([record3x3]);
+      const wrapper = mountList();
+      await waitFetched(wrapper);
+      expect(wrapper.find('.col-moves .opt-moves').text()).toBe('+5');
+    });
+
+    it('leaves the moves bare when the scramble was solved optimally', async () => {
+      const store = useBaseStore();
+      store.numLines = 3;
+      respondWith([{ ...record3x3, opt_diff: 0 }]);
+      const wrapper = mountList();
+      await waitFetched(wrapper);
+      expect(wrapper.find('.opt-moves').exists()).toBe(false);
     });
   });
 

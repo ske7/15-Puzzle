@@ -2,7 +2,7 @@
 import { ref, watch, computed } from 'vue';
 import { useBaseStore } from '../stores/base';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
-import { type UserScrambleData } from '@/types';
+import { type TableColumn, type UserScrambleData } from '@/types';
 import { baseUrl, OrderDirection, OrderDirectionMap } from '@/const';
 import { convertScramble, convertToNumbersArray } from '@/utils';
 import CopyButton from './CopyButton.vue';
@@ -32,6 +32,8 @@ const {
   fetched,
   reset,
   formatDate,
+  formatShortDate,
+  columnClass,
   sort,
   sortArrow,
   sortField
@@ -54,21 +56,16 @@ const doSort = (newSortField: string): void => {
   sort(newSortField);
 };
 
-interface TableColumn {
-  label: string;
-  sortField?: string;
-  widthClass?: string;
-}
 const columns = computed((): TableColumn[] => {
   return [
     { label: 'ID', widthClass: 'w-70' },
     { label: 'Date', sortField: 'id', widthClass: 'w-150' },
     { label: 'Time', sortField: 'best_time', widthClass: 'w-130' },
-    { label: 'Moves', sortField: 'best_moves', widthClass: 'w-80' },
+    { label: 'Moves', sortField: 'best_moves', widthClass: 'w-90' },
     ...(puzzleSize.value === 3
       ? [
-          { label: 'Opt.', sortField: 'optimal_moves', widthClass: 'w-80' },
-          { label: 'Diff', sortField: 'opt_diff', widthClass: 'w-80' }
+          { label: 'Opt.', sortField: 'optimal_moves', widthClass: 'w-70' },
+          { label: 'Diff', sortField: 'opt_diff', widthClass: 'w-70' }
         ]
       : []),
     { label: 'Scramble' },
@@ -94,7 +91,7 @@ const columns = computed((): TableColumn[] => {
           v-for="column in columns"
           :key="column.label"
           class="flex-row"
-          :class="column.widthClass"
+          :class="[column.widthClass, columnClass(column.label)]"
         >
           {{ column.label }}
           <span v-if="column.sortField" class="pro-sort" @click="doSort(column.sortField)">
@@ -104,39 +101,33 @@ const columns = computed((): TableColumn[] => {
       </div>
       <template v-if="fetched">
         <div v-for="(item) in scrambleRecords" :key="item.id" class="flex-table">
-          <div class="table-header-mobile">
-            <div v-for="column in columns" :key="column.label" class="flex-row">
-              {{ column.label }}
-              <span v-if="column.sortField" class="pro-sort" @click="doSort(column.sortField)">
-                {{ sortArrow(column.sortField) }}
-              </span>
-            </div>
-          </div>
           <div class="items">
-            <div class="flex-row w-70">
+            <div class="flex-row w-70 col-id">
               <p class="link-item" @click="setScramble(String(item.scramble))">
                 {{ item.id }}
               </p>
             </div>
-            <div class="flex-row w-150">
-              <span>{{ formatDate(item.created_at) }}</span>
+            <div class="flex-row w-150 col-date">
+              <span class="date-full">{{ formatDate(item.created_at) }}</span>
+              <span class="date-short">{{ formatShortDate(item.created_at) }}</span>
             </div>
-            <div class="flex-row w-130 column-direction">
+            <div class="flex-row w-130 column-direction col-time">
               <span>{{ item.best_time! / 1000 }}</span>
-              <br>
               <span>( {{ item.best_time_moves }} | {{ item.best_tps }})</span>
             </div>
-            <div class="flex-row w-80">
-              <span>{{ item.best_moves }}</span>
+            <div class="flex-row w-90 col-moves">
+              <span>{{ item.best_moves }}<sup
+                v-if="puzzleSize === 3 && (item.opt_diff ?? 0) > 0"
+                class="opt-moves"
+              >+{{ item.opt_diff }}</sup></span>
             </div>
-            <div v-if="puzzleSize === 3" class="flex-row w-80">
+            <div v-if="puzzleSize === 3" class="flex-row w-70 col-opt">
               <span>{{ item.optimal_moves }}</span>
             </div>
-            <div v-if="puzzleSize === 3" class="flex-row w-80">
+            <div v-if="puzzleSize === 3" class="flex-row w-70 col-diff">
               <span v-if="(item.opt_diff ?? 0) > 0">+{{ item.opt_diff }}</span>
             </div>
-            <div class="flex-row smaller-font">
-              <em v-if="puzzleSize === 3">om:{{ item.optimal_moves }};</em>
+            <div class="flex-row smaller-font col-scramble">
               <div class="copy-button-wrapper">
                 <p class="scramble-text">
                   {{ convertScramble(item.scramble) }}
@@ -144,12 +135,12 @@ const columns = computed((): TableColumn[] => {
                 <CopyButton v-if="item.scramble" :item-to-copy="String(item.scramble)" :is-solve-path="false" />
               </div>
             </div>
-            <div class="flex-row w-85 smaller-font">
+            <div class="flex-row w-85 smaller-font col-solution">
               <div class="copy-button-wrapper">
                 <CopyButton v-if="item.solve_path" :item-to-copy="String(item.solve_path)" :is-solve-path="true" />
               </div>
             </div>
-            <div class="flex-row w-120">
+            <div class="flex-row w-120 col-public-id">
               <a :href="`${baseUrl}?playground&public_id=${item.public_id}`" class="link-item">
                 {{ item.public_id }}
               </a>
@@ -169,7 +160,7 @@ const columns = computed((): TableColumn[] => {
 <style scoped>
 .scramble-list {
   --modal-width: 1100px;
-  height: 100vh;
+  height: 100dvh;
   width: var(--modal-width);
   z-index: var(--z-modal-table);
   top: 0;
@@ -198,14 +189,10 @@ const columns = computed((): TableColumn[] => {
   height: 0;
 }
 .table-wrapper {
-  display: block;
   margin: 4px auto;
   width: 100%;
   max-width: 95%;
   overflow: auto;
-}
-.table-header-mobile {
-  display: none;
 }
 .flex-table {
   display: flex;
@@ -228,16 +215,13 @@ const columns = computed((): TableColumn[] => {
 .w-70 {
   max-width: 70px;
 }
-.w-80 {
-  max-width: 80px;
-}
 .w-85 {
   max-width: 85px;
 }
-.w-95 {
-  max-width: 95px;
+.w-90 {
+  max-width: 90px;
 }
-.w-120{
+.w-120 {
   max-width: 120px;
 }
 .w-130 {
@@ -246,19 +230,11 @@ const columns = computed((): TableColumn[] => {
 .w-150 {
   max-width: 150px;
 }
-.w-160{
-  max-width: 160px;
-}
 .scramble-text {
   margin-right: 5px;
   display: inline;
   font-size: 14px;
   line-height: 25px;
-}
-.flex-row em {
-  color: var(--link-color);
-  font-size: 14px;
-  margin-right: 5px;
 }
 .items {
   display: flex;
@@ -267,7 +243,7 @@ const columns = computed((): TableColumn[] => {
 .flex-table:first-of-type {
   border-top: solid 1px var(--table-border-color);
 }
-.table-header-mobile .flex-row, .flex-table:first-of-type .flex-row {
+.flex-table:first-of-type .flex-row {
   background: gold;
   color: black;
   font-size: 16px;
@@ -280,13 +256,8 @@ const columns = computed((): TableColumn[] => {
   max-width: 250px;
   font-size: 14px;
   padding: 0 5px;
-  display: block;
-}
-.copy-button-wrapper {
-  display: inline-block;
 }
 .copy-button-wrapper :deep(.copy-button) {
-  display: inline;
   --vd-font-size: 13px;
   --vh-font-size: 14px;
 }
@@ -310,7 +281,19 @@ const columns = computed((): TableColumn[] => {
 .column-direction {
   flex-direction: column;
 }
+.date-short,
+.opt-moves {
+  display: none;
+}
+.opt-moves {
+  margin-left: 1px;
+  color: var(--link-color);
+  font-size: 10px;
+}
 @media screen and (max-width: 1100px) {
+  .scramble-list {
+    --modal-width: 100%;
+  }
   .scramble-text {
     display: none;
   }
@@ -318,81 +301,114 @@ const columns = computed((): TableColumn[] => {
     display: none;
   }
   .table-wrapper {
-    display: flex;
-    flex-direction: column;
+    max-width: 100%;
   }
-  .table-header-mobile, .items {
-    display: flex;
-    flex-direction: column;
+  .w-70, .w-85, .w-90, .w-120, .w-130, .w-150 {
+    max-width: 100%;
   }
-  .table-header-mobile {
-    width: 150px;
+  .col-moves {
+    flex-grow: 1.15;
   }
-  .items {
-    flex: 0;
+  .col-public-id a {
+    overflow-wrap: anywhere;
   }
-  .flex-table {
-    display: flex;
-    flex-flow: row wrap;
-    margin-bottom: 12px;
-    border-bottom: 0;
-    border-left: 0;
-    justify-content: center;
-  }
-  .flex-row {
-    display: flex;
-    flex-basis: 0;
-    flex-grow: 1;
-    max-width: 180px;
-    min-width: 180px;
-    min-height: 52px;
-    border-top: solid 1px var(--table-border-color);
-    border-bottom: solid 0 var(--table-border-color);
-  }
-  .flex-row:last-of-type {
-    border-bottom: solid 1px var(--table-border-color);
-  }
-  .table-header-mobile > .flex-row {
-    width: 150px;
-    max-width: 150px;
-    min-width: 150px;
+}
+@media screen and (max-width: 600px) {
+  .scramble-list {
+    padding: 15px 8px;
   }
   .table-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  .flex-row {
+    min-height: 40px;
+    padding: 4px 2px;
+  }
+  .flex-table:first-of-type .flex-row {
+    flex-direction: column;
+    max-height: none;
+    font-size: 12px;
+  }
+  .flex-row span,
+  .link-item {
+    padding: 0;
+    font-size: 12px;
+  }
+  .pro-sort {
+    font-size: 12px !important;
+  }
+  .col-id {
+    flex: 0 0 36px;
+  }
+  .col-date {
+    flex: 0 0 58px;
+  }
+  .col-time {
+    flex-grow: 1.4;
+  }
+  .col-opt,
+  .col-diff {
     display: none;
   }
-  .w-70, .w-80, .w-85 {
-    max-width: 180px;
-    min-width: 180px;
+  .flex-row .opt-moves {
+    display: inline;
   }
-  .w-95 {
-    max-width: 180px;
-    min-width: 180px;
+  .col-scramble,
+  .col-solution {
+    flex: 0 0 34px;
   }
-  .w-120 {
-    max-width: 180px;
-    min-width: 180px;
+  .col-public-id {
+    flex: 0 0 54px;
   }
-  .w-130, w-150, .w-160 {
-    max-width: 180px;
-    min-width: 180px;
+  .flex-table.table-header .flex-row.col-scramble,
+  .flex-table.table-header .flex-row.col-solution,
+  .flex-table.table-header .flex-row.col-public-id {
+    font-size: 0;
   }
-  .flex-row span {
-    max-width: 180px;
-    min-width: 180px;
-    font-weight: 600;
-  }
-  .smaller-font span, .smaller-font .link-item {
+  .table-header .col-scramble::after {
+    content: 'Scr';
     font-size: 12px;
+  }
+  .table-header .col-solution::after {
+    content: 'Sol';
+    font-size: 12px;
+  }
+  .table-header .col-public-id::after {
+    content: 'Link';
+    font-size: 12px;
+  }
+  .date-full {
+    display: none;
+  }
+  .flex-row .date-short {
+    display: inline;
+    white-space: normal;
+  }
+}
+@media screen and (max-width: 380px) {
+  .flex-table:first-of-type .flex-row {
+    font-size: 11px;
   }
 }
 @media screen and (max-width: 350px) {
-  .table-header-mobile {
-    width: 120px;
+  .flex-row span,
+  .link-item {
+    font-size: 11px;
   }
-  .table-header-mobile > .flex-row {
-    width: 120px;
-    max-width: 120px;
-    min-width: 120px;
+  .col-id {
+    flex-basis: 32px;
+  }
+  .col-date {
+    flex-basis: 50px;
+  }
+  .col-scramble,
+  .col-solution {
+    flex-basis: 28px;
+  }
+  .col-public-id {
+    flex-basis: 48px;
   }
 }
 </style>

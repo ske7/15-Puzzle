@@ -71,7 +71,7 @@ const closeGamesTable = (): void => {
 
 <template>
   <Teleport to="body">
-    <div v-if="!baseStore.isFetching && userData" ref="userAccount" class="user-account modal-shell">
+    <div v-if="!baseStore.isFetching && userData" ref="userAccount" class="user-account modal-shell modal-centered">
       <p class="header modal-header">
         <span id="user-account-caption">Your personal records</span>
       </p>
@@ -108,7 +108,7 @@ const closeGamesTable = (): void => {
           <tbody>
             <tr v-for="(item) in bestRecords" :key="item.id">
               <td class="w-65">
-                {{ item.record_type === 'fmc_blitz_moves' ? 'fmc_bl.' : item.record_type }}
+                {{ item.record_type === 'fmc_blitz_moves' ? 'FMC' : item.record_type }}
               </td>
               <td class="w-75">
                 {{ item.record_type === 'time' ? (item.time / 1000) : item.moves }}
@@ -163,11 +163,9 @@ const closeGamesTable = (): void => {
 <style scoped>
 .user-account {
   --modal-width: 390px;
-  height: auto;
-  min-height: 500px;
+  min-height: min(500px, 100dvh);
   width: var(--modal-width);
   z-index: var(--z-modal);
-  top: 40px;
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
 }
@@ -189,12 +187,11 @@ const closeGamesTable = (): void => {
 .items-table {
   max-width: 100%;
   width: 100%;
-  box-sizing: border-box;
-  background-color: transparent;
   border-collapse: collapse;
   border-spacing: 0;
   margin-bottom: 10px;
-  font-family: consolas, sans-serif;
+  font-family: var(--font-mono);
+  font-kerning: none;
   line-height: 1.1;
 }
 .items-table thead {
@@ -245,7 +242,6 @@ const closeGamesTable = (): void => {
   text-decoration: underline;
 }
 .last-games:hover {
-  text-decoration: underline;
   color: var(--text-color);
   cursor: pointer;
 }
@@ -269,12 +265,8 @@ const closeGamesTable = (): void => {
   }
 }
 @media screen and (max-height: 650px) and (max-width: 950px) {
-  .user-account {
-    top: 0;
-  }
   .items-table tbody {
     max-height: 57px;
-    min-height: 57px;
     overflow-y: auto;
   }
 }

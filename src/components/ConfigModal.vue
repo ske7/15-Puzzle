@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { useAppEventBus } from '../composables/useAppEventBus';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
+import { setSetting, toggleSetting } from '../stores/persistedSettings';
 
 import { CORE_NUM, fmcBlitzCores } from '@/const';
 import PuzzleSizeSlider from './PuzzleSizeSlider.vue';
@@ -18,17 +19,6 @@ const disabledCageMode = computed(() => {
   return !baseStore.enableCageMode || baseStore.marathonMode ||
   baseStore.proMode || baseStore.numLines !== CORE_NUM;
 });
-type PersistedSetting =
-  | 'cageHardcoreMode' | 'noBordersInCageMode' | 'darkMode' | 'disableWinMessage'
-  | 'resetUnsolvedPuzzleWithEsc' | 'hideCurrentAverages' | 'hoverOnControl' | 'keepSession'
-  | 'enableCageMode' | 'marathonMode' | 'fmcBlitz' | 'proMode' | 'proBeforeCage';
-const setSetting = (key: PersistedSetting, value: boolean): void => {
-  baseStore[key] = value;
-  localStorage.setItem(key, value.toString());
-};
-const toggleSetting = (key: PersistedSetting): void => {
-  setSetting(key, !baseStore[key]);
-};
 const disableCageMode = (): void => {
   setSetting('enableCageMode', false);
   baseStore.cageMode = false;
@@ -68,7 +58,6 @@ const setNoBordersInCageMode = (): void => {
 };
 const setDarkMode = (): void => {
   toggleSetting('darkMode');
-  document.documentElement.dataset['theme'] = baseStore.darkMode ? 'dark' : 'light';
 };
 const setDisableWinMessage = (): void => {
   toggleSetting('disableWinMessage');
@@ -147,7 +136,7 @@ watch(marathonMode, () => {
 
 <template>
   <Teleport to="body">
-    <div ref="configModal" class="config-modal modal-shell">
+    <div ref="configModal" class="config-modal modal-shell modal-centered">
       <p class="info-header">
         <span>Game config</span>
       </p>
@@ -246,24 +235,24 @@ watch(marathonMode, () => {
             id="hover-on"
             type="checkbox"
             name="hover-on"
-            :disabled="!baseStore.proMode"
+            :disabled="!baseStore.proMode && !baseStore.cageMode"
             :checked="baseStore.hoverOnControl"
             @change="setHoverOnControl"
           >
-          <label for="hover-on" :class="{ 'disabled-label': !baseStore.proMode }">
+          <label for="hover-on" :class="{ 'disabled-label': !baseStore.proMode && !baseStore.cageMode }">
             Hover On Control
           </label>
         </div>
         <div v-if="!baseStore.g1000Mode" class="option">
           <input
-            id="pro-mode"
+            id="casual-mode"
             type="checkbox"
-            name="pro-mode"
-            :checked="baseStore.proMode"
+            name="casual-mode"
+            :checked="!baseStore.proMode"
             @change="setProMode"
           >
-          <label for="pro-mode">
-            Pro Mode (speed sliding)
+          <label for="casual-mode">
+            Casual Mode (animated tiles)
           </label>
         </div>
         <div v-if="!baseStore.g1000Mode" class="option">
@@ -315,10 +304,8 @@ watch(marathonMode, () => {
 <style scoped>
 .config-modal {
   justify-content: center;
-  height: auto;
   width: 290px;
   z-index: var(--z-modal);
-  top: calc(50% - 235px);
   left: calc(50% - 145px);
   padding: 20px;
 }
@@ -333,12 +320,10 @@ watch(marathonMode, () => {
 }
 .options {
   margin: 0 auto;
-  margin-top: 0;
 }
 .option {
   display: flex;
   justify-content: left;
-  align-items: normal;
   gap: 10px;
   margin-bottom: 10px;
 }
@@ -352,18 +337,25 @@ label {
   line-height: 1;
   font-size: 16px;
   -webkit-user-select: none;
-  -moz-user-select: none;
   user-select: none;
 }
 .disabled-label {
   opacity: 0.3;
 }
-.option:hover > label:not(.disabled-label) {
-  opacity: 0.8;
-  cursor: pointer;
+@media (pointer: coarse) {
+  label {
+    padding: 5px 8px 5px 24px;
+    margin: -5px -8px -5px -24px;
+  }
 }
-.option:hover > input[type="checkbox"]:hover:not(:disabled){
-  cursor: pointer;
+@media (hover: hover) {
+  .option:hover > label:not(.disabled-label) {
+    opacity: 0.8;
+    cursor: pointer;
+  }
+  .option:hover > input[type="checkbox"]:hover:not(:disabled) {
+    cursor: pointer;
+  }
 }
 .buttons {
   margin-top: 10px;

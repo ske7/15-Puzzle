@@ -72,7 +72,8 @@ const formatDate = (date?: string): string => {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  font-family: consolas, sans-serif;
+  font-family: var(--font-mono);
+  font-kerning: none;
   contain: layout style;
 }
 .info-wrapper {
@@ -83,7 +84,7 @@ const formatDate = (date?: string): string => {
   width: 100%;
   min-height: 29px;
 }
-.replay-row-info  {
+.replay-row-info {
   text-align: center;
   font-size: 14px;
   max-width: 320px;
@@ -91,13 +92,11 @@ const formatDate = (date?: string): string => {
   margin-top: -5px;
 }
 .replay-row-info span {
-  font-size: 14px;
   color: var(--link-color);
   font-weight: 600;
 }
-.playground-row-info  {
+.playground-row-info {
   font-size: 14px;
-  line-height: 1.6;
   margin-top: -5px;
   margin-bottom: -5px;
   max-width: 390px;
@@ -131,7 +130,7 @@ const formatDate = (date?: string): string => {
   vertical-align: super;
 }
 @media screen and (max-width: 450px) {
-  .playground-row-info  {
+  .playground-row-info {
     max-width: 320px;
   }
   .playground-row-info span {
@@ -139,7 +138,7 @@ const formatDate = (date?: string): string => {
   }
 }
 @media screen and (max-width: 360px) {
-  .playground-row-info  {
+  .playground-row-info {
     line-height: 23px;
     max-width: 280px;
   }
