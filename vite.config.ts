@@ -4,8 +4,9 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import preload from 'vite-plugin-preload';
 import UnpluginInjectPreload from 'unplugin-inject-preload/vite';
+import { fakeApi } from './dev-api/plugin.ts';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
@@ -37,7 +38,8 @@ export default defineConfig({
         }
       ],
       injectTo: 'head'
-    })
+    }),
+    mode === 'devex' && fakeApi()
   ],
   resolve: {
     alias: {
@@ -47,4 +49,4 @@ export default defineConfig({
   server: {
     port: 8080
   }
-});
+}));

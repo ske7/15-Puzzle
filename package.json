@@ -10,6 +10,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "devex": "vite --mode devex",
+    "devex:reset": "node dev-api/reset.ts",
     "build": "run-p type-check build-only",
     "preview": "vite preview",
     "build-only": "vite build",

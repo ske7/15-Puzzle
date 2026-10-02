@@ -37,6 +37,8 @@ todo.txt
 .env
 .env.production
 tempdata/
+.devex/
 .scannerwork
 sonar-project.properties
 .ncurc.js
+/.claude/
