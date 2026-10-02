@@ -46,7 +46,7 @@ async function toggleCheckbox(id: string): Promise<void> {
 
 async function clickSliderMark(value: string): Promise<void> {
   const marks = Array.from(document.querySelectorAll('.slider-marks span'));
-  const mark = marks.find(el => el.textContent?.trim() === value);
+  const mark = marks.find(el => el.textContent.trim() === value);
   mark?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
   await nextTick();
 }
@@ -68,6 +68,7 @@ describe('ConfigModal', () => {
     currentWrapper?.unmount();
     currentWrapper = undefined;
     document.body.innerHTML = '';
+    vi.unstubAllGlobals();
   });
 
   it('closes when clicking outside the modal', async () => {
@@ -78,19 +79,12 @@ describe('ConfigModal', () => {
   });
 
   describe('disabledCageMode', () => {
-    it.each([
-      ['enableCageMode is off', {}],
-      ['marathon mode is on', { enableCageMode: true, marathonMode: true }],
-      ['pro mode is on', { enableCageMode: true, proMode: true }],
-      ['the puzzle size is not the standard core size', { enableCageMode: true, numLines: 5 }]
-    ])('is true when %s', (_label, overrides) => {
-      const store = useBaseStore();
-      Object.assign(store, overrides);
+    it('is true when cage mode is off', () => {
       mountModal();
       expect(getInput('hardcore').disabled).toBe(true);
     });
 
-    it('is false with cage mode enabled at the standard size outside marathon/pro', () => {
+    it('is false with cage mode enabled', () => {
       const store = useBaseStore();
       store.enableCageMode = true;
       mountModal();
@@ -147,24 +141,37 @@ describe('ConfigModal', () => {
       expect(localStorage.getItem('darkMode')).toBe('false');
     });
 
-    it('disables "hover on control" only while pro mode is off, and "disable win message" only while fmc blitz is off', async () => {
+    it.each([
+      ['a touch screen', true],
+      ['a mouse', false]
+    ])('greys out "reset unsolved puzzle by Esc" exactly when the main pointer is %s', (_pointer, coarse) => {
+      vi.stubGlobal('matchMedia', (query: string) => ({
+        matches: coarse && query === '(pointer: coarse)',
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined
+      }));
+      mountModal();
+      expect(getInput('reset-unsolved-puzzle').disabled).toBe(coarse);
+      expect(document.querySelector('label[for="reset-unsolved-puzzle"]')?.classList.contains('disabled-label')).toBe(coarse);
+    });
+
+    it('disables "disable win message" only while fmc blitz is on', async () => {
       const store = useBaseStore();
       mountModal();
-      expect(getInput('hover-on').disabled).toBe(true);
       expect(getInput('disable-win-message').disabled).toBe(false);
-      store.proMode = true;
       store.fmcBlitz = true;
       await nextTick();
-      expect(getInput('hover-on').disabled).toBe(false);
       expect(getInput('disable-win-message').disabled).toBe(true);
     });
 
-    it('enables "hover on control" in cage mode too', async () => {
-      const store = useBaseStore();
+    it.each([
+      ['casual', {}],
+      ['pro', { proMode: true }],
+      ['cage', { cageMode: true, enableCageMode: true }]
+    ])('offers "hover on control" in %s mode', (_mode, state) => {
+      Object.assign(useBaseStore(), state);
       mountModal();
-      expect(getInput('hover-on').disabled).toBe(true);
-      store.cageMode = true;
-      await nextTick();
       expect(getInput('hover-on').disabled).toBe(false);
     });
 
@@ -255,6 +262,25 @@ describe('ConfigModal', () => {
       expect(localStorage.getItem('proMode')).toBe('true');
     });
 
+    // The pro mode saved on entering cage mode belongs to that visit: once cage mode is off and
+    // the player picks Casual, a later size change must not bring Pro back.
+    it('leaves Casual alone on a later size change after cage mode was turned on and off from Pro', async () => {
+      const store = useBaseStore();
+      store.proMode = true;
+      mountModal();
+      await toggleCheckbox('enable-cage-mode');
+      await toggleCheckbox('enable-cage-mode');
+      expect(store.proMode).toBe(true);
+      await toggleCheckbox('casual-mode');
+      expect(store.proMode).toBe(false);
+
+      await clickSliderMark('5');
+
+      expect(store.numLines).toBe(5);
+      expect(store.proMode).toBe(false);
+      expect(localStorage.getItem('proMode')).toBe('false');
+    });
+
     it('turns off cage mode without touching pro mode when it was off before entering cage mode', async () => {
       const store = useBaseStore();
       store.enableCageMode = true;
@@ -272,7 +298,7 @@ describe('ConfigModal', () => {
       store.proMode = true;
       mountModal();
       expect(document.querySelector<HTMLInputElement>('#casual-mode')?.checked).toBe(false);
-      expect(document.querySelector('label[for="casual-mode"]')?.textContent?.trim()).toBe('Casual Mode (animated tiles)');
+      expect(document.querySelector('label[for="casual-mode"]')?.textContent.trim()).toBe('Casual Mode (animated tiles)');
     });
 
     it('is ticked in casual play', () => {
@@ -319,11 +345,9 @@ describe('ConfigModal', () => {
   });
 
   describe('setMarathonMode', () => {
-    it('toggles it on, resets fmc/cage state, and re-requests averages via the watcher', async () => {
+    it('turned on from Cage mode, turns Cage off, switches to Pro and requests marathon averages', async () => {
       const store = useBaseStore();
-      store.proMode = true;
       store.token = 'real-session-token';
-      store.fmcBlitz = true;
       store.enableCageMode = true;
       store.cageMode = true;
       localStorage.setItem('_xss', 'stale-session');
@@ -331,13 +355,38 @@ describe('ConfigModal', () => {
       await toggleCheckbox('marathon-mode');
 
       expect(store.marathonMode).toBe(true);
-      expect(store.fmcBlitz).toBe(false);
+      expect(store.proMode).toBe(true);
       expect(store.enableCageMode).toBe(false);
       expect(store.cageMode).toBe(false);
       expect(localStorage.getItem('_xss')).toBeNull();
       await vi.waitFor(() => {
         expect(useGetFetchAPI).toHaveBeenCalledWith(expect.stringContaining('puzzle_type=marathon'), store.token);
       });
+    });
+
+    it('turned on in Casual, stays in Casual', async () => {
+      const store = useBaseStore();
+      store.token = 'real-session-token';
+      mountModal();
+      await toggleCheckbox('marathon-mode');
+
+      expect(store.marathonMode).toBe(true);
+      expect(store.proMode).toBe(false);
+      expect(localStorage.getItem('proMode')).toBeNull();
+      expect(useGetFetchAPI).not.toHaveBeenCalledWith(expect.stringContaining('user_averages'), store.token);
+    });
+
+    it('turned on in Pro, turns FMC Blitz off', async () => {
+      const store = useBaseStore();
+      store.token = 'real-session-token';
+      store.proMode = true;
+      store.fmcBlitz = true;
+      mountModal();
+      await toggleCheckbox('marathon-mode');
+
+      expect(store.marathonMode).toBe(true);
+      expect(store.fmcBlitz).toBe(false);
+      expect(store.proMode).toBe(true);
     });
 
     it('toggles it back off', async () => {
@@ -348,19 +397,46 @@ describe('ConfigModal', () => {
       expect(store.marathonMode).toBe(false);
       expect(localStorage.getItem('marathonMode')).toBe('false');
     });
+
+    it('stays in Casual when Marathon is turned off there', async () => {
+      const store = useBaseStore();
+      store.proMode = true;
+      mountModal();
+      await toggleCheckbox('marathon-mode');
+      await toggleCheckbox('casual-mode');
+      expect(store.proMode).toBe(false);
+
+      await toggleCheckbox('marathon-mode');
+
+      expect(store.marathonMode).toBe(false);
+      expect(store.proMode).toBe(false);
+      expect(localStorage.getItem('proMode')).toBe('false');
+    });
   });
 
   describe('setFMCBlitzMode', () => {
-    it('turns on pro mode first when it was off, then enables fmc blitz at the standard size', async () => {
+    it('turned on in Casual, stays in Casual and turns Marathon off', async () => {
       const store = useBaseStore();
       store.token = 'real-session-token';
       store.marathonMode = true;
+      mountModal();
+      await toggleCheckbox('fmc-blitz-mode-mode');
+
+      expect(store.fmcBlitz).toBe(true);
+      expect(store.proMode).toBe(false);
+      expect(store.marathonMode).toBe(false);
+    });
+
+    it('turned on from Cage mode, turns Cage off and switches to Pro at the standard size', async () => {
+      const store = useBaseStore();
+      store.token = 'real-session-token';
+      store.enableCageMode = true;
+      store.cageMode = true;
       const wrapper = mountModal();
       await toggleCheckbox('fmc-blitz-mode-mode');
 
-      expect(store.proMode).toBe(true);
       expect(store.fmcBlitz).toBe(true);
-      expect(store.marathonMode).toBe(false);
+      expect(store.proMode).toBe(true);
       expect(store.enableCageMode).toBe(false);
       expect(store.cageMode).toBe(false);
       expect(internals(wrapper).puzzleSize).toBe(4);
@@ -384,6 +460,22 @@ describe('ConfigModal', () => {
       const wrapper = mountModal();
       await toggleCheckbox('fmc-blitz-mode-mode');
       expect(internals(wrapper).puzzleSize).toBe(4);
+    });
+
+    it('stays in Casual when FMC Blitz is turned off there', async () => {
+      const store = useBaseStore();
+      store.token = 'real-session-token';
+      store.proMode = true;
+      mountModal();
+      await toggleCheckbox('fmc-blitz-mode-mode');
+      await toggleCheckbox('casual-mode');
+      expect(store.proMode).toBe(false);
+
+      await toggleCheckbox('fmc-blitz-mode-mode');
+
+      expect(store.fmcBlitz).toBe(false);
+      expect(store.proMode).toBe(false);
+      expect(localStorage.getItem('proMode')).toBe('false');
     });
 
     it('turns fmc blitz back off without re-enabling pro mode a second time', async () => {
@@ -413,6 +505,18 @@ describe('ConfigModal', () => {
       expect(localStorage.getItem('numLines')).toBe('5');
     });
 
+    it('leaving cage mode by size returns to Casual when cage mode was entered from Casual', async () => {
+      const store = useBaseStore();
+      store.proMode = false;
+      mountModal();
+      await toggleCheckbox('enable-cage-mode');
+
+      await clickSliderMark('5');
+
+      expect(store.enableCageMode).toBe(false);
+      expect(store.proMode).toBe(false);
+    });
+
     it('resets fmc blitz when the new size is not a valid fmc blitz size', async () => {
       const store = useBaseStore();
       store.fmcBlitz = true;
@@ -438,25 +542,15 @@ describe('ConfigModal', () => {
       expect(initSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('skips re-initializing when moving back to the standard size while cage mode stays enabled', async () => {
+    it('re-initializes only once when cage mode is turned on from another size', async () => {
       const store = useBaseStore();
       store.numLines = 5;
-      store.enableCageMode = true;
       mountModal();
       const initSpy = vi.spyOn(store, 'initAfterNewPuzzleSize');
-      await clickSliderMark('4');
-      expect(store.numLines).toBe(4);
-      expect(initSpy).not.toHaveBeenCalled();
-    });
-
-    it('ignores a puzzle size of 0, which the slider itself never emits', async () => {
-      const store = useBaseStore();
-      const wrapper = mountModal();
-      const initSpy = vi.spyOn(store, 'initAfterNewPuzzleSize');
-      internals(wrapper).puzzleSize = 0;
+      await toggleCheckbox('enable-cage-mode');
       await nextTick();
-      expect(store.numLines).not.toBe(0);
-      expect(initSpy).not.toHaveBeenCalled();
+      expect(store.numLines).toBe(4);
+      expect(initSpy).toHaveBeenCalledTimes(1);
     });
   });
 

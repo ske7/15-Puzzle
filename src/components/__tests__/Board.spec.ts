@@ -125,13 +125,20 @@ describe('Board', () => {
       expect(wrapper.findAll('.square')).toHaveLength(0);
     });
 
-    it('renders plain Square tiles even in pro mode during replay', () => {
+    it.each([
+      ['the playground', { playgroundMode: true }],
+      ['a playground opened from another player\'s link', {
+        playgroundMode: true, publicId: 'n0wtau9rmjry', userName: 'leo', otherUserName: 'daanbe'
+      }],
+      ['a replay', { replayMode: true }],
+      ['a marathon replay', { replayMode: true, marathonReplay: true }]
+    ])('uses the pro board canvas in %s', (_case, state) => {
       const store = setup3x3Solved();
-      store.proMode = true;
-      store.replayMode = true;
+      Object.assign(store, { proMode: true, ...state });
       const wrapper = mountBoard();
-      expect(internals(wrapper).showProBoard).toBe(false);
-      expect(wrapper.findAll('canvas')).toHaveLength(0);
+      expect(internals(wrapper).showProBoard).toBe(true);
+      expect(wrapper.findAll('canvas')).toHaveLength(1);
+      expect(wrapper.findAll('.square')).toHaveLength(0);
     });
   });
 
@@ -432,29 +439,89 @@ describe('Board', () => {
       store.stopInterval();
     });
 
-    // Playground and replay draw one element per tile instead of the canvas. The tiles take
+    it('slides tiles under a finger in the playground', () => {
+      const store = proBoard();
+      store.playgroundMode = true;
+      const wrapper = mountBoard();
+      const squareSize = internals(wrapper).squareSize;
+
+      drag(wrapper, centreOf(9, squareSize), centreOf(7, squareSize));
+
+      expect(store.movesCount).toBe(2);
+      expect(store.currentOrders).toEqual([1, 2, 3, 4, 5, 6, 0, 7, 8]);
+      expect(store.moveDoneBy).toBe(ControlType.Touch);
+      store.stopInterval();
+    });
+
+    it('ignores a tap in the playground while a walk plays the solution back', () => {
+      const store = proBoard();
+      store.playgroundMode = true;
+      store.inReplay = true;
+      const wrapper = mountBoard();
+
+      tap(wrapper, 'touchstart', centreOf(7, internals(wrapper).squareSize));
+
+      expect(store.movesCount).toBe(0);
+    });
+
+    it('slides tiles under a finger in a replay once it has finished playing', () => {
+      const store = proBoard();
+      store.replayMode = true;
+      const wrapper = mountBoard();
+      const squareSize = internals(wrapper).squareSize;
+
+      drag(wrapper, centreOf(9, squareSize), centreOf(8, squareSize));
+
+      expect(store.movesCount).toBe(1);
+      expect(store.currentOrders).toEqual([1, 2, 3, 4, 5, 6, 7, 0, 8]);
+      store.stopInterval();
+    });
+
+    // Matches the keyboard: once the walk stops, a viewer can solve a marathon replay by hand.
+    it('moves the hovered tile in a marathon replay once the walk has stopped', () => {
+      const store = proBoard();
+      Object.assign(store, { replayMode: true, marathonReplay: true });
+      const wrapper = mountBoard();
+      const squareSize = internals(wrapper).squareSize;
+      const target = centreOf(8, squareSize);
+      wrapper.find('.p-container').element.dispatchEvent(Object.assign(new Event('pointermove', { bubbles: true }),
+        { clientX: target.x, clientY: target.y, pointerId: 1, pointerType: 'mouse' }));
+
+      expect(store.movesCount).toBe(1);
+      store.stopInterval();
+    });
+
+    it.each([
+      ['while the replay is still playing', { replayMode: true, inReplay: true }],
+      ['in a playground opened from another player\'s link', {
+        playgroundMode: true, publicId: 'n0wtau9rmjry', userName: 'leo', otherUserName: 'daanbe'
+      }]
+    ])('leaves the board alone %s, to a slide and to a tap', (_case, state) => {
+      const store = proBoard();
+      Object.assign(store, state);
+      const wrapper = mountBoard();
+      const squareSize = internals(wrapper).squareSize;
+
+      drag(wrapper, centreOf(9, squareSize), centreOf(7, squareSize));
+      tap(wrapper, 'touchstart', centreOf(7, squareSize));
+
+      expect(store.movesCount).toBe(0);
+    });
+
+    // Cage and casual mode draw one element per tile instead of the canvas. The tiles take
     // taps and mouse hover themselves, so only a finger sliding across them comes through here.
-    describe('on the tile board of playground and replay', () => {
-      it('slides tiles under a finger in the playground', () => {
-        const store = proBoard();
-        store.playgroundMode = true;
-        const wrapper = mountBoard();
-        expect(wrapper.findAll('.square').length).toBeGreaterThan(0);
-        const squareSize = internals(wrapper).squareSize;
-
-        drag(wrapper, centreOf(9, squareSize), centreOf(7, squareSize));
-
-        expect(store.movesCount).toBe(2);
-        expect(store.currentOrders).toEqual([1, 2, 3, 4, 5, 6, 0, 7, 8]);
-        expect(store.moveDoneBy).toBe(ControlType.Touch);
-        store.stopInterval();
-      });
-
-      it('slides tiles under a finger in cage mode with hover control on', () => {
+    describe('on the tile board of cage mode', () => {
+      function cageBoard() {
         const store = setup3x3Solved();
         store.hoverOnControl = true;
         store.cageMode = true;
+        return store;
+      }
+
+      it('slides tiles under a finger in cage mode with hover control on', () => {
+        const store = cageBoard();
         const wrapper = mountBoard();
+        expect(wrapper.findAll('canvas')).toHaveLength(0);
         const squareSize = internals(wrapper).squareSize;
 
         drag(wrapper, centreOf(9, squareSize), centreOf(7, squareSize));
@@ -464,28 +531,9 @@ describe('Board', () => {
         store.stopInterval();
       });
 
-      it('slides tiles under a finger in a replay once it has finished playing', () => {
-        const store = proBoard();
-        store.replayMode = true;
-        const wrapper = mountBoard();
-        const squareSize = internals(wrapper).squareSize;
-
-        drag(wrapper, centreOf(9, squareSize), centreOf(8, squareSize));
-
-        expect(store.movesCount).toBe(1);
-        expect(store.currentOrders).toEqual([1, 2, 3, 4, 5, 6, 7, 0, 8]);
-        store.stopInterval();
-      });
-
-      it.each([
-        ['while the replay is still playing', { replayMode: true, inReplay: true }],
-        ['in a playground opened from another player\'s link', {
-          playgroundMode: true, publicId: 'n0wtau9rmjry', userName: 'leo', otherUserName: 'daanbe'
-        }],
-        ['with hover control off, where a tap is the way to move', { playgroundMode: true, hoverOnControl: false }]
-      ])('leaves the board alone %s', (_case, state) => {
-        const store = proBoard();
-        Object.assign(store, state);
+      it('leaves the board alone with hover control off, where a tap is the way to move', () => {
+        const store = cageBoard();
+        store.hoverOnControl = false;
         const wrapper = mountBoard();
         const squareSize = internals(wrapper).squareSize;
 
@@ -495,8 +543,7 @@ describe('Board', () => {
       });
 
       it.each(['pointerup', 'pointercancel', 'pointerleave'])('starts a fresh gesture after %s', (ending) => {
-        const store = proBoard();
-        store.playgroundMode = true;
+        const store = cageBoard();
         const wrapper = mountBoard();
         const squareSize = internals(wrapper).squareSize;
         const el = wrapper.find('.p-container').element;
@@ -517,8 +564,7 @@ describe('Board', () => {
       });
 
       it('leaves mouse movement to the tiles, so a hover is never applied twice', () => {
-        const store = proBoard();
-        store.playgroundMode = true;
+        const store = cageBoard();
         const wrapper = mountBoard();
         const squareSize = internals(wrapper).squareSize;
         const el = wrapper.find('.p-container').element;
@@ -529,6 +575,45 @@ describe('Board', () => {
 
         send('pointerdown', centreOf(9, squareSize));
         send('pointermove', centreOf(8, squareSize));
+
+        expect(store.movesCount).toBe(0);
+      });
+    });
+
+    // Casual tiles slide, so mouse hover is hit-tested on the grid here rather than by the
+    // tiles themselves, which would catch a tile mid-slide and send it back.
+    describe('mouse hover on the casual tile board', () => {
+      function hover(wrapper: ReturnType<typeof mountBoard>, ...points: { x: number; y: number }[]): void {
+        const el = wrapper.find('.p-container').element;
+        for (const p of points) {
+          el.dispatchEvent(Object.assign(new Event('pointermove', { bubbles: true, cancelable: true }),
+            { clientX: p.x, clientY: p.y, pointerId: 1, pointerType: 'mouse' }));
+        }
+      }
+
+      it('moves every tile a sweep crosses, once, with hover control on', () => {
+        const store = setup3x3Solved();
+        store.hoverOnControl = true;
+        const wrapper = mountBoard();
+        expect(wrapper.findAll('canvas')).toHaveLength(0);
+        const squareSize = internals(wrapper).squareSize;
+
+        // Along the bottom row from the blank's left neighbour, then back over the same cells.
+        hover(wrapper, centreOf(8, squareSize), centreOf(7, squareSize), centreOf(7, squareSize));
+
+        expect(store.movesCount).toBe(2);
+        expect(store.currentOrders).toEqual([1, 2, 3, 4, 5, 6, 0, 7, 8]);
+        expect(store.moveDoneBy).toBe(ControlType.Mouse);
+        store.stopInterval();
+      });
+
+      it('ignores the mouse with hover control off, where a click is the way to move', () => {
+        const store = setup3x3Solved();
+        store.hoverOnControl = false;
+        const wrapper = mountBoard();
+        const squareSize = internals(wrapper).squareSize;
+
+        hover(wrapper, centreOf(8, squareSize), centreOf(7, squareSize));
 
         expect(store.movesCount).toBe(0);
       });

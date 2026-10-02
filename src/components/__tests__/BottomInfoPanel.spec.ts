@@ -5,7 +5,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import { useEventBus } from '@vueuse/core';
 import BottomInfoPanel from '../BottomInfoPanel.vue';
 import { useBaseStore } from '../../stores/base';
-import { baseUrl, CORE_NUM } from '@/const';
+import { baseUrl, ControlType, CORE_NUM } from '@/const';
 import type { RepGame, Response } from '@/types';
 
 vi.mock('../../composables/useFetchAPI', async (importOriginal) => {
@@ -131,7 +131,7 @@ describe('BottomInfoPanel', () => {
     });
   });
 
-  describe('cannotClick / disableDuringMarathon', () => {
+  describe('cannotClick / runInProgress', () => {
     it('blocks clicks while any modal is open', () => {
       const store = setup3x3();
       store.showInfo = true;
@@ -145,6 +145,19 @@ describe('BottomInfoPanel', () => {
       store.time = 5000;
       mountPanel();
       expect(store.cannotClick).toBe(true);
+    });
+
+    it('keeps the Leaderboard closed while the FMC Blitz clock runs', async () => {
+      const store = setup3x3();
+      store.token = 'real-session-token';
+      store.fmcBlitz = true;
+      store.moveRight(ControlType.Keyboard);
+      const wrapper = mountPanel();
+      await wrapper.findAll('.link-item').find(el => el.text() === 'Leaderboard')!.trigger('click');
+      expect(store.showLeaderBoard).toBe(false);
+      expect(store.paused).toBe(false);
+      store.stopInterval();
+      store.stopBlitzInterval();
     });
 
     it('blocks clicks during a replay', () => {
@@ -398,7 +411,7 @@ describe('BottomInfoPanel', () => {
         mountPanel();
         expect(store.showRegModal).toBe(true);
         await vi.waitFor(() => {
-          expect(document.querySelector('.header span')?.textContent?.trim()).toBe('Set new password');
+          expect(document.querySelector('.header span')?.textContent.trim()).toBe('Set new password');
           expect(document.querySelector<HTMLInputElement>('#email')?.value).toBe('gamer@example.com');
         });
       } finally {

@@ -12,7 +12,6 @@ import {
   reloadPage,
   displayedTime,
   timeAgo,
-  expandSolutionStr,
   generate,
   generateAndShuffle,
   generateRand,
@@ -324,17 +323,6 @@ describe('shortenSolutionStr', () => {
 
   it('collapses a trailing run that ends the string', () => {
     expect(shortenSolutionStr('abbb')).toBe('ab3');
-  });
-});
-
-describe('expandSolutionStr', () => {
-  it('expands digit-count-encoded runs back to repeated characters', () => {
-    expect(expandSolutionStr('a3b3c')).toBe('aaabbbc');
-  });
-
-  it('is the inverse of shortenSolutionStr', () => {
-    const original = 'aaabbbc';
-    expect(expandSolutionStr(shortenSolutionStr(original))).toBe(original);
   });
 });
 

@@ -346,6 +346,16 @@ describe('useBoardPointer', () => {
       expect(store.movesCount).toBe(0);
     });
 
+    it('does nothing while a walk is playing the solution back', () => {
+      const store = setupBoard();
+      store.inReplay = true;
+      const pointer = useBoardPointer(CELL, boardEl);
+
+      pointer.tapAt(at(1, 4).x, at(1, 4).y, ControlType.Touch);
+
+      expect(store.movesCount).toBe(0);
+    });
+
     it('ignores a press outside the board', () => {
       const store = setupBoard();
       const pointer = useBoardPointer(CELL, boardEl);

@@ -39,8 +39,7 @@ const {
   sortField
 } = usePaginatedFetch<UserScrambleData>(buildScrambleUrl, (res) => res.scramble_records ?? [], 'scramble-list-table');
 
-watch(puzzleSize, (newValue) => {
-  if (newValue === 0) return;
+watch(puzzleSize, () => {
   if (['opt_diff', 'optimal_moves'].includes(sortField.value)) {
     sortField.value = 'best_moves';
   }

@@ -5,7 +5,6 @@ export function useReplayState() {
   const replayMode = ref(false);
   const repGame = ref(null as unknown as RepGame);
   const inReplay = ref(false);
-  const replaySpeed = ref(0);
   const wasReplay = ref(false);
   const marathonReplay = ref(false);
   const fastWalkMode = ref(localStorage.getItem('fastWalkMode') === 'true');
@@ -19,7 +18,6 @@ export function useReplayState() {
     repGame,
     inReplay,
     wasReplay,
-    replaySpeed,
     marathonReplay,
     fastWalkMode,
     walkSpeed

@@ -33,17 +33,8 @@ export function usePrepare(): void {
     checkCurrentUser(link.gameId === '0');
 
     onMounted(() => {
-      if (link.gameId === '0' && !baseStore.playgroundMode && !baseStore.g1000Mode) {
-        if (baseStore.enableCageMode) {
-          baseStore.loadUnlockedCagesFromLocalStorage();
-          baseStore.doPrepareCageMode();
-          setTimeout(() => {
-            if (baseStore.unlockedCages.size > 0) {
-              const first = [...baseStore.unlockedCages][0];
-              baseStore.preloadImage(CAGES_PATH_ARR[first]);
-            }
-          }, 1000);
-        }
+      if (link.gameId === '0' && !baseStore.g1000Mode) {
+        prepareSavedCageMode();
         startPuzzle(checkModeSize(numLines));
       }
     });
@@ -205,9 +196,26 @@ function checkGameLink(gameId: string, numLines: number): void {
       .catch((error: unknown) => {
         baseStore.lastError = 'Could not load the game replay';
         console.log(error);
+        prepareSavedCageMode();
         startPuzzle(checkModeSize(numLines));
       });
   }
+}
+
+function prepareSavedCageMode(): void {
+  const baseStore = useBaseStore();
+
+  if (!baseStore.enableCageMode) {
+    return;
+  }
+  baseStore.loadUnlockedCagesFromLocalStorage();
+  baseStore.doPrepareCageMode();
+  setTimeout(() => {
+    if (baseStore.unlockedCages.size > 0) {
+      const first = [...baseStore.unlockedCages][0];
+      baseStore.preloadImage(CAGES_PATH_ARR[first]);
+    }
+  }, 1000);
 }
 
 function checkCurrentUser(loadAveragesAfter: boolean): void {

@@ -151,15 +151,30 @@ describe('useBaseStore - getters', () => {
     expect(store.showModal).toBe(true);
   });
 
-  it('disableDuringMarathon is true only during an active, unfinished marathon run', () => {
+  it('runInProgress is true only during an active, unfinished marathon run', () => {
     const store = useBaseStore();
-    expect(store.disableDuringMarathon).toBe(false);
+    expect(store.runInProgress).toBe(false);
     store.marathonMode = true;
-    expect(store.disableDuringMarathon).toBe(false); // time is still 0
+    expect(store.runInProgress).toBe(false); // time is still 0
     store.time = 5000;
-    expect(store.disableDuringMarathon).toBe(true);
+    expect(store.runInProgress).toBe(true);
     store.inPlaceCount = store.arrayLength - 1; // isDone
-    expect(store.disableDuringMarathon).toBe(false);
+    expect(store.runInProgress).toBe(false);
+  });
+
+  it('runInProgress is true while the FMC Blitz clock runs, from the first move until the run ends', () => {
+    const store = useBaseStore();
+    store.fmcBlitz = true;
+    store.numLines = 3;
+    store.currentOrders = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+    expect(store.runInProgress).toBe(false);
+
+    store.moveRight(ControlType.Keyboard);
+    expect(store.runInProgress).toBe(true);
+
+    store.stopInterval();
+    store.stopBlitzInterval();
+    expect(store.runInProgress).toBe(false);
   });
 
   it('cannotClick is true when any modal is open, during a marathon run, or in replay', () => {

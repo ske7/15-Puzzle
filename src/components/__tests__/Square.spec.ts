@@ -6,7 +6,6 @@ import { useEventBus } from '@vueuse/core';
 import Square from '../Square.vue';
 import { useBaseStore } from '../../stores/base';
 import { loadCageImages } from '../../../tests/cageImages';
-import { getTileColor } from '@/colors';
 import { ControlType, Direction } from '@/const';
 
 // A real, solved 3x3 board - mixedOrder mirrors the "order + 1" identity a fresh
@@ -36,8 +35,6 @@ interface SquareInternals {
   borderRadiusVar: string;
   blockTransition: string;
   fontSizeM: string;
-  fontSizeD: string;
-  inPlaceColor: string;
   getCursor: string;
   cannotMove: boolean;
   moveDirection: Direction;
@@ -86,13 +83,6 @@ describe('Square', () => {
   });
 
   describe('bgColor', () => {
-    it('uses the real per-size tile color in pro mode', () => {
-      const store = setup3x3Solved();
-      store.proMode = true;
-      const wrapper = mountSquare(0);
-      expect(internals(wrapper).bgColor).toBe(getTileColor(3, 1));
-    });
-
     it('uses the background color variable in cage mode', () => {
       const store = setup3x3Solved();
       store.cageMode = true;
@@ -114,21 +104,14 @@ describe('Square', () => {
       { order: 8, expected: '0px 0px 8px 0px' },
       { order: 6, expected: '0px 0px 0px 8px' },
       { order: 4, expected: '0px 0px 0px 0px' }
-    ])('rounds the right corner(s) in pro mode for order $order', ({ order, expected }) => {
+    ])('rounds the right corner(s) in cage mode for order $order once all images finish loading', ({ order, expected }) => {
       const store = setup3x3Solved();
-      store.proMode = true;
+      store.cageMode = true;
+      loadCageImages(store);
       // order 8's own default mixedOrder is 0 (the blank), which is exactly the tile
       // that actually occupies the bottom-right slot on a solved board.
       const wrapper = mountSquare(order, order === 8 ? 0 : order + 1);
       expect(internals(wrapper).borderRadiusVar).toBe(expected);
-    });
-
-    it('rounds corners in cage mode once all images finish loading', () => {
-      const store = setup3x3Solved();
-      store.cageMode = true;
-      loadCageImages(store);
-      const wrapper = mountSquare(0);
-      expect(internals(wrapper).borderRadiusVar).toBe('8px 0px 0px 0px');
     });
 
     it('stays a flat 8px in cage mode while images are still loading', () => {
@@ -139,7 +122,7 @@ describe('Square', () => {
       expect(internals(wrapper).borderRadiusVar).toBe('8px');
     });
 
-    it('stays a flat 8px outside pro/cage mode', () => {
+    it('stays a flat 8px outside cage mode', () => {
       setup3x3Solved();
       const wrapper = mountSquare(0);
       expect(internals(wrapper).borderRadiusVar).toBe('8px');
@@ -147,21 +130,6 @@ describe('Square', () => {
   });
 
   describe('blockTransition', () => {
-    it('uses the real replay speed while replaying', () => {
-      const store = setup3x3Solved();
-      store.inReplay = true;
-      store.replaySpeed = 400;
-      const wrapper = mountSquare(0);
-      expect(internals(wrapper).blockTransition).toBe('all 0.4s ease 0s');
-    });
-
-    it('has no transition in pro mode outside replay', () => {
-      const store = setup3x3Solved();
-      store.proMode = true;
-      const wrapper = mountSquare(0);
-      expect(internals(wrapper).blockTransition).toBe('none');
-    });
-
     it('uses the default ease transition otherwise', () => {
       setup3x3Solved();
       const wrapper = mountSquare(0);
@@ -180,50 +148,26 @@ describe('Square', () => {
       store.hoverOnControl = false;
       expect(internals(mountSquare(0)).blockTransition).toBe('all 0.2s ease 0s');
     });
-  });
 
-  describe('inPlaceColor', () => {
-    it('is the pro-mode accent color in pro mode', () => {
+    it('keeps the slide animation in casual mode with hover control on, which the board hit-tests', () => {
       const store = setup3x3Solved();
-      store.proMode = true;
+      store.hoverOnControl = true;
       const wrapper = mountSquare(0);
-      expect(internals(wrapper).inPlaceColor).toBe('#40d9ff');
-    });
-
-    it('is the themed variable otherwise', () => {
-      setup3x3Solved();
-      const wrapper = mountSquare(0);
-      expect(internals(wrapper).inPlaceColor).toBe('var(--square-in-place-color)');
+      expect(internals(wrapper).blockTransition).toBe('all 0.2s ease 0s');
     });
   });
 
   describe('font sizing', () => {
     it.each([
-      { numLines: 6, small: '29px', wide: '39px' },
-      { numLines: 7, small: '25px', wide: '35px' },
-      { numLines: 8, small: '24px', wide: '33px' },
-      { numLines: 3, small: '33px', wide: '45px' }
-    ])('sizes text for a $numLines-wide board in pro mode', ({ numLines, small, wide }) => {
-      const store = useBaseStore();
-      store.proMode = true;
-      store.numLines = numLines;
-      store.currentOrders = Array.from({ length: numLines * numLines }, (_, i) => i);
-      const wrapper = mountSquare(1, 1);
-      expect(internals(wrapper).fontSizeM).toBe(small);
-      expect(internals(wrapper).fontSizeD).toBe(wide);
-    });
-
-    it.each([
       { numLines: 7, small: '21px' },
       { numLines: 8, small: '18px' },
       { numLines: 3, small: '25px' }
-    ])('sizes text for a $numLines-wide board outside pro mode', ({ numLines, small }) => {
+    ])('sizes small-screen text for a $numLines-wide board', ({ numLines, small }) => {
       const store = useBaseStore();
       store.numLines = numLines;
       store.currentOrders = Array.from({ length: numLines * numLines }, (_, i) => i);
       const wrapper = mountSquare(1, 1);
       expect(internals(wrapper).fontSizeM).toBe(small);
-      expect(internals(wrapper).fontSizeD).toBe('25px');
     });
   });
 
@@ -268,21 +212,14 @@ describe('Square', () => {
   });
 
   describe('getCursor', () => {
-    it('is auto while pro-mode hover control is enabled, even when the tile can move', () => {
-      const store = setup3x3Solved();
-      store.hoverOnControl = true;
-      store.proMode = true;
-      const wrapper = mountSquare(7); // adjacent to the blank
-      expect(internals(wrapper).getCursor).toBe('auto');
-    });
-
-    it('is auto while hover control is enabled in cage mode too', () => {
-      const store = setup3x3Solved();
-      store.hoverOnControl = true;
-      store.cageMode = true;
-      const wrapper = mountSquare(7);
-      expect(internals(wrapper).getCursor).toBe('auto');
-    });
+    it.each([['cage', true], ['casual', false]])(
+      'is auto while hover control is enabled in %s mode, even when the tile can move', (_mode, cageMode) => {
+        const store = setup3x3Solved();
+        store.hoverOnControl = true;
+        store.cageMode = cageMode;
+        const wrapper = mountSquare(7); // adjacent to the blank
+        expect(internals(wrapper).getCursor).toBe('auto');
+      });
 
     it('is pointer for a movable tile outside hover-control mode', () => {
       const store = setup3x3Solved();
@@ -349,16 +286,6 @@ describe('Square', () => {
   });
 
   describe('clicking and touching a movable tile', () => {
-    // Hover control sweeps the board; a click there would add a move on top of the sweep.
-    it('ignores a click while hover control is on', async () => {
-      const store = setup3x3Solved();
-      store.hoverOnControl = true;
-      store.proMode = true;
-      const wrapper = mountSquare(7);
-      await wrapper.find('.square').trigger('mousedown', { button: 0 });
-      expect(store.movesCount).toBe(0);
-    });
-
     it('moves the tile and records the move on a left click', async () => {
       const store = setup3x3Solved();
       const wrapper = mountSquare(7);
@@ -384,35 +311,6 @@ describe('Square', () => {
       expect(store.currentOrders).toEqual([1, 2, 3, 4, 5, 6, 0, 7, 8]);
     });
 
-    it('does nothing while replaying', async () => {
-      const store = setup3x3Solved();
-      store.inReplay = true;
-      const wrapper = mountSquare(7);
-      await wrapper.find('.square').trigger('mousedown', { button: 0 });
-      expect(store.movesCount).toBe(0);
-    });
-
-    it('does nothing during a shared playground session', async () => {
-      const store = setup3x3Solved();
-      store.playgroundMode = true;
-      store.publicId = 'abc123';
-      store.userName = 'me';
-      store.otherUserName = 'someone-else';
-      const wrapper = mountSquare(7);
-      await wrapper.find('.square').trigger('mousedown', { button: 0 });
-      expect(store.movesCount).toBe(0);
-    });
-
-    it('lets the viewer play a marathon replay by hand, like a single replay', async () => {
-      const store = setup3x3Solved();
-      store.replayMode = true;
-      store.marathonReplay = true;
-      const wrapper = mountSquare(7);
-      await wrapper.find('.square').trigger('mousedown', { button: 0 });
-      expect(store.movesCount).toBe(1);
-      expect(store.currentOrders).toEqual([1, 2, 3, 4, 5, 6, 7, 0, 8]);
-    });
-
     it('does nothing while a move is already in flight', async () => {
       const store = setup3x3Solved();
       store.isMoving = true;
@@ -423,28 +321,29 @@ describe('Square', () => {
   });
 
   describe('moveByMouse', () => {
-    it('moves when hover control and pro mode are both on', async () => {
-      const store = setup3x3Solved();
-      store.hoverOnControl = true;
-      store.proMode = true;
-      const wrapper = mountSquare(7);
-      await wrapper.find('.square').trigger('mousemove');
-      expect(store.movesCount).toBe(1);
-    });
-
-    it('ignores mousemove outside hover-control pro mode', async () => {
+    it('ignores mousemove with hover control off', async () => {
       const store = setup3x3Solved();
       store.hoverOnControl = false;
-      store.proMode = true;
+      store.cageMode = true;
       const wrapper = mountSquare(7);
       await wrapper.find('.square').trigger('mousemove');
+      expect(store.movesCount).toBe(0);
+    });
+
+    // The board hit-tests casual hover on the grid, so the tile itself must not move as well.
+    it('leaves casual hover to the board, and ignores a click there too', async () => {
+      const store = setup3x3Solved();
+      store.hoverOnControl = true;
+      const wrapper = mountSquare(7);
+      await wrapper.find('.square').trigger('mousemove');
+      await wrapper.find('.square').trigger('mousedown', { button: 0 });
       expect(store.movesCount).toBe(0);
     });
 
     it('ignores a ctrl-held mousemove', async () => {
       const store = setup3x3Solved();
       store.hoverOnControl = true;
-      store.proMode = true;
+      store.cageMode = true;
       const wrapper = mountSquare(7);
       await wrapper.find('.square').trigger('mousemove', { ctrlKey: true });
       expect(store.movesCount).toBe(0);
@@ -463,14 +362,6 @@ describe('Square', () => {
   });
 
   describe('isDoneAll capture/border animation', () => {
-    it('increments afterDoneCount immediately in pro mode, with no delay', () => {
-      const store = setup3x3Solved();
-      store.proMode = true;
-      store.inPlaceCount = store.arrayLength - 1;
-      mountSquare(0);
-      expect(store.afterDoneCount).toBe(1);
-    });
-
     it('captures the tile in gold after a delay proportional to its position, outside cage mode', () => {
       const store = setup3x3Solved();
       store.inPlaceCount = store.arrayLength - 1;
@@ -682,23 +573,6 @@ describe('Square', () => {
       const store = setup3x3Solved();
       store.processingReInit = true;
       const wrapper = mountSquare(2);
-      expect(wrapper.find('.square').text()).toBe('');
-    });
-  });
-
-  describe('pro mode template', () => {
-    it('shows the mixed-order number, blank as empty', () => {
-      const store = setup3x3Solved();
-      store.proMode = true;
-      const wrapper = mountSquare(2);
-      expect(wrapper.find('.square').text()).toBe('3');
-    });
-
-    it('shows the blank tile as empty when cage mode renders it', () => {
-      const store = setup3x3Solved();
-      store.proMode = true;
-      store.cageMode = true;
-      const wrapper = mountSquare(8);
       expect(wrapper.find('.square').text()).toBe('');
     });
   });

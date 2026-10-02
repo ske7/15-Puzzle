@@ -58,7 +58,7 @@ const toggleClearDisplay = (): void => {
     <ActionPanel />
     <BottomInfoPanel />
     <WinModal
-      v-if="baseStore.isDone && !baseStore.replayMode && baseStore.afterDoneAnimationEnd && baseStore.showWinModal"
+      v-if="baseStore.isDone && baseStore.afterDoneAnimationEnd && baseStore.showWinModal"
       @close="baseStore.showWinModal = false"
     />
   </div>

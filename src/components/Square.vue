@@ -6,7 +6,6 @@ import { Direction, ControlType } from '@/const';
 import { storeToRefs } from 'pinia';
 
 import { useCanMove } from '../composables/useCanMove';
-import { getTileColor } from '@/colors';
 import { getArrayKeyByValue } from '@/utils';
 
 const props = defineProps<{
@@ -30,7 +29,7 @@ const sizeVar = computed(() => {
   return `${props.squareSize}px`;
 });
 const borderRadiusVar = computed(() => {
-  if (baseStore.cageMode && baseStore.finishLoadingAllCageImages || baseStore.proMode) {
+  if (baseStore.cageMode && baseStore.finishLoadingAllCageImages) {
     const topLeft = elementCol.value === 1 && elementRow.value === 1 ? 8 : 0;
     const topRight = elementCol.value === baseStore.numLines && elementRow.value === 1 ? 8 : 0;
     const bottomRight = elementCol.value === baseStore.numLines &&
@@ -43,50 +42,19 @@ const borderRadiusVar = computed(() => {
   return '8px';
 });
 const blockTransition = computed(() => {
-  if (baseStore.inReplay) {
-    return `all ${baseStore.replaySpeed / 1000}s ease 0s`;
-  }
   // A tile still sliding under the pointer would be hovered again and sent straight back.
-  if (baseStore.proMode || (baseStore.cageMode && baseStore.hoverOnControl)) {
+  if (baseStore.cageMode && baseStore.hoverOnControl) {
     return 'none';
   }
   return 'all 0.2s ease 0s';
 });
 const bgColor = computed(() => {
-  if (baseStore.proMode) {
-    return getTileColor(baseStore.numLines, props.mixedOrder);
-  }
   if (baseStore.cageMode) {
     return 'var(--background-color)';
   }
   return 'var(--square-bg-color)';
 });
-const fontSizeD = computed(() => {
-  if (baseStore.proMode) {
-    if (baseStore.numLines === 6) {
-      return '39px';
-    } else if (baseStore.numLines === 7) {
-      return '35px';
-    } else if (baseStore.numLines === 8) {
-      return '33px';
-    } else {
-      return '45px';
-    }
-  }
-  return '25px';
-});
 const fontSizeM = computed(() => {
-  if (baseStore.proMode) {
-    if (baseStore.numLines === 6) {
-      return '29px';
-    } else if (baseStore.numLines === 7) {
-      return '25px';
-    } else if (baseStore.numLines === 8) {
-      return '24px';
-    } else {
-      return '33px';
-    }
-  }
   if (baseStore.numLines === 7) {
     return '21px';
   } else if (baseStore.numLines === 8) {
@@ -94,12 +62,6 @@ const fontSizeM = computed(() => {
   } else {
     return '25px';
   }
-});
-const inPlaceColor = computed(() => {
-  if (baseStore.proMode) {
-    return '#40d9ff';
-  }
-  return 'var(--square-in-place-color)';
 });
 
 const calculatedTopBind = computed(() => {
@@ -123,7 +85,7 @@ const cannotMove = computed(() => {
   return isDoneAll.value || baseStore.paused || moveDirection.value === Direction.None;
 });
 const move = (control: ControlType): void => {
-  if (baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode || cannotMove.value) {
+  if (baseStore.isMoving || cannotMove.value) {
     return;
   }
   baseStore.isMoving = true;
@@ -133,7 +95,7 @@ const move = (control: ControlType): void => {
   baseStore.isMoving = false;
 };
 const moveByMouse = (event: MouseEvent): void => {
-  if (!(baseStore.hoverOnControl && (baseStore.proMode || baseStore.cageMode))) {
+  if (!(baseStore.hoverOnControl && baseStore.cageMode)) {
     return;
   }
   if (event.ctrlKey) {
@@ -143,13 +105,13 @@ const moveByMouse = (event: MouseEvent): void => {
 };
 
 const onMouseDown = (): void => {
-  if (baseStore.hoverOnControl && (baseStore.proMode || baseStore.cageMode)) {
+  if (baseStore.hoverOnControl) {
     return;
   }
   move(ControlType.Mouse);
 };
 const getCursor = computed(() => {
-  if (baseStore.hoverOnControl && (baseStore.proMode || baseStore.cageMode) || cannotMove.value) {
+  if (baseStore.hoverOnControl || cannotMove.value) {
     return 'auto';
   }
   return 'pointer';
@@ -172,10 +134,6 @@ watch(
   (newValue) => {
     cancelReveal();
     if (newValue && !isFreeElement.value) {
-      if (baseStore.proMode) {
-        baseStore.afterDoneCount += 1;
-        return;
-      }
       if (baseStore.cageMode) {
         revealTimeout = setTimeout(() => {
           isNoBorder.value = true;
@@ -243,44 +201,38 @@ onUnmounted(() => {
     class="square"
     :class="{
       'free': isFreeElement && !(baseStore.cageMode && isDoneAll),
-      'in-place': isSquareInPlace && !baseStore.processingReInit && !baseStore.proMode,
-      'captured': isCaptured && !baseStore.proMode,
+      'in-place': isSquareInPlace && !baseStore.processingReInit,
+      'captured': isCaptured,
       'animate': isNoBorder,
-      'no-border': isNoBorder ||
-        (baseStore.cageMode && baseStore.noBordersInCageMode) || baseStore.proMode
+      'no-border': isNoBorder || (baseStore.cageMode && baseStore.noBordersInCageMode)
     }"
     @mousedown.left="onMouseDown"
     @touchstart.prevent="move(ControlType.Touch)"
     @mousemove.prevent="moveByMouse"
   >
-    <template v-if="baseStore.proMode">
-      {{ props.mixedOrder === 0 ? '' : props.mixedOrder }}
-    </template>
-    <template v-else>
-      <img
-        v-if="baseStore.cageMode"
-        v-show="!baseStore.cageMode || !(isFreeElement && !(baseStore.cageMode && isDoneAll))"
-        :src="loadedImg"
-        class="item-img"
-        draggable="false"
-        alt=""
-        @load="onImgLoad"
-      >
+    <img
+      v-if="baseStore.cageMode"
+      v-show="!(isFreeElement && !isDoneAll)"
+      :src="loadedImg"
+      class="item-img"
+      draggable="false"
+      alt=""
+      @load="onImgLoad"
+    >
+    <span
+      v-if="baseStore.cageMode && baseStore.finishLoadingAllCageImages"
+      v-show="!baseStore.cageHardcoreMode && !isNoBorder && !isFreeElement"
+      class="item-img-span"
+    >
+      {{ props.mixedOrder }}
+    </span>
+    <Transition name="bounce">
       <span
-        v-if="baseStore.cageMode && baseStore.finishLoadingAllCageImages"
-        v-show="!baseStore.cageHardcoreMode && !isNoBorder && !isFreeElement"
-        class="item-img-span"
+        v-if="!baseStore.processingReInit && !baseStore.cageMode && !isFreeElement"
       >
         {{ props.mixedOrder }}
       </span>
-      <Transition name="bounce">
-        <span
-          v-if="!baseStore.processingReInit && !baseStore.cageMode && !isFreeElement"
-        >
-          {{ props.mixedOrder }}
-        </span>
-      </Transition>
-    </template>
+    </Transition>
   </div>
 </template>
 
@@ -336,7 +288,7 @@ onUnmounted(() => {
   top: v-bind(calculatedTopBind);
   left: v-bind(calculatedLeftBind);
   contain: layout size;
-  font-size: v-bind(fontSizeD);
+  font-size: 25px;
   font-weight: 600;
   color: #0a0a23;
   font-family: var(--font-mono);
@@ -358,7 +310,7 @@ onUnmounted(() => {
   text-shadow: 0 3px 3px black;
 }
 .in-place {
-  background-color: v-bind(inPlaceColor);
+  background-color: var(--square-in-place-color);
 }
 .captured {
   background-color: gold;

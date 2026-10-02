@@ -69,8 +69,8 @@ function rows(): string[][] {
   return Array.from(document.querySelectorAll('.live-records tbody tr')).map((tr) =>
     Array.from(tr.querySelectorAll('td')).map((td) =>
       Array.from(td.querySelectorAll('.result-value')).length > 0
-        ? Array.from(td.querySelectorAll('.result-value')).map((s) => s.textContent?.trim()).join(' | ')
-        : (td.textContent?.trim() ?? '')));
+        ? Array.from(td.querySelectorAll('.result-value')).map((s) => s.textContent.trim()).join(' | ')
+        : td.textContent.trim()));
 }
 
 const brandNewRecord: LiveRecord = {
@@ -163,7 +163,7 @@ describe('LiveRecords', () => {
     });
     const recordCells = Array.from(document.querySelectorAll('.live-records tbody tr'))
       .map((tr) => tr.querySelectorAll('td')[2]);
-    expect(recordCells.map((td) => td.textContent?.trim())).toEqual(['4x4 M single', '4x4 M ao5']);
+    expect(recordCells.map((td) => td.textContent.trim())).toEqual(['4x4 M single', '4x4 M ao5']);
     expect(recordCells.map((td) => td.getAttribute('title')))
       .toEqual(['4x4 marathon single', '4x4 marathon ao5']);
   });
@@ -183,7 +183,7 @@ describe('LiveRecords', () => {
     vi.mocked(useGetFetchAPI).mockReturnValue(new Promise((resolve) => { responses.push(resolve) }));
     mountList();
     await nextTick();
-    expect(document.querySelector('.live-records .list-note')?.textContent?.trim()).toBe('Loading...');
+    expect(document.querySelector('.live-records .list-note')?.textContent.trim()).toBe('Loading...');
     responses[0]({ status: 'OK', game_id: 0, records: [averageTps] });
     await vi.waitFor(() => {
       expect(rows()).toHaveLength(1);
@@ -195,7 +195,7 @@ describe('LiveRecords', () => {
     respondWith([]);
     mountList();
     await vi.waitFor(() => {
-      expect(document.querySelector('.live-records .list-note')?.textContent?.trim()).toBe('No records yet');
+      expect(document.querySelector('.live-records .list-note')?.textContent.trim()).toBe('No records yet');
     });
   });
 
@@ -203,7 +203,7 @@ describe('LiveRecords', () => {
     vi.mocked(useGetFetchAPI).mockResolvedValue({ status: 'OK', game_id: 0 });
     mountList();
     await vi.waitFor(() => {
-      expect(document.querySelector('.live-records .list-note')?.textContent?.trim()).toBe('No records yet');
+      expect(document.querySelector('.live-records .list-note')?.textContent.trim()).toBe('No records yet');
     });
   });
 
@@ -211,7 +211,7 @@ describe('LiveRecords', () => {
     vi.mocked(useGetFetchAPI).mockRejectedValue(new Error('Service Unavailable'));
     mountList();
     await vi.waitFor(() => {
-      expect(document.querySelector('.live-records .error-msg')?.textContent?.trim()).toBe('Service Unavailable');
+      expect(document.querySelector('.live-records .error-msg')?.textContent.trim()).toBe('Service Unavailable');
     });
   });
 
@@ -279,7 +279,7 @@ describe('LiveRecords', () => {
       respondWith([brandNewRecord, ...samples]);
       await tickRefresh();
       await vi.waitFor(() => {
-        expect(document.querySelector('.live-records .new-records')?.textContent?.trim()).toBe('1 new record - show');
+        expect(document.querySelector('.live-records .new-records')?.textContent.trim()).toBe('1 new record - show');
       });
       expect(rows()).toHaveLength(6);
 
@@ -350,7 +350,7 @@ describe('LiveRecords', () => {
       ]);
       await tickRefresh();
       await vi.waitFor(() => {
-        expect(document.querySelector('.live-records .new-records')?.textContent?.trim()).toBe('2 new records - show');
+        expect(document.querySelector('.live-records .new-records')?.textContent.trim()).toBe('2 new records - show');
       });
     });
 
@@ -358,7 +358,7 @@ describe('LiveRecords', () => {
       respondWith([]);
       mountList();
       await vi.waitFor(() => {
-        expect(document.querySelector('.live-records .list-note')?.textContent?.trim()).toBe('No records yet');
+        expect(document.querySelector('.live-records .list-note')?.textContent.trim()).toBe('No records yet');
       });
       const callsBefore = vi.mocked(useGetFetchAPI).mock.calls.length;
       await tickRefresh();
@@ -443,7 +443,7 @@ describe('LiveRecords', () => {
         expect(rows()).toHaveLength(1);
       });
       const values = Array.from(resultCell(0).querySelectorAll('.result-value'));
-      expect(values.map((v) => v.textContent?.trim())).toEqual(['14.952s', '97.1 moves', '6.627 TPS']);
+      expect(values.map((v) => v.textContent.trim())).toEqual(['14.952s', '97.1 moves', '6.627 TPS']);
       expect(values.every((v) => v.classList.contains('link-item'))).toBe(true);
     });
 
@@ -497,7 +497,7 @@ describe('LiveRecords', () => {
       vi.mocked(useGetFetchAPI).mockResolvedValue({ status: 'OK', game_id: 0, public_id: undefined });
       resultCell(0).querySelector<HTMLElement>('.result-value')!.click();
       await vi.waitFor(() => {
-        expect(document.querySelector('.live-records .error-msg')?.textContent?.trim())
+        expect(document.querySelector('.live-records .error-msg')?.textContent.trim())
           .toBe('Could not find the game of this record');
       });
       expect(clickedLinks).toEqual([]);
@@ -512,7 +512,7 @@ describe('LiveRecords', () => {
       vi.mocked(useGetFetchAPI).mockRejectedValue(new Error('Service Unavailable'));
       resultCell(0).querySelector<HTMLElement>('.result-value')!.click();
       await vi.waitFor(() => {
-        expect(document.querySelector('.live-records .error-msg')?.textContent?.trim()).toBe('Service Unavailable');
+        expect(document.querySelector('.live-records .error-msg')?.textContent.trim()).toBe('Service Unavailable');
       });
       expect(clickedLinks).toEqual([]);
     });
@@ -547,7 +547,7 @@ describe('LiveRecords', () => {
         expect(document.querySelector('.games-table')).not.toBeNull();
       });
       expect(useGetFetchAPI).toHaveBeenLastCalledWith('fmc_blitz_record_games?fmc_blitz_record_id=5365', undefined);
-      expect(document.querySelector('.games-table .modal-header')?.textContent?.trim()).toBe('FMC Blitz Games');
+      expect(document.querySelector('.games-table .modal-header')?.textContent.trim()).toBe('FMC Blitz Games');
     });
 
     it('opens that record\'s games for the value clicked', async () => {
@@ -561,7 +561,7 @@ describe('LiveRecords', () => {
         expect(document.querySelector('.games-table')).not.toBeNull();
       });
       expect(useGetFetchAPI).toHaveBeenLastCalledWith('avg_record_games?avg_record_id=3495&avg_type=tps', undefined);
-      expect(document.querySelector('.games-table .modal-header')?.textContent?.trim()).toBe('Average Record Games');
+      expect(document.querySelector('.games-table .modal-header')?.textContent.trim()).toBe('Average Record Games');
     });
 
     it('asks for the moves games when the moves value is clicked', async () => {

@@ -203,25 +203,6 @@ export function shortenSolutionStr(str?: string): string {
   return result;
 }
 
-export function expandSolutionStr(str: string): string {
-  let result = '';
-  let count = 1;
-  let skipNext: boolean;
-  for (let i = 0; i < str.length; i = i + (skipNext ? 2 : 1)) {
-    const currentChar = str[i];
-    const nextChar = str[i + 1];
-    const nn = Number.parseInt(nextChar, 10);
-    skipNext = false;
-    if (!Number.isNaN(nn)) {
-      count = nn;
-      skipNext = true;
-    }
-    result += currentChar.repeat(count);
-    count = 1;
-  }
-  return result;
-}
-
 export function convertScrambles(str?: string, type?: string): string {
   if (str == null) {
     return '';

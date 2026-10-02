@@ -51,12 +51,12 @@ async function waitLoaded(): Promise<void> {
 async function pickInGroup(headerText: string, label: string): Promise<void> {
   await waitLoaded();
   const containers = Array.from(document.querySelectorAll('.puzzle-mode-container'));
-  const container = containers.find(c => c.querySelector('p')?.textContent?.trim() === headerText);
+  const container = containers.find(c => c.querySelector('p')?.textContent.trim() === headerText);
   if (container === undefined) {
     throw new Error(`group "${headerText}" not found`);
   }
   const span = Array.from(container.querySelectorAll('.puzzle-mode-group span'))
-    .find(s => s.textContent?.trim() === label);
+    .find(s => s.textContent.trim() === label);
   if (span === undefined) {
     throw new Error(`choice "${label}" not found in group "${headerText}"`);
   }
@@ -67,7 +67,7 @@ async function pickInGroup(headerText: string, label: string): Promise<void> {
 async function pickPuzzleSize(size: number): Promise<void> {
   await waitLoaded();
   const mark = Array.from(document.querySelectorAll('.slider-marks span'))
-    .find(s => s.textContent?.trim() === String(size));
+    .find(s => s.textContent.trim() === String(size));
   mark?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
   await nextTick();
 }
@@ -148,14 +148,14 @@ describe('LeaderBoard', () => {
     it('shows the Leaderboard header and a single-record table by default', async () => {
       mountBoard('default');
       await waitLoaded();
-      expect(document.querySelector('#leaderboard-caption')?.textContent?.trim()).toBe('Leaderboard');
+      expect(document.querySelector('#leaderboard-caption')?.textContent.trim()).toBe('Leaderboard');
       expect(document.querySelector('table.items-table')?.classList.contains('items-avg')).toBe(false);
     });
 
     it('shows the Best Averages header and an averages table otherwise', async () => {
       mountBoard('averages');
       await waitLoaded();
-      expect(document.querySelector('#leaderboard-caption')?.textContent?.trim()).toBe('Best Averages');
+      expect(document.querySelector('#leaderboard-caption')?.textContent.trim()).toBe('Best Averages');
       expect(document.querySelector('table.items-avg')).not.toBeNull();
     });
 
@@ -204,7 +204,7 @@ describe('LeaderBoard', () => {
       await pickInGroup('Best Factor', 'FMC Blitz');
       await pickPuzzleSize(6);
       // real proof the reset happened: fmc blitz column disappears, time returns
-      expect(document.querySelector('th.w-70')?.textContent?.trim()).toBe('Time');
+      expect(document.querySelector('th.w-70')?.textContent.trim()).toBe('Time');
     });
 
     it('resets bestType away from fmc blitz when switching to marathon', async () => {
@@ -212,7 +212,7 @@ describe('LeaderBoard', () => {
       await pickInGroup('Best Factor', 'FMC Blitz');
       await pickInGroup('Puzzle Mode', 'Marathon');
       // real proof the reset happened: fmc blitz column disappears, time returns
-      expect(document.querySelector('th.w-70')?.textContent?.trim()).toBe('Time');
+      expect(document.querySelector('th.w-70')?.textContent.trim()).toBe('Time');
     });
 
     it('keeps a non-fmc-blitz bestType untouched when switching to marathon', async () => {
@@ -220,7 +220,7 @@ describe('LeaderBoard', () => {
       await pickInGroup('Puzzle Mode', 'Marathon');
       // Time was already the active factor, so nothing needed to change here -
       // still real proof the watcher ran without disturbing an unrelated bestType.
-      expect(document.querySelector('th.w-70')?.textContent?.trim()).toBe('Time');
+      expect(document.querySelector('th.w-70')?.textContent.trim()).toBe('Time');
     });
 
     it('only shows averages factors for the averages form', () => {
@@ -282,9 +282,9 @@ describe('LeaderBoard', () => {
       mountBoard('default');
       await pickInGroup('Best Factor', 'FMC Blitz');
       await waitLoaded();
-      expect(document.querySelector('.records-tbody tr td.link-item')?.textContent?.trim()).toBe('30');
+      expect(document.querySelector('.records-tbody tr td.link-item')?.textContent.trim()).toBe('30');
       // moves / tps = 30 / 6 = 5.000
-      expect(document.querySelectorAll('.records-tbody tr td')[3].textContent?.trim()).toBe('5.000');
+      expect(document.querySelectorAll('.records-tbody tr td')[3].textContent.trim()).toBe('5.000');
     });
   });
 
@@ -510,7 +510,7 @@ describe('LeaderBoard', () => {
         expect(document.querySelector('.games-table')).not.toBeNull();
       });
       const closeButton = Array.from(document.querySelectorAll('.games-table button'))
-        .find(b => b.textContent?.trim() === 'OK');
+        .find(b => b.textContent.trim() === 'OK');
       closeButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       await vi.waitFor(() => {
         expect(document.querySelector('.games-table')).toBeNull();

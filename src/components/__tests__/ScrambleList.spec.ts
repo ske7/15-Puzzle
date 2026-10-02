@@ -13,14 +13,6 @@ vi.mock('../../composables/useFetchAPI', async (importOriginal) => {
 
 import { useGetFetchAPI } from '../../composables/useFetchAPI';
 
-interface ScrambleListInternals {
-  puzzleSize: number;
-}
-
-function internals(wrapper: VueWrapper): ScrambleListInternals {
-  return wrapper.vm as unknown as ScrambleListInternals;
-}
-
 let currentWrapper: VueWrapper | undefined;
 function mountList() {
   currentWrapper = mount(ScrambleList, { attachTo: document.body });
@@ -75,7 +67,7 @@ describe('ScrambleList', () => {
       expect.stringContaining('list_user_scrambles?puzzle_size=5&offset=0&limit=50&order_field=id&order_direction=desc'),
       undefined
     );
-    expect(document.querySelector('.header span')?.textContent?.trim()).toBe('Saved Scrambles');
+    expect(document.querySelector('.header span')?.textContent.trim()).toBe('Saved Scrambles');
   });
 
   it('treats a response with no scramble_records field as an empty page', async () => {
@@ -276,16 +268,6 @@ describe('ScrambleList', () => {
   });
 
   describe('puzzle size changes', () => {
-    it('ignores a puzzle size of 0, which the slider itself never emits', async () => {
-      respondWith([]);
-      const wrapper = mountList();
-      await waitFetched(wrapper);
-      vi.mocked(useGetFetchAPI).mockClear();
-      internals(wrapper).puzzleSize = 0;
-      await wrapper.vm.$nextTick();
-      expect(useGetFetchAPI).not.toHaveBeenCalled();
-    });
-
     it('resets and re-fetches for the new size', async () => {
       respondWith([]);
       const wrapper = mountList();

@@ -284,9 +284,47 @@ test.describe('pro hover control', () => {
   });
 });
 
-// Playground and replay draw one element per tile rather than the pro canvas. Each tile takes
-// its own taps, so a finger sliding across the board is the part that can quietly go missing.
-test.describe('finger slide on the tile board', () => {
+// Casual tiles slide into place, so hover there is hit-tested on the grid: a tile still sliding
+// under the pointer, caught by its own hover, would be sent straight back.
+test.describe('casual hover control', () => {
+  test('a sweep out along the blank row and back moves each tile once, while tiles keep sliding', async ({ page }) => {
+    await mockApi(page);
+    await page.addInitScript(() => {
+      localStorage.setItem('numLines', '4');
+      localStorage.setItem('hoverOnControl', 'true');
+      localStorage.setItem('proMode', 'false');
+    });
+    await page.goto('/');
+    await expect(page.locator('.board .square').first()).toBeVisible();
+    const board = await readBoard(page);
+    const blank = board.orders.indexOf(0);
+    const target = targetInBlankRow(board);
+    const step = target.index > blank ? 1 : -1;
+    // Every cell from `from` to `to`, both included, even when they are the same cell.
+    const sweep = async (from: number, to: number): Promise<void> => {
+      const direction = to < from ? -1 : 1;
+      for (let i = 0; i <= Math.abs(to - from); i += 1) {
+        const { x, y } = await cellCentre(page, from + i * direction, board.numLines);
+        await page.mouse.move(x, y, { steps: 4 });
+      }
+    };
+
+    // One jump onto the first cell, so the way in crosses no other tile.
+    await hoverCell(page, blank + step, board.numLines);
+    await sweep(blank + step, target.index);
+    expect((await readBoard(page)).orders.indexOf(0)).toBe(target.index);
+    await expect(movesLocator(page)).toHaveText(exactly(target.distance));
+
+    await sweep(target.index - step, blank);
+    expect((await readBoard(page)).orders.indexOf(0)).toBe(blank);
+    await expect(movesLocator(page)).toHaveText(exactly(2 * target.distance));
+
+    expect(await page.locator('.board .square').first().evaluate((el) => getComputedStyle(el).transitionDuration)).toBe('0.2s');
+  });
+});
+
+// The playground opens on its own page, so a finger slide there is checked end to end too.
+test.describe('finger slide in the playground', () => {
   test.use({ hasTouch: true });
 
   test('slides every tile a finger crosses in the playground', async ({ page, context, browserName }) => {
@@ -299,7 +337,7 @@ test.describe('finger slide on the tile board', () => {
       localStorage.setItem('proMode', 'true');
     });
     await page.goto('/?playground');
-    await expect(page.locator('.p-container .square').first()).toBeVisible();
+    await expect(page.locator('.p-container canvas')).toBeVisible();
 
     const board = await readBoard(page);
     const target = targetInBlankRow(board);

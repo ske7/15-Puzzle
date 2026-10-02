@@ -77,20 +77,18 @@ const {
 
 const puzzleModeChoices = ref(baseStore.numLines === 3 ? ['standard', 'marathon', 'g1000'] : ['standard', 'marathon']);
 watch(puzzleSize, (newValue) => {
-  if (newValue !== 0) {
-    if (newValue === 3) {
-      puzzleModeChoices.value = ['standard', 'marathon', 'g1000'];
-    } else {
-      if (puzzleMode.value === 'g1000') {
-        puzzleMode.value = 'standard';
-      }
-      puzzleModeChoices.value = ['standard', 'marathon'];
+  if (newValue === 3) {
+    puzzleModeChoices.value = ['standard', 'marathon', 'g1000'];
+  } else {
+    if (puzzleMode.value === 'g1000') {
+      puzzleMode.value = 'standard';
     }
-    if (sortField.value === 'opt_diff') {
-      sortField.value = 'moves';
-    }
-    reset();
+    puzzleModeChoices.value = ['standard', 'marathon'];
   }
+  if (sortField.value === 'opt_diff') {
+    sortField.value = 'moves';
+  }
+  reset();
 });
 watch(puzzleMode, () => {
   reset();

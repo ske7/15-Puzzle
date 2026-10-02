@@ -48,14 +48,14 @@ export const useBoardPointer = (
   };
 
   const canPlay = (): boolean => {
-    return baseStore.hoverOnControl && (baseStore.proMode || baseStore.cageMode) &&
-      !(baseStore.inReplay || baseStore.sharedPlaygroundMode || baseStore.marathonReplay ||
+    return baseStore.hoverOnControl &&
+      !(baseStore.inReplay || baseStore.sharedPlaygroundMode ||
         baseStore.paused || baseStore.isDone || baseStore.isTimeFailed || baseStore.noPlayMode);
   };
 
   const canTap = (): boolean => {
-    return !(baseStore.isMoving || baseStore.paused || baseStore.isDone ||
-      baseStore.isTimeFailed || baseStore.noPlayMode);
+    return !(baseStore.isMoving || baseStore.inReplay || baseStore.sharedPlaygroundMode ||
+      baseStore.paused || baseStore.isDone || baseStore.isTimeFailed || baseStore.noPlayMode);
   };
 
   const boardOrigin = (): BoardOrigin | null => {
@@ -145,7 +145,7 @@ export const useBoardPointer = (
   };
 
   const onPointerDown = (event: PointerEvent): void => {
-    (event.target as Element | null)?.setPointerCapture?.(event.pointerId);
+    (event.target as Element | null)?.setPointerCapture(event.pointerId);
     beginAt(event.clientX, event.clientY);
   };
 
@@ -179,7 +179,7 @@ export const useBoardPointer = (
   };
 
   const onMouseDown = (event: MouseEvent): void => {
-    if (baseStore.hoverOnControl && baseStore.proMode) {
+    if (baseStore.hoverOnControl) {
       return;
     }
     tapAt(event.clientX, event.clientY, ControlType.Mouse);

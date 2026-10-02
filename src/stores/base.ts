@@ -84,9 +84,6 @@ export const useBaseStore = defineStore('base', () => {
   }
 
   function renewPuzzle() {
-    if (marathon.fmcBlitz.value) {
-      puzzle.doneFirstMove.value = false;
-    }
     if (g1000Mode.value) {
       void getNextG1000()
         .then((loaded) => {
@@ -240,12 +237,14 @@ export const useBaseStore = defineStore('base', () => {
     eventBus.emit('restart', 'fromConfig');
   }
 
-  const disableDuringMarathon = computed((): boolean => {
-    return marathon.marathonMode.value && timer.time.value > 0 && !puzzle.isDone.value;
+  // The marathon timer keeps running across all five puzzles.
+  const runInProgress = computed((): boolean => {
+    return (marathon.marathonMode.value && timer.time.value > 0 && !puzzle.isDone.value) ||
+      marathon.blitzInterval.value !== 0;
   });
 
   const cannotClick = computed((): boolean => {
-    return modals.showModal.value || disableDuringMarathon.value || replay.inReplay.value;
+    return modals.showModal.value || runInProgress.value || replay.inReplay.value;
   });
 
   return {
@@ -284,7 +283,7 @@ export const useBaseStore = defineStore('base', () => {
     g1000Mode,
     clearDisplay,
     noPlayMode,
-    disableDuringMarathon,
+    runInProgress,
     cannotClick,
   };
 });

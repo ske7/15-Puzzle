@@ -2,7 +2,7 @@
   "url": "/?game_id=42",
   "theme": "light",
   "errorLine": null,
-  "board": "8 squares",
+  "board": "canvas",
   "store": {
     "puzzleLoaded": true,
     "numLines": 3,

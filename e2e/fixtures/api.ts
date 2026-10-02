@@ -1,5 +1,5 @@
 import type { Page, Route } from '@playwright/test';
-import type { GameData, RepGame, Response as ApiResponse, UserScrambleData } from '../../src/types';
+import type { RepGame, Response as ApiResponse, UserScrambleData } from '../../src/types';
 
 export const API_BASE = 'http://localhost:3000';
 
@@ -75,18 +75,6 @@ export function userScrambleFixture(overrides: Partial<UserScrambleData> = {}): 
     name: 'other_gamer',
     public_id: 'shared-1',
     created_at: '2024-06-01T12:00:00Z',
-    ...overrides
-  };
-}
-
-export function gameDataFixture(overrides: Partial<GameData> = {}): GameData {
-  return {
-    time: 12340,
-    moves: 42,
-    puzzle_size: 3,
-    puzzle_type: 'standard',
-    control_type: 'mouse',
-    consecutive_solves: 3,
     ...overrides
   };
 }

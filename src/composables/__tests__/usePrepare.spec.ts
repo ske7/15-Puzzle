@@ -689,6 +689,31 @@ describe('usePrepare', () => {
       expect(store.numLines).toBe(size);
       unmount();
     });
+
+    it('opens cage mode, as the main page would, when cage mode is saved and the game lookup fails', async () => {
+      localStorage.setItem('enableCageMode', 'true');
+      localStorage.setItem('_xcu', btoa('0,1'));
+      setLocation('http://localhost:3000/?game_id=42');
+      vi.spyOn(console, 'log').mockImplementation(() => undefined);
+      vi.mocked(useGetFetchAPI).mockImplementation((endpoint: string) => {
+        if (endpoint.includes('game?game_id')) {
+          return Promise.reject(new Error('boom'));
+        }
+        return Promise.resolve(response());
+      });
+      const store = useBaseStore();
+      const unmount = mount();
+
+      await vi.waitFor(() => {
+        expect(store.puzzleLoaded).toBe(true);
+      });
+      expect(store.cageMode).toBe(true);
+      expect(store.cagePath).not.toBe('');
+      expect(store.proMode).toBe(false);
+      expect(store.numLines).toBe(4);
+      expect([...store.unlockedCages]).toEqual([0, 1]);
+      unmount();
+    });
   });
 
   describe('current-user check', () => {

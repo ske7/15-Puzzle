@@ -1,18 +1,13 @@
 <script setup lang="ts">
 import { cores, CORE_NUM } from '@/const';
 
-const props = withDefaults(defineProps<{ modelValue: number; disabled?: boolean }>(), {
-  disabled: false
-});
+const props = defineProps<{ modelValue: number }>();
 
 const emit = defineEmits<{ 'update:modelValue': [number] }>();
 
+// A range input only yields its min-max values, unless its attributes are edited in the browser.
 const setValue = (value: number): void => {
-  if (!Number.isNaN(value) && cores.includes(value)) {
-    emit('update:modelValue', value);
-  } else {
-    emit('update:modelValue', CORE_NUM);
-  }
+  emit('update:modelValue', cores.includes(value) ? value : CORE_NUM);
 };
 const setInputValue = (event: Event): void => {
   const value = (event.target as HTMLInputElement).value;
@@ -33,7 +28,6 @@ const setInputValue = (event: Event): void => {
       step="1"
       list="markers"
       class="slider"
-      :disabled="props.disabled"
       @input="setInputValue($event)"
     >
     <datalist id="markers">

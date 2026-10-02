@@ -53,19 +53,18 @@ watch(finishLoadingAllCageImages, value => {
   }
 });
 
-const showProBoard = computed(() => {
-  return baseStore.proMode && !(baseStore.replayMode || baseStore.sharedPlaygroundMode ||
-    baseStore.marathonReplay || baseStore.playgroundMode);
-});
+const showProBoard = computed(() => baseStore.proMode);
 
-// Tiles handle taps and mouse hover themselves; a finger sliding across them is tracked here.
+// Tiles handle taps themselves, and mouse hover in cage mode; a finger sliding across them is
+// tracked here. So is casual mouse hover, which has to hit-test the grid rather than the tiles:
+// a tile still sliding under the pointer would be hovered again and sent straight back.
 const onTilePointerDown = (event: PointerEvent): void => {
   if (event.pointerType !== 'mouse') {
     pointer.onPointerDown(event);
   }
 };
 const onTilePointerMove = (event: PointerEvent): void => {
-  if (event.pointerType !== 'mouse') {
+  if (event.pointerType !== 'mouse' || !baseStore.cageMode) {
     pointer.onPointerMove(event);
   }
 };

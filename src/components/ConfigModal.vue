@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import { useMediaQuery } from '@vueuse/core';
 import { useAppEventBus } from '../composables/useAppEventBus';
 import { storeToRefs } from 'pinia';
 import { useBaseStore } from '../stores/base';
@@ -16,9 +17,9 @@ const configModal = ref<HTMLElement>();
 useCloseOnClickOutside(configModal, () => emit('close'));
 const puzzleSize = ref(baseStore.numLines);
 const disabledCageMode = computed(() => {
-  return !baseStore.enableCageMode || baseStore.marathonMode ||
-  baseStore.proMode || baseStore.numLines !== CORE_NUM;
+  return !baseStore.enableCageMode;
 });
+const isTouchDevice = useMediaQuery('(pointer: coarse)');
 const disableCageMode = (): void => {
   setSetting('enableCageMode', false);
   baseStore.cageMode = false;
@@ -84,7 +85,7 @@ const setProMode = (): void => {
   eventBus.emit('restart', 'fromConfig');
 };
 const setMarathonMode = (): void => {
-  if (!baseStore.proMode) {
+  if (baseStore.enableCageMode) {
     setProMode();
   }
   toggleSetting('marathonMode');
@@ -93,7 +94,7 @@ const setMarathonMode = (): void => {
   eventBus.emit('restart', 'fromConfig');
 };
 const setFMCBlitzMode = (): void => {
-  if (!baseStore.proMode) {
+  if (baseStore.enableCageMode) {
     setProMode();
   }
   toggleSetting('fmcBlitz');
@@ -111,21 +112,19 @@ const setKeepSession = (): void => {
   }
 };
 watch(puzzleSize, (newValue) => {
-  if (newValue !== 0) {
-    if (newValue !== CORE_NUM) {
-      disableCageMode();
-      if (baseStore.proBeforeCage) {
-        setSetting('proMode', baseStore.proBeforeCage);
-      }
+  if (newValue !== CORE_NUM && baseStore.enableCageMode) {
+    disableCageMode();
+    if (baseStore.proBeforeCage) {
+      setSetting('proMode', baseStore.proBeforeCage);
     }
-    if (!fmcBlitzCores.includes(newValue)) {
-      setSetting('fmcBlitz', false);
-    }
-    baseStore.numLines = newValue;
-    localStorage.setItem('numLines', baseStore.numLines.toString());
-    if (!baseStore.enableCageMode) {
-      baseStore.initAfterNewPuzzleSize();
-    }
+  }
+  if (!fmcBlitzCores.includes(newValue)) {
+    setSetting('fmcBlitz', false);
+  }
+  baseStore.numLines = newValue;
+  localStorage.setItem('numLines', baseStore.numLines.toString());
+  if (!baseStore.enableCageMode) {
+    baseStore.initAfterNewPuzzleSize();
   }
 });
 const { marathonMode } = storeToRefs(baseStore);
@@ -210,10 +209,11 @@ watch(marathonMode, () => {
             id="reset-unsolved-puzzle"
             type="checkbox"
             name="reset-unsolved-puzzle"
+            :disabled="isTouchDevice"
             :checked="baseStore.resetUnsolvedPuzzleWithEsc"
             @change="setResetUnsolvedPuzzleWithEsc"
           >
-          <label for="reset-unsolved-puzzle">
+          <label for="reset-unsolved-puzzle" :class="{ 'disabled-label': isTouchDevice }">
             Reset unsolved puzzle by Esc
           </label>
         </div>
@@ -235,11 +235,10 @@ watch(marathonMode, () => {
             id="hover-on"
             type="checkbox"
             name="hover-on"
-            :disabled="!baseStore.proMode && !baseStore.cageMode"
             :checked="baseStore.hoverOnControl"
             @change="setHoverOnControl"
           >
-          <label for="hover-on" :class="{ 'disabled-label': !baseStore.proMode && !baseStore.cageMode }">
+          <label for="hover-on">
             Hover On Control
           </label>
         </div>

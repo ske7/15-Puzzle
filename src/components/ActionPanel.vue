@@ -72,7 +72,6 @@ const doReplay = async (walkTime?: number, walkMode = false): Promise<void> => {
 
   const control = ControlTypeReverseMap.get(baseStore.repGame.control_type[0]) ?? ControlType.Mouse;
   const moveTime = (walkTime ?? Math.round(baseStore.repGame.time / baseStore.repGame.moves)) || 0;
-  baseStore.replaySpeed = moveTime;
 
   for (let i = savedStep.value; i < baseStore.repGame.solve_path.length; i++) {
     baseStore.wasReplay = true;
@@ -108,10 +107,8 @@ const doReplay = async (walkTime?: number, walkMode = false): Promise<void> => {
   baseStore.inReplay = false;
 };
 const showNextMarathonPuzzle = async (moveTime: number): Promise<void> => {
-  baseStore.replaySpeed = 0;
   baseStore.nextMarathonReplayPuzzle();
   await sleep(moveTime);
-  baseStore.replaySpeed = moveTime;
 };
 const doWalk = async (): Promise<void> => {
   const solveLen = baseStore.solvePath.length;
@@ -239,15 +236,15 @@ const buttonsByKey = computed((): Record<string, PanelButton> => {
       key: 'pause',
       label: baseStore.paused && !baseStore.showModal ? 'Resume' : 'Pause',
       show: !baseStore.proMode,
-      disabled: disableButton.value || baseStore.disableDuringMarathon || !baseStore.doneFirstMove ||
-        baseStore.isDone || baseStore.proMode,
+      disabled: disableButton.value || baseStore.runInProgress || !baseStore.doneFirstMove ||
+        baseStore.isDone || baseStore.isTimeFailed,
       onClick: () => { baseStore.invertPaused() }
     },
     config: {
       key: 'config',
       label: 'Config',
       show: !inReplayOrPlayground && (!isMobile.value || !baseStore.clearDisplay),
-      disabled: disableButton.value || baseStore.disableDuringMarathon || baseStore.paused,
+      disabled: disableButton.value || baseStore.runInProgress || baseStore.paused,
       onClick: showConfigModal
     },
     walk: {
@@ -258,7 +255,7 @@ const buttonsByKey = computed((): Record<string, PanelButton> => {
       onClick: () => { void doWalk() }
     },
     speed: {
-      key: 'speed', label: '', show: isReplay && !baseStore.playgroundMode, disabled: false, speed: true
+      key: 'speed', label: '', show: isReplay, disabled: false, speed: true
     },
     replay: {
       key: 'replay', label: 'Replay', show: isReplay, disabled: baseStore.inReplay, onClick: () => { void doReplay() }
@@ -266,7 +263,7 @@ const buttonsByKey = computed((): Record<string, PanelButton> => {
     'restart-mobile': {
       key: 'restart-mobile',
       label: 'Restart',
-      show: !inReplayOrPlayground && !baseStore.sharedPlaygroundMode,
+      show: !inReplayOrPlayground,
       disabled: restartDisabled,
       cssClass: 'mobile',
       onClick: restartOnClick
@@ -278,7 +275,7 @@ const buttonsByKey = computed((): Record<string, PanelButton> => {
       key: 'about',
       label: 'About',
       show: !baseStore.playgroundMode && (!isMobile.value || !baseStore.clearDisplay),
-      disabled: disableButton.value || baseStore.disableDuringMarathon || baseStore.inReplay,
+      disabled: disableButton.value || baseStore.runInProgress || baseStore.inReplay,
       onClick: showAboutModal
     }
   };

@@ -25,6 +25,9 @@ Object.defineProperty(navigator, 'clipboard', {
   configurable: true,
 });
 
+// jsdom has no pointer capture, which the board takes on every press.
+Element.prototype.setPointerCapture = (): void => undefined;
+
 // jsdom has no real 2D rendering; the pro board draws its tiles onto a real <canvas>, so
 // getContext('2d') needs a stub covering the small subset of CanvasRenderingContext2D
 // it actually calls.

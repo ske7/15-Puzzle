@@ -2,7 +2,7 @@
   "url": "/?playground",
   "theme": "light",
   "errorLine": null,
-  "board": "15 squares",
+  "board": "canvas",
   "store": {
     "puzzleLoaded": true,
     "numLines": 4,

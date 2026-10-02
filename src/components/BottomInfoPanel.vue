@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import { useAppEventBus } from '../composables/useAppEventBus';
 import { useBaseStore } from '../stores/base';
-import { CORE_NUM, baseUrl } from '@/const';
+import { baseUrl } from '@/const';
 import { type RepGame } from '@/types';
 import { useClipboard } from '@vueuse/core';
 import {
@@ -339,21 +339,20 @@ const setWalkMode = (fastWalkMode: boolean): void => {
         </button>
       </div>
       <p
-        v-if="baseStore.enableCageMode &&
-          !(baseStore.marathonMode || baseStore.proMode) && baseStore.numLines === CORE_NUM"
+        v-if="baseStore.enableCageMode"
       >
         <span class="link-item" :class="{ paused: baseStore.cannotClick }" @click="doShowImageGallery">
           Completed</span> <span class="italic">
           {{ baseStore.unlockedCages.size }}
         </span> out of {{ baseStore.cagesCount }} "Cages"
       </p>
-      <p v-if="(baseStore.marathonMode || baseStore.fmcBlitz) && !(baseStore.replayMode || baseStore.playgroundMode)">
+      <p v-if="(baseStore.marathonMode || baseStore.fmcBlitz) && !baseStore.replayMode">
         Solved
         <span class="italic">
           {{ baseStore.solvedPuzzlesInMarathon }}
         </span> out of {{ baseStore.marathonMode ? 5 : baseStore.blitzScrambleCount }} puzzles
       </p>
-      <p v-if="baseStore.fmcBlitz && !(baseStore.replayMode || baseStore.playgroundMode)" class="center">
+      <p v-if="baseStore.fmcBlitz" class="center">
         T: {{ baseStore.blitzTimeStr }} | M:
         {{ baseStore.solvedPuzzlesInMarathon === baseStore.blitzScrambleCount ||
           (baseStore.interval === 0 && baseStore.blitzInterval !== 0) ?

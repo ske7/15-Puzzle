@@ -187,15 +187,6 @@ describe('GamesTable', () => {
       expect(useGetFetchAPI).toHaveBeenCalledWith(expect.stringContaining('order_field=moves'), undefined);
     });
 
-    it('ignores a puzzle size of 0, which the slider itself never emits', async () => {
-      const wrapper = mountTable({ formType: 'userGames' });
-      await waitFetched(wrapper);
-      vi.mocked(useGetFetchAPI).mockClear();
-      (wrapper.vm as unknown as { puzzleSize: number }).puzzleSize = 0;
-      await nextTick();
-      expect(useGetFetchAPI).not.toHaveBeenCalled();
-    });
-
     it('re-fetches when the puzzle mode changes', async () => {
       const wrapper = mountTable({ formType: 'userGames' });
       await waitFetched(wrapper);

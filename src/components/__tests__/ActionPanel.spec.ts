@@ -1,4 +1,5 @@
 import { mount, type VueWrapper } from '@vue/test-utils';
+import { nextTick } from 'vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useEventBus } from '@vueuse/core';
@@ -483,7 +484,6 @@ describe('ActionPanel', () => {
       store.repGame = realRepGame({ time: 0 });
       const wrapper = mountPanel();
       await internals(wrapper).doReplay();
-      expect(store.replaySpeed).toBe(0);
       expect(store.movesCount).toBe(2);
     });
 
@@ -655,7 +655,7 @@ describe('ActionPanel', () => {
       expect(store.inReplay).toBe(false);
     });
 
-    it('shows the next scramble without animating the tiles, then moves at replay speed again', async () => {
+    it('shows the next scramble untouched before moving on it', async () => {
       const store = setupMarathonReplay(false);
       const wrapper = mountPanel();
       const walk = internals(wrapper).doWalk();
@@ -663,11 +663,9 @@ describe('ActionPanel', () => {
       await vi.waitFor(() => {
         expect(store.mixedOrders).toEqual(secondLeg);
       }, { interval: 5 });
-      expect(store.replaySpeed).toBe(0);
       expect(store.currentOrders).toEqual(secondLeg);
 
       await walk;
-      expect(store.replaySpeed).toBe(store.walkSpeed);
       expect(store.currentOrders).toEqual(solved);
     });
 
@@ -763,7 +761,7 @@ describe('ActionPanel', () => {
     });
   });
 
-  describe('disableButton / disableDuringMarathon', () => {
+  describe('disableButton / runInProgress', () => {
     it('disables buttons while any modal is open', () => {
       const store = setup3x3Board();
       store.showInfo = true;
@@ -797,9 +795,30 @@ describe('ActionPanel', () => {
       store.marathonMode = true;
       store.time = 5000;
       mountPanel();
-      expect(store.disableDuringMarathon).toBe(true);
+      expect(store.runInProgress).toBe(true);
       store.inPlaceCount = store.arrayLength - 1;
-      expect(store.disableDuringMarathon).toBe(false);
+      expect(store.runInProgress).toBe(false);
+    });
+
+    it('disables Config and About while the FMC Blitz clock runs, and frees them once it stops', async () => {
+      const store = setup3x3Board();
+      store.token = 'real-session-token';
+      store.fmcBlitz = true;
+      store.moveRight(ControlType.Keyboard);
+      const wrapper = mountPanel();
+      const button = (label: string) => wrapper.findAll('button').find(b => b.text() === label)!;
+      expect(button('Config').attributes('disabled')).toBeDefined();
+      expect(button('About').attributes('disabled')).toBeDefined();
+
+      // What the blitz clock does when it runs out.
+      store.stopInterval();
+      store.stopBlitzInterval();
+      store.isTimeFailed = true;
+      await nextTick();
+
+      expect(button('Config').attributes('disabled')).toBeUndefined();
+      expect(button('About').attributes('disabled')).toBeUndefined();
+      expect(button('Pause').attributes('disabled')).toBeDefined();
     });
   });
 
@@ -811,6 +830,22 @@ describe('ActionPanel', () => {
       const pauseButton = wrapper.findAll('button').find(b => b.text() === 'Pause')!;
       await pauseButton.trigger('click');
       expect(store.paused).toBe(true);
+    });
+
+    // Pausing hides the board but cannot stop the blitz clock, so it would only cost time.
+    it('keeps Pause disabled during a Casual FMC Blitz run once the clock is running', async () => {
+      const store = setup3x3Board();
+      store.token = 'real-session-token';
+      store.fmcBlitz = true;
+      store.moveRight(ControlType.Keyboard);
+      expect(store.blitzInterval).not.toBe(0);
+      const wrapper = mountPanel();
+      const pauseButton = wrapper.findAll('button').find(b => b.text() === 'Pause')!;
+      expect(pauseButton.attributes('disabled')).toBeDefined();
+      await pauseButton.trigger('click');
+      expect(store.paused).toBe(false);
+      store.stopInterval();
+      store.stopBlitzInterval();
     });
 
     it('runs a real replay when Replay is clicked', async () => {
@@ -864,14 +899,6 @@ describe('ActionPanel', () => {
       expect(labels).toContain('Replay');
       expect(labels).toContain('s');
       expect(labels).toContain('f');
-    });
-
-    it('hides the speed buttons during a playground replay', () => {
-      const store = setup3x3Board();
-      store.replayMode = true;
-      store.playgroundMode = true;
-      const wrapper = mountPanel();
-      expect(wrapper.find('.speed-buttons').exists()).toBe(false);
     });
 
     it('shows Try It only in a shared playground session', () => {

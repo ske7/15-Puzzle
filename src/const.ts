@@ -19,13 +19,11 @@ export const enum Direction {
 }
 
 export const enum OrderDirection {
-  None = 0,
   Asc = 1,
   Desc = 2
 }
 
 export const OrderDirectionMap = new Map<OrderDirection, string>([
-  [OrderDirection.None, 'asc'],
   [OrderDirection.Asc, 'asc'],
   [OrderDirection.Desc, 'desc']
 ]);
