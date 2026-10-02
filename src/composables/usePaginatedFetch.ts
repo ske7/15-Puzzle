@@ -136,13 +136,6 @@ export function usePaginatedFetch<T, TRecord = UserRecord>(
     return formatAs(date, 'DD/MM/YY HH:mm:ss');
   };
 
-  function formatAs(date: string | undefined, pattern: string): string {
-    if (date == null) {
-      return '';
-    }
-    return useDateFormat(date, pattern).value;
-  }
-
   // "Opt.diff" -> "col-opt-diff", "Public ID" -> "col-public-id": styles a column's header and cells together.
   const columnClass = (label: string): string => {
     return `col-${label.toLowerCase().replace(/[^a-z]+/g, '-').replace(/-$/, '')}`;
@@ -193,4 +186,11 @@ export function usePaginatedFetch<T, TRecord = UserRecord>(
     orderDirection,
     attachScrollListener
   };
+}
+
+function formatAs(date: string | undefined, pattern: string): string {
+  if (date == null) {
+    return '';
+  }
+  return useDateFormat(date, pattern).value;
 }

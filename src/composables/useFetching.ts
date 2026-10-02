@@ -33,19 +33,24 @@ export const postGame = (game: GameData, keyH: string, blitzResult?: FMCBlitzDat
         if (baseStore.numLines === 3 && res.opt_m != null) {
           baseStore.opt_m = res.opt_m;
         }
-        void usePostFetchAPI<AverageStats>('update_stats', JSON.stringify({ game_id: res.game_id }), baseStore.token, keyH)
-          .then((statsRes) => {
-            baseStore.setCurrentAverages(statsRes.stats);
-            baseStore.setWasAvgRecords(statsRes.was_avg_records);
-          })
-          .catch((error: unknown) => {
-            baseStore.lastError = 'Could not update your averages';
-            console.log(getErrorMessage(error));
-          });
+        updateAverages(res.game_id, keyH);
         if (blitzResult !== undefined) {
           postFMCBlitz(blitzResult);
         }
       }));
+};
+
+const updateAverages = (gameId: number, keyH: string): void => {
+  const baseStore = useBaseStore();
+  void usePostFetchAPI<AverageStats>('update_stats', JSON.stringify({ game_id: gameId }), baseStore.token, keyH)
+    .then((statsRes) => {
+      baseStore.setCurrentAverages(statsRes.stats);
+      baseStore.setWasAvgRecords(statsRes.was_avg_records);
+    })
+    .catch((error: unknown) => {
+      baseStore.lastError = 'Could not update your averages';
+      console.log(getErrorMessage(error));
+    });
 };
 
 export const postUserScramble = async (user_scramble: UserScrambleData): Promise<void> => {

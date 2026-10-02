@@ -81,7 +81,7 @@ export interface NewGame {
 type Metric = 'time' | 'moves' | 'tps';
 const METRICS: Metric[] = ['time', 'moves', 'tps'];
 const AVERAGE_SIZES = [5, 12, 50, 100];
-const LEADERBOARD_TYPES = ['standard', 'marathon'];
+const LEADERBOARD_TYPES = new Set(['standard', 'marathon']);
 
 export const SCHEMA = `
   CREATE TABLE IF NOT EXISTS users (
@@ -174,7 +174,7 @@ export function insertGame(db: DatabaseSync, user: User, game: NewGame, at: stri
     optimalFor(game), md, at
   );
   const saved = db.prepare('SELECT * FROM games WHERE id = ?').get(Number(lastInsertRowid)) as unknown as Game;
-  if (LEADERBOARD_TYPES.includes(saved.puzzle_type)) {
+  if (LEADERBOARD_TYPES.has(saved.puzzle_type)) {
     updateSingleRecords(db, saved);
   }
   return saved;
@@ -254,7 +254,7 @@ export function updateAverages(db: DatabaseSync, game: Game):
   const games = runGames(db, game);
   const stats = averageStats(games);
   const wasAvgRecords = [];
-  if (!LEADERBOARD_TYPES.includes(game.puzzle_type) || game.gt_id !== null) {
+  if (!LEADERBOARD_TYPES.has(game.puzzle_type) || game.gt_id !== null) {
     return { stats, wasAvgRecords: [] };
   }
   for (const size of AVERAGE_SIZES) {
