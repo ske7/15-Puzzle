@@ -61,6 +61,14 @@ export default defineConfig(
         "string": true
       }],
 
+      // SonarCloud (S7773) flags the global versions; Number.* behave the same.
+      "no-restricted-globals": ["error",
+        { "name": "parseFloat", "message": "Use Number.parseFloat instead." },
+        { "name": "parseInt", "message": "Use Number.parseInt instead." },
+        { "name": "isNaN", "message": "Use Number.isNaN instead (it does not coerce its argument)." },
+        { "name": "isFinite", "message": "Use Number.isFinite instead (it does not coerce its argument)." }
+      ],
+
       // Formatting rules that shape nearly every file (formerly provided by neostandard)
       "@stylistic/arrow-spacing": ["error", { "before": true, "after": true }],
       "@stylistic/block-spacing": ["error", "always"],

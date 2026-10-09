@@ -49,8 +49,8 @@ export function boardRoom(wrapper: HTMLElement): number {
       continue;
     }
     const rect = child.getBoundingClientRect();
-    top = Math.min(top, rect.top - parseFloat(style.marginTop));
-    bottom = Math.max(bottom, rect.bottom + parseFloat(style.marginBottom));
+    top = Math.min(top, rect.top - Number.parseFloat(style.marginTop));
+    bottom = Math.max(bottom, rect.bottom + Number.parseFloat(style.marginBottom));
     if (child.classList.contains('board')) {
       board = rect.height;
     }

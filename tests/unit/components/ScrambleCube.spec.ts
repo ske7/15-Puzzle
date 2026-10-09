@@ -106,7 +106,7 @@ describe('ScrambleCube bouncing', () => {
 
   function offset(scene: DOMWrapper<HTMLElement>): { x: number; y: number } {
     // "translate(Xpx, Ypx)"
-    const [x, y] = scene.element.style.transform.split(/[(,)]/).slice(1, 3).map(parseFloat);
+    const [x, y] = scene.element.style.transform.split(/[(,)]/).slice(1, 3).map(Number.parseFloat);
     return { x, y };
   }
 
@@ -122,7 +122,7 @@ describe('ScrambleCube bouncing', () => {
     const tumble = wrapper.find<HTMLElement>('.cube-tumble').element.style.transform;
     const cube = wrapper.find<HTMLElement>('.cube').element.style.transform;
     // "rotateZ(Adeg) rotateX(Bdeg) rotateY(Cdeg)"
-    return `${tumble} ${cube}`.split(/[()]/).filter((part) => part.endsWith('deg')).map(parseFloat);
+    return `${tumble} ${cube}`.split(/[()]/).filter((part) => part.endsWith('deg')).map(Number.parseFloat);
   }
 
   beforeEach(() => {
