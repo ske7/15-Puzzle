@@ -100,7 +100,6 @@ const doSort = (newSortField: string): void => {
 const columns = computed((): TableColumn[] => {
   const wideCellClass = windowWidth.value <= 1100 ? 'w-85' : '';
   return [
-    { label: 'ID', widthClass: 'w-70' },
     { label: 'Date', sortField: 'id', widthClass: 'w-95' },
     { label: 'CS', widthClass: 'w-49' },
     { label: 'Time', sortField: 'time', widthClass: 'w-85' },
@@ -109,6 +108,7 @@ const columns = computed((): TableColumn[] => {
       ? [{ label: 'Opt.diff', sortField: 'opt_diff', widthClass: 'w-95' }]
       : []),
     { label: 'TPS', sortField: 'tps', widthClass: 'w-70', invert: true },
+    { label: 'By', widthClass: 'w-36' },
     { label: 'Scramble', widthClass: wideCellClass },
     { label: 'Solution', widthClass: wideCellClass }
   ];
@@ -215,15 +215,15 @@ const tableTitle = computed(() => {
       <template v-if="fetched">
         <div v-for="(item) in gameRecords" :key="item.id" class="flex-table">
           <div class="items">
-            <div class="flex-row w-70 col-id">
-              <a v-if="item.scramble " :href="`${baseUrl}?game_id=${item.public_id}`" class="link-item">
-                {{ item.id }}
-              </a>
-              <span v-else>{{ item.id }}</span>
-            </div>
             <div class="flex-row w-95 col-date">
-              <span class="white-space-normal date-smaller date-full">{{ formatDate(item.created_at) }}</span>
-              <span class="date-short">{{ formatShortDate(item.created_at) }}</span>
+              <component
+                :is="item.scramble ? 'a' : 'div'"
+                :href="item.scramble ? `${baseUrl}?game_id=${item.public_id}` : undefined"
+                :class="{ 'link-item date-link': item.scramble }"
+              >
+                <span class="white-space-normal date-smaller date-full">{{ formatDate(item.created_at) }}</span>
+                <span class="date-short">{{ formatShortDate(item.created_at) }}</span>
+              </component>
             </div>
             <div class="flex-row w-49 col-cs">
               <span> {{ item.consecutive_solves }}</span>
@@ -251,6 +251,9 @@ const tableTitle = computed(() => {
               :class="{ 'green': item.excluded_from_avg === 'best' && props.avgType === 'tps', 'red': item.excluded_from_avg === 'worst' && props.avgType === 'tps' }"
             >
               <span>{{ item.tps }}</span>
+            </div>
+            <div class="flex-row w-36 col-by" :title="item.control_type">
+              <span>{{ item.control_type.slice(0, 1) }}</span>
             </div>
             <div class="flex-row smaller-font col-scramble" :class="{ 'w-85': windowWidth <= 1100 }">
               <div class="copy-button-wrapper">
@@ -354,6 +357,9 @@ const tableTitle = computed(() => {
 .red {
   background-color: red;
 }
+.w-36 {
+  max-width: 36px;
+}
 .w-49 {
   max-width: 49px;
 }
@@ -391,6 +397,9 @@ const tableTitle = computed(() => {
   font-size: 14px;
   padding: 0 5px;
 }
+.col-cs span {
+  padding: 0;
+}
 .copy-button-wrapper {
   display: flex;
   align-items: center;
@@ -412,6 +421,12 @@ const tableTitle = computed(() => {
 .link-item {
   font-size: 14px;
   font-weight: 600;
+}
+.date-link {
+  font-weight: normal;
+}
+.date-link span {
+  color: inherit;
 }
 .pro-sort {
   cursor: pointer;
@@ -511,13 +526,15 @@ const tableTitle = computed(() => {
   .pro-sort {
     font-size: 12px !important;
   }
-  .col-id {
-    flex: 0 0 50px;
-  }
   .col-date {
     flex: 0 0 58px;
   }
-  .col-cs,
+  .col-cs {
+    flex: 0 0 36px;
+  }
+  .col-by {
+    flex: 0 0 24px;
+  }
   .col-opt-diff {
     display: none;
   }
@@ -554,11 +571,14 @@ const tableTitle = computed(() => {
   .link-item {
     font-size: 11px;
   }
-  .col-id {
-    flex-basis: 42px;
-  }
   .col-date {
     flex-basis: 50px;
+  }
+  .col-cs {
+    flex-basis: 32px;
+  }
+  .col-by {
+    flex-basis: 22px;
   }
   .col-scramble,
   .col-solution {

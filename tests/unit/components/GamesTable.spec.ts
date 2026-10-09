@@ -253,8 +253,10 @@ describe('GamesTable', () => {
       expect(wrapper.text()).toContain('42'); // moves
       expect(wrapper.text()).toContain('3.402'); // tps
       expect(wrapper.text()).toContain('+5'); // opt_diff
-      const link = wrapper.find<HTMLAnchorElement>('.w-70 a.link-item');
+      const link = wrapper.find<HTMLAnchorElement>('.items .col-date a.link-item');
       expect(link.attributes('href')).toBe(`${baseUrl}?game_id=abc123`);
+      expect(link.find('.date-full').text()).toMatch(/^2024-06-01 /);
+      expect(link.find('.date-short').exists()).toBe(true);
     });
 
     it('hides the opt_diff column away from the core size', async () => {
@@ -284,12 +286,21 @@ describe('GamesTable', () => {
       expect(wrapper.text()).toContain('+0');
     });
 
-    it('shows the id as plain text when a game has no real scramble on file', async () => {
+    it('shows how a game was played as one letter, with the full word on hover', async () => {
+      respondWith([gameRecord({ control_type: 'keyboard' }), gameRecord({ id: 2, control_type: 'click' })]);
+      const wrapper = mountTable({ formType: 'userGames' });
+      await waitFetched(wrapper);
+      const cells = wrapper.findAll('.items .col-by');
+      expect(cells.map((cell) => cell.text())).toEqual(['k', 'c']);
+      expect(cells.map((cell) => cell.attributes('title'))).toEqual(['keyboard', 'click']);
+    });
+
+    it('shows the date as plain text when a game has no real scramble on file', async () => {
       respondWith([gameRecord({ scramble: undefined })]);
       const wrapper = mountTable({ formType: 'userGames' });
       await waitFetched(wrapper);
-      expect(wrapper.find('.w-70 a').exists()).toBe(false);
-      expect(wrapper.find('.w-70 span').exists()).toBe(true);
+      expect(wrapper.find('.items .col-date a').exists()).toBe(false);
+      expect(wrapper.find('.items .col-date .date-full').text()).toMatch(/^2024-06-01 /);
     });
 
     it.each([
@@ -341,8 +352,8 @@ describe('GamesTable', () => {
 
     it('sorts real already-fetched avgGames records locally, without a new fetch', async () => {
       respondWith([
-        gameRecord({ id: 1, moves: 50 }),
-        gameRecord({ id: 2, moves: 40 })
+        gameRecord({ id: 1, public_id: 'pub-1', moves: 50 }),
+        gameRecord({ id: 2, public_id: 'pub-2', moves: 40 })
       ]);
       const wrapper = mountTable({ formType: 'avgGames', recordId: 1, avgType: 'time' });
       await waitFetched(wrapper);
@@ -350,8 +361,8 @@ describe('GamesTable', () => {
       const movesSort = wrapper.findAll('.table-header .pro-sort')[2];
       await movesSort.trigger('click');
       expect(useGetFetchAPI).not.toHaveBeenCalled();
-      const ids = wrapper.findAll('.items .w-70 .link-item').map(el => el.text());
-      expect(ids).toEqual(['2', '1']); // ascending by moves: 40 before 50
+      const links = wrapper.findAll('.items .col-date .link-item').map(el => el.attributes('href'));
+      expect(links).toEqual([`${baseUrl}?game_id=pub-2`, `${baseUrl}?game_id=pub-1`]); // ascending by moves: 40 before 50
     });
 
     it.each([
@@ -457,7 +468,7 @@ describe('GamesTable', () => {
       expect(wrapper.findAll('.table-header')).toHaveLength(1);
       const header = wrapper.findAll('.table-header .flex-row').map(columnOf);
       expect(header).toEqual([
-        'col-id', 'col-date', 'col-cs', 'col-time', 'col-moves', 'col-opt-diff', 'col-tps', 'col-scramble', 'col-solution'
+        'col-date', 'col-cs', 'col-time', 'col-moves', 'col-opt-diff', 'col-tps', 'col-by', 'col-scramble', 'col-solution'
       ]);
       expect(wrapper.findAll('.items .flex-row').map(columnOf)).toEqual(header);
     });
