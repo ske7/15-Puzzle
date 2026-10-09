@@ -29,7 +29,7 @@ const formatDate = (date?: string): string => {
       </p>
       <p v-if="baseStore.replayMode">
         <span>{{ displayedTime(baseStore.repGame.time) }}s | {{ baseStore.repGame.moves }} |
-          {{ baseStore.repGame.tps }}</span>
+          {{ baseStore.repGame.tps }} | {{ baseStore.repGame.control_type }}</span>
       </p>
     </div>
     <div v-if="baseStore.playgroundMode" class="playground-row-info">

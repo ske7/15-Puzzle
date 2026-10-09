@@ -4,9 +4,10 @@ import * as store from './store.ts';
 
 export const DEV_ACCOUNT = { name: 'dev', email: 'dev@example.com', password: 'devdev' };
 export const SHARED_SCRAMBLE_ID = 'shared-demo';
+export const ADMIN_NAME = 'admin';
 
-const PLAYERS = ['ada_slider', 'bruno', 'cleo', 'dmitri', 'elena', 'farid', 'greta', 'hiro', 'ines', 'jonas', 'kaya', 'lukas'];
-const CONTROLS = ['mouse', 'touch', 'keyboard'];
+const PLAYERS = ['ada_slider', 'bruno', 'cleo', 'dmitri', 'elena', 'farid', 'greta', 'hiro', 'ines', 'jonas', 'kaya', 'lukas', ADMIN_NAME];
+const CONTROLS = ['mouse', 'touch', 'keyboard', 'click'];
 const WALK: Record<number, [number, number]> = { 3: [22, 40], 4: [50, 95], 5: [110, 190], 6: [190, 300], 7: [290, 430], 8: [420, 620] };
 const BLITZ_SCRAMBLES: Record<number, number> = { 3: 50, 4: 12, 5: 5 };
 const DAY = 24 * 60 * 60 * 1000;

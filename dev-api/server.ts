@@ -5,7 +5,7 @@ import { dirname } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import * as store from './store.ts';
 import { randomScramble } from './puzzle.ts';
-import { seed } from './seed.ts';
+import { ADMIN_NAME, seed } from './seed.ts';
 
 type Query = URLSearchParams;
 type Body = Record<string, unknown>;
@@ -139,6 +139,18 @@ const HANDLERS: Partial<Record<string, Handler>> = {
   },
 
   'GET current_user_stats': (db, req) => ({ stats: store.userStats(db, signedIn(req)) }),
+
+  'GET user_stats': (db, req) => {
+    const name = req.query.get('user_name');
+    if (!name) {
+      throw new HttpError(400, 'Wrong request parameter');
+    }
+    const user = store.userByName(db, name);
+    if (user === undefined) {
+      throw new HttpError(404, 'user not found');
+    }
+    return { stats: name === ADMIN_NAME ? null : store.userStats(db, user) };
+  },
 
   'GET stats': (db, req) => ({ records: store.leaderboard(db, req.query.has('avg')) }),
 

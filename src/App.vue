@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed, ref, watch } from 'vue';
 import { useBaseStore } from './stores/base';
 import { useKeyDown } from './composables/useKeyDown';
 import { useTheme } from './composables/useTheme';
@@ -6,6 +7,7 @@ import { usePrepare } from './composables/usePrepare';
 import { useWatchGameState } from './composables/useWatchGameState';
 import { useLazyComponent } from './composables/useLazyComponent';
 import { provideWindowWidth } from './composables/useWindowWidth';
+import { provideBoardRoom } from './composables/useBoardRoom';
 import Board from './components/Board.vue';
 import TopInfoPanel from './components/TopInfoPanel.vue';
 import BottomInfoPanel from './components/BottomInfoPanel.vue';
@@ -20,22 +22,26 @@ usePrepare();
 useWatchGameState();
 
 provideWindowWidth();
-const touchMove = (e: TouchEvent): void => {
-  e.preventDefault();
-};
-const toggleClearDisplay = (): void => {
-  baseStore.clearDisplay = !baseStore.clearDisplay;
-  if (baseStore.clearDisplay) {
-    document.documentElement.addEventListener('touchmove', touchMove, { passive: false });
-  } else {
-    document.documentElement.removeEventListener('touchmove', touchMove);
+const wrapper = ref<HTMLElement>();
+provideBoardRoom(wrapper, () => baseStore.runInProgress ||
+  (baseStore.doneFirstMove && !baseStore.isDone && !baseStore.isTimeFailed));
+const gameRunning = computed(() => baseStore.runInProgress ||
+  (baseStore.doneFirstMove && !baseStore.isDone && !baseStore.isTimeFailed && !baseStore.paused));
+watch(gameRunning, (running) => {
+  if (running) {
+    getSelection()?.removeAllRanges();
   }
-};
+});
 </script>
 
 <template>
-  <div v-if="baseStore.puzzleLoaded" class="wrapper">
-    <div v-show="!baseStore.clearDisplay" class="header">
+  <div
+    v-if="baseStore.puzzleLoaded"
+    ref="wrapper"
+    class="wrapper"
+    :class="{ 'game-running': gameRunning }"
+  >
+    <div class="header">
       <h1>15 Puzzle Online</h1>
       <img
         src="./assets/cage.webp"
@@ -44,13 +50,6 @@ const toggleClearDisplay = (): void => {
         height="32"
         draggable="false"
       >
-    </div>
-    <div
-      v-show="!baseStore.replayMode && !baseStore.playgroundMode"
-      class="clear-field"
-      @click="toggleClearDisplay"
-    >
-      {{ baseStore.clearDisplay ? '&#128316;' : '&#128317;' }}
     </div>
     <AveragesPanel />
     <TopInfoPanel />
@@ -84,6 +83,10 @@ const toggleClearDisplay = (): void => {
     margin-top: 0;
   }
 }
+.game-running {
+  -webkit-user-select: none;
+  user-select: none;
+}
 .header {
   display: flex;
   justify-content: center;
@@ -109,26 +112,6 @@ const toggleClearDisplay = (): void => {
 .header img[alt] {
   font-size: 15px;
 }
-.clear-field {
-  position: absolute;
-  width: 25px;
-  height: 25px;
-  opacity: 0.7;
-  top: 10px;
-  right: 10px;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  cursor: pointer;
-}
-.clear-field:active, .clear-field:hover {
-  opacity: 1;
-}
-@media screen and (min-width: 601px) {
-  .clear-field {
-    display: none;
-  }
-}
 @media screen and (max-width: 420px) {
   .header {
     margin-top: 10px;
@@ -136,6 +119,20 @@ const toggleClearDisplay = (): void => {
   .header h1 {
     font-size: 27px;
     line-height: 27px;
+  }
+}
+@media screen and (max-width: 480px) and (max-height: 700px) {
+  .header {
+    margin-top: 6px;
+    margin-bottom: 6px;
+  }
+  .header h1 {
+    font-size: 24px;
+    line-height: 24px;
+  }
+  .header img {
+    width: 26px;
+    height: 26px;
   }
 }
 </style>

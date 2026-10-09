@@ -139,7 +139,7 @@ watch(marathonMode, () => {
       <p class="info-header">
         <span>Game config</span>
       </p>
-      <div class="options">
+      <div class="options" :class="{ 'without-slider': baseStore.g1000Mode }">
         <PuzzleSizeSlider v-if="!baseStore.g1000Mode" v-model="puzzleSize" />
         <div v-if="!baseStore.g1000Mode" class="option">
           <input
@@ -320,6 +320,9 @@ watch(marathonMode, () => {
 .options {
   margin: 0 auto;
 }
+.options.without-slider {
+  margin-top: 10px;
+}
 .option {
   display: flex;
   justify-content: left;
@@ -361,5 +364,10 @@ label {
   margin-bottom: 5px;
   display: flex;
   justify-content: center;
+}
+@media screen and (max-width: 350px) {
+  .options.without-slider {
+    margin-top: 5px;
+  }
 }
 </style>

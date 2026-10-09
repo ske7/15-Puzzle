@@ -34,7 +34,9 @@ export default defineConfig(({ mode }) => ({
     UnpluginInjectPreload({
       files: [
         {
-          outputMatch: /^((?!index).)*\.css$/i
+          outputMatch: /^((?!index).)*\.css$/i,
+          // Vite loads these stylesheets with crossorigin, so the preload must match or it is fetched twice.
+          attributes: { crossorigin: true }
         }
       ],
       injectTo: 'head'

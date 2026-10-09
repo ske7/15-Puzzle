@@ -163,7 +163,7 @@ const filteredCores = computed(() => {
     </div>
     <div
       v-if="!baseStore.replayMode && !baseStore.sharedPlaygroundMode &&
-        !baseStore.cageMode && !baseStore.g1000Mode && !baseStore.clearDisplay"
+        !baseStore.cageMode && !baseStore.g1000Mode"
       class="puzzle-sizes"
     >
       <span
@@ -212,6 +212,8 @@ const filteredCores = computed(() => {
   z-index: var(--z-board-veil);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .paused-veil .bigger {
   color: var(--text-color);
@@ -248,6 +250,8 @@ const filteredCores = computed(() => {
 }
 .puzzle-sizes span {
   cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .puzzle-sizes span:hover {
   color: var(--link-color);

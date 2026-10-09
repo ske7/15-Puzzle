@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, useId } from 'vue';
 
 const props = withDefaults(defineProps<{
   modelValue: string;
@@ -15,6 +15,7 @@ const props = withDefaults(defineProps<{
   names: null
 });
 const emit = defineEmits<{ 'update:modelValue': [string] }>();
+const groupName = useId();
 
 const setValue = (value: string): void => {
   emit('update:modelValue', value);
@@ -37,13 +38,12 @@ const gapValue = computed(() => {
   <div class="puzzle-mode-container">
     <p>{{ header }}</p>
     <div class="puzzle-mode-group">
-      <label v-for="(item, index) in choices" :key="index" :for="item">
+      <label v-for="(item, index) in choices" :key="index">
         <input
-          :id="item"
           :checked="props.modelValue === item"
           type="radio"
           :value="item"
-          :name="item"
+          :name="groupName"
           @change="setValue(item)"
         >
         <span @click="setValue(item)">
@@ -76,6 +76,8 @@ const gapValue = computed(() => {
 }
 .puzzle-mode-group span {
   cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .puzzle-mode-group label {
   display: flex;

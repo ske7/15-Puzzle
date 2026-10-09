@@ -182,7 +182,7 @@ export const useBoardPointer = (
     if (baseStore.hoverOnControl) {
       return;
     }
-    tapAt(event.clientX, event.clientY, ControlType.Mouse);
+    tapAt(event.clientX, event.clientY, ControlType.Click);
   };
 
   const onTouchStart = (event: TouchEvent): void => {

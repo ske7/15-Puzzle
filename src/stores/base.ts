@@ -30,7 +30,6 @@ export const useBaseStore = defineStore('base', () => {
   const puzzleLoaded = ref(false);
   const lastGameID = ref('0');
   const g1000Mode = ref(false);
-  const clearDisplay = ref(false);
   const noPlayMode = ref(false);
 
   const preferences = usePreferencesState();
@@ -64,6 +63,7 @@ export const useBaseStore = defineStore('base', () => {
     renewPuzzle();
     puzzle.doResetList.value = false;
     puzzle.doneFirstMove.value = false;
+    replay.wasReplay.value = false;
     marathon.isTimeFailed.value = false;
     if (marathon.fmcBlitz.value) {
       marathon.blitzScrambleCount.value = marathon.getFMCBlitzScrambleCount(puzzle.numLines.value);
@@ -281,7 +281,6 @@ export const useBaseStore = defineStore('base', () => {
     puzzleLoaded,
     lastGameID,
     g1000Mode,
-    clearDisplay,
     noPlayMode,
     runInProgress,
     cannotClick,

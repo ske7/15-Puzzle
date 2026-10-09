@@ -9,17 +9,23 @@ interface SingleFetchResult<T> {
 }
 
 // Uses the store's isFetching, not a local ref: BottomInfoPanel also hides while it is set.
-export function useSingleFetch<T>(endpoint: string, extractData: (res: Response) => T): SingleFetchResult<T> {
+// A public fetch opens over another modal, which must not hide, and needs no token.
+export function useSingleFetch<T>(endpoint: string, extractData: (res: Response) => T, isPublic = false): SingleFetchResult<T> {
   const baseStore = useBaseStore();
   const errorMsg = ref('');
   const data = ref<T>();
 
-  errorMsg.value = '';
-  if (!baseStore.isFetching) {
-    baseStore.isFetching = true;
-    useGetFetchAPI(endpoint, baseStore.token)
+  const setFetching = (value: boolean): void => {
+    if (!isPublic) {
+      baseStore.isFetching = value;
+    }
+  };
+
+  if (isPublic || !baseStore.isFetching) {
+    setFetching(true);
+    useGetFetchAPI(endpoint, isPublic ? undefined : baseStore.token)
       .then(res => {
-        baseStore.isFetching = false;
+        setFetching(false);
         data.value = extractData(res);
       })
       .catch((error: unknown) => {
@@ -27,7 +33,7 @@ export function useSingleFetch<T>(endpoint: string, extractData: (res: Response)
         if (errorMsg.value.toLowerCase().includes('networkerror')) {
           baseStore.isNetworkError = true;
         }
-        baseStore.isFetching = false;
+        setFetching(false);
       });
   }
 

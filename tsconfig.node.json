@@ -1,6 +1,6 @@
 {
   "extends": ["@tsconfig/node24/tsconfig.json", "@vue/tsconfig/tsconfig.json"],
-  "include": ["vite.config.*", "vitest.config.*", "dev-api/**/*.ts"],
+  "include": ["vite.config.*", "vitest.config.*", "dev-api/**/*.ts", "tests/dev-api/**/*.ts"],
   "compilerOptions": {
     "composite": true,
     "rewriteRelativeImportExtensions": true,

@@ -144,7 +144,7 @@ const doSaveOriginal = async (): Promise<void> => {
 const doSave = async (): Promise<void> => {
   let time = baseStore.getTime;
   const isOriginal = baseStore.userName != null && baseStore.repGame.name === baseStore.userName;
-  if (isOriginal && time > baseStore.repGame.time) {
+  if (isOriginal && (baseStore.wasReplay || time > baseStore.repGame.time)) {
     time = baseStore.repGame.time;
   }
   let movesCount = baseStore.movesCount;
@@ -359,7 +359,7 @@ const setWalkMode = (fastWalkMode: boolean): void => {
             baseStore.blitzMovesCount : baseStore.blitzMovesCount + baseStore.movesCount }}
       </p>
     </div>
-    <div v-show="!baseStore.clearDisplay" class="reg-wrapper" :class="{ paused: baseStore.cannotClick }">
+    <div class="reg-wrapper" :class="{ paused: baseStore.cannotClick }">
       <p v-if="baseStore.isNetworkError" class="no-connect">
         Local mode (no server connection)
       </p>
@@ -402,7 +402,7 @@ const setWalkMode = (fastWalkMode: boolean): void => {
       </div>
     </div>
     <p
-      v-if="!baseStore.isNetworkError && (baseStore.lastError || baseStore.linkError) && !baseStore.clearDisplay"
+      v-if="!baseStore.isNetworkError && (baseStore.lastError || baseStore.linkError)"
       class="last-error"
     >
       {{ baseStore.lastError || baseStore.linkError }}
@@ -546,9 +546,6 @@ const setWalkMode = (fastWalkMode: boolean): void => {
   background-color: transparent;
 }
 @media screen and (max-width: 420px) {
-  .reg-wrapper {
-    max-width: 300px;
-  }
   .records-row, .info-row {
     font-size: 15px;
     line-height: 1.4;
@@ -557,7 +554,7 @@ const setWalkMode = (fastWalkMode: boolean): void => {
     margin-bottom: 3px;
   }
   .registered-block {
-    font-size: 14px;
+    font-size: 13px;
   }
 }
 @media screen and (max-height: 650px) and (max-width: 420px) {

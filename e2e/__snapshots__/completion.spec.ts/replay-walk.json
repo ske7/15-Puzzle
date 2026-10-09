@@ -20,10 +20,10 @@
     "opt_m": 0,
     "userScrambleId": 0,
     "publicId": "",
-    "playgroundBestTime": "<time>",
+    "playgroundBestTime": 0,
     "playgroundBestMoves": "<a solve moves>",
-    "playgroundBestTimeMoves": "<a solve moves>",
-    "newPlaygroundTimeRecord": true,
+    "playgroundBestTimeMoves": 0,
+    "newPlaygroundTimeRecord": false,
     "newPlaygroundMovesRecord": true,
     "lastError": ""
   },

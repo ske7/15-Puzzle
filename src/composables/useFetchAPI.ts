@@ -39,7 +39,7 @@ const api = async <TStats = UserStats, TRecord = UserRecord>(endpoint: string, m
     baseStore.isNetworkError = false;
     baseStore.lastError = '';
     if (!response.ok) {
-      if (response.status === 401 || response.status === 404) {
+      if (token != null && (response.status === 401 || response.status === 404)) {
         baseStore.token = undefined;
         localStorage.removeItem('token');
         baseStore.userName = undefined;

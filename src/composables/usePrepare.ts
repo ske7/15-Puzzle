@@ -9,7 +9,6 @@ import { redirectTo } from '@/utils';
 interface StartLink {
   playground: boolean;
   g1000: boolean;
-  cage: boolean;
   gameId: string;
   publicId: string | null;
 }
@@ -26,7 +25,7 @@ export function usePrepare(): void {
   checkPlaygroundMode(link, numLines);
 
   if (!baseStore.playgroundMode) {
-    checkCageMode(link);
+    checkCageMode();
 
     checkGameLink(link.gameId, numLines);
 
@@ -59,7 +58,6 @@ function readStartLink(): StartLink {
   return {
     playground: href.includes('playground'),
     g1000: href.includes('g1000'),
-    cage: href.includes('?cage'),
     gameId: href.includes('game_id') ? params.get('game_id') ?? '0' : '0',
     publicId: params.get('public_id')
   };
@@ -156,17 +154,16 @@ function initPlayground(stats: UserScrambleData, publicId: string): void {
   baseStore.publicId = publicId;
 }
 
-function checkCageMode(link: StartLink): void {
+function checkCageMode(): void {
   const baseStore = useBaseStore();
 
-  if (link.cage || baseStore.enableCageMode) {
+  if (baseStore.enableCageMode) {
     setSetting('marathonMode', false);
     baseStore.g1000Mode = false;
     baseStore.fmcBlitz = false;
     setSetting('proMode', false);
     baseStore.numLines = CORE_NUM;
     baseStore.initAfterNewPuzzleSize();
-    setSetting('enableCageMode', true);
   }
 }
 

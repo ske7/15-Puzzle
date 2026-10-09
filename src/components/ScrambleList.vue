@@ -270,6 +270,8 @@ const columns = computed((): TableColumn[] => {
   color: darkcyan;
   min-width: auto !important;
   font-size: 16px !important;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .pro-sort:hover {
   opacity: 0.8;

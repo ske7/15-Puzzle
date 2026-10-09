@@ -366,11 +366,11 @@ export function userStats(db: DatabaseSync, user: User) {
   const rows = db.prepare(`${SELECT_RECORDS} WHERE user_id = ?`).all(user.id) as unknown as RecordRow[];
   return {
     user_data: {
-      id: user.id,
       created_at: user.created_at,
       last_game_at: totals.last ?? user.created_at,
       num_finished_games: totals.games,
-      play_time: totals.play
+      play_time: totals.play,
+      banned_at: null
     },
     user_records: rows.map((row) => (row.record_type.startsWith('ao') ? averageRecord(row) : singleRecord(db, row)))
   };

@@ -108,7 +108,7 @@ const onMouseDown = (): void => {
   if (baseStore.hoverOnControl) {
     return;
   }
-  move(ControlType.Mouse);
+  move(ControlType.Click);
 };
 const getCursor = computed(() => {
   if (baseStore.hoverOnControl || cannotMove.value) {

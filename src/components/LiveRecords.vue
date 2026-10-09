@@ -10,6 +10,7 @@ import { usePaginatedFetch } from '../composables/usePaginatedFetch';
 import { useCloseOnClickOutside } from '../composables/useCloseOnClickOutside';
 import { useLazyComponent } from '../composables/useLazyComponent';
 const GamesTable = useLazyComponent(() => import('./GamesTable.vue'));
+const UserAccount = useLazyComponent(() => import('./UserAccount.vue'));
 
 const REFRESH_MS = 30000;
 
@@ -18,7 +19,8 @@ const emit = defineEmits<{ close: [] }>();
 const baseStore = useBaseStore();
 const liveRecords = ref<HTMLElement>();
 const showGamesTable = ref(false);
-useCloseOnClickOutside(liveRecords, () => emit('close'), () => showGamesTable.value);
+const profileRecord = ref<LiveRecord>();
+useCloseOnClickOutside(liveRecords, () => emit('close'), () => showGamesTable.value || profileRecord.value !== undefined);
 
 const { records, errorMsg, isFetching, fetched, formatDate } = usePaginatedFetch<LiveRecord, LiveRecord>(
   (offset, limit) => `sorted_records?offset=${offset}&limit=${limit}`,
@@ -221,7 +223,7 @@ const openRecord = (record: LiveRecord, field: string): void => {
                 {{ timeAgo(record.effective_updated_at, now) }}
               </td>
               <td>
-                {{ record.name }}
+                <span class="link-item" @click="profileRecord = record">{{ record.name }}</span>
               </td>
               <td :title="recordTitle(record)">
                 {{ recordLabel(record) }}
@@ -257,6 +259,13 @@ const openRecord = (record: LiveRecord, field: string): void => {
       :avg-type="gamesAvgType"
       :record-puzzle-size="gamesPuzzleSize"
       @close="closeGamesTable"
+    />
+    <UserAccount
+      v-if="profileRecord"
+      :user-name="profileRecord.name"
+      :initial-size="profileRecord.puzzle_size"
+      :initial-mode="profileRecord.puzzle_type === 'marathon' ? 'marathon' : 'standard'"
+      @close="profileRecord = undefined"
     />
   </Teleport>
 </template>

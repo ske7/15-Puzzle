@@ -41,6 +41,7 @@ export const useKeyDown = (): void => {
           localStorage.setItem('numLines', baseStore.numLines.toString());
           baseStore.savedOrders = scramble;
           baseStore.checkUserScrambleInDB = true;
+          baseStore.wasReplay = false;
           baseStore.renewPuzzle();
         }
       });

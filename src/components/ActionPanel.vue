@@ -243,7 +243,7 @@ const buttonsByKey = computed((): Record<string, PanelButton> => {
     config: {
       key: 'config',
       label: 'Config',
-      show: !inReplayOrPlayground && (!isMobile.value || !baseStore.clearDisplay),
+      show: !inReplayOrPlayground,
       disabled: disableButton.value || baseStore.runInProgress || baseStore.paused,
       onClick: showConfigModal
     },
@@ -274,7 +274,7 @@ const buttonsByKey = computed((): Record<string, PanelButton> => {
     about: {
       key: 'about',
       label: 'About',
-      show: !baseStore.playgroundMode && (!isMobile.value || !baseStore.clearDisplay),
+      show: !baseStore.playgroundMode,
       disabled: disableButton.value || baseStore.runInProgress || baseStore.inReplay,
       onClick: showAboutModal
     }

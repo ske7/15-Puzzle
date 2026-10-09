@@ -70,6 +70,8 @@ const setInputValue = (event: Event): void => {
 }
 .slider-marks span {
   cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
 }
 @media screen and (max-width: 350px) {
   .puzzle-size-slider-container > label {

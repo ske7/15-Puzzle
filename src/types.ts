@@ -134,7 +134,7 @@ export interface UserStats {
     last_game_at: string;
     num_finished_games: number;
     play_time: number;
-    id: number;
+    banned_at: string | null;
   };
   user_records: UserRecord[];
 }

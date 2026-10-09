@@ -64,8 +64,11 @@
   font-weight: normal;
   color: var(--text-color);
 }
+html, body {
+  overscroll-behavior-y: none;
+}
 body {
-  min-height: 100vh;
+  min-height: 100dvh;
   line-height: 1.6;
   font-family: 'Segoe UI', Roboto, sans-serif;
   font-size: 16px;
@@ -98,6 +101,8 @@ body {
   font-weight: 500;
   transition: all 0.3s ease;
   -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .speed-buttons {
   display: flex;
@@ -123,6 +128,8 @@ body {
 .link-item {
   color: var(--link-color);
   text-decoration: underline;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .link-item:hover:not(.paused) {
   color: var(--text-color);

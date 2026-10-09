@@ -8,5 +8,5 @@
     "src/**/*",
     "tests/**/*"
   ],
-  "exclude": []
+  "exclude": ["tests/dev-api/**"]
 }

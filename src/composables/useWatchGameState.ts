@@ -153,7 +153,7 @@ export function useWatchGameState(): void {
   }
 
   function updatePlaygroundBests(time: number): void {
-    if (baseStore.playgroundBestTime === 0 || time < baseStore.playgroundBestTime) {
+    if (!baseStore.wasReplay && (baseStore.playgroundBestTime === 0 || time < baseStore.playgroundBestTime)) {
       baseStore.playgroundBestTime = time;
       baseStore.playgroundBestTimeMoves = baseStore.movesCount;
       baseStore.newPlaygroundTimeRecord = true;

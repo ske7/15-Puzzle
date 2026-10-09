@@ -10,6 +10,7 @@ import { useSingleFetch } from '../composables/useSingleFetch';
 import { isSingleUserRecord, isAverageUserRecord } from '@/types';
 const GamesTable = useLazyComponent(() => import('./GamesTable.vue'));
 
+const props = defineProps<{ userName?: string; initialSize?: number; initialMode?: string }>();
 const emit = defineEmits<{ close: [] }>();
 
 const userAccount = ref<HTMLElement>();
@@ -18,7 +19,20 @@ useCloseOnClickOutside(userAccount, () => emit('close'), () => showGamesTable.va
 
 const baseStore = useBaseStore();
 
-const { data: userData } = useSingleFetch('current_user_stats', (res) => res.stats);
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const playerName = props.userName;
+const isOwn = playerName === undefined;
+const { data: userData, errorMsg } = useSingleFetch(
+  isOwn ? 'current_user_stats' : `user_stats?user_name=${encodeURIComponent(playerName)}`,
+  (res) => res.stats ?? null,
+  !isOwn
+);
+const isShown = computed(() => {
+  if (isOwn) {
+    return !baseStore.isFetching && userData.value != null;
+  }
+  return userData.value !== undefined || errorMsg.value !== '';
+});
 
 const formatDate = (date: string): string => {
   return useDateFormat(date, 'MMM D, YYYY').value;
@@ -44,8 +58,10 @@ const formatPlayTime = computed(() => {
   return `${hour}h ${min}m ${sec}s ${ms}ms`;
 });
 
-const puzzleSize = ref(baseStore.numLines);
-const puzzleMode = ref(baseStore.marathonMode ? 'marathon' : 'standard');
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const puzzleSize = ref(props.initialSize ?? baseStore.numLines);
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const puzzleMode = ref(props.initialMode ?? (baseStore.marathonMode ? 'marathon' : 'standard'));
 const filteredRecords = computed(() => {
   return userData.value?.user_records.filter((value) => {
     return value.puzzle_size === puzzleSize.value && value.puzzle_type === puzzleMode.value;
@@ -71,22 +87,37 @@ const closeGamesTable = (): void => {
 
 <template>
   <Teleport to="body">
-    <div v-if="!baseStore.isFetching && userData" ref="userAccount" class="user-account modal-shell modal-centered">
+    <div
+      v-if="isShown"
+      ref="userAccount"
+      class="user-account modal-shell modal-centered"
+      :class="{ 'over-modal': !isOwn, compact: !userData }"
+    >
       <p class="header modal-header">
-        <span id="user-account-caption">Your personal records</span>
+        <span id="user-account-caption">{{ isOwn ? 'Your personal records' : 'Player records' }}</span>
       </p>
-      <div v-if="!baseStore.isFetching && userData" class="user-info">
-        <p><strong>Name:</strong> {{ baseStore.userName }}</p>
-        <p><strong>Registration date:</strong> {{ formatDate(userData.user_data.created_at) }}</p>
-        <p>
-          <strong>Num games:</strong> {{ userData?.user_data.num_finished_games || 0 }}
-          <span class="last-games" @click="showGamesTable=true">(your games)</span>
-        </p>
-        <p><strong>Play time:</strong> {{ formatPlayTime }}</p>
+      <div class="user-info">
+        <p><strong>Name:</strong> {{ playerName ?? baseStore.userName }}</p>
+        <template v-if="userData">
+          <p><strong>Registration date:</strong> {{ formatDate(userData.user_data.created_at) }}</p>
+          <p>
+            <strong>Num games:</strong> {{ userData.user_data.num_finished_games || 0 }}
+            <span v-if="isOwn" class="last-games" @click="showGamesTable=true">(your games)</span>
+          </p>
+          <p><strong>Play time:</strong> {{ formatPlayTime }}</p>
+        </template>
       </div>
-      <PuzzleSizeSlider v-model="puzzleSize" />
-      <PuzzleModeGroup v-model="puzzleMode" :choices="['standard', 'marathon']" header="Puzzle Mode" />
-      <div class="table-container">
+      <p v-if="errorMsg" class="error-msg">
+        {{ errorMsg }}
+      </p>
+      <p v-else-if="!userData" class="no-stats">
+        No stats to show for this player
+      </p>
+      <template v-if="userData">
+        <PuzzleSizeSlider v-model="puzzleSize" />
+        <PuzzleModeGroup v-model="puzzleMode" :choices="['standard', 'marathon']" header="Puzzle Mode" />
+      </template>
+      <div v-if="userData" class="table-container">
         <table class="items-table" aria-describedby="user-account-caption">
           <thead>
             <tr>
@@ -124,7 +155,7 @@ const closeGamesTable = (): void => {
           </tbody>
         </table>
       </div>
-      <div class="table-container">
+      <div v-if="userData" class="table-container">
         <table class="items-table" aria-describedby="user-account-caption">
           <thead>
             <tr>
@@ -169,8 +200,22 @@ const closeGamesTable = (): void => {
   left: calc(50% - var(--modal-width) / 2);
   padding: 20px;
 }
+.user-account.over-modal {
+  z-index: var(--z-modal-table);
+}
+.user-account.compact {
+  min-height: 0;
+}
 .user-account strong {
   font-weight: 600;
+}
+.error-msg {
+  color: var(--error-color);
+  font-size: 14px;
+}
+.no-stats, .error-msg {
+  text-align: center;
+  margin: 20px 0;
 }
 .buttons {
   margin-top: 15px;
@@ -240,6 +285,8 @@ const closeGamesTable = (): void => {
 .last-games {
   color: var(--link-color);
   text-decoration: underline;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .last-games:hover {
   color: var(--text-color);

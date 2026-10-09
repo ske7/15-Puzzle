@@ -12,13 +12,15 @@ import { useLazyComponent } from '../composables/useLazyComponent';
 import { useCloseOnClickOutside } from '../composables/useCloseOnClickOutside';
 import { useSingleFetch } from '../composables/useSingleFetch';
 const GamesTable = useLazyComponent(() => import('./GamesTable.vue'));
+const UserAccount = useLazyComponent(() => import('./UserAccount.vue'));
 
 const props = defineProps<{ formType: string }>();
 const emit = defineEmits<{ close: [] }>();
 
 const leaderBoard = ref<HTMLElement>();
 const showGamesTable = ref(false);
-useCloseOnClickOutside(leaderBoard, () => emit('close'), () => showGamesTable.value);
+const profileName = ref<string>();
+useCloseOnClickOutside(leaderBoard, () => emit('close'), () => showGamesTable.value || profileName.value !== undefined);
 
 const baseStore = useBaseStore();
 
@@ -266,7 +268,7 @@ const closeGamesTable = (): void => {
                 {{ index + 1 }}
               </td>
               <td class="w-120 t-overflow">
-                {{ item.name }}
+                <span class="link-item" @click="profileName = item.name">{{ item.name }}</span>
               </td>
               <td v-if="bestType === 'time'" class="min-width w-70">
                 <a v-if="item.scramble" :href="`${baseUrl}?game_id=${item.public_id}`" class="link-item">
@@ -326,7 +328,7 @@ const closeGamesTable = (): void => {
                 {{ index + 1 }}
               </td>
               <td class="w-160 t-overflow">
-                {{ item.name }}
+                <span class="link-item" @click="profileName = item.name">{{ item.name }}</span>
               </td>
               <td
                 v-if="bestAverage === 'time'"
@@ -366,6 +368,13 @@ const closeGamesTable = (): void => {
       :avg-type="avgType"
       :record-puzzle-size="puzzleSize"
       @close="closeGamesTable"
+    />
+    <UserAccount
+      v-if="profileName"
+      :user-name="profileName"
+      :initial-size="puzzleSize"
+      :initial-mode="puzzleMode"
+      @close="profileName = undefined"
     />
   </Teleport>
 </template>

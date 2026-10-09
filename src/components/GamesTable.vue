@@ -419,6 +419,8 @@ const tableTitle = computed(() => {
   color: darkcyan;
   min-width: auto !important;
   font-size: 15px !important;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .pro-sort:hover {
   opacity: 0.8;

@@ -38,13 +38,15 @@ export const DirectionMap = new Map<Direction, string>([
 export const enum ControlType {
   Mouse = 0,
   Touch = 1,
-  Keyboard = 2
+  Keyboard = 2,
+  Click = 3
 }
 
 export const ControlTypeReverseMap = new Map<string, ControlType>([
   ['m', ControlType.Mouse],
   ['t', ControlType.Touch],
-  ['k', ControlType.Keyboard]
+  ['k', ControlType.Keyboard],
+  ['c', ControlType.Click]
 ]);
 
 export const enum LoadImageMode {

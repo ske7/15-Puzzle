@@ -1,36 +1,36 @@
 import { computed, type ComputedRef } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useWindowWidth } from './useWindowWidth';
+import { useBoardRoom } from './useBoardRoom';
 
-const CAGE_ADD_PRO: Record<number, number> = { 3: 56, 4: 22, 5: 1, 6: -12, 7: -20, 8: -28 };
-const CAGE_ADD_DEFAULT: Record<number, number> = { 3: 45, 4: 12, 5: -8, 6: -21, 7: -31, 8: -38 };
+const MIN_PHONE_BOARD = 200;
 
 export const useSquareSize = (): { squareSize: ComputedRef<number> } => {
   const baseStore = useBaseStore();
 
   const windowWidth = useWindowWidth();
+  const room = useBoardRoom();
 
+  // Tiles may be fractional, so the board keeps the same width for every puzzle size and mode.
   const squareSize = computed(() => {
-    const spaces = baseStore.spaceBetween * 5;
-    const cageAdd = baseStore.proMode
-      ? CAGE_ADD_PRO[baseStore.numLines]
-      : CAGE_ADD_DEFAULT[baseStore.numLines];
-    let value: number;
-    if (windowWidth.value <= 370) {
-      if (baseStore.proMode) {
-        value = Math.floor((windowWidth.value - (spaces + 40)) / baseStore.numLines);
-      } else {
-        value = Math.floor((windowWidth.value - (spaces + 70)) / baseStore.numLines);
-      }
-    } else if (windowWidth.value <= 480) {
-      value = Math.floor((windowWidth.value - (spaces + 50)) / baseStore.numLines);
-    } else if (windowWidth.value <= 820 && windowWidth.value >= 600) {
-      value = 100 + cageAdd;
-    } else {
-      value = 80 + cageAdd;
-    }
-    return value;
+    const gaps = baseStore.spaceBetween * (baseStore.numLines + 1);
+    return (boardWidth(windowWidth.value, room.value) - gaps) / baseStore.numLines;
   });
 
   return { squareSize };
 };
+
+function boardWidth(windowWidth: number, room: number): number {
+  if (windowWidth <= 480) {
+    return Math.max(MIN_PHONE_BOARD, Math.min(phoneBoardWidth(windowWidth), room));
+  }
+  if (windowWidth >= 600 && windowWidth <= 820) {
+    return 488;
+  }
+  return 408;
+}
+
+// Phones fit the board to the screen's width, and to the height the rest of the page leaves.
+function phoneBoardWidth(windowWidth: number): number {
+  return windowWidth <= 370 ? windowWidth - 40 : windowWidth - 50;
+}

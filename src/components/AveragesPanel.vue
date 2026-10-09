@@ -3,12 +3,11 @@ import { ref, computed } from 'vue';
 import { useBaseStore } from '../stores/base';
 import { useLazyComponent } from '../composables/useLazyComponent';
 import { useModalPause } from '../composables/useModalPause';
-import { useWindowWidth } from '../composables/useWindowWidth';
+import { toggleSetting } from '../stores/persistedSettings';
 const LeaderBoard = useLazyComponent(() => import('./LeaderBoard.vue'));
 
 const baseStore = useBaseStore();
 
-const windowWidth = useWindowWidth();
 const positionTop = computed(() => {
   return `${baseStore.boardPos.top + 100}px`;
 });
@@ -81,53 +80,84 @@ const closeLeaderBoard = (): void => {
   baseStore.showLeaderBoard = false;
   leaderBoardPause.close();
 };
+
+const isAvailable = computed(() => {
+  return !baseStore.replayMode && !baseStore.playgroundMode && !baseStore.isNetworkError &&
+    baseStore.currentAverages.length > 0 && baseStore.proMode;
+});
+// Showing or hiding the panel moves the board, so not in the middle of a solve.
+const canToggle = computed(() => {
+  return !baseStore.cannotClick && !(baseStore.doneFirstMove && !baseStore.isDone);
+});
+const toggleAverages = (): void => {
+  toggleSetting('hideCurrentAverages');
+};
 </script>
 
 <template>
-  <div
-    v-if="!baseStore.replayMode && !baseStore.playgroundMode && !baseStore.isNetworkError &&
-      baseStore.currentAverages.length > 0 && !baseStore.hideCurrentAverages && baseStore.proMode"
-    class="avg-wrapper"
-  >
-    <div class="avg-row top-row">
-      <span>
-        <span
-          v-show="!baseStore.clearDisplay"
-          class="best-averages-mobile link-item"
-          :class="{ paused: baseStore.cannotClick }"
-          @click="doShowLeaderBoard"
-        >
-          Best
-        </span>
-      </span>
-      <span>Time</span>
-      <span>Moves</span>
-      <span>TPS</span>
-    </div>
-    <div v-show="windowWidth >= 1050 || (baseStore.isDone || baseStore.time === 0)" class="avg-rows">
-      <div v-for="row in visibleAverageRows" :key="row.type" class="avg-row">
-        <span class="avg-type">{{ row.type }}</span>
-        <span v-for="column in averageColumns" :key="column.field">
-          <span :class="{ 'purple': row.hasRecordCheck && checkIfWasRecord(row.type, column.field) }">
-            {{ baseStore.currentAverages[row.id][column.field] || 'tbd' }}
+  <template v-if="isAvailable">
+    <div
+      v-if="!baseStore.hideCurrentAverages"
+      class="avg-wrapper"
+      :class="{ g1000: baseStore.g1000Mode }"
+    >
+      <button
+        type="button"
+        class="avg-hide"
+        aria-label="Hide averages"
+        :disabled="!canToggle"
+        @click="toggleAverages"
+      >
+        &#9652;
+      </button>
+      <div class="avg-row top-row">
+        <span>
+          <span
+            class="best-averages-mobile link-item"
+            :class="{ paused: baseStore.cannotClick }"
+            @click="doShowLeaderBoard"
+          >
+            Best
           </span>
-          <span v-if="checkDirection(row.id, column.field, 'up')" :class="column.upClass">↑</span>
-          <span v-if="checkDirection(row.id, column.field, 'down')" :class="column.downClass">↓</span>
         </span>
+        <span>Time</span>
+        <span>Moves</span>
+        <span>TPS</span>
       </div>
+      <div class="avg-rows">
+        <div v-for="row in visibleAverageRows" :key="row.type" class="avg-row">
+          <span class="avg-type">{{ row.type }}</span>
+          <span v-for="column in averageColumns" :key="column.field">
+            <span :class="{ 'purple': row.hasRecordCheck && checkIfWasRecord(row.type, column.field) }">
+              {{ baseStore.currentAverages[row.id][column.field] || 'tbd' }}
+            </span>
+            <span v-if="checkDirection(row.id, column.field, 'up')" :class="column.upClass">↑</span>
+            <span v-if="checkDirection(row.id, column.field, 'down')" :class="column.downClass">↓</span>
+          </span>
+        </div>
+      </div>
+      <p class="consecutive-solves">
+        Consecutive solves: {{ baseStore.consecutiveSolves }}
+      </p>
+      <p class="best-averages">
+        <span class="link-item" :class="{ paused: baseStore.cannotClick }" @click="doShowLeaderBoard">Best Averages</span>
+      </p>
+      <LeaderBoard
+        v-if="baseStore.showLeaderBoard && showAveragesLeaderBoard"
+        form-type="averages"
+        @close="closeLeaderBoard"
+      />
     </div>
-    <p class="consecutive-solves">
-      Consecutive solves: {{ baseStore.consecutiveSolves }}
-    </p>
-    <p class="best-averages">
-      <span class="link-item" :class="{ paused: baseStore.cannotClick }" @click="doShowLeaderBoard">Best Averages</span>
-    </p>
-    <LeaderBoard
-      v-if="baseStore.showLeaderBoard && showAveragesLeaderBoard"
-      form-type="averages"
-      @close="closeLeaderBoard"
-    />
-  </div>
+    <button
+      v-else
+      type="button"
+      class="avg-show"
+      :disabled="!canToggle"
+      @click="toggleAverages"
+    >
+      Averages &#9662;
+    </button>
+  </template>
 </template>
 
 <style scoped>
@@ -176,6 +206,36 @@ const closeLeaderBoard = (): void => {
 .consecutive-solves {
   text-align: center;
 }
+.avg-hide, .avg-show {
+  display: none;
+  font-family: var(--font-mono);
+  color: var(--link-color);
+  background: none;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.avg-hide {
+  position: absolute;
+  top: 0;
+  right: 2px;
+  padding: 2px 8px 6px;
+  border: none;
+  font-size: 22px;
+  line-height: 17px;
+}
+.avg-show {
+  width: 100%;
+  padding: 2px 0;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 17px;
+}
+.avg-hide:disabled, .avg-show:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
 @media screen and (max-width: 1050px) {
   .avg-wrapper {
     width: 100%;
@@ -183,19 +243,18 @@ const closeLeaderBoard = (): void => {
     position: relative !important;
     top: auto !important;
     left: auto !important;
-    padding: 5px 0;
-    font-size: 15px;
-    line-height: 1.5;
+    padding: 4px 0;
+    font-size: 13px;
+    line-height: 17px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    height: 100px;
+    height: 129px;
   }
-  .avg-rows {
-    max-height: 44px;
-    overflow-y: auto;
+  .avg-wrapper.g1000 {
+    height: 146px;
   }
   .avg-row span {
-    width: 70px;
+    width: 66px;
   }
   .best-averages {
     display: none;
@@ -204,16 +263,25 @@ const closeLeaderBoard = (): void => {
     display: block;
     text-align: center;
   }
+  .avg-hide, .avg-show {
+    display: block;
+  }
 }
 @media screen and (max-height: 650px) and (max-width: 1050px) {
   .avg-wrapper {
-    font-size: 14px;
-    line-height: 1.3;
+    padding: 3px 0;
+    font-size: 12px;
+    line-height: 15px;
     margin-top: -5px;
-    height: 69px;
+    height: 113px;
   }
-  .avg-rows {
-    max-height: 35px;
+  .avg-wrapper.g1000 {
+    height: 128px;
+  }
+  .avg-show {
+    margin-top: -5px;
+    font-size: 12px;
+    line-height: 15px;
   }
 }
 </style>

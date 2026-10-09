@@ -135,7 +135,7 @@ export function usePuzzleState(
   }
 
   function boardSize(squareSize: number): string {
-    return `${numLines.value * squareSize + spaceBetween.value * (numLines.value + 1)}px`;
+    return `${Math.round(numLines.value * squareSize + spaceBetween.value * (numLines.value + 1))}px`;
   }
 
   const freeElementIndex = computed((): number => {
@@ -189,6 +189,9 @@ export function usePuzzleState(
         break;
       case ControlType.Keyboard:
         controlType = 'keyboard';
+        break;
+      case ControlType.Click:
+        controlType = 'click';
         break;
       default:
         controlType = 'mouse';

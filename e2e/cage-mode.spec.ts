@@ -2,17 +2,20 @@ import { expect, test } from '@playwright/test';
 import { mockApi } from './fixtures/api';
 
 test.describe('cage mode', () => {
-  test('?cage forces the 4x4 core size, persists enableCageMode, and opens the real image gallery', async ({ page }) => {
+  test('a saved cage mode opens at the 4x4 core size and opens the real image gallery', async ({ page }) => {
     await mockApi(page);
+    await page.addInitScript(() => {
+      localStorage.setItem('enableCageMode', 'true');
+      localStorage.setItem('proMode', 'false');
+      localStorage.setItem('numLines', '6');
+    });
 
-    await page.goto('/?cage');
+    await page.goto('/');
     // Cage mode loads real themed tile images before the loading veil clears.
     await expect(page.locator('.loading-veil')).toHaveCount(0, { timeout: 15000 });
 
     const numLines = await page.evaluate(() => window.__cage15Test__!.getNumLines());
     expect(numLines).toBe(4);
-    const enableCageMode = await page.evaluate(() => localStorage.getItem('enableCageMode'));
-    expect(enableCageMode).toBe('true');
 
     await page.getByText('Completed').click();
     await expect(page.locator('.image-gallery')).toBeVisible();
@@ -25,9 +28,11 @@ test.describe('cage mode', () => {
     await mockApi(page);
     await page.addInitScript(() => {
       localStorage.setItem('_xcu', btoa(Array.from({ length: 24 }, (_, i) => i).join(',')));
+      localStorage.setItem('enableCageMode', 'true');
+      localStorage.setItem('proMode', 'false');
     });
 
-    await page.goto('/?cage');
+    await page.goto('/');
     await expect(page.getByText('Please wait a moment')).toBeHidden({ timeout: 15000 });
 
     for (let reset = 1; reset <= 12; reset += 1) {

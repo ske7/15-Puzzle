@@ -38,7 +38,7 @@ const cases: StartCase[] = [
   { name: 'fmc-blitz-logged-in-size-6', url: '/', loggedIn: true, storage: { proMode: 'true', fmcBlitz: 'true', numLines: '6' } },
   { name: 'retired-pro-link-over-stored-cage', url: '/?pro', storage: { proMode: 'false', enableCageMode: 'true' } },
   { name: 'retired-dark-link', url: '/?dark' },
-  { name: 'cage-link', url: '/?cage' },
+  { name: 'retired-cage-link', url: '/?cage' },
   { name: 'cage-stored-size-6', url: '/', storage: { proMode: 'false', enableCageMode: 'true', numLines: '6' } },
   { name: 'playground-logged-out', url: '/?playground' },
   {
